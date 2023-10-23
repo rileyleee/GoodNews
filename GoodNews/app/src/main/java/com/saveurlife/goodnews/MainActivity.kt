@@ -5,19 +5,18 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.TextView
+import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var startButton: TextView
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        //버튼 찾기
-        startButton = findViewById(R.id.start)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         //클릭 시 페이지 이동
-        startButton.setOnClickListener {
+        binding.start.setOnClickListener {
             val intent = Intent(this, TutorialActivity::class.java)
             startActivity(intent)
         }

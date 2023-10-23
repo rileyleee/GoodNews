@@ -9,24 +9,19 @@ import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.databinding.ActivityMainBinding
+import com.saveurlife.goodnews.databinding.ActivityTutorialBinding
 import com.saveurlife.goodnews.enterinfo.EnterInfoActivity
 
 class TutorialActivity : AppCompatActivity() {
-    private lateinit var viewPager: ViewPager2
+    private lateinit var binding: ActivityTutorialBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tutorial)
-
-        viewPager = findViewById(R.id.tutorial_view_pager)
+        binding = ActivityTutorialBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         initViews()
-    }
-
-    //추가 정보 입력 페이지로 이동
-    fun navigateToOtherActivity() {
-        val intent = Intent(this, EnterInfoActivity::class.java)
-        startActivity(intent)
     }
 
     private fun initViews() {
@@ -59,14 +54,20 @@ class TutorialActivity : AppCompatActivity() {
         val isLastPage = true
         val adapter = TutorialPageAdapter(tutorialDataList, isLastPage)
         //viewPager의 어뎁터를 adapter로 설정
-        viewPager.adapter = adapter
+        binding.tutorialViewPager.adapter = adapter
 
         val compositePageTransformer = CompositePageTransformer()
 //        compositePageTransformer.addTransformer(ScaleInTransformer())
 //        compositePageTransformer.addTransformer(MarginPageTransformer(40))
 
         //viewPager의 방향 수평으로 설정
-        viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
-        viewPager.setPageTransformer(compositePageTransformer)
+        binding.tutorialViewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        binding.tutorialViewPager.setPageTransformer(compositePageTransformer)
+    }
+
+    //추가 정보 입력 페이지로 이동
+    fun navigateToOtherActivity() {
+        val intent = Intent(this, EnterInfoActivity::class.java)
+        startActivity(intent)
     }
 }
