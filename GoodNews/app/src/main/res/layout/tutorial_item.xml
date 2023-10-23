@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tutorial_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="제목"
+        android:textSize="27sp"
+        android:textStyle="bold"
+        android:layout_marginTop="100dp"/>
+
+    <TextView
+        android:id="@+id/tutorial_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="세부내용"
+        android:textSize="16sp"
+        android:layout_marginTop="150dp"/>
+
+    <ImageView
+        android:id="@+id/tutorial_img"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/tutorial_1"
+        android:layout_gravity="center"
+        android:layout_marginTop="90dp"
+        android:contentDescription="@string/tutorial_description" />
+
+    <TextView
+        android:id="@+id/tutorial_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tutorial_skip"
+        android:textSize="16sp"
+        android:textColor="@color/gray"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/tutorial_end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_match_parent"
+        android:text="@string/start"
+        android:textColor="@color/white"
+        android:textSize="21sp"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="10dp"
+        android:visibility="invisible"/>
+
+
+
+</FrameLayout>

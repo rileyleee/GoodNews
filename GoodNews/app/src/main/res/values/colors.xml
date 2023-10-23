@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!--  배경색  -->
+    <color name="background">#E7ECEF</color>
+    <!--  메인색  -->
+    <color name="main">#274C77</color>
+
+    <color name="gray">#B5B5B5</color>
 </resources>

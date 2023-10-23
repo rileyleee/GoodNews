@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">GoodNews</string>
+
+    <!--  TutorialActivity  -->
+    <string name="tutorial_skip"><u>건너뛰기</u></string>
+    <string name="tutorial_description">튜토리얼이미지</string>
+
+    <!--  tutorial_item  -->
+    <string name="start">시작하기</string>
 </resources>
