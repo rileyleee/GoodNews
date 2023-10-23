@@ -4,11 +4,121 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".enterinfo.EnterInfoActivity">
+    tools:context=".enterinfo.EnterInfoActivity"
+    android:background="@color/background">
 
     <TextView
+        android:id="@+id/enterInfoTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="추가 정보 입력 페이지"/>
+        android:text="@string/enter_info"
+        android:textSize="32sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--  이름, input박스  -->
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enterInfoTitle"
+        android:text="이름"
+        style="@style/EnterInfoLabel"
+        />
+    <EditText
+        android:id="@+id/nameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/input_stroke"
+        android:hint="이름을 입력해 주세요."
+        app:layout_constraintTop_toBottomOf="@id/nameTextView"
+        />
+
+    <!--  휴대폰 번호, input박스  -->
+    <TextView
+        android:id="@+id/phoneTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameEditText"
+        android:text="휴대폰 번호"
+        style="@style/EnterInfoLabel"
+        />
+    <EditText
+        android:id="@+id/phoneEditText"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:inputType="phone"
+        android:maxLength="11"
+        android:background="@drawable/input_stroke"
+        android:hint="01000000000"
+        app:layout_constraintTop_toBottomOf="@id/phoneTextView"
+        />
+
+    <!--  특이사항, input박스  -->
+    <TextView
+        android:id="@+id/warningTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phoneEditText"
+        android:text="특이사항 (지병)"
+        style="@style/EnterInfoLabel"
+        />
+    <TextView
+        android:id="@+id/warningAddText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="본인이 가지고 있는 질병을 입력해 주세요."
+        android:textSize="16sp"
+        android:textColor="@color/explain_gray"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/warningTextView"
+        />
+    <EditText
+        android:id="@+id/warningEditText"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:maxLength="50"
+        android:background="@drawable/input_stroke"
+        android:hint="50자 이내로 작성해 주세요."
+        app:layout_constraintTop_toBottomOf="@id/warningAddText"
+        />
+
+
+    <!--  정보 등록, 다음에 등록하기 버튼  -->
+    <TextView
+        android:id="@+id/submit_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/btn_match_parent"
+        android:gravity="center"
+        android:text="@string/submit"
+        android:textColor="@color/white"
+        android:textSize="21sp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/later_info"
+        />
+    <TextView
+        android:id="@+id/later_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/btn_white"
+        android:gravity="center"
+        android:text="@string/later"
+        android:textColor="@color/main"
+        android:textSize="21sp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

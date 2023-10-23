@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--  기본색  -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#B5B5B5</color>
+
     <!--  배경색  -->
     <color name="background">#E7ECEF</color>
-    <!--  메인색  -->
-    <color name="main">#274C77</color>
 
-    <color name="gray">#B5B5B5</color>
+    <!--  메인 / 서브 / 포인트  -->
+    <color name="main">#274C77</color>
+    <color name="sub">#C0D6DF</color>
+    <color name="point">#EB5E28</color>
+
+    <!--  회색 설정 (진한회색 / 연한회색 / 비활성화)  -->
+    <color name="explain_gray">#545454</color>
+    <color name="hint_gray">#999999</color>
+    <color name="inactive_gray">#C5C5C5</color>
+
+    <!--  상태 색상 (안전 / 주의 / 위험)  -->
+    <color name="safe">#34B476</color>
+    <color name="caution">#FFC961</color>
+    <color name="danger">#EF476F</color>
 </resources>

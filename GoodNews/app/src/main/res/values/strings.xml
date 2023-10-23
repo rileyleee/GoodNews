@@ -7,4 +7,10 @@
 
     <!--  tutorial_item  -->
     <string name="start">시작하기</string>
+
+    <!--  enter_item  -->
+    <string name="enter_info">추가 정보 입력</string>
+    <string name="submit">정보 등록</string>
+    <string name="later">다음에 등록하기</string>
+
 </resources>
