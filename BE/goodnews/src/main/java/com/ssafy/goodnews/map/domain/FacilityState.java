@@ -1,6 +1,6 @@
-package com.ssafy.goodnews.member.domain;
+package com.ssafy.goodnews.map.domain;
 
-import com.ssafy.goodnews.common.domain.BaseConnectEntity;
+import com.ssafy.goodnews.common.domain.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -14,18 +14,14 @@ import javax.persistence.Id;
 @Entity
 @NoArgsConstructor
 @ToString
-public class Member extends BaseConnectEntity {
+public class FacilityState extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
-    private String name;
-    private String birthDate;
-    private String gender;
-    private String bloodType;
-    private String addInfo;
-    private String state;
+    private int id;
+    private Boolean buttonType;
+    private String text;
+
     private Double lat;
     private Double lon;
-
-
 }
