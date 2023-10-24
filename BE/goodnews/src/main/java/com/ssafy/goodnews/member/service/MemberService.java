@@ -1,5 +1,6 @@
 package com.ssafy.goodnews.member.service;
 
+import com.ssafy.goodnews.common.domain.BaseEntity;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.FamilyValidator;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
@@ -13,6 +14,7 @@ import com.ssafy.goodnews.member.dto.request.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.dto.response.MemberFirstLoginResponseDto;
 import com.ssafy.goodnews.member.dto.response.MemberInfoResponseDto;
 import com.ssafy.goodnews.member.dto.response.MemberRegistFamilyResposneDto;
+import com.ssafy.goodnews.member.dto.response.MemberResponseDto;
 import com.ssafy.goodnews.member.repository.FamilyMemberRepository;
 import com.ssafy.goodnews.member.repository.FamilyPlaceRepository;
 import com.ssafy.goodnews.member.repository.FamilyRepository;
@@ -23,14 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
-
-
     private final MemberRepository memberRepository;
     private final FamilyValidator familyValidator;
     private final MemberValidator memberValidator;
@@ -120,8 +122,12 @@ public class MemberService {
 
         Optional<FamilyMember> findFamilyMember = familyMemberRepository.findByMemberIdAndFamilyFamilyId(memberRegistFamilyRequestDto.getFamilyId(), memberRegistFamilyRequestDto.getMemberId());
         familyValidator.checkRegistFamily(findFamilyMember, memberRegistFamilyRequestDto.getFamilyId());
+
+        Optional<Family> findFamilyInfo = familyRepository.findById(memberRegistFamilyRequestDto.getMemberId());
+
         Optional<FamilyMember> findFamilyOther = familyMemberRepository.findByMemberId(memberRegistFamilyRequestDto.getMemberId());
-        familyValidator.checkRegistOtherFamily(findFamilyOther, memberRegistFamilyRequestDto.getMemberId());
+        familyValidator.checkRegistOtherFamily(findFamilyInfo,findFamilyOther, memberRegistFamilyRequestDto.getMemberId());
+
         Optional<Member> findMember = memberRepository.findById(memberRegistFamilyRequestDto.getMemberId());
         memberValidator.checkMember(findMember, memberRegistFamilyRequestDto.getMemberId());
 
@@ -133,10 +139,14 @@ public class MemberService {
             Family saveFamily = familyRepository.save(Family.builder()
                     .member(findMember.get())
                     .build());
-            System.out.println("saveFamily = " + saveFamily.getFamilyId());
             FamilyMember saveFamilyMember = familyMemberRepository.save(FamilyMember.builder()
                     .family(saveFamily)
                     .member(findOther.get())
+                    .build());
+            saveFamilyMember.updateApprove(true);
+            familyMemberRepository.save(FamilyMember.builder()
+                    .family(saveFamily)
+                    .member(findMember.get())
                     .build());
             return BaseResponseDto
                     .builder().success(true)
@@ -157,22 +167,38 @@ public class MemberService {
                             .familyId(saveFamilyMember.getFamily().getFamilyId()).build())
                     .build();
         }
-
     }
 
     @Transactional
     public BaseResponseDto updateFamilyMember(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
-
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberFirstLoginRequestDto.getMemberId());
-
         familyValidator.checkFamilyMember(familyMember, memberFirstLoginRequestDto.getMemberId());
-
         familyMember.get().updateApprove(true);
-
         return BaseResponseDto.builder()
                 .success(true)
                 .message("가족 신청을 수락하셨습니다")
                 .build();
+    }
 
+    @Transactional(readOnly = true)
+    public BaseResponseDto getFamilyMemberInfo(String memberId) {
+
+        Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberId);
+        familyValidator.checkFamilyMember(familyMember, memberId);
+        List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
+
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 구성원 정보를 조회 성공하셨습니다")
+                .data(familyMemberList.stream()
+                        .map(member ->
+                                MemberResponseDto.builder()
+                                        .memberId(member.getId())
+                                        .name(member.getName())
+                                        .lastConnection(member.getLastConnection().toString())
+                                        .build())
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

@@ -18,13 +18,6 @@ public class BaseConnectEntity {
     @LastModifiedDate
     private LocalDateTime lastUpdate;
 
-    private LocalDateTime lastConnection;
 
-    public LocalDateTime getLastConnection() {
-        return lastConnection;
-    }
 
-    public void setLastConnection(LocalDateTime lastConnection) {
-        this.lastConnection = lastConnection;
-    }
 }

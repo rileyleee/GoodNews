@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -28,15 +29,25 @@ public class Member extends BaseConnectEntity {
     private Double lat;
     private Double lon;
 
+    private LocalDateTime lastConnection;
+
+    public LocalDateTime getLastConnection() {
+        return lastConnection;
+    }
+
+    public void setLastConnection(LocalDateTime lastConnection) {
+        this.lastConnection = lastConnection;
+    }
 
     @Builder
-    public Member(String id, String name, String birthDate, String gender, String bloodType, String addInfo) {
+    public Member(String id, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection) {
         this.id = id;
         this.name = name;
         this.birthdate = birthDate;
         this.gender = gender;
         this.bloodtype = bloodType;
         this.addinfo = addInfo;
+        this.lastConnection = LocalDateTime.now();
     }
 
     public void updateMemberInfo(MemberInfoUpdateRequestDto memberInfoUpdateRequestDto) {

@@ -2,14 +2,14 @@ package com.ssafy.goodnews.member.repository.querydsl;
 
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.goodnews.member.domain.FamilyMember;
-import com.ssafy.goodnews.member.domain.QFamilyMember;
-import com.ssafy.goodnews.member.domain.QMember;
+import com.ssafy.goodnews.member.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
+import static com.ssafy.goodnews.member.domain.QFamily.*;
 import static com.ssafy.goodnews.member.domain.QFamilyMember.*;
 import static com.ssafy.goodnews.member.domain.QMember.*;
 
@@ -25,6 +25,19 @@ public class MemberQueryDslRepository {
                 .innerJoin(familyMember.member, member)
                 .where(member.id.eq(memberId))
                 .fetchOne());
+
+    }
+
+    public List<Member> findFamilyMemberList(String familyId, String memberId) {
+
+        return  queryFactory
+                .select(member)
+                .from(familyMember)
+                .innerJoin(familyMember.member, member)
+                .innerJoin(familyMember.family, family)
+                .where(family.familyId.eq(familyId).and(familyMember.approve.eq(true))
+                        .and(member.id.ne(memberId)))
+                .fetch();
 
     }
 
