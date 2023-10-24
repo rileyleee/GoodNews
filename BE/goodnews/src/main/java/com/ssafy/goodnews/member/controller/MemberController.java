@@ -42,5 +42,12 @@ public class MemberController {
         return memberService.updateMemberInfo(memberId,memberInfoUpdateRequestDto);
     }
 
+    @Operation(summary = "멤버 정보 조회", description = "멤버 정보(전화번호,이름,생년월일,성별,혈액형,특이사항) 조회")
+    @PostMapping("/search")
+    private BaseResponseDto findMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+
+        return memberService.getMemberInfo(memberFirstLoginRequestDto.getMemberId());
+    }
+
 
 }

@@ -7,6 +7,7 @@ import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberInfoUpdateRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.dto.response.MemberFirstLoginResponseDto;
+import com.ssafy.goodnews.member.dto.response.MemberInfoResponseDto;
 import com.ssafy.goodnews.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,4 +85,20 @@ public class MemberService {
                 .message("회원 정보 수정 성공했습니다")
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto getMemberInfo(String memberId) {
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        memberValidator.checkMember(findMember, memberId);
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("회원 정보 조회를 성공했습니다")
+                .data(MemberInfoResponseDto.builder()
+                        .member(findMember.get())
+                        .build()
+                ).build();
+    }
+
 }
