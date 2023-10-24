@@ -22,4 +22,10 @@
     <color name="safe">#34B476</color>
     <color name="caution">#FFC961</color>
     <color name="danger">#EF476F</color>
+
+    <!--  글자색  -->
+    <color name="font_color">#FF000000</color>
+
+    <!--  하단바  -->
+    <color name="navi_bar">#FFFFFFFF</color>
 </resources>

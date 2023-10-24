@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:title="홈"
+        android:icon="@drawable/baseline_home_24"/>
+
+    <item
+        android:id="@+id/mapFragment"
+        android:title="지도"
+        android:icon="@drawable/baseline_pin_drop_24"/>
+
+    <item
+        android:id="@+id/familyFragment"
+        android:title="가족"
+        android:icon="@drawable/baseline_family_restroom_24"/>
+
+    <item
+        android:id="@+id/myPageFragment"
+        android:title="내정보"
+        android:icon="@drawable/baseline_person_24"/>
+</menu>

@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="@string/enter_info"
-        android:textColor="@color/black"
+        android:textColor="@color/font_color"
         android:textSize="32sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,6 +27,7 @@
         android:id="@+id/nameTextView"
         style="@style/EnterInfoLabel"
         android:text="이름"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/enterInfoTitle" />
 
@@ -42,6 +43,7 @@
         android:id="@+id/phoneTextView"
         style="@style/EnterInfoLabel"
         android:text="휴대폰 번호"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/nameEditText" />
 
@@ -108,6 +110,7 @@
         android:id="@+id/birthTextView"
         style="@style/EnterInfoLabel"
         android:text="생년월일"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/phoneGroup" />
 
@@ -155,6 +158,7 @@
         android:id="@+id/genderTextView"
         style="@style/EnterInfoLabel"
         android:text="성별"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/birthGroup" />
 
@@ -194,6 +198,7 @@
         android:id="@+id/bloodTextView"
         style="@style/EnterInfoLabel"
         android:text="혈액형"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/genderGroup" />
 
@@ -239,6 +244,7 @@
         android:id="@+id/warningTextView"
         style="@style/EnterInfoLabel"
         android:text="특이사항 (지병)"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bloodGroup" />
 
