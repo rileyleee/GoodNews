@@ -3,6 +3,7 @@ package com.ssafy.goodnews.member.controller;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberInfoUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +48,13 @@ public class MemberController {
     private BaseResponseDto findMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
 
         return memberService.getMemberInfo(memberFirstLoginRequestDto.getMemberId());
+    }
+
+    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 전화번호")
+    @PostMapping("/registfamily")
+    private BaseResponseDto registFamily(@RequestBody MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
+
+        return memberService.registFamily(memberRegistFamilyRequestDto);
     }
 
 

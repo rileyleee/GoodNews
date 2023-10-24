@@ -1,5 +1,6 @@
 package com.ssafy.goodnews.member.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -14,12 +15,18 @@ import java.util.List;
 public class Family {
 
     @Id
-    private String family_id;
+    private String familyId;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "family_id") // 외래 키로 family_id를 사용
     private Member member;
 
     @OneToMany(mappedBy = "family", cascade = CascadeType.ALL)
     private List<FamilyPlace> familyPlaces;
+
+
+    @Builder
+    public Family(Member member) {
+        this.familyId = member.getId();
+    }
 }

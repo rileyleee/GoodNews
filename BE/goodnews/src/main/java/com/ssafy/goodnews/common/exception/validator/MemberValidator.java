@@ -2,6 +2,7 @@ package com.ssafy.goodnews.common.exception.validator;
 
 import com.ssafy.goodnews.common.exception.CustomException;
 import com.ssafy.goodnews.common.exception.message.MemberErrorEnum;
+import com.ssafy.goodnews.member.domain.FamilyMember;
 import com.ssafy.goodnews.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -23,5 +24,7 @@ public class MemberValidator {
                     .build();
         }
     }
+
+
 
 }
