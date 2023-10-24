@@ -14,7 +14,6 @@ import java.util.List;
 public class Family {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String family_id;
 
     @OneToOne

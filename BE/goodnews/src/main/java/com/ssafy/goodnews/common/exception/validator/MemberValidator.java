@@ -14,7 +14,7 @@ import java.util.Optional;
 @Component
 public class MemberValidator {
 
-    public void checkMember(Optional<Member> member, int memberId) {
+    public void checkMember(Optional<Member> member, String memberId) {
         if (member.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)

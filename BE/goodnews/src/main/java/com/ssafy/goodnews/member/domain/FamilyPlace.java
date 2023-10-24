@@ -20,7 +20,7 @@ public class FamilyPlace extends BaseEntity {
     private String name;
     private double lat;
     private double lon;
-    private boolean canUse;
+    private boolean canuse;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
