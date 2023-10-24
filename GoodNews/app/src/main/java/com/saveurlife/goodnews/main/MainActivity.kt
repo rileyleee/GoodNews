@@ -1,10 +1,9 @@
-package com.saveurlife.goodnews
+package com.saveurlife.goodnews.main
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.TextView
+import android.view.View
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 
@@ -15,10 +14,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //클릭 시 페이지 이동
-        binding.start.setOnClickListener {
-            val intent = Intent(this, TutorialActivity::class.java)
-            startActivity(intent)
-        }
+        val dialog = FamilyAlarmFragment()
+        dialog.show(supportFragmentManager, "FamilyAlarmFragment")
     }
 }

@@ -1,9 +1,11 @@
 package com.saveurlife.goodnews.enterinfo
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.R
 
 class EnterInfoActivity : AppCompatActivity() {
@@ -21,7 +23,11 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // 다음에 등록하기 버튼 눌렀을 때, 이벤트
         laterButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+
             Toast.makeText(this, "다음에 등록하기 버튼 클릭", Toast.LENGTH_SHORT).show()
+
         }
     }
 }
