@@ -17,7 +17,7 @@ import java.util.Optional;
 public class FamilyValidator {
 
     public void checkRegistFamily(Optional<FamilyMember> findMember, String familyId) {
-        if (findMember.isEmpty()) {
+        if (findMember.isPresent()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY.getCode())
@@ -36,7 +36,16 @@ public class FamilyValidator {
         }
 
     }
+    public void checkFamilyMember(Optional<FamilyMember> findMember, String familyId) {
+        if (findMember.isEmpty()) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .build();
+        }
 
+    }
 
 
 }

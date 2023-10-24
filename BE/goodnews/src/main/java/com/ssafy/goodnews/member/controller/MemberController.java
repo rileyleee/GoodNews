@@ -58,4 +58,12 @@ public class MemberController {
     }
 
 
+    @Operation(summary = "가족 신청 수락", description = "각족 신청 수락 approve 수정")
+    @PutMapping("/acceptfamily")
+    private BaseResponseDto updateRegistFamily(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+
+
+        return memberService.updateFamilyMember(memberFirstLoginRequestDto);
+    }
+
 }

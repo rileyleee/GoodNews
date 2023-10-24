@@ -30,4 +30,8 @@ public class FamilyMember {
         this.member = member;
         this.family = family;
     }
+
+    public void updateApprove(boolean approve) {
+        this.approve = true;
+    }
 }
