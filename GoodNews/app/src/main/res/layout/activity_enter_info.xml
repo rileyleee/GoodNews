@@ -97,12 +97,12 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_weight="1"
+            android:autofillHints=""
             android:background="@drawable/input_stroke"
             android:gravity="center"
             android:hint="XXXX"
             android:inputType="phone"
-            android:maxLength="4"
-            android:autofillHints="" />
+            android:maxLength="4" />
     </LinearLayout>
 
     <!--  생년월일  -->
@@ -129,7 +129,16 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/input_stroke"
-            android:gravity="center"/>
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/yearSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="년"
+            android:textColor="@color/black" />
 
         <!-- 월 Spinner -->
         <Spinner
@@ -140,7 +149,16 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/input_stroke"
-            android:gravity="center"/>
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/monthSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="월"
+            android:textColor="@color/black" />
 
         <!-- 일 Spinner -->
         <Spinner
@@ -150,7 +168,15 @@
             android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/input_stroke"
-            android:gravity="center"/>
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/daySpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="일"
+            android:textColor="@color/black" />
     </LinearLayout>
 
     <!--  성별, 버튼  -->
@@ -192,7 +218,6 @@
     </LinearLayout>
 
 
-
     <!--  혈액형, select박스  -->
     <TextView
         android:id="@+id/bloodTextView"
@@ -211,12 +236,22 @@
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bloodTextView" />
+
     <LinearLayout
         android:id="@+id/bloodGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/bloodAddText">
+
+        <TextView
+            android:id="@+id/rhSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="RH 인자"
+            android:textColor="@color/black" />
 
         <Spinner
             android:id="@+id/rhSpinner"
@@ -225,7 +260,17 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/input_stroke"
-            android:gravity="center"/>
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/bloodSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="혈액형"
+            android:textColor="@color/black" />
 
         <Spinner
             android:id="@+id/bloodSpinner"
@@ -235,7 +280,7 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/input_stroke"
-            android:gravity="center"/>
+            android:gravity="center" />
 
     </LinearLayout>
 

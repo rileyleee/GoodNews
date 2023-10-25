@@ -18,6 +18,7 @@ class EnterInfoActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initDateSpinners() // Spinner 데이터 설정 함수 호출
+        initBloodSpinners()
 
         // 정보 등록 버튼 눌렀을 때, 이벤트
         binding.submitInfo.setOnClickListener {
@@ -40,23 +41,50 @@ class EnterInfoActivity : AppCompatActivity() {
             .get(Calendar.YEAR)) {
             years.add(i.toString())
         }
-        val yearAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, years)
+        val yearAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, years).also {
+            it.insert("선택", 0)
+        }
         binding.yearSpinner.adapter = yearAdapter
+        binding.yearSpinner.setSelection(0)
 
         // 월 데이터 설정
         val months = ArrayList<String>()
         for (i in 1..12) {
             months.add(i.toString())
         }
-        val monthAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months)
+        val monthAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months).also {
+            it.insert("선택", 0)
+        }
         binding.monthSpinner.adapter = monthAdapter
+        binding.monthSpinner.setSelection(0)
 
         // 일 데이터 설정 (일단 1~31로 설정)
         val days = ArrayList<String>()
         for (i in 1..31) {
             days.add(i.toString())
         }
-        val dayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, days)
+        val dayAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, days).also {
+            it.insert("선택", 0)
+        }
         binding.daySpinner.adapter = dayAdapter
+        binding.daySpinner.setSelection(0)
+    }
+
+    private fun initBloodSpinners() {
+        // rh인자
+        val rhTypes = listOf("선택", "RH+", "RH-", "모름")
+        val rhAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, rhTypes).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        binding.rhSpinner.adapter = rhAdapter
+        binding.rhSpinner.setSelection(0)
+
+        // 혈액형
+        val bloodTypes = listOf("선택", "A", "B", "AB", "O")
+        val bloodAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, bloodTypes).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        binding.bloodSpinner.adapter = bloodAdapter
+        binding.bloodSpinner.setSelection(0)
     }
 }
