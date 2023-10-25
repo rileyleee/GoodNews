@@ -50,25 +50,6 @@ public class MemberController {
         return memberService.getMemberInfo(memberFirstLoginRequestDto.getMemberId());
     }
 
-    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 전화번호")
-    @PostMapping("/registfamily")
-    private BaseResponseDto registFamily(@RequestBody MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
 
-        return memberService.registFamily(memberRegistFamilyRequestDto);
-    }
-
-
-    @Operation(summary = "가족 신청 수락", description = "가족 신청 수락 approve 수정")
-    @PutMapping("/acceptfamily")
-    private BaseResponseDto updateRegistFamily(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
-
-        return memberService.updateFamilyMember(memberFirstLoginRequestDto);
-    }
-
-    @Operation(summary = "가족 구성원 조회", description = "=가족 구성원 정보(전화번호,가족id,수락상태) 조회")
-    @PostMapping("/familyinfo")
-    private BaseResponseDto getFamilyMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
-        return memberService.getFamilyMemberInfo(memberFirstLoginRequestDto.getMemberId());
-    }
 
 }
