@@ -32,6 +32,11 @@ class MainActivity : AppCompatActivity() {
 
         //상단바 모달창
         setSupportActionBar(binding.toolbar)
+
+        //상태 변경
+        binding.myStatusUpdateButtom.setOnClickListener{
+
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
