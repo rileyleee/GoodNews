@@ -25,6 +25,7 @@ public class FamilyValidator {
         }
 
     }
+
     public void checkRegistOtherFamily(Optional<Family> findFamily, Optional<FamilyMember> findMember, String familyId) {
 
         if (findMember.isPresent()&&findFamily.isEmpty()) {
@@ -45,6 +46,16 @@ public class FamilyValidator {
                     .build();
         }
 
+    }
+
+    public void checkFamilyPlace(Optional<Family> findMember, String familyId) {
+        if (findMember.isEmpty()) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .build();
+        }
     }
 
 

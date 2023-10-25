@@ -1,6 +1,7 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
 import com.ssafy.goodnews.member.service.FamilyService;
@@ -32,9 +33,15 @@ public class FamilyController {
         return familyService.updateFamilyMember(memberFirstLoginRequestDto);
     }
 
-    @Operation(summary = "가족 구성원 조회", description = "=가족 구성원 정보(전화번호,가족id,수락상태) 조회")
+    @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태) 조회")
     @PostMapping("/familyinfo")
     private BaseResponseDto getFamilyMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         return familyService.getFamilyMemberInfo(memberFirstLoginRequestDto.getMemberId());
+    }
+
+    @Operation(summary = "가족 모임 장소 등록", description = "=가족 모임 장소(장소명,경도,위도) 등록")
+    @PostMapping("/registplace")
+    private BaseResponseDto registFamilyPlace(@RequestBody FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
+        return familyService.registFamilyPlace(familyRegistPlaceRequestDto);
     }
 }

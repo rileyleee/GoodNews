@@ -1,13 +1,17 @@
 package com.ssafy.goodnews.member.service;
 
+import com.ssafy.goodnews.common.domain.BaseEntity;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.FamilyValidator;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
 import com.ssafy.goodnews.member.domain.Family;
 import com.ssafy.goodnews.member.domain.FamilyMember;
+import com.ssafy.goodnews.member.domain.FamilyPlace;
 import com.ssafy.goodnews.member.domain.Member;
+import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.dto.response.FamilyRegistPlaceResponseDto;
 import com.ssafy.goodnews.member.dto.response.MemberRegistFamilyResposneDto;
 import com.ssafy.goodnews.member.dto.response.MemberResponseDto;
 import com.ssafy.goodnews.member.repository.FamilyMemberRepository;
@@ -106,7 +110,6 @@ public class FamilyService {
         familyValidator.checkFamilyMember(familyMember, memberId);
         List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
 
-
         return BaseResponseDto.builder()
                 .success(true)
                 .message("가족 구성원 정보를 조회 성공하셨습니다")
@@ -118,6 +121,28 @@ public class FamilyService {
                                         .lastConnection(member.getLastConnection().toString())
                                         .build())
                         .collect(Collectors.toList()))
+                .build();
+    }
+    @Transactional
+    public BaseResponseDto registFamilyPlace(FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
+
+        Optional<Family> familyId = memberQueryDslRepository.findFamilyId(familyRegistPlaceRequestDto.getMemberId());
+        familyValidator.checkFamilyPlace(familyId,familyRegistPlaceRequestDto.getMemberId());
+        FamilyPlace newFamilyPlace = familyPlaceRepository.save(FamilyPlace.builder()
+                .name(familyRegistPlaceRequestDto.getName())
+                .lat(familyRegistPlaceRequestDto.getLat())
+                .lon(familyRegistPlaceRequestDto.getLon())
+                .canuse(true)
+                .family(familyId.get())
+                .build());
+
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 모임 장소 동록했습니다")
+                .data(FamilyRegistPlaceResponseDto.builder()
+                        .familyPlace(newFamilyPlace)
+                        .build())
                 .build();
     }
 }
