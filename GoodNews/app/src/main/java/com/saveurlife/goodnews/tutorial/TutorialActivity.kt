@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayoutMediator
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.databinding.ActivityTutorialBinding
@@ -22,6 +23,14 @@ class TutorialActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initViews()
+
+        TabLayoutMediator(
+            binding.tabLayout,
+            binding.tutorialViewPager,
+        ){
+            tab, position ->
+            binding.tutorialViewPager.currentItem = tab.position
+        }.attach()
     }
 
     private fun initViews() {

@@ -36,35 +36,35 @@ class TutorialPageAdapter (
 
         currentPage = position
 
-        val tutorialStep1 = holder.itemView.findViewById<TextView>(R.id.tutorial_1)
-        val tutorialStep2 = holder.itemView.findViewById<TextView>(R.id.tutorial_2)
-        val tutorialStep3 = holder.itemView.findViewById<TextView>(R.id.tutorial_3)
-        val tutorialStep4 = holder.itemView.findViewById<TextView>(R.id.tutorial_4)
+//        val tutorialStep1 = holder.itemView.findViewById<TextView>(R.id.tutorial_1)
+//        val tutorialStep2 = holder.itemView.findViewById<TextView>(R.id.tutorial_2)
+//        val tutorialStep3 = holder.itemView.findViewById<TextView>(R.id.tutorial_3)
+//        val tutorialStep4 = holder.itemView.findViewById<TextView>(R.id.tutorial_4)
 
-        when (currentPage) {
-            0 -> {
-                // 현재 페이지가 0일 때, tutorial_1의 background 변경
-                tutorialStep1.setBackgroundResource(R.drawable.tutorial_step_circle_main)
-                tutorialStep2.setBackgroundResource(R.drawable.tutorial_step_circle)
-            }
-            1 -> {
-                // 현재 페이지가 1일 때, tutorial_2의 background 변경
-                tutorialStep1.setBackgroundResource(R.drawable.tutorial_step_circle)
-                tutorialStep2.setBackgroundResource(R.drawable.tutorial_step_circle_main)
-                tutorialStep3.setBackgroundResource(R.drawable.tutorial_step_circle)
-            }
-            2 -> {
-                // 현재 페이지가 2일 때, tutorial_3의 background 변경
-                tutorialStep2.setBackgroundResource(R.drawable.tutorial_step_circle)
-                tutorialStep3.setBackgroundResource(R.drawable.tutorial_step_circle_main)
-                tutorialStep4.setBackgroundResource(R.drawable.tutorial_step_circle)
-            }
-            3 -> {
-                // 현재 페이지가 3일 때, tutorial_4의 background 변경
-                tutorialStep3.setBackgroundResource(R.drawable.tutorial_step_circle)
-                tutorialStep4.setBackgroundResource(R.drawable.tutorial_step_circle_main)
-            }
-        }
+//        when (currentPage) {
+//            0 -> {
+//                // 현재 페이지가 0일 때, tutorial_1의 background 변경
+//                tutorialStep1.setBackgroundResource(R.drawable.tutorial_step_circle_main)
+//                tutorialStep2.setBackgroundResource(R.drawable.tutorial_step_circle)
+//            }
+//            1 -> {
+//                // 현재 페이지가 1일 때, tutorial_2의 background 변경
+//                tutorialStep1.setBackgroundResource(R.drawable.tutorial_step_circle)
+//                tutorialStep2.setBackgroundResource(R.drawable.tutorial_step_circle_main)
+//                tutorialStep3.setBackgroundResource(R.drawable.tutorial_step_circle)
+//            }
+//            2 -> {
+//                // 현재 페이지가 2일 때, tutorial_3의 background 변경
+//                tutorialStep2.setBackgroundResource(R.drawable.tutorial_step_circle)
+//                tutorialStep3.setBackgroundResource(R.drawable.tutorial_step_circle_main)
+//                tutorialStep4.setBackgroundResource(R.drawable.tutorial_step_circle)
+//            }
+//            3 -> {
+//                // 현재 페이지가 3일 때, tutorial_4의 background 변경
+//                tutorialStep3.setBackgroundResource(R.drawable.tutorial_step_circle)
+//                tutorialStep4.setBackgroundResource(R.drawable.tutorial_step_circle_main)
+//            }
+//        }
 
 
         //마지막 페이지인지의 유무에 따라 시작하기 버튼 활성화 설정
