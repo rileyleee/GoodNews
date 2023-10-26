@@ -39,7 +39,7 @@
                 android:id="@+id/myStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/my_status_circle"/>
+                android:background="@drawable/my_status_circle"/>
 
            <ImageView
                android:id="@+id/myStatusUpdateButtom"
