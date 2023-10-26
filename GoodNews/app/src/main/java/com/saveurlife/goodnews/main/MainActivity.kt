@@ -7,6 +7,10 @@ import android.view.Menu
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.common.FamilyFragment
 import com.saveurlife.goodnews.common.HomeFragment
@@ -33,10 +37,27 @@ class MainActivity : AppCompatActivity() {
         //상단바 모달창
         setSupportActionBar(binding.toolbar)
 
-        //상태 변경
-        binding.myStatusUpdateButtom.setOnClickListener{
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
 
-        }
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.homeFragment,
+                R.id.mapFragment,
+                R.id.familyFragment,
+                R.id.myPageFragment,
+                R.id.flashLightFragment
+            )
+        )
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+
+        binding.navigationView.setupWithNavController(navController)
+
+        //상태 변경
+//        binding.myStatusUpdateButtom.setOnClickListener{
+//
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
