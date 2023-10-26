@@ -34,6 +34,14 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi familyApi() {
+        return GroupedOpenApi.builder()
+                .group("family")
+                .pathsToMatch("/api/family/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi mapApi() {
         return GroupedOpenApi.builder()
                 .group("map")
