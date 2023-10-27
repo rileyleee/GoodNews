@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.saveurlife.goodnews.common.HomeFragment"
+        android:name="com.saveurlife.goodnews.main.HomeFragment"
         tools:layout="@layout/fragment_home" />
 
     <fragment

@@ -15,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentFamilyAlarmBinding
 import com.saveurlife.goodnews.enterinfo.EnterInfoActivity
-import com.saveurlife.goodnews.family.FamilyActivity
 
 class FamilyAlarmFragment : DialogFragment() {
     private lateinit var binding: FragmentFamilyAlarmBinding
@@ -42,7 +41,7 @@ class FamilyAlarmFragment : DialogFragment() {
             dismiss()
         }
 
-        // 다음에 하기 클릭시 다이얼로그 닫기 ㅇㄹㅇㄹㄷ
+        // 다음에 하기 클릭시 다이얼로그 닫기
         binding.familyNext.setOnClickListener {
             dismiss()
         }

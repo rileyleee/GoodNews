@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityBottomNaviBinding
 import com.saveurlife.goodnews.family.FamilyFragment
+import com.saveurlife.goodnews.main.HomeFragment
 import com.saveurlife.goodnews.map.MapFragment
 import com.saveurlife.goodnews.mypage.MyPageFragment
 

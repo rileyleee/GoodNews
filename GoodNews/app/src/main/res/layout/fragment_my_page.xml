@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,143 +7,260 @@
     tools:context=".mypage.MyPageFragment"
     android:background="@color/background">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <TextView
             android:id="@+id/myPageTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
-            app:layout_constraintTop_toTopOf="@+id/guidelineHorizontal"
+            app:layout_constraintTop_toTopOf="parent"
             android:text="내 정보"
             android:textSize="32sp"
             android:textStyle="bold"
             />
 
-        <LinearLayout
+        <TextView
             android:id="@+id/myPageCard"
             android:layout_width="0dp"
-            android:layout_height="200dp"
+            android:layout_height="210dp"
             android:background="@drawable/card_component"
             android:layout_marginTop="15dp"
             android:backgroundTint="@color/white"
             app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/myPageTitle"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:text="정보수정"
-                android:textColor="@color/inactive_gray"
-                android:textSize="16sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:gravity="start"
-                    android:layout_weight="1"
-                    android:text="김싸피"
-                    android:textSize="27sp"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:layout_weight="1"
-                    android:text="만 XX세"
-                    android:textSize="21sp"
-                    android:textStyle="bold"/>
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp">
-
-
-                    <LinearLayout
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:background="@drawable/my_status_circle"
-                        android:backgroundTint="@color/danger"
-                        android:orientation="vertical"
-                        android:gravity="start|center"
-                        android:layout_marginLeft="10dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Rh+"
-                            android:textSize="16sp"
-                            android:textColor="@color/white"
-                            android:gravity="center_horizontal"
-                            />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="AB형"
-                            android:textSize="21sp"
-                            android:textColor="@color/white"
-                            android:textStyle="bold"
-                            android:gravity="center_horizontal"
-                            />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="end"
-                        android:layout_gravity="end"
-                        android:layout_weight="1">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="010-0000-0000"
-                            android:textSize="21sp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="2000년 01월 01일"
-                            android:textSize="21sp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="특이사항 없음"
-                            android:textSize="21sp"/>
-
-                    </LinearLayout>
-
-
-
-            </LinearLayout>
-
-        </LinearLayout>
+            android:orientation="vertical"/>
 
         <TextView
+            android:id="@+id/myPageUpdateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="환경설정"
-            android:textSize="32sp"
+            android:layout_gravity="end"
+            android:text="정보수정"
+            android:textColor="@color/inactive_gray"
+            app:layout_constraintTop_toTopOf="@id/myPageCard"
+            app:layout_constraintEnd_toEndOf="@id/myPageCard"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:textSize="16sp" />
+
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="김싸피"
+            android:textSize="27sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
-            app:layout_constraintTop_toBottomOf="@id/myPageCard"
-            android:layout_marginTop="20dp"
-            />
+            app:layout_constraintStart_toStartOf="@+id/myPageCard"
+            app:layout_constraintTop_toBottomOf="@+id/myPageUpdateButton" />
+
+        <TextView
+            android:id="@+id/age"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="만 XX세"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/myPageUpdateButton"
+            app:layout_constraintTop_toTopOf="@+id/name" />
+
+        <TextView
+            android:id="@+id/bloodCircle"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/my_status_circle"
+            android:backgroundTint="@color/danger"
+            android:gravity="start|center"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="@+id/name"
+            app:layout_constraintTop_toBottomOf="@+id/name" />
+
+        <TextView
+            android:id="@+id/rh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="Rh+"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/bloodCircle"
+            app:layout_constraintStart_toStartOf="@+id/bloodCircle"
+            app:layout_constraintTop_toTopOf="@+id/bloodCircle"
+            app:layout_constraintBottom_toTopOf="@id/blood"/>
+
+        <TextView
+            android:id="@+id/blood"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="AB형"
+            android:textColor="@color/white"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/bloodCircle"
+            app:layout_constraintEnd_toEndOf="@+id/bloodCircle"
+            app:layout_constraintStart_toStartOf="@+id/bloodCircle"
+            app:layout_constraintTop_toBottomOf="@id/rh"/>
+
+
+        <TextView
+            android:id="@+id/phoneNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="010-0000-0000"
+            android:textSize="21sp"
+            app:layout_constraintEnd_toEndOf="@+id/myPageUpdateButton"
+            app:layout_constraintTop_toTopOf="@+id/bloodCircle"/>
+
+        <TextView
+            android:id="@+id/birthday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2000년 01월 01일"
+            android:textSize="21sp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="@+id/myPageUpdateButton"
+            app:layout_constraintTop_toBottomOf="@+id/phoneNumber" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="특이사항 없음"
+        android:textSize="21sp"
+        app:layout_constraintEnd_toEndOf="@+id/myPageUpdateButton"
+        app:layout_constraintTop_toBottomOf="@+id/birthday" />
+
+    <TextView
+        android:id="@+id/setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="환경설정"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@id/myPageCard"/>
+
+    <TextView
+        android:id="@+id/darkMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="어둡게 보기"
+        android:textSize="21sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@+id/setting"
+        />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/darkMode"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintTop_toTopOf="@+id/darkMode" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/horizontal_line"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@id/darkMode" />
+
+    <TextView
+        android:id="@+id/bigText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="큰 글씨로 보기"
+        android:textSize="21sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@+id/darkMode"
+        />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/bigText"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintTop_toTopOf="@+id/bigText" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/horizontal_line"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@id/bigText" />
+
+    <TextView
+        android:id="@+id/alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="수신 알림 설정"
+        android:textSize="21sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@+id/bigText"
+        />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/alarm"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintTop_toTopOf="@+id/alarm" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/horizontal_line"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@id/alarm" />
+
+    <TextView
+        android:id="@+id/voiceService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="재난 문자 알림 시 음성 서비스"
+        android:textSize="21sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@+id/alarm"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/voiceService"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintTop_toTopOf="@+id/voiceService" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/horizontal_line"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@id/voiceService" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="서비스 도움말"
+        android:textSize="21sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
+        app:layout_constraintTop_toBottomOf="@+id/voiceService"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVertical"
@@ -174,6 +291,4 @@
             app:layout_constraintGuide_end="60dp"/>
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
