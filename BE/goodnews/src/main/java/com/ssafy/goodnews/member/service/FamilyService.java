@@ -11,10 +11,7 @@ import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
-import com.ssafy.goodnews.member.dto.response.FamilyPlaceInfoResponseDto;
-import com.ssafy.goodnews.member.dto.response.FamilyRegistPlaceResponseDto;
-import com.ssafy.goodnews.member.dto.response.MemberRegistFamilyResposneDto;
-import com.ssafy.goodnews.member.dto.response.MemberResponseDto;
+import com.ssafy.goodnews.member.dto.response.*;
 import com.ssafy.goodnews.member.repository.FamilyMemberRepository;
 import com.ssafy.goodnews.member.repository.FamilyPlaceRepository;
 import com.ssafy.goodnews.member.repository.FamilyRepository;
@@ -96,7 +93,7 @@ public class FamilyService {
     @Transactional
     public BaseResponseDto updateFamilyMember(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberFirstLoginRequestDto.getMemberId());
-        familyValidator.checkFamilyMember(familyMember, memberFirstLoginRequestDto.getMemberId());
+        familyValidator.checkRegistFamily(familyMember, memberFirstLoginRequestDto.getMemberId());
         familyMember.get().updateApprove(true);
         return BaseResponseDto.builder()
                 .success(true)
@@ -108,7 +105,7 @@ public class FamilyService {
     public BaseResponseDto getFamilyMemberInfo(String memberId) {
 
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberId);
-        familyValidator.checkFamilyMember(familyMember, memberId);
+        familyValidator.checkRegistFamily(familyMember, memberId);
         List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
 
         return BaseResponseDto.builder()
@@ -128,7 +125,7 @@ public class FamilyService {
     public BaseResponseDto registFamilyPlace(FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
 
         Optional<Family> familyId = memberQueryDslRepository.findFamilyId(familyRegistPlaceRequestDto.getMemberId());
-        familyValidator.checkFamilyPlace(familyId,familyRegistPlaceRequestDto.getMemberId());
+        familyValidator.checkFamily(familyId,familyRegistPlaceRequestDto.getMemberId());
         FamilyPlace newFamilyPlace = familyPlaceRepository.save(FamilyPlace.builder()
                 .name(familyRegistPlaceRequestDto.getName())
                 .lat(familyRegistPlaceRequestDto.getLat())
@@ -165,4 +162,22 @@ public class FamilyService {
                                         .build())
                         .collect(Collectors.toList())).build();
     }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto getFamilyPlaceInfoDetail(int placeId) {
+
+        Optional<FamilyPlace> findPlace = familyPlaceRepository.findById(placeId);
+        familyValidator.checkFamilyPlace(findPlace);
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 모임 상세 정보 조회를 성공했습니다")
+                .data(FamilyPlaceDetailResponseDto.builder()
+                        .familyPlace(findPlace.get())
+                        .build())
+                .build();
+    }
+
+
+
 }

@@ -24,6 +24,12 @@ public class FamilyValidator {
                     .code(FamilyErrorEnum.INVALID_FAMILY.getCode())
                     .message(FamilyErrorEnum.INVALID_FAMILY.getMessage() + familyId)
                     .build();
+        } else {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .build();
         }
 
     }
@@ -39,7 +45,8 @@ public class FamilyValidator {
         }
 
     }
-    public void checkFamilyMember(Optional<FamilyMember> findMember, String familyId) {
+
+    public void checkFamily(Optional<Family> findMember, String familyId) {
         if (findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
@@ -47,15 +54,13 @@ public class FamilyValidator {
                     .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
                     .build();
         }
-
     }
-
-    public void checkFamilyPlace(Optional<Family> findMember, String familyId) {
+    public void checkFamilyPlace(Optional<FamilyPlace> findMember) {
         if (findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
-                    .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
-                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_PLACE.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_PLACE.getMessage())
                     .build();
         }
     }
