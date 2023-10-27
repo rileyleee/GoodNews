@@ -24,7 +24,12 @@ public class FamilyValidator {
                     .code(FamilyErrorEnum.INVALID_FAMILY.getCode())
                     .message(FamilyErrorEnum.INVALID_FAMILY.getMessage() + familyId)
                     .build();
-        } else {
+        }
+
+    }
+
+    public void checkUpdateFamily(Optional<FamilyMember> findMember, String familyId) {
+         if(findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
@@ -33,6 +38,7 @@ public class FamilyValidator {
         }
 
     }
+
 
     public void checkRegistOtherFamily(Optional<Family> findFamily, Optional<FamilyMember> findMember, String familyId) {
 

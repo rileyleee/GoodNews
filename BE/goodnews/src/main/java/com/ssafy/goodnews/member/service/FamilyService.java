@@ -98,7 +98,7 @@ public class FamilyService {
     @Transactional
     public BaseResponseDto updateFamilyMember(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberFirstLoginRequestDto.getMemberId());
-        familyValidator.checkRegistFamily(familyMember, memberFirstLoginRequestDto.getMemberId());
+        familyValidator.checkUpdateFamily(familyMember, memberFirstLoginRequestDto.getMemberId());
         familyMember.get().updateApprove(true);
         return BaseResponseDto.builder()
                 .success(true)
@@ -110,7 +110,7 @@ public class FamilyService {
     public BaseResponseDto getFamilyMemberInfo(String memberId) {
 
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberId);
-        familyValidator.checkRegistFamily(familyMember, memberId);
+        familyValidator.checkUpdateFamily(familyMember, memberId);
         List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
 
         return BaseResponseDto.builder()
