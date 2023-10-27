@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.saveurlife.goodnews.common.HomeFragment"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.saveurlife.goodnews.common.MapFragment"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/familyFragment"
+        android:name="com.saveurlife.goodnews.common.FamilyFragment"
+        tools:layout="@layout/fragment_family" />
+
+    <fragment
+        android:id="@+id/myPageFragment"
+        android:name="com.saveurlife.goodnews.common.MyPageFragment"
+        tools:layout="@layout/fragment_my_page" />
+
+    <fragment
+        android:id="@+id/flashLightFragment"
+        android:name="com.saveurlife.goodnews.common.FlashlightFragment"
+        tools:layout="@layout/fragment_flashlight" />
+
+</navigation>

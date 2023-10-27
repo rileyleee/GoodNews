@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  다크모드일 때 사용될 색상으로 변경 필요  -->
+    <!--  기본색  -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray">#B5B5B5</color>
+
+    <!--  배경색  -->
+    <color name="background">#FF000000</color>
+
+    <!--  메인 / 서브 / 포인트  -->
+    <color name="main">#2D598A</color>
+    <color name="sub">#1A2227</color>
+    <color name="point">#ED713F</color>
+
+    <!--  회색 설정 (진한회색 / 연한회색 / 비활성화)  -->
+    <color name="explain_gray">#545454</color>
+    <color name="hint_gray">#999999</color>
+    <color name="inactive_gray">#C5C5C5</color>
+
+    <!--  상태 색상 (안전 / 주의 / 위험)  -->
+    <color name="safe">#3AC783</color>
+    <color name="caution">#FFD17B</color>
+    <color name="danger">#F15E81</color>
+
+    <!--  글자색  -->
+    <color name="font_color">#FFFFFFFF</color>
+
+    <!--  하단바  -->
+    <color name="navi_bar">#1A2227</color>
+</resources>

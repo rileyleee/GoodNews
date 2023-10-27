@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    tools:context=".enterinfo.EnterInfoActivity">
+
+    <TextView
+        android:id="@+id/enterInfoTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="@string/enter_info"
+        android:textColor="@color/font_color"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--  이름, input박스  -->
+    <TextView
+        android:id="@+id/nameTextView"
+        style="@style/EnterInfoLabel"
+        android:text="이름"
+        android:textColor="@color/font_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enterInfoTitle" />
+
+    <EditText
+        android:id="@+id/nameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/input_stroke"
+        android:hint="이름을 입력해 주세요."
+        app:layout_constraintTop_toBottomOf="@id/nameTextView" />
+    <!--  휴대폰 번호, input박스  -->
+    <TextView
+        android:id="@+id/phoneTextView"
+        style="@style/EnterInfoLabel"
+        android:text="휴대폰 번호"
+        android:textColor="@color/font_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nameEditText" />
+
+    <LinearLayout
+        android:id="@+id/phoneGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/phoneTextView">
+
+        <EditText
+            android:id="@+id/phoneEditText1"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center"
+            android:hint="010"
+            android:inputType="phone"
+            android:maxLength="3" />
+
+        <TextView
+            android:id="@+id/hyphen"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/hyphen"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/phoneEditText2"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center"
+            android:hint="XXXX"
+            android:inputType="phone"
+            android:maxLength="4" />
+
+        <TextView
+            android:id="@id/hyphen"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/hyphen"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/phoneEditText3"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:autofillHints=""
+            android:background="@drawable/input_stroke"
+            android:gravity="center"
+            android:hint="XXXX"
+            android:inputType="phone"
+            android:maxLength="4" />
+    </LinearLayout>
+
+    <!--  생년월일  -->
+    <TextView
+        android:id="@+id/birthTextView"
+        style="@style/EnterInfoLabel"
+        android:text="생년월일"
+        android:textColor="@color/font_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phoneGroup" />
+
+    <LinearLayout
+        android:id="@+id/birthGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/birthTextView">
+
+        <!-- 년 Spinner -->
+        <Spinner
+            android:id="@+id/yearSpinner"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/yearSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="년"
+            android:textColor="@color/black" />
+
+        <!-- 월 Spinner -->
+        <Spinner
+            android:id="@+id/monthSpinner"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/monthSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="월"
+            android:textColor="@color/black" />
+
+        <!-- 일 Spinner -->
+        <Spinner
+            android:id="@+id/daySpinner"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/daySpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="일"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <!--  성별, 버튼  -->
+    <TextView
+        android:id="@+id/genderTextView"
+        style="@style/EnterInfoLabel"
+        android:text="성별"
+        android:textColor="@color/font_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/birthGroup" />
+
+    <LinearLayout
+        android:id="@+id/genderGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/genderTextView">
+
+        <TextView
+            android:id="@+id/gender_male"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center"
+            android:text="남자" />
+
+        <TextView
+            android:id="@+id/gender_female"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center"
+            android:text="여자" />
+
+    </LinearLayout>
+
+
+    <!--  혈액형, select박스  -->
+    <TextView
+        android:id="@+id/bloodTextView"
+        style="@style/EnterInfoLabel"
+        android:text="혈액형"
+        android:textColor="@color/font_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/genderGroup" />
+
+    <TextView
+        android:id="@+id/bloodAddText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위급 상황 시 필요한 정보이니 정확하게 입력해 주세요."
+        android:textColor="@color/explain_gray"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bloodTextView" />
+
+    <LinearLayout
+        android:id="@+id/bloodGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/bloodAddText">
+
+        <TextView
+            android:id="@+id/rhSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="RH 인자"
+            android:textColor="@color/black" />
+
+        <Spinner
+            android:id="@+id/rhSpinner"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/bloodSpinnerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:text="혈액형"
+            android:textColor="@color/black" />
+
+        <Spinner
+            android:id="@+id/bloodSpinner"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/input_stroke"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <!--  특이사항, input박스  -->
+    <TextView
+        android:id="@+id/warningTextView"
+        style="@style/EnterInfoLabel"
+        android:text="특이사항 (지병)"
+        android:textColor="@color/font_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bloodGroup" />
+
+    <TextView
+        android:id="@+id/warningAddText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="본인이 가지고 있는 질병을 입력해 주세요."
+        android:textColor="@color/explain_gray"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/warningTextView" />
+
+    <EditText
+        android:id="@+id/warningEditText"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/input_stroke"
+        android:gravity="top"
+        android:hint="50자 이내로 작성해 주세요."
+        android:inputType="textMultiLine"
+        android:maxLength="50"
+        app:layout_constraintTop_toBottomOf="@id/warningAddText" />
+
+
+    <!--  정보 등록, 다음에 등록하기 버튼  -->
+    <TextView
+        android:id="@+id/submit_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/btn_match_parent"
+        android:gravity="center"
+        android:text="@string/submit"
+        android:textColor="@color/white"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toTopOf="@id/later_info" />
+
+    <TextView
+        android:id="@+id/later_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:text="@string/later"
+        android:textColor="@color/main"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
