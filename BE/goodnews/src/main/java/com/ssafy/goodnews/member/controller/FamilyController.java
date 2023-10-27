@@ -1,10 +1,11 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
-import com.ssafy.goodnews.member.dto.request.FamilyPlaceRequestDto;
-import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
 import com.ssafy.goodnews.member.service.FamilyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,5 +57,11 @@ public class FamilyController {
     @PostMapping("/placeinfo")
     private BaseResponseDto getFamilyPlaceInfo(@RequestBody FamilyPlaceRequestDto familyPlaceRequestDto) {
         return familyService.getFamilyPlaceInfoDetail(familyPlaceRequestDto.getPlaceId());
+    }
+
+    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도) 조회")
+    @PutMapping("/placeinfo/{placeId}")
+    private BaseResponseDto getFamilyUpdatePlaceInfo(@PathVariable int placeId,@RequestBody FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
+        return familyService.getFamilyPlaceInfoUpdate(placeId,familyPlaceUpdateRequestDto);
     }
 }

@@ -1,10 +1,9 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
-import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberInfoUpdateRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberRegistRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

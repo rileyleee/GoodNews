@@ -1,4 +1,4 @@
-package com.ssafy.goodnews.member.dto.response;
+package com.ssafy.goodnews.member.dto.response.member;
 
 import com.ssafy.goodnews.member.domain.Member;
 import lombok.Builder;

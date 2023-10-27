@@ -1,6 +1,5 @@
 package com.ssafy.goodnews.member.service;
 
-import com.ssafy.goodnews.common.domain.BaseEntity;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.FamilyValidator;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
@@ -8,10 +7,15 @@ import com.ssafy.goodnews.member.domain.Family;
 import com.ssafy.goodnews.member.domain.FamilyMember;
 import com.ssafy.goodnews.member.domain.FamilyPlace;
 import com.ssafy.goodnews.member.domain.Member;
-import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
-import com.ssafy.goodnews.member.dto.response.*;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceDetailResponseDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceInfoResponseDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyRegistPlaceResponseDto;
+import com.ssafy.goodnews.member.dto.response.member.MemberRegistFamilyResposneDto;
+import com.ssafy.goodnews.member.dto.response.member.MemberResponseDto;
 import com.ssafy.goodnews.member.repository.FamilyMemberRepository;
 import com.ssafy.goodnews.member.repository.FamilyPlaceRepository;
 import com.ssafy.goodnews.member.repository.FamilyRepository;
@@ -179,5 +183,17 @@ public class FamilyService {
     }
 
 
+    @Transactional
+    public BaseResponseDto getFamilyPlaceInfoUpdate(int placeId, FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
 
+        Optional<FamilyPlace> findPlace = familyPlaceRepository.findById(placeId);
+        familyValidator.checkFamilyPlace(findPlace);
+
+        findPlace.get().updatePlaceInfo(familyPlaceUpdateRequestDto);
+
+
+        return BaseResponseDto.builder()
+                .message("가족 모임 장소 수정을 성공했습니다")
+                .build();
+    }
 }

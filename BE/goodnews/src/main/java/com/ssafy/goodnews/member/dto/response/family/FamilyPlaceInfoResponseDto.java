@@ -1,4 +1,4 @@
-package com.ssafy.goodnews.member.dto.response;
+package com.ssafy.goodnews.member.dto.response.family;
 
 import lombok.Builder;
 import lombok.Getter;

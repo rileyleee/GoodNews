@@ -1,15 +1,13 @@
 package com.ssafy.goodnews.member.domain;
 
 import com.ssafy.goodnews.common.domain.BaseConnectEntity;
-import com.ssafy.goodnews.member.dto.request.MemberInfoUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 

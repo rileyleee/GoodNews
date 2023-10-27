@@ -1,8 +1,7 @@
-package com.ssafy.goodnews.member.dto.response;
+package com.ssafy.goodnews.member.dto.response.member;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

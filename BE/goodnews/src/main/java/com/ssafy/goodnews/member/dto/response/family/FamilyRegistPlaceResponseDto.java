@@ -1,11 +1,11 @@
-package com.ssafy.goodnews.member.dto.response;
+package com.ssafy.goodnews.member.dto.response.family;
 
 import com.ssafy.goodnews.member.domain.FamilyPlace;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class FamilyPlaceDetailResponseDto {
+public class FamilyRegistPlaceResponseDto {
 
     private int placeId;
     private String name;
@@ -14,7 +14,7 @@ public class FamilyPlaceDetailResponseDto {
     private boolean canuse;
 
     @Builder
-    public FamilyPlaceDetailResponseDto(FamilyPlace familyPlace) {
+    public FamilyRegistPlaceResponseDto(FamilyPlace familyPlace) {
         this.placeId = familyPlace.getId();
         this.name = familyPlace.getName();
         this.lat = familyPlace.getLat();

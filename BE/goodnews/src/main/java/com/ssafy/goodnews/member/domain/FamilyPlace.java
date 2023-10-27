@@ -1,6 +1,8 @@
 package com.ssafy.goodnews.member.domain;
 
 import com.ssafy.goodnews.common.domain.BaseEntity;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,5 +35,11 @@ public class FamilyPlace extends BaseEntity {
         this.lon = lon;
         this.canuse = canuse;
         this.family = family;
+    }
+
+    public void updatePlaceInfo(FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
+        this.name = familyPlaceUpdateRequestDto.getName();
+        this.lat = familyPlaceUpdateRequestDto.getLat();
+        this.lon= familyPlaceUpdateRequestDto.getLon();
     }
 }

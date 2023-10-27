@@ -1,33 +1,20 @@
 package com.ssafy.goodnews.member.service;
 
-import com.ssafy.goodnews.common.domain.BaseEntity;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
-import com.ssafy.goodnews.common.exception.validator.FamilyValidator;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
-import com.ssafy.goodnews.member.domain.Family;
-import com.ssafy.goodnews.member.domain.FamilyMember;
 import com.ssafy.goodnews.member.domain.Member;
-import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberInfoUpdateRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
-import com.ssafy.goodnews.member.dto.request.MemberRegistRequestDto;
-import com.ssafy.goodnews.member.dto.response.MemberFirstLoginResponseDto;
-import com.ssafy.goodnews.member.dto.response.MemberInfoResponseDto;
-import com.ssafy.goodnews.member.dto.response.MemberRegistFamilyResposneDto;
-import com.ssafy.goodnews.member.dto.response.MemberResponseDto;
-import com.ssafy.goodnews.member.repository.FamilyMemberRepository;
-import com.ssafy.goodnews.member.repository.FamilyPlaceRepository;
-import com.ssafy.goodnews.member.repository.FamilyRepository;
+import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
+import com.ssafy.goodnews.member.dto.response.member.MemberFirstLoginResponseDto;
+import com.ssafy.goodnews.member.dto.response.member.MemberInfoResponseDto;
 import com.ssafy.goodnews.member.repository.MemberRepository;
-import com.ssafy.goodnews.member.repository.querydsl.MemberQueryDslRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
