@@ -1,6 +1,7 @@
 package com.ssafy.goodnews.member.domain;
 
 import com.ssafy.goodnews.common.domain.BaseEntity;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceCanuseDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
 import lombok.Builder;
@@ -41,5 +42,9 @@ public class FamilyPlace extends BaseEntity {
         this.name = familyPlaceUpdateRequestDto.getName();
         this.lat = familyPlaceUpdateRequestDto.getLat();
         this.lon= familyPlaceUpdateRequestDto.getLon();
+    }
+
+    public void updatePlaceCanuse(FamilyPlaceCanuseDto familyPlaceCanuseDto) {
+        this.canuse = familyPlaceCanuseDto.isCanuse();
     }
 }

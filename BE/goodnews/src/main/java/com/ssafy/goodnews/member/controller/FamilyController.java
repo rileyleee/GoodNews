@@ -1,6 +1,7 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceCanuseDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
@@ -59,9 +60,14 @@ public class FamilyController {
         return familyService.getFamilyPlaceInfoDetail(familyPlaceRequestDto.getPlaceId());
     }
 
-    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도) 조회")
+    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도) 수정")
     @PutMapping("/placeinfo/{placeId}")
     private BaseResponseDto getFamilyUpdatePlaceInfo(@PathVariable int placeId,@RequestBody FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
         return familyService.getFamilyPlaceInfoUpdate(placeId,familyPlaceUpdateRequestDto);
+    }
+    @Operation(summary = "가족 모임장소 사용가능여부 수정", description = "가족 모임장소 사용가능 여부 수정(사용가능여부) 수정")
+    @PutMapping("/placeuse/{placeId}")
+    private BaseResponseDto getFamilyUpdatePlaceCanUse(@PathVariable int placeId,@RequestBody FamilyPlaceCanuseDto familyPlaceCanuseDto) {
+        return familyService.getFamilyPlaceInfoCanUseUpdate(placeId,familyPlaceCanuseDto);
     }
 }

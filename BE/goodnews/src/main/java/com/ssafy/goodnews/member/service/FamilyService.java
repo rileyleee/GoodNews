@@ -7,6 +7,7 @@ import com.ssafy.goodnews.member.domain.Family;
 import com.ssafy.goodnews.member.domain.FamilyMember;
 import com.ssafy.goodnews.member.domain.FamilyPlace;
 import com.ssafy.goodnews.member.domain.Member;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceCanuseDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
@@ -194,6 +195,18 @@ public class FamilyService {
 
         return BaseResponseDto.builder()
                 .message("가족 모임 장소 수정을 성공했습니다")
+                .build();
+    }
+
+    @Transactional
+    public BaseResponseDto getFamilyPlaceInfoCanUseUpdate(int placeId, FamilyPlaceCanuseDto familyPlaceCanuseDto) {
+        Optional<FamilyPlace> findPlace = familyPlaceRepository.findById(placeId);
+        familyValidator.checkFamilyPlace(findPlace);
+
+        findPlace.get().updatePlaceCanuse(familyPlaceCanuseDto);
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 모임 장소 사용 가능 여부를 수정했습니다")
                 .build();
     }
 }
