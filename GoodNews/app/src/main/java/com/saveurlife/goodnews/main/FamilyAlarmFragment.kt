@@ -42,7 +42,7 @@ class FamilyAlarmFragment : DialogFragment() {
             dismiss()
         }
 
-        // 다음에 하기 클릭시 다이얼로그 닫기
+        // 다음에 하기 클릭시 다이얼로그 닫기 ㅇㄹㅇㄹㄷ
         binding.familyNext.setOnClickListener {
             dismiss()
         }
