@@ -11,6 +11,7 @@ import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.dto.response.FamilyPlaceInfoResponseDto;
 import com.ssafy.goodnews.member.dto.response.FamilyRegistPlaceResponseDto;
 import com.ssafy.goodnews.member.dto.response.MemberRegistFamilyResposneDto;
 import com.ssafy.goodnews.member.dto.response.MemberResponseDto;
@@ -144,5 +145,24 @@ public class FamilyService {
                         .familyPlace(newFamilyPlace)
                         .build())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto getFamilyPlaceInfo(String memberId) {
+
+        List<FamilyPlace> aLlFamilyPlace = memberQueryDslRepository.findALlFamilyPlace(memberId);
+
+        familyValidator.checkFamilyPlaceList(aLlFamilyPlace);
+
+        return BaseResponseDto.builder()
+                .message("가족 모임 장소 리스트 조회 성공했습니다")
+                .data(aLlFamilyPlace.stream()
+                        .map(familyPlace ->
+                                FamilyPlaceInfoResponseDto.builder()
+                                        .placeId(familyPlace.getId())
+                                        .name(familyPlace.getName())
+                                        .canuse(familyPlace.isCanuse())
+                                        .build())
+                        .collect(Collectors.toList())).build();
     }
 }

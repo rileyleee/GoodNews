@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static com.ssafy.goodnews.member.domain.QFamily.*;
 import static com.ssafy.goodnews.member.domain.QFamilyMember.*;
+import static com.ssafy.goodnews.member.domain.QFamilyPlace.*;
 import static com.ssafy.goodnews.member.domain.QMember.*;
 
 @RequiredArgsConstructor
@@ -47,6 +48,18 @@ public class MemberQueryDslRepository {
                 .innerJoin(familyMember)
                 .on(familyMember.member.id.eq(memberId))
                 .fetchOne());
+    }
+
+    public List<FamilyPlace> findALlFamilyPlace(String memberId) {
+
+        return queryFactory
+                .selectFrom(familyPlace)
+                .innerJoin(familyMember)
+                .on(familyPlace.family.familyId.eq(familyMember.family.familyId))
+                .innerJoin(family)
+                .on(family.familyId.eq(familyMember.family.familyId))
+                .where(familyMember.member.id.eq(memberId))
+                .fetch();
     }
 
 

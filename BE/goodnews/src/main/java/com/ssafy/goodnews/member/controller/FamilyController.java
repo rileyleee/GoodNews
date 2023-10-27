@@ -44,4 +44,10 @@ public class FamilyController {
     private BaseResponseDto registFamilyPlace(@RequestBody FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
         return familyService.registFamilyPlace(familyRegistPlaceRequestDto);
     }
+
+    @Operation(summary = "가족 모임장소 조회", description = "가족 모임장소 정보(장소id,명칭,사용가능여부) 조회")
+    @PostMapping("/allplaceinfo")
+    private BaseResponseDto getFamilyPlaceInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+        return familyService.getFamilyPlaceInfo(memberFirstLoginRequestDto.getMemberId());
+    }
 }

@@ -4,11 +4,13 @@ import com.ssafy.goodnews.common.exception.CustomException;
 import com.ssafy.goodnews.common.exception.message.FamilyErrorEnum;
 import com.ssafy.goodnews.member.domain.Family;
 import com.ssafy.goodnews.member.domain.FamilyMember;
+import com.ssafy.goodnews.member.domain.FamilyPlace;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -54,6 +56,15 @@ public class FamilyValidator {
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
                     .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .build();
+        }
+    }
+    public void checkFamilyPlaceList(List<FamilyPlace> aLlFamilyPlace) {
+        if (aLlFamilyPlace.isEmpty()) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_PLACE.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_PLACE.getMessage())
                     .build();
         }
     }
