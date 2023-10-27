@@ -1,6 +1,7 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.member.dto.request.FamilyPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.MemberRegistFamilyRequestDto;
@@ -52,8 +53,8 @@ public class FamilyController {
     }
 
     @Operation(summary = "가족 모임장소 상세 조회", description = "가족 모임장소 상세 정보(장소id,명칭,경도,위도,사용가능여부) 조회")
-    @PostMapping("/placeinfo/{placeId}")
-    private BaseResponseDto getFamilyPlaceInfo(@PathVariable int placeId) {
-        return familyService.getFamilyPlaceInfoDetail(placeId);
+    @PostMapping("/placeinfo")
+    private BaseResponseDto getFamilyPlaceInfo(@RequestBody FamilyPlaceRequestDto familyPlaceRequestDto) {
+        return familyService.getFamilyPlaceInfoDetail(familyPlaceRequestDto.getPlaceId());
     }
 }
