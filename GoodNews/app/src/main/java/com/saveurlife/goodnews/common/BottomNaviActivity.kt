@@ -6,6 +6,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityBottomNaviBinding
+import com.saveurlife.goodnews.family.FamilyFragment
+import com.saveurlife.goodnews.map.MapFragment
+import com.saveurlife.goodnews.mypage.MyPageFragment
 
 class BottomNaviActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBottomNaviBinding

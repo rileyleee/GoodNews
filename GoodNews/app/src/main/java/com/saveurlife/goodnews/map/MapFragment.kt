@@ -1,4 +1,4 @@
-package com.saveurlife.goodnews.common
+package com.saveurlife.goodnews.map
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
