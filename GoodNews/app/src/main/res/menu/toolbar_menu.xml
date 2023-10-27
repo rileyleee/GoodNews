@@ -5,5 +5,5 @@
         android:id="@+id/action_search"
         android:title="검색"
         android:icon="@drawable/toolbar_alert"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

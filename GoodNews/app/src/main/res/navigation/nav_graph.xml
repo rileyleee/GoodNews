@@ -12,22 +12,22 @@
 
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.saveurlife.goodnews.common.MapFragment"
+        android:name="com.saveurlife.goodnews.map.MapFragment"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/familyFragment"
-        android:name="com.saveurlife.goodnews.common.FamilyFragment"
+        android:name="com.saveurlife.goodnews.family.FamilyFragment"
         tools:layout="@layout/fragment_family" />
 
     <fragment
         android:id="@+id/myPageFragment"
-        android:name="com.saveurlife.goodnews.common.MyPageFragment"
+        android:name="com.saveurlife.goodnews.mypage.MyPageFragment"
         tools:layout="@layout/fragment_my_page" />
 
     <fragment
         android:id="@+id/flashLightFragment"
-        android:name="com.saveurlife.goodnews.common.FlashlightFragment"
+        android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"
         tools:layout="@layout/fragment_flashlight" />
 
 </navigation>

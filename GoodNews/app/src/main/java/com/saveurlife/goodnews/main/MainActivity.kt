@@ -1,23 +1,16 @@
 package com.saveurlife.goodnews.main
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
-import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.common.FamilyFragment
-import com.saveurlife.goodnews.common.HomeFragment
-import com.saveurlife.goodnews.common.MapFragment
-import com.saveurlife.goodnews.common.MyPageFragment
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.tutorial.TutorialActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -60,9 +53,16 @@ class MainActivity : AppCompatActivity() {
 //        }
     }
 
+    //toolbar 보여주기
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
+    }
+
+    //클릭했을 때 어떤 반응이 일어나게 할건지
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Toast.makeText(this, "알림 기능 구현하기", Toast.LENGTH_SHORT).show()
+        return super.onOptionsItemSelected(item)
     }
 
 }
