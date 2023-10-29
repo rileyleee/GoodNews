@@ -52,35 +52,38 @@ class GoodNewsApplication : Application() {
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 
-        // 비동기 처리를 위해 코루틴 사용
-        CoroutineScope(Dispatchers.IO).launch {
-            realm.write {
-                for (record in records) {
-                    // Assuming the CSV columns are id, type, name, latitude, longitude, canUse, addInfo
-                    val offMapFacility = OffMapFacility().apply {
-                        id = record[0].toInt()
-                        type = record[1]
-                        name = record[2]
-                        latitude = record[4].toDouble()
-                        longitude = record[3].toDouble()
-                        canUse = record[5] == "1"
-                        addInfo = record[6]
+        // 데이터가 없는 경우에만 등록하도록!
+        if (realm.query<OffMapFacility>().count().equals(0L)) {
+
+            // 비동기 처리를 위해 코루틴 사용
+            CoroutineScope(Dispatchers.IO).launch {
+                realm.write {
+                    for (record in records) {
+                        // Assuming the CSV columns are id, type, name, latitude, longitude, canUse, addInfo
+                        val offMapFacility = OffMapFacility().apply {
+                            id = record[0].toInt()
+                            type = record[1]
+                            name = record[2]
+                            latitude = record[4].toDouble()
+                            longitude = record[3].toDouble()
+                            canUse = record[5] == "1"
+                            addInfo = record[6]
+                        }
+                        copyToRealm(offMapFacility)
                     }
-                    copyToRealm(offMapFacility)
+
+                }
+                // REALM 데이터 입력 확인 코드
+                val testData: OffMapFacility? =
+                    realm.query<OffMapFacility>("id == $0", 5).first().find()
+                Log.d("TestData", testData.toString())
+
+                testData?.let {
+                    Log.d("TestData_Specific", "ID: ${it.id}, Type: ${it.type}, Name: ${it.name}")
                 }
 
+                realm.close()
             }
-            // REALM 데이터 입력 확인 코드
-            val testData: OffMapFacility? =
-                realm.query<OffMapFacility>("id == $0", 5).first().find()
-            Log.d("TestData", testData.toString())
-
-            testData?.let {
-                Log.d("TestData_Specific", "ID: ${it.id}, Type: ${it.type}, Name: ${it.name}")
-            }
-
-            realm.close()
         }
-
     }
 }
