@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews
 
+import PreferencesUtil
 import android.app.Application
 import android.util.Log
 import com.opencsv.CSVReader
@@ -24,7 +25,15 @@ import kotlinx.coroutines.launch
 import java.io.InputStreamReader
 
 class GoodNewsApplication : Application() {
+
+    companion object {
+        lateinit var preferences: PreferencesUtil
+    }
     override fun onCreate() {
+
+        // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
+        preferences = PreferencesUtil(applicationContext)
+
         super.onCreate()
         //Realm 초기화
         val config = RealmConfiguration.create(
