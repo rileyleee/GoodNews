@@ -26,6 +26,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/flashList"
+            tools:listitem="@layout/item_flash"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
@@ -71,6 +72,30 @@
             android:text="모스부호 메시지 해석"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/flashInputGroup" />
+
+        <RadioGroup
+            android:id="@+id/languageRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/flashInterpretTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/flashInterpretTextView">
+
+            <RadioButton
+                android:id="@+id/radioButtonKorean"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="한글" />
+
+            <RadioButton
+                android:id="@+id/radioButtonEnglish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="영어" />
+
+        </RadioGroup>
 
         <TextView
             android:id="@+id/flashInterpretAddText"
