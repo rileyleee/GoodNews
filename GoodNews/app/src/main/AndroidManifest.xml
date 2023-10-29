@@ -16,9 +16,6 @@
             android:name=".common.BottomNaviActivity"
             android:exported="false" />
         <activity
-            android:name=".family.FamilyActivity"
-            android:exported="false" />
-        <activity
             android:name=".LoadingActivity"
             android:exported="true">
             <intent-filter>
