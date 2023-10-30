@@ -11,6 +11,11 @@
         android:icon="@drawable/baseline_pin_drop_24"/>
 
     <item
+        android:id="@+id/fab"
+        android:title=""
+        android:enabled="false"/>
+
+    <item
         android:id="@+id/familyFragment"
         android:title="가족"
         android:icon="@drawable/baseline_family_restroom_24"/>
@@ -20,8 +25,8 @@
         android:title="내정보"
         android:icon="@drawable/baseline_person_24"/>
 
-    <item
-        android:id="@+id/flashLightFragment"
-        android:title="손전등(임시)"
-        android:icon="@drawable/baseline_flashlight_on_24"/>
+<!--    <item-->
+<!--        android:id="@+id/flashLightFragment"-->
+<!--        android:title="손전등(임시)"-->
+<!--        android:icon="@drawable/baseline_flashlight_on_24"/>-->
 </menu>

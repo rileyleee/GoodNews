@@ -41,6 +41,7 @@
             android:layout_gravity="center"
             android:layout_marginLeft="15dp"
             android:text="내 상태"
+            android:textColor="@color/black"
             android:textSize="27sp"
             app:layout_constraintStart_toEndOf="@id/myStatusUpdateButtom"
             app:layout_constraintTop_toTopOf="@+id/myStatus" />
