@@ -82,7 +82,7 @@
                 <TextView
                     android:id="@+id/flashInterpretTextView"
                     style="@style/FragmentSubTitle"
-                    android:text="모스부호 메시지 해석"
+                    android:text="모스부호 해석"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/flashInputGroup" />
 
