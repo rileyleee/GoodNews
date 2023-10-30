@@ -2,7 +2,11 @@ package com.ssafy.goodnews.member.service;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.dto.LoginDto;
+import com.ssafy.goodnews.common.dto.TokenDto;
+import com.ssafy.goodnews.common.exception.CustomException;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
+import com.ssafy.goodnews.common.exception.validator.TokenValidator;
+import com.ssafy.goodnews.jwt.JwtTokenProvider;
 import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
@@ -11,8 +15,12 @@ import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberFirstLoginResponseDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberInfoResponseDto;
 import com.ssafy.goodnews.member.repository.MemberRepository;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,9 +31,12 @@ import java.util.Optional;
 @Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
-
+    private final TokenValidator tokenValidator;
     private final MemberValidator memberValidator;
-
+    private final JwtTokenProvider jwtTokenProvider;
+    @Value("${jwt.secretKey}")
+    private String secretKey;
+    private final RedisTemplate<String, String> redisTemplate;
     @Transactional
     public BaseResponseDto registMemberInfo(MemberRegistRequestDto memberRegistRequestDto) {
 
@@ -111,6 +122,35 @@ public class MemberService {
 
         return LoginDto.builder()
                 .memberId(findAdmin.get().getId())
+                .build();
+    }
+
+    @Transactional
+    public TokenDto reissue(String refreshToken) {
+        log.info("재발급서비스 진입!!!");
+
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, 403, "토큰에 문제 생겼어요");
+        }
+
+        String id = Jwts.parser().setSigningKey(secretKey.getBytes())
+                .parseClaimsJws(refreshToken).getBody().getId();
+
+
+        Optional<Member> findMember = memberRepository.findById(id);
+        memberValidator.checkMember(findMember, id);
+
+        String redisRefreshToken = redisTemplate.opsForValue().get(findMember.get().getId());
+        tokenValidator.checkRedisRefreshToken(refreshToken,redisRefreshToken);
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(findMember.get().getId());
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(findMember.get().getId());
+
+        jwtTokenProvider.storeRefreshToken(findMember.get().getId(),newRefreshToken);
+        return TokenDto.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .memberId(findMember.get().getId())
                 .build();
     }
 }

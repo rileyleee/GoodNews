@@ -2,6 +2,8 @@ package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.dto.LoginDto;
+import com.ssafy.goodnews.common.dto.RefreshTokenResponseDto;
+import com.ssafy.goodnews.common.dto.TokenDto;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
@@ -13,6 +15,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @Tag(name = "Member", description = "멤버 관련 API")
@@ -70,6 +74,23 @@ public class MemberController {
                 .body(BaseResponseDto.builder()
                         .success(true)
                         .message("관리자 로그인을 성공하셨습니다")
+                        .build());
+    }
+
+    @Operation(summary = "access&refresh 토큰 재발급", description = "access토큰 만료되면 refresh 토큰을 이용하여 재발급하는 API")
+    @PostMapping("/reissue")
+    public ResponseEntity<RefreshTokenResponseDto> reissue(HttpServletRequest httpServletRequest) {
+        String refreshToken = httpServletRequest.getHeader("Authorization-Refresh");
+
+        TokenDto tokenDto = memberService.reissue(refreshToken);
+
+
+        return  ResponseEntity.ok()
+                .header("Authorization", tokenDto.getAccessToken())
+                .header("Authorization-Refresh",tokenDto.getRefreshToken())
+                .body(RefreshTokenResponseDto.builder()
+                        .message("accessToken 과 refreshToken이 재발급 성공하셨습니다")
+                        .memberId(tokenDto.getMemberId())
                         .build());
     }
 
