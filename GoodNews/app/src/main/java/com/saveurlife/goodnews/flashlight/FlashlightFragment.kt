@@ -5,20 +5,46 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.findFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 
 class FlashlightFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_flashlight, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // RecyclerView 손전등 list
+        var recordTestData = arrayListOf(
+            FlashlightData(FlashType.SELF, "Record 1", "... --- ..."),  // SOS 모스 부호
+            FlashlightData(FlashType.OTHER, "Record 2", "-- .- .. -."), // 예시 모스 부호
+            FlashlightData(FlashType.SELF, "Record 3", ".- .-. ."),    // 예시 모스 부호
+            FlashlightData(FlashType.SELF, "Record 4", ".- .-. .")    // 예시 모스 부호
+        )
+        var flashListManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        var flashListAdapter = FlashlightListAdapter(recordTestData)
+
+
+        var flashRecordListManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        var flashRecordListAdapter = FlashlightRecordAdapter(recordTestData)
+
+        view.findViewById<RecyclerView>(R.id.flashList).apply {
+            adapter = flashListAdapter
+            layoutManager = flashListManager
+        }
+
+        view.findViewById<RecyclerView>(R.id.flashRecordList).apply {
+            adapter = flashRecordListAdapter
+            layoutManager = flashRecordListManager
+        }
     }
 }

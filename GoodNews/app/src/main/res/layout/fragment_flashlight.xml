@@ -21,128 +21,147 @@
             android:id="@+id/flashAddText"
             style="@style/AddText"
             android:text="긴급 손전등은 긴급 시, 원하는 메시지를 모스부호로 띄워줍니다."
+            android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/flashTextView" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/flashList"
-            tools:listitem="@layout/item_flash"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flashAddText" />
-
-        <TextView
-            android:id="@+id/flashStartTextView"
-            style="@style/FragmentSubTitle"
-            android:text="모스부호 메시지"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flashList" />
-
-        <LinearLayout
-            android:id="@+id/flashInputGroup"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/flashStartTextView">
-
-            <EditText
-                android:id="@+id/flashEditText"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="4"
-                android:background="@drawable/input_stroke"
-                android:hint="원하는 메시지를 입력해 주세요." />
-
-            <TextView
-                android:id="@+id/flashStartButton"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:background="@drawable/btn_match_parent"
-                android:gravity="center"
-                android:text="실행"
-                android:textColor="@color/white" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/flashInterpretTextView"
-            style="@style/FragmentSubTitle"
-            android:text="모스부호 메시지 해석"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flashInputGroup" />
-
-        <RadioGroup
-            android:id="@+id/languageRadioGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="@id/flashInterpretTextView"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/flashInterpretTextView">
-
-            <RadioButton
-                android:id="@+id/radioButtonKorean"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="한글" />
-
-            <RadioButton
-                android:id="@+id/radioButtonEnglish"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="영어" />
-
-        </RadioGroup>
-
-        <TextView
-            android:id="@+id/flashInterpretAddText"
-            style="@style/AddText"
-            android:text="보이는 대로 긴 빛은 길게, 짧은 빛은 짧게 버튼을 눌러주세요."
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flashInterpretTextView" />
+            app:layout_constraintTop_toBottomOf="@id/flashAddText">
 
-        <LinearLayout
-            android:id="@+id/flashInterpretGroup"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@id/flashInterpretAddText">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:background="@drawable/input_stroke"
-                android:backgroundTint="@color/inactive_gray"
-                android:enabled="false" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/flashList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/item_flash" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:background="@drawable/btn_match_parent"
-                android:gravity="center"
-                android:text="눌러주세요"
-                android:textColor="@color/white" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/flashStartTextView"
+                    style="@style/FragmentSubTitle"
+                    android:text="모스부호 메시지"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/flashList" />
 
-        <TextView
-            android:id="@+id/flashRecordTextView"
-            style="@style/FragmentSubTitle"
-            android:text="기록"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flashInterpretGroup" />
+                <LinearLayout
+                    android:id="@+id/flashInputGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/flashStartTextView">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/flashRecordList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flashRecordTextView" />
+                    <EditText
+                        android:id="@+id/flashEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4"
+                        android:background="@drawable/input_stroke"
+                        android:hint="원하는 메시지를 입력해 주세요." />
 
+                    <TextView
+                        android:id="@+id/flashStartButton"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_match_parent"
+                        android:gravity="center"
+                        android:text="실행"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/flashInterpretTextView"
+                    style="@style/FragmentSubTitle"
+                    android:text="모스부호 메시지 해석"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/flashInputGroup" />
+
+                <RadioGroup
+                    android:id="@+id/languageRadioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="@id/flashInterpretTextView"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/flashInterpretTextView">
+
+                    <RadioButton
+                        android:id="@+id/radioButtonKorean"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:checked="true"
+                        android:text="한글" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonEnglish"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="영어" />
+
+                </RadioGroup>
+
+                <TextView
+                    android:id="@+id/flashInterpretAddText"
+                    style="@style/AddText"
+                    android:text="보이는 대로 긴 빛은 길게, 짧은 빛은 짧게 버튼을 눌러주세요."
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/flashInterpretTextView" />
+
+                <LinearLayout
+                    android:id="@+id/flashInterpretGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/flashInterpretAddText">
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:background="@drawable/input_stroke"
+                        android:backgroundTint="@color/inactive_gray"
+                        android:enabled="false" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_match_parent"
+                        android:gravity="center"
+                        android:text="눌러주세요"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/flashRecordTextView"
+                    style="@style/FragmentSubTitle"
+                    android:text="기록"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/flashInterpretGroup" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/flashRecordList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:nestedScrollingEnabled="false"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/flashRecordTextView" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
