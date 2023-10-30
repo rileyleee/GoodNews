@@ -1,13 +1,17 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.common.dto.LoginDto;
+import com.ssafy.goodnews.jwt.JwtTokenProvider;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberLoginAdminRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/members")
 public class MemberController {
 
+    private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
 
     @Operation(summary = "추가 정보 등록", description = "멤버 추가 정보(전화번호,이름,생년월일,성별,혈액형,특이사항) 등록")
@@ -49,6 +54,23 @@ public class MemberController {
         return memberService.getMemberInfo(memberFirstLoginRequestDto.getMemberId());
     }
 
+    @Operation(summary = "관리자 로그인", description = "관리자 로그인(아이디,비밀번호)")
+    @PostMapping("/admin/login")
+    private ResponseEntity<BaseResponseDto> loginAdmin(@RequestBody MemberLoginAdminRequestDto memberLoginAdminRequestDto) {
 
+        LoginDto member = memberService.loginAdmin(memberLoginAdminRequestDto);
+
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberId());
+        jwtTokenProvider.storeRefreshToken(member.getMemberId(), refreshToken);
+
+        return ResponseEntity.ok()
+                .header("Authorization", accessToken)
+                .header("Authorization-Refresh", refreshToken)
+                .body(BaseResponseDto.builder()
+                        .success(true)
+                        .message("관리자 로그인을 성공하셨습니다")
+                        .build());
+    }
 
 }

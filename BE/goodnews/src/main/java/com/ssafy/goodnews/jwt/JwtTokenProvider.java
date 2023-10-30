@@ -1,6 +1,7 @@
 package com.ssafy.goodnews.jwt;
 
 
+import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.repository.MemberRepository;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -42,25 +43,23 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-//    public String createAccessToken(Integer id, String userPk, Social socialType) {
-//        Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣음
-//        claims.put("id", id);
-//        claims.put("socialType",socialType);
-//        Date now = new Date();
-//        return Jwts.builder()
-//                .setClaims(claims) // 정보 저장
-//                .setIssuedAt(now) // 토큰 발행 시간 정보
-//                .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
-//                .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
-//                // signature 에 들어갈 secret값 세팅
-//                .compact();
-//    }
+    public String createAccessToken(String userPk) {
+        Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣음
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims) // 정보 저장
+                .setIssuedAt(now) // 토큰 발행 시간 정보
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
+                .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
+                // signature 에 들어갈 secret값 세팅
+                .compact();
+    }
 
-    public String createRefreshToken(Integer id) {
+    public String createRefreshToken(String id) {
 
         Date now = new Date();
         return Jwts.builder()
-                .setId(Integer.toString(id)) // 정보 저장
+                .setId(id) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime)) // set Expire Time
                 .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
@@ -93,18 +92,18 @@ public class JwtTokenProvider {
 
     }
 
-//    public void storeRefreshToken(int id, String refreshToken) {
-//        Member member = memberRepository.findById(id).orElse(null);
-//        if (member != null) {
-//            redisTemplate.opsForValue().set(
-//                    Integer.toString(id),
-//                    refreshToken,
-//                    refreshTokenValidTime,
-//                    TimeUnit.MILLISECONDS
-//
-//            );
-//        }
-//    }
+    public void storeRefreshToken(String id, String refreshToken) {
+        Member member = memberRepository.findById(id).orElse(null);
+        if (member != null) {
+            redisTemplate.opsForValue().set(
+                    id,
+                    refreshToken,
+                    refreshTokenValidTime,
+                    TimeUnit.MILLISECONDS
+
+            );
+        }
+    }
 
     public boolean validateToken(String jwtToken) {
         try {

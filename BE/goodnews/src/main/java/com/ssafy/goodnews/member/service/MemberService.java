@@ -1,10 +1,12 @@
 package com.ssafy.goodnews.member.service;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.common.dto.LoginDto;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
 import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberLoginAdminRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberFirstLoginResponseDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberInfoResponseDto;
@@ -100,6 +102,15 @@ public class MemberService {
                         .build()
                 ).build();
     }
+    @Transactional
+    public LoginDto loginAdmin(MemberLoginAdminRequestDto memberLoginAdminRequestDto) {
+
+        Optional<Member> findAdmin = memberRepository.findByIdAndPassword(memberLoginAdminRequestDto.getId(), memberLoginAdminRequestDto.getPassword());
+        memberValidator.checkAdmin(findAdmin, memberLoginAdminRequestDto.getId());
 
 
+        return LoginDto.builder()
+                .memberId(findAdmin.get().getId())
+                .build();
+    }
 }

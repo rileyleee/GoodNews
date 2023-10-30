@@ -25,6 +25,16 @@ public class MemberValidator {
         }
     }
 
+    public void checkAdmin(Optional<Member> member, String memberId) {
+        if (member.isEmpty() || member.get().getRole().equals("ADMIN")) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(MemberErrorEnum.INVALID_ADMIN.getCode())
+                    .message(MemberErrorEnum.INVALID_ADMIN.getMessage() + memberId)
+                    .build();
+        }
+    }
+
 
 
 }
