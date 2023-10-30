@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 그림자 효과 -->
+    <item>
+        <shape>
+            <padding
+                android:bottom="2dp"
+                android:left="0dp"
+                android:right="1dp"
+                android:top="0dp" />
+            <corners android:radius="16dp" />
+            <solid android:color="#00CCCCCC" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <padding
+                android:bottom="2dp"
+                android:left="0dp"
+                android:right="1dp"
+                android:top="0dp" />
+            <corners android:radius="16dp" />
+            <solid android:color="#10CCCCCC" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <padding
+                android:bottom="2dp"
+                android:left="0dp"
+                android:right="1dp"
+                android:top="0dp" />
+            <corners android:radius="16dp" />
+            <solid android:color="#20CCCCCC" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <padding
+                android:bottom="2dp"
+                android:left="0dp"
+                android:right="1dp"
+                android:top="0dp" />
+            <corners android:radius="16dp" />
+            <solid android:color="#30CCCCCC" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <padding
+                android:bottom="2dp"
+                android:left="0dp"
+                android:right="1dp"
+                android:top="0dp" />
+            <corners android:radius="16dp" />
+            <solid android:color="#50CCCCCC" />
+        </shape>
+    </item>
+    <!-- 메인 Background -->
+    <item>
+        <shape>
+            <solid android:color="@color/white" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</layer-list>
