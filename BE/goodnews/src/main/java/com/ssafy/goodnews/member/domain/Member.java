@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
@@ -26,6 +28,11 @@ public class Member extends BaseConnectEntity {
     private String state;
     private Double lat;
     private Double lon;
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
 
     private LocalDateTime lastConnection;
 
@@ -38,7 +45,7 @@ public class Member extends BaseConnectEntity {
     }
 
     @Builder
-    public Member(String id, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection) {
+    public Member(String id, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection,Role role) {
         this.id = id;
         this.name = name;
         this.birthdate = birthDate;
@@ -46,7 +53,9 @@ public class Member extends BaseConnectEntity {
         this.bloodtype = bloodType;
         this.addinfo = addInfo;
         this.lastConnection = LocalDateTime.now();
+        this.role = Role.USER;
     }
+
 
     public void updateMemberInfo(MemberInfoUpdateRequestDto memberInfoUpdateRequestDto) {
         this.name = memberInfoUpdateRequestDto.getName();
