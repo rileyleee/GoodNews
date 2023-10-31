@@ -3,21 +3,15 @@ package com.saveurlife.goodnews.main
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.alarm.AlarmFragment
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.family.FamilyFragment
-import com.saveurlife.goodnews.map.MapFragment
-import com.saveurlife.goodnews.mypage.MyPageFragment
-
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -28,7 +22,6 @@ class MainActivity : AppCompatActivity() {
 
 
         //가족 등록 모달창
-
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
 
@@ -49,8 +42,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment,
                 R.id.mapFragment,
                 R.id.familyFragment,
-                R.id.myPageFragment,
-//                R.id.flashLightFragment
+                R.id.myPageFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -61,6 +53,17 @@ class MainActivity : AppCompatActivity() {
 //        binding.myStatusUpdateButtom.setOnClickListener{
 //
 //        }
+
+        //알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 돌리기
+        supportFragmentManager.addOnBackStackChangedListener {
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+                binding.toolbar.visibility = View.VISIBLE
+                binding.navigationView.visibility = View.VISIBLE
+                binding.bottomAppBar.visibility = View.VISIBLE
+                binding.mainCircleAddButton.visibility = View.VISIBLE
+            }
+        }
     }
 
     //toolbar 보여주기
@@ -69,9 +72,35 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    //클릭했을 때 어떤 반응이 일어나게 할건지
+
+
+    //알람창
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Toast.makeText(this, "알림 기능 구현하기", Toast.LENGTH_SHORT).show()
-        return super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.action_search -> {
+                // AlarmFragment 인스턴스 생성
+                val alarmFragment = AlarmFragment()
+
+                // Toolbar와 BottomNavigationView 숨기기
+                binding.toolbar.visibility = View.GONE
+                binding.navigationView.visibility = View.GONE
+                binding.bottomAppBar.visibility = View.GONE
+                binding.mainCircleAddButton.visibility = View.GONE
+
+                // FragmentTransaction을 사용하여 Fragment 교체
+                val transaction = supportFragmentManager.beginTransaction()
+                transaction.setCustomAnimations(
+                    R.anim.slide_in_right, R.anim.slide_out_left
+                )
+                transaction.replace(R.id.nav_host_fragment, alarmFragment)
+                transaction.addToBackStack(null) // Back 버튼을 눌렀을 때 이전 Fragment로 돌아갈 수 있도록 스택에 추가
+                transaction.commit()
+                return true
+            }
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
     }
+
 }
