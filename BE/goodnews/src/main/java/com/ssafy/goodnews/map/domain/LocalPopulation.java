@@ -1,5 +1,6 @@
 package com.ssafy.goodnews.map.domain;
 
+import com.ssafy.goodnews.map.dto.request.LocalPopulationDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -19,5 +20,9 @@ public class LocalPopulation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private Integer population;
+    private int population;
+    public void updatePopulation(LocalPopulationDto localPopulationDto) {
+        this.population = localPopulationDto.getPopulation();
+    }
 }
+

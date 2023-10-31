@@ -3,6 +3,7 @@ package com.ssafy.goodnews.map.controller;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.TokenValidator;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
+import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
 import com.ssafy.goodnews.map.service.MapService;
 import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.service.MemberService;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 @RequestMapping("/api/map")
 public class MapController {
-
 
     private final MapService mapService;
     private final MemberService memberService;
@@ -43,7 +43,7 @@ public class MapController {
         return mapService.findFacilityInfo(page - 1, size);
     }
 
-    @Operation(summary = "앱 이용자 조회", description = "앱 이용자 정보 조회")
+    @Operation(summary = "앱 이용자 조회", description = "앱 이용자 정보 조회(지역명,인구수)")
     @PostMapping("/getallmember")
     private BaseResponseDto findPopulation(HttpServletRequest httpServletRequest) {
         String token = httpServletRequest.getHeader("Authorization");
@@ -52,5 +52,13 @@ public class MapController {
         return mapService.findPopulation();
     }
 
+    @Operation(summary = "앱 이용자 업데이트", description = "앱 이용자 정보 업데이트(인구수)")
+    @PutMapping("/getallmember")
+    private BaseResponseDto updatePopulation(HttpServletRequest httpServletRequest, @RequestBody MapPopulationRequestDto mapPopulationRequestDto) {
+        String token = httpServletRequest.getHeader("Authorization");
+        tokenValidator.checkTokenIsNull(token);
+        Member findMember = memberService.findMemberByJwtToken(token);
+        return mapService.updatePopulation(mapPopulationRequestDto);
+    }
 
 }

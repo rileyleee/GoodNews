@@ -37,6 +37,7 @@ public class MemberService {
     @Value("${jwt.secretKey}")
     private String secretKey;
     private final RedisTemplate<String, String> redisTemplate;
+
     @Transactional
     public BaseResponseDto registMemberInfo(MemberRegistRequestDto memberRegistRequestDto) {
 
@@ -84,12 +85,13 @@ public class MemberService {
         }
 
     }
+
     @Transactional
     public BaseResponseDto updateMemberInfo(String memberId, MemberInfoUpdateRequestDto memberInfoUpdateRequestDto) {
 
         Optional<Member> findMember = memberRepository.findById(memberId);
 
-        memberValidator.checkMember(findMember,memberId);
+        memberValidator.checkMember(findMember, memberId);
 
         findMember.get().updateMemberInfo(memberInfoUpdateRequestDto);
 
@@ -113,6 +115,7 @@ public class MemberService {
                         .build()
                 ).build();
     }
+
     @Transactional
     public LoginDto loginAdmin(MemberLoginAdminRequestDto memberLoginAdminRequestDto) {
 
@@ -141,16 +144,26 @@ public class MemberService {
         memberValidator.checkMember(findMember, id);
 
         String redisRefreshToken = redisTemplate.opsForValue().get(findMember.get().getId());
-        tokenValidator.checkRedisRefreshToken(refreshToken,redisRefreshToken);
+        tokenValidator.checkRedisRefreshToken(refreshToken, redisRefreshToken);
 
         String newAccessToken = jwtTokenProvider.createAccessToken(findMember.get().getId());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(findMember.get().getId());
 
-        jwtTokenProvider.storeRefreshToken(findMember.get().getId(),newRefreshToken);
+        jwtTokenProvider.storeRefreshToken(findMember.get().getId(), newRefreshToken);
         return TokenDto.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .memberId(findMember.get().getId())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Member findMemberByJwtToken(String token) {
+        String id = String.valueOf(Jwts.parser().setSigningKey(secretKey.getBytes())
+                .parseClaimsJws(token).getBody().get("sub"));
+        Optional<Member> findMember = memberRepository.findById(id);
+        memberValidator.checkMember(findMember, id);
+
+        return findMember.get();
     }
 }
