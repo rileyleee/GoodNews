@@ -25,7 +25,7 @@ class FlashlightFragment : Fragment() {
     private var flashStartButton: TextView? = null
     private var morseInputButton: TextView? = null
     private var languageRadioGroup: RadioGroup? = null
-    private var isEng = true
+    private var isEng = false
     private var morseOutputTextView: TextView? = null
     private var clearButton: Button? = null
     private val convertedCharactersEng = StringBuilder()
@@ -119,10 +119,9 @@ class FlashlightFragment : Fragment() {
         }
         // RecyclerView 손전등 테스트 데이터
         var recordTestData = arrayListOf(
-            FlashlightData(FlashType.SELF, "Record 1", "... --- ..."),
-            FlashlightData(FlashType.OTHER, "Record 2", "-- .- .. -."),
-            FlashlightData(FlashType.SELF, "Record 3", ".- .-. ."),
-            FlashlightData(FlashType.SELF, "Record 4", ".- .-. .")
+            FlashlightData(FlashType.SELF, "살려주세요", "... --- ..."),
+            FlashlightData(FlashType.OTHER, "나의 위치", "-- .- .. -."),
+            FlashlightData(FlashType.SELF, "Record 3", ".- .-. .")
         )
         var flashListManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         var flashListAdapter = FlashlightListAdapter(recordTestData)
@@ -469,8 +468,4 @@ class FlashlightFragment : Fragment() {
             e.printStackTrace()
         }
     }
-
-    // ===================
-
-
 }
