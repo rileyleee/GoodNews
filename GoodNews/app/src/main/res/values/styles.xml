@@ -36,4 +36,10 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
+
+    <!--  메인페이지 TabLayout 제목  -->
+    <style name="MyTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">21sp</item>
+    </style>
+
 </resources>
