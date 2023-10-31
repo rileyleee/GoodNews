@@ -29,5 +29,6 @@ const StyledAdminCard = styled.div`
   width: 80%;
   height: 90%;
   background-color: #fff;
+  border-radius: 30px;
   padding: 50px;
 `;

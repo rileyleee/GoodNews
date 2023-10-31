@@ -1,10 +1,14 @@
+import React, { useState } from "react";
+
 import styled from "styled-components";
 import Button from "../@common/Button";
 
 // 대피소 상세 정보 모음 (대피소 정보들 + 수정 버튼)
 const MapAdminInfoBoxList = () => {
+  const [infoModal, setInfoModal] = useState(false);
   const handleEditInfoClick = () => {
     console.log("대피소 상세 정보 모음의 수정 버튼을 클릭했습니다.");
+    setInfoModal(true);
   };
 
   return (
@@ -16,16 +20,18 @@ const MapAdminInfoBoxList = () => {
           size="Medium"
           color="Sub"
           onClick={handleEditInfoClick}
-          isActive
+          isActive={true}
         >
           수정
         </Button>
       </div>
-      <div>
-        이것은 수정버튼 눌렀을 때 모달창 나오는 것
-        <StyledModalBackground />
-        <StyledModalContent>모달창</StyledModalContent>
-      </div>
+      {infoModal && (
+        <div>
+          이것은 수정버튼 눌렀을 때 모달창 나오는 것
+          <StyledModalBackground />
+          <StyledModalContent>모달창</StyledModalContent>
+        </div>
+      )}
     </>
   );
 };
@@ -41,4 +47,13 @@ const StyledModalBackground = styled.div`
   background: rgba(0, 0, 0, 0.6);
 `;
 
-const StyledModalContent = styled.div``;
+const StyledModalContent = styled.div`
+  width: 60%;
+  height: 75%;
+  position: absolute;
+  border-radius: 30px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+`;
