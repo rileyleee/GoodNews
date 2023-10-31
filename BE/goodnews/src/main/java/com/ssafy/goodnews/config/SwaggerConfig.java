@@ -3,6 +3,8 @@ package com.ssafy.goodnews.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
@@ -51,8 +53,14 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+        Parameter authHeader = new Parameter()
+                .in("header")
+                .name("Authorization")
+                .description("Autorhization header fort he API")
+                .required(true)
+                .schema(new StringSchema());
         return new OpenAPI()
-                .components(new Components())
+                .components(new Components().addParameters("Authorization", authHeader))
                 .info(new Info().title("API 명세서")
                         .description("희소식 API 명세서")
                         .version("v0.0.1"));

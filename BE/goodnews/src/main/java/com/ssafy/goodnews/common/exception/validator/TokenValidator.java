@@ -25,4 +25,14 @@ public class TokenValidator {
         }
     }
 
+    public void checkTokenIsNull(String token) {
+        if (token == null) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(TokenErrorEnum.INVALID_TOKEN.getCode())
+                    .message(TokenErrorEnum.INVALID_TOKEN.getMessage())
+                    .build();
+        }
+    }
+
 }
