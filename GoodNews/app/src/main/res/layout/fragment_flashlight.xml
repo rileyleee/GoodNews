@@ -20,8 +20,8 @@
         <TextView
             android:id="@+id/flashAddText"
             style="@style/AddText"
-            android:text="긴급 손전등은 긴급 시, 원하는 메시지를 모스부호로 띄워줍니다."
             android:layout_marginTop="8dp"
+            android:text="긴급 손전등은 긴급 시, 원하는 메시지를 모스부호로 띄워줍니다."
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/flashTextView" />
 
@@ -96,7 +96,7 @@
                     app:layout_constraintTop_toTopOf="@id/flashInterpretTextView">
 
                     <RadioButton
-                        android:id="@+id/radioButtonKorean"
+                        android:id="@+id/koreanRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -104,12 +104,20 @@
                         android:text="한글" />
 
                     <RadioButton
-                        android:id="@+id/radioButtonEnglish"
+                        android:id="@+id/englishRadioButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="영어" />
 
                 </RadioGroup>
+                <!-- 임시버튼 -->
+                <Button
+                    android:id="@+id/clearButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Clear"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
                 <TextView
                     android:id="@+id/flashInterpretAddText"
@@ -126,14 +134,17 @@
                     app:layout_constraintTop_toBottomOf="@id/flashInterpretAddText">
 
                     <EditText
+                        android:id="@+id/morseOutputTextView"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="2"
                         android:background="@drawable/input_stroke"
                         android:backgroundTint="@color/inactive_gray"
-                        android:enabled="false" />
+                        android:enabled="false"
+                        android:text="" />
 
                     <TextView
+                        android:id="@+id/morseInputButton"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginStart="8dp"
