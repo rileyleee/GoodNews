@@ -1,25 +1,46 @@
 package com.saveurlife.goodnews.main
 
-import MainAdapter
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentHomeBinding
+import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener {
     private lateinit var binding: FragmentHomeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments?.let {
 
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.myStatusUpdateButtom.setOnClickListener {
+            val dialogFragment = MyStatusDialogFragment()
+            dialogFragment.show(childFragmentManager, "MyStatusDialogFragment")
+        }
+    }
+
+    override fun onStatusSelected(status: String) {
+        when (status) {
+            "safe" -> binding.myStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
+            "injury" -> binding.myStatus.setBackgroundResource(R.drawable.my_status_injury_circle)
+            "death" -> binding.myStatus.setBackgroundResource(R.drawable.my_status_death_circle)
+            "unknown" -> binding.myStatus.setBackgroundResource(R.drawable.my_status_circle)
         }
     }
 
@@ -28,59 +49,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val tabLayout = binding.tabLayout
 
-
-        val dogFragment = MainAroundListFragment()
-        val catFragment = MainFamilyAroundListFragment()
-
-        val fragments = arrayListOf<Fragment>(dogFragment, catFragment)
-        val tabAdapter = object : FragmentStateAdapter(this) {
-
-            override fun getItemCount(): Int {
-                return fragments.size
-            }
-            override fun createFragment(position: Int): Fragment {
-                return fragments[position]
-            }
-        }
-
-//        binding.viewPager2.adapter = tabAdapter
-//        TabLayoutMediator(binding.tabLayout, binding.viewPager2) {tab,position ->
-//            when (position) {
-//                0 -> tab.setText(R.string.tabDogText)
-//                else -> tab.setText(R.string.tabCatText)
-//            }
-//        }.attach()
-
-//        tabLayout.addTab(tabLayout.newTab().setText("Fragment1"))
-//        tabLayout.addTab(tabLayout.newTab().setText("Fragment2"))
-//        tabLayout.addTab(tabLayout.newTab().setText("Fragment3"))
-//
-//
-//        val viewPager: ViewPager = binding.viewPager
-//
-//
-//        val adapter = MainAdapter(supportFragmentManager, tabLayout.tabCount)
-//
-//        viewPager.adapter = adapter
-//
-//        viewPager.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tabLayout))
-//
-//        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-//
-//            override fun onTabSelected(tab: TabLayout.Tab) {
-//                viewPager.currentItem = tab.position
-//            }
-//
-//            override fun onTabUnselected(tab: TabLayout.Tab) {
-//            }
-//
-//            override fun onTabReselected(tab: TabLayout.Tab) {
-//            }
-//        })
-
-
-        return inflater.inflate(R.layout.fragment_home, container, false)
+        return binding.root
     }
 }

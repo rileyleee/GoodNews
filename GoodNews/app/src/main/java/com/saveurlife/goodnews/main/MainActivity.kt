@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
 
         //가족 등록 모달창
+
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
 
@@ -73,5 +74,4 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "알림 기능 구현하기", Toast.LENGTH_SHORT).show()
         return super.onOptionsItemSelected(item)
     }
-
 }

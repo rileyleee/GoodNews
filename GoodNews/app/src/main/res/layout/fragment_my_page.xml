@@ -166,23 +166,8 @@
         app:layout_constraintTop_toBottomOf="@id/myPageCard"
         app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-        app:layout_constraintBottom_toTopOf="@id/addGroup"/>
+        app:layout_constraintBottom_toTopOf="@id/setting"/>
 
-    <TextView
-        android:id="@+id/addGroup"
-        android:layout_width="0dp"
-        android:layout_height="70dp"
-        android:text="+ 그룹 생성/참가"
-        android:textSize="21sp"
-        android:textColor="@color/white"
-        android:gravity="center"
-        android:background="@drawable/card_component"
-        android:backgroundTint="@color/main"
-        app:layout_constraintTop_toBottomOf="@+id/contour"
-        app:layout_constraintBottom_toTopOf="@id/setting"
-        app:layout_constraintEnd_toStartOf="@id/guidelineVerticalEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
-         />
 
     <TextView
         android:id="@+id/setting"
@@ -193,7 +178,7 @@
         android:textSize="27sp"
         android:fontFamily="@font/spoqahansansneo_bold"
         app:layout_constraintStart_toStartOf="@id/guidelineVertical"
-        app:layout_constraintTop_toBottomOf="@id/addGroup" />
+        app:layout_constraintTop_toBottomOf="@id/contour" />
 
     <TextView
         android:id="@+id/darkMode"
