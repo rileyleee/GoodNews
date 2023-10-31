@@ -155,9 +155,7 @@
                     android:id="@+id/flashRecordList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
                     android:nestedScrollingEnabled="false"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/flashRecordTextView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

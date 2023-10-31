@@ -17,18 +17,142 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/meetingPlaceWrap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_background_with_shadow"
+            android:padding="20dp"
             app:layout_constraintTop_toBottomOf="@id/familyTextView">
 
             <TextView
+                android:id="@+id/meetingPlaceTextView"
                 style="@style/FragmentSubTitle"
-                android:text="모임 장소" />
+                android:text="모임 장소"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </LinearLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/meetingPlaceGroup"
+                android:layout_width="212dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <!-- 모임장소 한 개 -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/meetingPlaceFirst"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/input_stroke"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/meetingNumberFirst"
+                        style="@style/MeetingPlaceNumber"
+                        android:background="@drawable/my_status_circle"
+                        android:text="1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/meetingStatusFirst"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="상태"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/meetingNumberFirst"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/meetingNameFirst"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="장소이름"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/meetingPlaceSecond"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/input_stroke"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/meetingPlaceFirst">
+
+                    <TextView
+                        android:id="@+id/meetingNumberSecond"
+                        style="@style/MeetingPlaceNumber"
+                        android:background="@drawable/my_status_circle"
+                        android:text="2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/meetingStatusSecond"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="상태"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/meetingNumberSecond"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/meetingNameSecond"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="장소이름"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/meetingPlaceThird"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/input_stroke"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/meetingPlaceSecond">
+
+                    <TextView
+                        android:id="@+id/meetingNumberThird"
+                        style="@style/MeetingPlaceNumber"
+                        android:background="@drawable/my_status_circle"
+                        android:text="3"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/meetingStatusThird"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="상태"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/meetingNumberThird"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/meetingNameThird"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="장소이름"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/familyAddTextView"
@@ -52,7 +176,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="4"
                 android:background="@drawable/input_stroke"
-                android:hint="가족의 휴대폰 번호를 입력해 주세요." />
+                android:hint="가족의 휴대폰 번호를 입력해 주세요."
+                android:inputType="phone"
+                android:maxLength="11" />
 
             <TextView
                 android:id="@+id/familyAddButton"
@@ -67,8 +193,10 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/familyList"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/familyAddGroup" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
