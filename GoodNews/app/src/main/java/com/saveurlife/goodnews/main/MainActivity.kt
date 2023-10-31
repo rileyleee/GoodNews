@@ -21,10 +21,6 @@ import com.saveurlife.goodnews.mypage.MyPageFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val TAG_HOME = "home_fragment"
-    private val TAG_MAP = "map_fragment"
-    private val TAG_FAMILY = "family_fragment"
-    private val TAG_MY_PAGE = "my_page_fragment"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -39,20 +35,9 @@ class MainActivity : AppCompatActivity() {
         //상단바 모달창
         setSupportActionBar(binding.toolbar)
 
-
-//        replaceFragment(HomeFragment())
+        //Fragment 갈아 끼우기
         binding.navigationView.background = null
         binding.navigationView.menu.getItem(2).isEnabled = false
-//        binding.navigationView.setOnItemSelectedListener { item ->
-//            when (item.itemId) {
-//                R.id.homeFragment -> replaceFragment(HomeFragment())
-//                R.id.mapFragment -> replaceFragment(MapFragment())
-//                R.id.familyFragment -> replaceFragment(FamilyFragment())
-//                R.id.myPageFragment -> replaceFragment(MyPageFragment())
-//            }
-//            true
-//        }
-
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -75,12 +60,6 @@ class MainActivity : AppCompatActivity() {
 //        binding.myStatusUpdateButtom.setOnClickListener{
 //
 //        }
-    }
-    private fun replaceFragment(fragment: Fragment) {
-        val fragmentManager: FragmentManager = supportFragmentManager
-        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.nav_host_fragment, fragment)
-        fragmentTransaction.commit()
     }
 
     //toolbar 보여주기
