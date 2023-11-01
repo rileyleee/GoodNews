@@ -6,8 +6,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:padding="20dp"
     android:background="@drawable/card_component"
+    android:padding="20dp"
     tools:context=".main.MyStatusDialogFragment">
 
     <ImageView
@@ -149,4 +149,38 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="unknownText,unknownCircle" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/safeLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="safeCircle,safeText"
+        app:layout_constraintStart_toStartOf="@id/updateInfo"
+        app:layout_constraintTop_toBottomOf="@id/updateInfo" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/injuryLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="injuryCircle,injuryText"
+        app:layout_constraintStart_toStartOf="@id/safeCircle"
+        app:layout_constraintTop_toBottomOf="@id/safeCircle" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/deathLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="deathCircle,deathText"
+        app:layout_constraintStart_toStartOf="@id/safeCircle"
+        app:layout_constraintTop_toBottomOf="@id/injuryCircle" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/unknownLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="unknownText"
+        app:layout_constraintStart_toStartOf="@id/safeCircle"
+        app:layout_constraintTop_toBottomOf="@id/deathCircle"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
