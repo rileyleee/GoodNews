@@ -2,7 +2,6 @@ package com.saveurlife.goodnews.main
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -15,7 +14,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +23,6 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
-import com.saveurlife.goodnews.alarm.AlarmFragment
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -173,7 +170,7 @@ class MainActivity : AppCompatActivity() {
             sirenStartTextView.visibility = View.GONE
             sirenStopButton.visibility = View.VISIBLE
             sirenStopTextView.visibility = View.VISIBLE
-            playSound(R.raw.siren_sound)
+            playSound(R.raw.siren_sound, sirenStartButton, sirenStartTextView, sirenStopButton, sirenStopTextView)
         }
 
         sirenStopButton.setOnClickListener {
@@ -199,7 +196,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     //경보음 재생하기
-    private fun playSound(sirenSound: Int) {
+    private fun playSound(
+        sirenSound: Int,
+        sirenStartButton: Button,
+        sirenStartTextView: TextView,
+        sirenStopButton: Button,
+        sirenStopTextView: TextView
+    ) {
         mediaPlayer?.stop()
         mediaPlayer?.release()
 
@@ -210,6 +213,10 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer?.setOnCompletionListener {
             it.release()
             mediaPlayer = null
+            sirenStartButton.visibility = View.VISIBLE
+            sirenStartTextView.visibility = View.VISIBLE
+            sirenStopButton.visibility = View.GONE
+            sirenStopTextView.visibility = View.GONE
         }
     }
 
