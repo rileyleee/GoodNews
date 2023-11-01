@@ -3,6 +3,7 @@ package com.ssafy.goodnews.map.controller;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.TokenValidator;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
+import com.ssafy.goodnews.map.dto.request.MapFacilityRequestDto;
 import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
 import com.ssafy.goodnews.map.service.MapService;
 import com.ssafy.goodnews.member.domain.Member;
@@ -59,6 +60,15 @@ public class MapController {
         tokenValidator.checkTokenIsNull(token);
         Member findMember = memberService.findMemberByJwtToken(token);
         return mapService.updatePopulation(mapPopulationRequestDto);
+    }
+
+    @Operation(summary = "지도 시설 상세 보기", description = "지도시설 상세 보기(타입,명칭,경도,위도,사용가능,보유자원)조회")
+    @PostMapping("/facilitydetail")
+    private BaseResponseDto findDetailFacilityInfo(HttpServletRequest httpServletRequest, @RequestBody MapFacilityRequestDto mapFacilityRequestDto) {
+        String token = httpServletRequest.getHeader("Authorization");
+        tokenValidator.checkTokenIsNull(token);
+        Member findMember = memberService.findMemberByJwtToken(token);
+        return mapService.detailFacility(mapFacilityRequestDto.getId());
     }
 
 }

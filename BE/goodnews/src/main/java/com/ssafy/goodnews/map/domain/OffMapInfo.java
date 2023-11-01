@@ -19,6 +19,7 @@ public class OffMapInfo {
     private Double lon;
     private Double lat;
     private int canuse;
+    @Field("facility")
     private Facility facility;
 
     }
