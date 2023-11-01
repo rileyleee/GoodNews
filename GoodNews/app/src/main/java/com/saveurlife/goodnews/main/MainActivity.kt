@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -10,6 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.alarm.AlarmFragment
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
@@ -73,28 +75,12 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
-    //알람창
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_search -> {
-                // AlarmFragment 인스턴스 생성
-                val alarmFragment = AlarmFragment()
-
-                // Toolbar와 BottomNavigationView 숨기기
-                binding.toolbar.visibility = View.GONE
-                binding.navigationView.visibility = View.GONE
-                binding.bottomAppBar.visibility = View.GONE
-                binding.mainCircleAddButton.visibility = View.GONE
-
-                // FragmentTransaction을 사용하여 Fragment 교체
-                val transaction = supportFragmentManager.beginTransaction()
-                transaction.setCustomAnimations(
-                    R.anim.slide_in_right, R.anim.slide_out_left
-                )
-                transaction.replace(R.id.nav_host_fragment, alarmFragment)
-                transaction.addToBackStack(null) // Back 버튼을 눌렀을 때 이전 Fragment로 돌아갈 수 있도록 스택에 추가
-                transaction.commit()
+                val intent = Intent(this, AlarmActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                 return true
             }
             else -> {
@@ -102,5 +88,36 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
+
+    //알람창
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.action_search -> {
+//                // AlarmFragment 인스턴스 생성
+//                val alarmFragment = AlarmFragment()
+//
+//                // Toolbar와 BottomNavigationView 숨기기
+//                binding.toolbar.visibility = View.GONE
+//                binding.navigationView.visibility = View.GONE
+//                binding.bottomAppBar.visibility = View.GONE
+//                binding.mainCircleAddButton.visibility = View.GONE
+//
+//                // FragmentTransaction을 사용하여 Fragment 교체
+//                val transaction = supportFragmentManager.beginTransaction()
+//                transaction.setCustomAnimations(
+//                    R.anim.slide_in_right, R.anim.slide_out_left
+//                )
+//                transaction.replace(R.id.nav_host_fragment, alarmFragment)
+//                transaction.addToBackStack(null) // Back 버튼을 눌렀을 때 이전 Fragment로 돌아갈 수 있도록 스택에 추가
+//                transaction.commit()
+//                return true
+//            }
+//            else -> {
+//                return super.onOptionsItemSelected(item)
+//            }
+//        }
+//    }
 
 }

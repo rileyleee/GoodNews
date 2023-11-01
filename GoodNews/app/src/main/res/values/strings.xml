@@ -21,5 +21,6 @@
     <string name="family_next">다음에 하기</string>
     <string name="hyphen">-</string>
     <string name="update_my_info"><u>정보수정</u></string>
+    <string name="seeLocation"><u>위치 보기</u></string>
 
 </resources>
