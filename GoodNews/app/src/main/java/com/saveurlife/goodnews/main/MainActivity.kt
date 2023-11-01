@@ -49,40 +49,23 @@ class MainActivity : AppCompatActivity() {
         binding.navigationView.background = null
         binding.navigationView.menu.getItem(2).isEnabled = false
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.homeFragment,
                 R.id.mapFragment,
                 R.id.familyFragment,
-                R.id.myPageFragment
+                R.id.myPageFragment,
+                R.id.flashlightFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
-//        binding.navigationView.setupWithNavController(navController)
-        binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
+        // 왜 안 되지... @@ 수정
+        // binding.navigationView.setupWithNavController(navController)
+        binding.navigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.homeFragment -> {
-                    navController.navigateSingleTop(R.id.homeFragment)
-                    true
-                }
-
-                R.id.mapFragment -> {
-                    navController.navigateSingleTop(R.id.mapFragment)
-                    true
-                }
-
-                R.id.familyFragment -> {
-                    navController.navigateSingleTop(R.id.familyFragment)
-                    true
-                }
-
-                R.id.myPageFragment -> {
-                    navController.navigateSingleTop(R.id.myPageFragment)
+                R.id.homeFragment, R.id.mapFragment, R.id.familyFragment, R.id.myPageFragment -> {
+                    navController.navigateSingleTop(menuItem.itemId)
                     true
                 }
 
@@ -123,6 +106,8 @@ class MainActivity : AppCompatActivity() {
 
         // 필요한 경우 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
         // 예: dialog.findViewById<Button>(R.id.your_button_id).setOnClickListener { ... }
+
+
         val navController = findNavController(R.id.nav_host_fragment)
         val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
         flashLayer?.setOnClickListener {
@@ -140,19 +125,20 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.action_search -> {
-//                val intent = Intent(this, AlarmActivity::class.java)
-//                startActivity(intent)
-//                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-//                return true
-//            }
-//            else -> {
-//                return super.onOptionsItemSelected(item)
-//            }
-//        }
-//    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_search -> {
+                val intent = Intent(this, AlarmActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                return true
+            }
+
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
