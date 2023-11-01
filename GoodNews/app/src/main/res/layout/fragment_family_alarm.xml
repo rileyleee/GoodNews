@@ -4,10 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical"
-    tools:context=".main.FamilyAlarmFragment">
-
-
+    tools:context=".main.FamilyAlarmFragment"
+    android:background="@drawable/radius">
 
     <LinearLayout
         android:layout_width="330dp"
@@ -17,12 +15,19 @@
         android:gravity="center"
         android:orientation="vertical">
 
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/family_regist"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
             android:layout_marginBottom="10dp"
-            android:text="가족 등록 어쩌구"
+            android:text="가족을 등록해주세요"
             android:textColor="@color/font_color"
             android:textSize="21sp"
             android:textStyle="bold" />
@@ -64,11 +69,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="160dp"
-        android:src="@drawable/family_regist"/>
+
 
 </FrameLayout>

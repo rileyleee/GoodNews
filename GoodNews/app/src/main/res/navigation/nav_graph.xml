@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.saveurlife.goodnews.common.HomeFragment"
+        android:name="com.saveurlife.goodnews.main.HomeFragment"
         tools:layout="@layout/fragment_home" />
 
     <fragment
@@ -25,9 +25,14 @@
         android:name="com.saveurlife.goodnews.mypage.MyPageFragment"
         tools:layout="@layout/fragment_my_page" />
 
+<!--    <fragment-->
+<!--        android:id="@+id/flashLightFragment"-->
+<!--        android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"-->
+<!--        tools:layout="@layout/fragment_flashlight" />-->
+
     <fragment
-        android:id="@+id/flashLightFragment"
-        android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"
-        tools:layout="@layout/fragment_flashlight" />
+        android:id="@+id/alarmFragment"
+        android:name="com.saveurlife.goodnews.alarm.AlarmFragment"
+        tools:layout="@layout/fragment_alarm" />
 
 </navigation>
