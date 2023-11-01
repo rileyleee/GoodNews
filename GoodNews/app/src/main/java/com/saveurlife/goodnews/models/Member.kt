@@ -7,6 +7,7 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 class Member(): RealmObject {
     @PrimaryKey
     var memberId:Long = 0
+    var phone: Long =0
     var birthDate:String = ""
     var name:String = ""
     var gender: String = ""
@@ -17,8 +18,9 @@ class Member(): RealmObject {
     var location: Location? = null
     var familyId: Long = 0
 
-    constructor(memberId: Long, birthDate: String, name: String, gender: String, bloodType: String, addInfo: String, lastConnection: RealmInstant, lastUpdate: RealmInstant, location: Location, familyId: Long) : this() {
+    constructor(memberId: Long, phone: Long, birthDate: String, name: String, gender: String, bloodType: String, addInfo: String, lastConnection: RealmInstant, lastUpdate: RealmInstant, location: Location, familyId: Long) : this() {
         this.memberId = memberId
+        this.phone = phone
         this.birthDate = birthDate
         this.name = name
         this.gender = gender
