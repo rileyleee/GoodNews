@@ -1,10 +1,16 @@
 package com.saveurlife.goodnews.main
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -22,13 +28,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         //가족 등록 모달창
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
 
-
-        //상단바 모달창
+        //상단바 toolbar
         setSupportActionBar(binding.toolbar)
 
         //Fragment 갈아 끼우기
@@ -51,10 +55,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.navigationView.setupWithNavController(navController)
 
-        //상태 변경
-//        binding.myStatusUpdateButtom.setOnClickListener{
-//
-//        }
 
         //알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 돌리기
         supportFragmentManager.addOnBackStackChangedListener {
@@ -66,6 +66,29 @@ class MainActivity : AppCompatActivity() {
                 binding.mainCircleAddButton.visibility = View.VISIBLE
             }
         }
+
+        binding.mainCircleAddButton.setOnClickListener{
+            showDialog()
+        }
+    }
+
+    private fun showDialog() {
+        val dialog = Dialog(this)
+        dialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setGravity(Gravity.BOTTOM)
+        dialog.setContentView(R.layout.dialog_layout) // dialog_layout는 표시하고자 하는 다이얼로그의 레이아웃 이름입니다.
+
+        // 필요한 경우 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
+        // 예: dialog.findViewById<Button>(R.id.your_button_id).setOnClickListener { ... }
+
+        dialog.show()
     }
 
     //toolbar 보여주기
