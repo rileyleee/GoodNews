@@ -47,4 +47,10 @@
         <item name="android:layout_height">24dp</item>
         <item name="backgroundTint">@color/main</item>
     </style>
+
+    <!--  메인페이지 TabLayout 제목  -->
+    <style name="MyTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">21sp</item>
+    </style>
+
 </resources>
