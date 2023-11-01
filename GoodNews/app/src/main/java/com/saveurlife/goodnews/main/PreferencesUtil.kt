@@ -1,3 +1,5 @@
+package com.saveurlife.goodnews.main
+
 import android.content.Context
 import android.content.SharedPreferences
 

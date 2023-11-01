@@ -1,9 +1,9 @@
 package com.saveurlife.goodnews
 
-import PreferencesUtil
 import android.app.Application
 import android.util.Log
 import com.opencsv.CSVReader
+import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.AidKit
 import com.saveurlife.goodnews.models.Alert
 import com.saveurlife.goodnews.models.Chat
