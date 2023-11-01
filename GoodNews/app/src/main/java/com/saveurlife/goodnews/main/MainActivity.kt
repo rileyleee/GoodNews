@@ -32,13 +32,7 @@ class MainActivity : AppCompatActivity() {
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
 
-<<<<<<< HEAD
-
-
-        //상단바 모달창
-=======
         //상단바 toolbar
->>>>>>> 53db8f4d162bd8a0f2d9173b9ce74d24121995e4
         setSupportActionBar(binding.toolbar)
 
         //Fragment 갈아 끼우기

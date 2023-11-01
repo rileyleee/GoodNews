@@ -1,167 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/transparent">
 
     <ImageView
-        android:id="@+id/center_menu"
+        android:id="@+id/centerMenu"
         android:layout_width="230dp"
         android:layout_height="230dp"
+        android:fitsSystemWindows="true"
         android:src="@drawable/dialog_donut"
         app:layout_constraintBottom_toBottomOf="@id/dialogGuideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:fitsSystemWindows="true"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/dialog_flashlight"
+        android:id="@+id/centerWifi"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/dialog_donut_wifi"
+        app:layout_constraintBottom_toBottomOf="@id/centerMenu"
+        app:layout_constraintEnd_toEndOf="@id/centerMenu"
+        app:layout_constraintStart_toStartOf="@id/centerMenu"
+        app:layout_constraintTop_toTopOf="@id/centerMenu" />
+
+    <ImageView
+        android:id="@+id/dialogFlashlight"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:src="@drawable/main_dialog_flashlight"
-        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2"
-        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev2"/>
+        app:layout_constraintEnd_toEndOf="@id/centerMenu"
+        app:layout_constraintStart_toStartOf="@id/centerMenu"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1" />
 
     <TextView
+        android:id="@+id/dialogFlashlightTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="긴급 손전등"
-        android:textSize="16sp"
-        android:textColor="@color/white"
         android:layout_marginTop="3dp"
-        app:layout_constraintTop_toBottomOf="@id/dialog_flashlight"
-        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev1"/>
-
-    <ImageView
-        android:id="@+id/dialog_blt"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/dialog_blt"
-        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1"
-        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev4" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="연결"
-        android:textSize="16sp"
+        android:text="긴급 손전등"
         android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/dialog_blt"
-        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev3"/>
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@id/centerMenu"
+        app:layout_constraintStart_toStartOf="@id/centerMenu"
+        app:layout_constraintTop_toBottomOf="@id/dialogFlashlight" />
 
     <ImageView
-        android:id="@+id/dialog_chatting"
+        android:id="@+id/dialogChatting"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:src="@drawable/dialog_chatting"
-        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1"
-        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev6"/>
+        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev1"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2" />
 
     <TextView
+        android:id="@+id/dialogChattingTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="채팅"
-        android:textSize="16sp"
         android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/dialog_chatting"
-        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev5"/>
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev1"
+        app:layout_constraintTop_toBottomOf="@id/dialogChatting" />
 
     <ImageView
-        android:id="@+id/dialog_sound"
+        android:id="@+id/dialogSound"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:src="@drawable/dialog_sound"
-        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2"
-        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev8"/>
+        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev2"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2" />
 
     <TextView
+        android:id="@+id/dialogSoundTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="경보"
-        android:textSize="16sp"
         android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/dialog_sound"
-        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev7"/>
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev2"
+        app:layout_constraintTop_toBottomOf="@id/dialogSound" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="1.35"/>
-<!--    app:layout_constraintGuide_percent="1.28"-->
+        app:layout_constraintGuide_percent="1.35" />
+    <!--    app:layout_constraintGuide_percent="1.28"-->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuidelineh1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.15"/>
+        app:layout_constraintGuide_percent="0.1" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuidelineh2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.6"/>
+        app:layout_constraintGuide_percent="0.51" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuidelinev1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.03"/>
+        app:layout_constraintGuide_percent="0.2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuidelinev2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.13"/>
+        app:layout_constraintGuide_percent="0.9" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogGuidelinev3"
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/flashLayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.25"/>
+        app:layout_constraintEnd_toEndOf="@id/centerMenu"
+        app:layout_constraintStart_toStartOf="@id/centerMenu"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1"
+        app:constraint_referenced_ids="dialogFlashlight, dialogFlashlightTextview" />
 
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogGuidelinev4"
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/chattingLayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.25"/>
+        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev1"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2"
+        app:constraint_referenced_ids="dialogChatting, dialogChattingTextview" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogGuidelinev5"
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/soundLayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.75"/>
-
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogGuidelinev6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.75"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogGuidelinev7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.9"/>
-
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogGuidelinev8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.9"/>
+        app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev2"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2"
+        app:constraint_referenced_ids="dialogSound, dialogSoundTextview" />
 </androidx.constraintlayout.widget.ConstraintLayout>

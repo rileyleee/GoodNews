@@ -15,7 +15,7 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.myStatusUpdateButtom.setOnClickListener {
+        binding.layer.setOnClickListener {
             val dialogFragment = MyStatusDialogFragment()
             dialogFragment.show(childFragmentManager, "MyStatusDialogFragment")
         }
