@@ -1,5 +1,8 @@
 package com.saveurlife.goodnews.main
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -11,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -72,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Dialog fragment 모달창
     private fun showDialog() {
         val dialog = Dialog(this)
         dialog.window?.setLayout(
@@ -85,8 +90,27 @@ class MainActivity : AppCompatActivity() {
         dialog.window?.setGravity(Gravity.BOTTOM)
         dialog.setContentView(R.layout.dialog_layout) // dialog_layout는 표시하고자 하는 다이얼로그의 레이아웃 이름입니다.
 
+
         // 필요한 경우 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
         // 예: dialog.findViewById<Button>(R.id.your_button_id).setOnClickListener { ... }
+
+        val view = dialog.window?.decorView
+
+        // 투명도 애니메이션 설정
+        val alphaAnimation = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f)
+        alphaAnimation.duration = 300
+
+        // 크기 애니메이션 설정
+        val scaleXAnimation = ObjectAnimator.ofFloat(view, "scaleX", 0.0f, 1.0f)
+        scaleXAnimation.duration = 300
+        val scaleYAnimation = ObjectAnimator.ofFloat(view, "scaleY", 0.0f, 1.0f)
+        scaleYAnimation.duration = 300
+
+
+        // 애니메이션 세트를 생성하고 시작
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(alphaAnimation, scaleXAnimation, scaleYAnimation)
+        animatorSet.start()
 
         dialog.show()
     }
