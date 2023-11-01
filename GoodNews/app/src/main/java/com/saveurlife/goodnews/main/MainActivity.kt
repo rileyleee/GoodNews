@@ -7,6 +7,7 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -15,6 +16,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -27,6 +30,8 @@ import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    // MediaPlayer 객체를 클래스 레벨 변수로 선언
+    private var mediaPlayer: MediaPlayer? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -93,7 +98,6 @@ class MainActivity : AppCompatActivity() {
 
         // 필요한 경우 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
         // 예: dialog.findViewById<Button>(R.id.your_button_id).setOnClickListener { ... }
-
         val view = dialog.window?.decorView
 
         // 투명도 애니메이션 설정
@@ -111,6 +115,15 @@ class MainActivity : AppCompatActivity() {
         val animatorSet = AnimatorSet()
         animatorSet.playTogether(alphaAnimation, scaleXAnimation, scaleYAnimation)
         animatorSet.start()
+
+        //경보음
+        val soundLayer = dialog.findViewById<View>(R.id.soundLayer)
+        soundLayer.setOnClickListener {
+            // 두 번째 다이얼로그 표시 함수 호출
+            showSecondDialog()
+            dialog.dismiss()
+        }
+
 
         dialog.show()
     }
@@ -136,35 +149,68 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showSecondDialog() {
+        val secondDialog = Dialog(this)
+        secondDialog.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 
+        secondDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        secondDialog.setCancelable(true)
+        secondDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        secondDialog.window?.setGravity(Gravity.CENTER)
+        secondDialog.setContentView(R.layout.siren_layout)
 
-    //알람창
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.action_search -> {
-//                // AlarmFragment 인스턴스 생성
-//                val alarmFragment = AlarmFragment()
-//
-//                // Toolbar와 BottomNavigationView 숨기기
-//                binding.toolbar.visibility = View.GONE
-//                binding.navigationView.visibility = View.GONE
-//                binding.bottomAppBar.visibility = View.GONE
-//                binding.mainCircleAddButton.visibility = View.GONE
-//
-//                // FragmentTransaction을 사용하여 Fragment 교체
-//                val transaction = supportFragmentManager.beginTransaction()
-//                transaction.setCustomAnimations(
-//                    R.anim.slide_in_right, R.anim.slide_out_left
-//                )
-//                transaction.replace(R.id.nav_host_fragment, alarmFragment)
-//                transaction.addToBackStack(null) // Back 버튼을 눌렀을 때 이전 Fragment로 돌아갈 수 있도록 스택에 추가
-//                transaction.commit()
-//                return true
-//            }
-//            else -> {
-//                return super.onOptionsItemSelected(item)
-//            }
-//        }
-//    }
+        // 필요한 경우 두 번째 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
+        val sirenStartButton = secondDialog.findViewById<Button>(R.id.sirenStartButton)
+        val sirenStartTextView = secondDialog.findViewById<TextView>(R.id.sirenStartTextView)
+        val sirenStopButton = secondDialog.findViewById<Button>(R.id.sirenStopButton)
+        val sirenStopTextView = secondDialog.findViewById<TextView>(R.id.sirenStopTextView)
+
+        sirenStartButton.setOnClickListener {
+            sirenStartButton.visibility = View.GONE
+            sirenStartTextView.visibility = View.GONE
+            sirenStopButton.visibility = View.VISIBLE
+            sirenStopTextView.visibility = View.VISIBLE
+            playSound(R.raw.siren_sound)
+        }
+
+        sirenStopButton.setOnClickListener {
+            stopSound()
+            sirenStartButton.visibility = View.VISIBLE
+            sirenStartTextView.visibility = View.VISIBLE
+            sirenStopButton.visibility = View.GONE
+            sirenStopTextView.visibility = View.GONE
+        }
+
+        secondDialog.setOnDismissListener {
+            stopSound()
+        }
+
+        secondDialog.show()
+    }
+
+    //경보음 멈추기
+    private fun stopSound() {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+
+    //경보음 재생하기
+    private fun playSound(sirenSound: Int) {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+
+        mediaPlayer = MediaPlayer.create(this, sirenSound)
+        mediaPlayer?.start()
+
+        // 소리 재생이 끝나면 자원 해제
+        mediaPlayer?.setOnCompletionListener {
+            it.release()
+            mediaPlayer = null
+        }
+    }
 
 }
