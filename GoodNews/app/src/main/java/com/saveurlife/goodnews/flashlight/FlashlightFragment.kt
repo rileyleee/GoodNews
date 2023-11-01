@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,9 +19,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.databinding.FragmentFlashlightBinding
 
 class FlashlightFragment : Fragment() {
-
     private var flashEditText: EditText? = null
     private var flashStartButton: TextView? = null
     private var morseInputButton: TextView? = null
@@ -28,6 +29,7 @@ class FlashlightFragment : Fragment() {
     private var isEng = false
     private var morseOutputTextView: TextView? = null
     private var clearButton: Button? = null
+    private var morseRecordButton: TextView? = null
     private val convertedCharactersEng = StringBuilder()
     private val convertedCharactersKor = StringBuilder()
     private val morseInput = StringBuilder()
@@ -55,14 +57,16 @@ class FlashlightFragment : Fragment() {
     }
 
     // =============================
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        flashEditText = view.findViewById<EditText>(R.id.flashEditText)
-        flashStartButton = view.findViewById<TextView>(R.id.flashStartButton)
-        morseInputButton = view.findViewById<TextView>(R.id.morseInputButton)
-        languageRadioGroup = view.findViewById<RadioGroup>(R.id.languageRadioGroup)
-        morseOutputTextView = view.findViewById<TextView>(R.id.morseOutputTextView)
-        clearButton = view.findViewById<Button>(R.id.clearButton)
+        flashEditText = view.findViewById(R.id.flashEditText)
+        flashStartButton = view.findViewById(R.id.flashStartButton)
+        morseInputButton = view.findViewById(R.id.morseInputButton)
+        languageRadioGroup = view.findViewById(R.id.languageRadioGroup)
+        morseOutputTextView = view.findViewById(R.id.morseOutputTextView)
+        clearButton = view.findViewById(R.id.clearButton)
+        morseRecordButton = view.findViewById(R.id.morseRecordButton)
 
         cameraManager = activity?.getSystemService(Context.CAMERA_SERVICE) as CameraManager?
         try {
@@ -76,7 +80,10 @@ class FlashlightFragment : Fragment() {
         flashStartButton!!.setOnClickListener {
             val input = flashEditText!!.text.toString().trim { it <= ' ' }
             val morseCode = convertToMorse(input)
-            flashMorseCode(morseCode)
+            flashMorseCode(morseCode) {
+                // 여기에 record_list로 저장하는 동작을 추가해줘야됨 @@
+                // 근데 이미 있는 아이템의 경우에는 추가하지 않아야됨
+            }
         }
         morseInputButton!!.setOnClickListener {
             morseInput.append(".")
@@ -108,6 +115,19 @@ class FlashlightFragment : Fragment() {
             convertedCharactersEng.setLength(0)
             convertedCharactersKor.setLength(0)
         }
+
+        // 기록 등록 버튼 눌렀을 때
+        morseRecordButton!!.setOnClickListener {
+            if (morseOutputTextView?.text?.length == 0) return@setOnClickListener
+            // 여기에서 기록 리스트에 추가해주면 됨 @@
+            Toast.makeText(activity, "${morseOutputTextView?.text} 의 내용입니다", Toast.LENGTH_SHORT)
+                .show()
+
+            morseOutputTextView!!.text = ""
+            convertedCharactersEng.setLength(0)
+            convertedCharactersKor.setLength(0)
+        }
+
         languageRadioGroup!!.setOnCheckedChangeListener { group, checkedId ->
             if (checkedId == R.id.englishRadioButton) {
                 isEng = true
@@ -131,7 +151,8 @@ class FlashlightFragment : Fragment() {
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         var flashRecordListAdapter = FlashlightRecordAdapter(recordTestData)
 
-        view.findViewById<RecyclerView>(R.id.flashList).apply {
+        val flashListRecyclerView = view.findViewById<RecyclerView>(R.id.flashList)
+        flashListRecyclerView.apply {
             adapter = flashListAdapter
             layoutManager = flashListManager
         }
@@ -140,10 +161,33 @@ class FlashlightFragment : Fragment() {
             adapter = flashRecordListAdapter
             layoutManager = flashRecordListManager
         }
+
+        // ListItem 클릭 이벤트
+        flashListAdapter.setOnItemClickListener(object : FlashlightListAdapter.OnItemClickListener {
+            override fun onItemClick(data: FlashlightData, position: Int) {
+                if (flashListAdapter.isFlashing) return
+
+                flashListAdapter.isFlashing = true
+                // 아이템 눌린 모양으로 변경
+                val viewHolder =
+                    flashListRecyclerView.findViewHolderForAdapterPosition(position) as? FlashlightListAdapter.ListAdapter
+                viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.active_rounded_background_with_shadow)
+                // 모스 부호 플래시 이벤트
+                flashMorseCode(data.morseCode) {
+                    flashListAdapter.isFlashing = false
+                    viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
+                }
+
+                // 테스트 이벤트 @@
+//                testMorseCode(data.morseCode) {
+//                    flashListAdapter.isFlashing = false
+//                    viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
+//                }
+            }
+        })
     }
 
 
-    // ================
     private fun initializeMorseCodeMap() {
         // 숫자
         morseCodeMap['0'] = "-----"
@@ -413,7 +457,19 @@ class FlashlightFragment : Fragment() {
         }
     }
 
-    private fun flashMorseCode(morseCode: String) {
+    // test 임시 코드 @@
+//    private fun testMorseCode(morseCode: String, onCompletion: (() -> Unit)? = null) {
+//        if (!hasFlash()) {
+//            Toast.makeText(activity, "No flash available on your device", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//        Toast.makeText(activity, "플래시 임시 테스트 코드입니다.", Toast.LENGTH_SHORT).show()
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            onCompletion?.invoke()
+//        }, 3000)  // 3초 (3000밀리초)
+//    }
+
+    private fun flashMorseCode(morseCode: String, onCompletion: (() -> Unit)? = null) {
         if (!hasFlash()) {
             Toast.makeText(activity, "No flash available on your device", Toast.LENGTH_SHORT).show()
             return
@@ -433,6 +489,7 @@ class FlashlightFragment : Fragment() {
             }
             waitMillis(100)
         }
+        onCompletion?.invoke()
     }
 
     private fun hasFlash(): Boolean {

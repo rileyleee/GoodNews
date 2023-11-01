@@ -11,28 +11,33 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.databinding.FragmentFamilyBinding
 import com.saveurlife.goodnews.flashlight.FlashType
 import com.saveurlife.goodnews.flashlight.FlashlightData
 
 class FamilyFragment : Fragment() {
 
     private lateinit var familyListRecyclerView: RecyclerView
-
+    private lateinit var binding: FragmentFamilyBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_family, container, false)
+        binding = FragmentFamilyBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val meetingPlaceFirst = view.findViewById<ConstraintLayout>(R.id.meetingPlaceFirst)
-        
+
         // 첫 번째 모임 장소 layout 클릭 했을 때
-        meetingPlaceFirst.setOnClickListener {
-            showDialog()
+        binding.meetingPlaceFirst.setOnClickListener {
+            showMeetingDialog()
+        }
+
+        // 가족 신청 버튼을 클릭 했을 때
+        binding.familyAddButton.setOnClickListener {
+            showAddDialog()
         }
 
         var testData = listOf(
@@ -48,8 +53,14 @@ class FamilyFragment : Fragment() {
         val adapter = FamilyListAdapter(testData)
         familyListRecyclerView.adapter = adapter
     }
+
     // 모달 창 띄워주는 것
-    private fun showDialog() {
-        Toast.makeText(activity, "모달창 띄워줄거예요", Toast.LENGTH_SHORT).show()
+    private fun showMeetingDialog() {
+        Toast.makeText(activity, "모임장소 모달창 띄워줄거예요", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showAddDialog() {
+        val dialogFragment = FamilyAddFragment()
+        dialogFragment.show(childFragmentManager, "FamilyAddFragment")
     }
 }
