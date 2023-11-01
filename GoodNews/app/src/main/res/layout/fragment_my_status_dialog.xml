@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/changeMyStatusCard"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="20dp"
+    android:background="@drawable/card_component"
+    tools:context=".main.MyStatusDialogFragment">
+
+    <ImageView
+        android:id="@+id/myStatusCancle"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/baseline_clear_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/updateInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="현재 나의 건강 상태를 \n 업데이트 해주세요."
+        android:textColor="@color/font_color"
+        android:textSize="21sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/myStatusCancle" />
+
+    <TextView
+        android:id="@+id/safeCircle"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/my_status_circle"
+        android:backgroundTint="@color/safe"
+        app:layout_constraintStart_toStartOf="@id/updateInfo"
+        app:layout_constraintTop_toBottomOf="@id/updateInfo" />
+
+    <TextView
+        android:id="@+id/safeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/background"
+        android:text="건강"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="@+id/safeCircle"
+        app:layout_constraintEnd_toEndOf="@+id/updateInfo"
+        app:layout_constraintStart_toEndOf="@+id/safeCircle"
+        app:layout_constraintTop_toTopOf="@id/safeCircle" />
+
+
+    <TextView
+        android:id="@+id/injuryCircle"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/my_status_circle"
+        android:backgroundTint="@color/caution"
+        app:layout_constraintStart_toStartOf="@id/safeCircle"
+        app:layout_constraintTop_toBottomOf="@id/safeCircle" />
+
+    <TextView
+        android:id="@+id/injuryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/background"
+        android:text="부상"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="@+id/injuryCircle"
+        app:layout_constraintEnd_toEndOf="@+id/updateInfo"
+        app:layout_constraintStart_toEndOf="@+id/injuryCircle"
+        app:layout_constraintTop_toTopOf="@+id/injuryCircle" />
+
+    <TextView
+        android:id="@+id/deathCircle"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/my_status_circle"
+        android:backgroundTint="@color/black"
+        app:layout_constraintStart_toStartOf="@id/safeCircle"
+        app:layout_constraintTop_toBottomOf="@id/injuryCircle" />
+
+    <TextView
+        android:id="@+id/deathText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/background"
+        android:text="사망"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="@+id/deathCircle"
+        app:layout_constraintEnd_toEndOf="@+id/updateInfo"
+        app:layout_constraintStart_toEndOf="@+id/deathCircle"
+        app:layout_constraintTop_toTopOf="@+id/deathCircle" />
+
+    <TextView
+        android:id="@+id/unknownCircle"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/my_status_circle"
+        android:backgroundTint="@color/inactive_gray"
+        app:layout_constraintStart_toStartOf="@id/safeCircle"
+        app:layout_constraintTop_toBottomOf="@id/deathCircle" />
+
+    <TextView
+        android:id="@+id/unknownText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/background"
+        android:text="표시하지 않음"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="@+id/unknownCircle"
+        app:layout_constraintEnd_toEndOf="@+id/updateInfo"
+        app:layout_constraintStart_toEndOf="@+id/unknownCircle"
+        app:layout_constraintTop_toTopOf="@+id/unknownCircle" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/safeGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="safeText" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/injuryGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="injuryCircle,injuryText" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/deathGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="deathText" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/unKnownGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="unknownText,unknownCircle" />
+</androidx.constraintlayout.widget.ConstraintLayout>

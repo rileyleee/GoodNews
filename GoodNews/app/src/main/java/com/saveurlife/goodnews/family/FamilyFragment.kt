@@ -6,12 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.saveurlife.goodnews.R
-
-/**
- * A simple [Fragment] subclass.
- * Use the [FamilyFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FamilyFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

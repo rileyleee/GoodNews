@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
-import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 
 class LoadingActivity : AppCompatActivity() {
