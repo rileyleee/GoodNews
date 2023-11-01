@@ -1,10 +1,12 @@
 package com.ssafy.goodnews.map.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.TokenValidator;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
 import com.ssafy.goodnews.map.dto.request.MapFacilityRequestDto;
 import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
+import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
 import com.ssafy.goodnews.map.service.MapService;
 import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.service.MemberService;
@@ -55,10 +57,7 @@ public class MapController {
 
     @Operation(summary = "앱 이용자 업데이트", description = "앱 이용자 정보 업데이트(인구수)")
     @PutMapping("/getallmember")
-    private BaseResponseDto updatePopulation(HttpServletRequest httpServletRequest, @RequestBody MapPopulationRequestDto mapPopulationRequestDto) {
-        String token = httpServletRequest.getHeader("Authorization");
-        tokenValidator.checkTokenIsNull(token);
-        Member findMember = memberService.findMemberByJwtToken(token);
+    private BaseResponseDto updatePopulation(@RequestBody MapPopulationRequestDto mapPopulationRequestDto) {
         return mapService.updatePopulation(mapPopulationRequestDto);
     }
 
@@ -71,4 +70,10 @@ public class MapController {
         return mapService.detailFacility(mapFacilityRequestDto.getId());
     }
 
+    @Operation(summary = "지도 시설 상태 등록", description = "지도시설(버튼타입,내용,경도,위도)등록")
+    @PostMapping("/registfacility")
+    private BaseResponseDto registMapFacility(@RequestBody MapRegistFacilityRequestDto mapRegistFacilityRequestDto) throws JsonProcessingException {
+
+        return mapService.registFacility(mapRegistFacilityRequestDto);
+    }
 }

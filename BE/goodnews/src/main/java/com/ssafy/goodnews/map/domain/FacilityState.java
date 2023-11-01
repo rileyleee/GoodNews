@@ -1,6 +1,8 @@
 package com.ssafy.goodnews.map.domain;
 
 import com.ssafy.goodnews.common.domain.BaseEntity;
+import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -24,4 +26,17 @@ public class FacilityState extends BaseEntity {
 
     private Double lat;
     private Double lon;
+
+    @Builder
+    public FacilityState(MapRegistFacilityRequestDto mapRegistFacilityRequestDto) {
+        this.buttonType = mapRegistFacilityRequestDto.isButtonType();
+        this.text = mapRegistFacilityRequestDto.getText();
+        this.lat = mapRegistFacilityRequestDto.getLat();
+        this.lon = mapRegistFacilityRequestDto.getLon();
+    }
+
+    public void updateState(MapRegistFacilityRequestDto mapRegistFacilityRequestDto) {
+        this.buttonType = mapRegistFacilityRequestDto.isButtonType();
+        this.text = mapRegistFacilityRequestDto.getText();
+    }
 }
