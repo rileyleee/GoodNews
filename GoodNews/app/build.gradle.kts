@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("io.realm.kotlin")
 }
 
 android {
@@ -36,6 +37,13 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    sourceSets {
+        getByName("main") {
+            assets {
+                srcDirs("src\\main\\assets", "src\\main\\assets")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -47,6 +55,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.6.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.core:core:1.12.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -55,4 +64,26 @@ dependencies {
     // 네비게이션
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+
+    //맵 박스 관련 의존성 추가
+    implementation("com.mapbox.maps:android:10.16.1") {
+        // 의존성을 배제할 라이브러리나 모듈이 있는 경우 이 중괄호 안에 작성
+    }
+    // 구글의 통합 위치 제공자 사용(사용자의 위치 확인 위함)
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // registerForActivityResult 관련 의존성: 호출된 액티비티 종료 시 결과값 처리를 위함
+    implementation("androidx.activity:activity-ktx:1.8.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.1")
+
+    // REALM 의존성 추가
+    implementation("io.realm.kotlin:library-base:1.11.0")
+    implementation("io.realm.kotlin:library-sync:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
+
+    // SharedPreferences 의존성 추가
+    implementation("androidx.preference:preference-ktx:1.2.1")
+
+    // CSV -> JSON 파일 변환
+    implementation("com.opencsv:opencsv:5.5.2")
 }

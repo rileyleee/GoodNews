@@ -11,13 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
-<<<<<<< 2ca424dd83688f47e75d3acf29ffe2bd0d1797f2
 import com.saveurlife.goodnews.databinding.FragmentFamilyBinding
 import com.saveurlife.goodnews.flashlight.FlashType
 import com.saveurlife.goodnews.flashlight.FlashlightData
 
-=======
->>>>>>> 25585264e0342d904faafea0487b1d5081bff393
 class FamilyFragment : Fragment() {
 
     private lateinit var familyListRecyclerView: RecyclerView
