@@ -12,6 +12,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.helper.widget.Layer
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -20,9 +23,16 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.alarm.AlarmFragment
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
+import com.saveurlife.goodnews.flashlight.FlashlightFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val navController by lazy {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navHostFragment.navController
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -53,8 +63,32 @@ class MainActivity : AppCompatActivity() {
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
-        binding.navigationView.setupWithNavController(navController)
+//        binding.navigationView.setupWithNavController(navController)
+        binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.homeFragment -> {
+                    navController.navigateSingleTop(R.id.homeFragment)
+                    true
+                }
 
+                R.id.mapFragment -> {
+                    navController.navigateSingleTop(R.id.mapFragment)
+                    true
+                }
+
+                R.id.familyFragment -> {
+                    navController.navigateSingleTop(R.id.familyFragment)
+                    true
+                }
+
+                R.id.myPageFragment -> {
+                    navController.navigateSingleTop(R.id.myPageFragment)
+                    true
+                }
+
+                else -> false
+            }
+        }
 
         //알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 돌리기
         supportFragmentManager.addOnBackStackChangedListener {
@@ -67,10 +101,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.mainCircleAddButton.setOnClickListener{
+        binding.mainCircleAddButton.setOnClickListener {
             showDialog()
         }
+
     }
+
 
     private fun showDialog() {
         val dialog = Dialog(this)
@@ -87,6 +123,12 @@ class MainActivity : AppCompatActivity() {
 
         // 필요한 경우 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
         // 예: dialog.findViewById<Button>(R.id.your_button_id).setOnClickListener { ... }
+        val navController = findNavController(R.id.nav_host_fragment)
+        val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
+        flashLayer?.setOnClickListener {
+            navController.navigate(R.id.flashlightFragment)
+            dialog.dismiss()
+        }
 
         dialog.show()
     }
@@ -98,21 +140,23 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_search -> {
-                val intent = Intent(this, AlarmActivity::class.java)
-                startActivity(intent)
-                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-                return true
-            }
-            else -> {
-                return super.onOptionsItemSelected(item)
-            }
-        }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.action_search -> {
+//                val intent = Intent(this, AlarmActivity::class.java)
+//                startActivity(intent)
+//                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+//                return true
+//            }
+//            else -> {
+//                return super.onOptionsItemSelected(item)
+//            }
+//        }
+//    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
-
 
     //알람창
 //    override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -143,4 +187,10 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
+}
+
+fun NavController.navigateSingleTop(id: Int) {
+    if (currentDestination?.id != id) {
+        navigate(id)
+    }
 }

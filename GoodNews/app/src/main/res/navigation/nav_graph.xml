@@ -25,10 +25,10 @@
         android:name="com.saveurlife.goodnews.mypage.MyPageFragment"
         tools:layout="@layout/fragment_my_page" />
 
-<!--    <fragment-->
-<!--        android:id="@+id/flashLightFragment"-->
-<!--        android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"-->
-<!--        tools:layout="@layout/fragment_flashlight" />-->
+    <fragment
+        android:id="@+id/flashlightFragment"
+        android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"
+        tools:layout="@layout/fragment_flashlight" />
 
     <fragment
         android:id="@+id/alarmFragment"
