@@ -20,6 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentFlashlightBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class FlashlightFragment : Fragment() {
     private var flashEditText: EditText? = null
@@ -474,22 +478,47 @@ class FlashlightFragment : Fragment() {
             Toast.makeText(activity, "No flash available on your device", Toast.LENGTH_SHORT).show()
             return
         }
-        for (i in 0 until morseCode.length) {
-            val c = morseCode[i]
-            if (c == '.') {
-                flashOn()
-                waitMillis(400)
-                flashOff()
-            } else if (c == '-') {
-                flashOn()
-                waitMillis(1200)
-                flashOff()
-            } else if (c == ' ') {
-                waitMillis(1000)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            for (c in morseCode) {
+                when (c) {
+                    '.' -> {
+                        flashOn()
+                        delay(400)
+                        flashOff()
+                        delay(100)
+                    }
+
+                    '-' -> {
+                        flashOn()
+                        delay(1200)
+                        flashOff()
+                        delay(100)
+                    }
+
+                    ' ' -> {
+                        delay(1000)
+                    }
+                }
             }
-            waitMillis(100)
+            onCompletion?.invoke()
         }
-        onCompletion?.invoke()
+//        for (i in 0 until morseCode.length) {
+//            val c = morseCode[i]
+//            if (c == '.') {
+//                flashOn()
+//                waitMillis(400)
+//                flashOff()
+//            } else if (c == '-') {
+//                flashOn()
+//                waitMillis(1200)
+//                flashOff()
+//            } else if (c == ' ') {
+//                waitMillis(1000)
+//            }
+//            waitMillis(100)
+//        }
+//        onCompletion?.invoke()
     }
 
     private fun hasFlash(): Boolean {
