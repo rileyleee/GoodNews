@@ -17,8 +17,10 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
@@ -28,6 +30,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
+import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -41,6 +44,9 @@ class MainActivity : AppCompatActivity() {
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
 
+    // flash on 여부
+    private val sharedViewModel: SharedViewModel by viewModels()
+
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +56,11 @@ class MainActivity : AppCompatActivity() {
         //가족 등록 모달창
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+
+        // viewmodel 설정
+        sharedViewModel.isOnFlash.observe(this, Observer { isOn ->
+            binding.navigationView.menu.getItem(2).isEnabled = !isOn
+        })
 
         //상단바 toolbar
         setSupportActionBar(binding.toolbar)
