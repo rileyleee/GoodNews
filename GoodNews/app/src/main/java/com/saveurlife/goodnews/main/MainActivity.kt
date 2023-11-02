@@ -26,13 +26,10 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.flashlight.FlashlightFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -207,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         secondDialog.setCancelable(true)
         secondDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         secondDialog.window?.setGravity(Gravity.CENTER)
-        secondDialog.setContentView(R.layout.siren_layout)
+        secondDialog.setContentView(R.layout.dialog_siren_layout)
 
         // 필요한 경우 두 번째 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
         val sirenStartButton = secondDialog.findViewById<Button>(R.id.sirenStartButton)
