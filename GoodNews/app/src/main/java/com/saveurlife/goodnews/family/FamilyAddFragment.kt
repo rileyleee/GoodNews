@@ -1,5 +1,7 @@
 package com.saveurlife.goodnews.family
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,6 +24,8 @@ class FamilyAddFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentFamilyAddBinding.inflate(inflater, container, false)
+
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         // 신청 버튼 클릭했을 때
         binding.familyAddSubmit.setOnClickListener {

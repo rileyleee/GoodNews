@@ -37,6 +37,14 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <!--  설명 텍스트 (12px, #545454) - layout_width 없음  -->
+    <style name="AddTextNotWidth" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/explain_gray</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
     <!--  모임 장소 아이템 별 숫자  -->
     <style name="MeetingPlaceNumber" parent="Widget.AppCompat.TextView">
         <item name="android:textColor">@color/white</item>

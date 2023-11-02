@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
+
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,37 +83,37 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 else -> false
-                }
             }
-            // 원래의 selector 다시 적용
-            navController.addOnDestinationChangedListener { _, _, _ ->
-                val originalSelector =
-                    ContextCompat.getColorStateList(this, R.drawable.menu_selector)
-                binding.navigationView.itemTextColor = originalSelector
-                binding.navigationView.itemIconTintList = originalSelector
-            }
+        }
+        // 원래의 selector 다시 적용
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            val originalSelector =
+                ContextCompat.getColorStateList(this, R.drawable.menu_selector)
+            binding.navigationView.itemTextColor = originalSelector
+            binding.navigationView.itemIconTintList = originalSelector
+        }
 
-            // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
-            supportFragmentManager.addOnBackStackChangedListener {
-                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
-                if (supportFragmentManager.backStackEntryCount == 0) {
-                    binding.toolbar.visibility = View.VISIBLE
-                    binding.navigationView.visibility = View.VISIBLE
-                    binding.bottomAppBar.visibility = View.VISIBLE
-                    binding.mainCircleAddButton.visibility = View.VISIBLE
-                }
+        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
+        supportFragmentManager.addOnBackStackChangedListener {
+            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                binding.toolbar.visibility = View.VISIBLE
+                binding.navigationView.visibility = View.VISIBLE
+                binding.bottomAppBar.visibility = View.VISIBLE
+                binding.mainCircleAddButton.visibility = View.VISIBLE
             }
+        }
 
-            binding.mainCircleAddButton.setOnClickListener {
-                showDialog()
-                val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
-                val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
-                val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
+        binding.mainCircleAddButton.setOnClickListener {
+            showDialog()
+            val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
+            val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
+            val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
 
-                // 생성한 ColorStateList를 BottomNavigationView에 적용
-                navigationView.itemTextColor = colorStateList
-                navigationView.itemIconTintList = colorStateList
-            }
+            // 생성한 ColorStateList를 BottomNavigationView에 적용
+            navigationView.itemTextColor = colorStateList
+            navigationView.itemIconTintList = colorStateList
+        }
 
     }
 
@@ -160,7 +161,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         val navController = findNavController(R.id.nav_host_fragment)
         val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
         flashLayer?.setOnClickListener {
@@ -179,16 +179,16 @@ class MainActivity : AppCompatActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_search -> {
                 val intent = Intent(this, AlarmActivity::class.java)
                 startActivity(intent)
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
-                return true
+                true
             }
 
             else -> {
-                return super.onOptionsItemSelected(item)
+                super.onOptionsItemSelected(item)
             }
         }
     }
@@ -196,6 +196,7 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
+
     private fun showSecondDialog() {
         val secondDialog = Dialog(this)
         secondDialog.window?.setLayout(
@@ -220,7 +221,13 @@ class MainActivity : AppCompatActivity() {
             sirenStartTextView.visibility = View.GONE
             sirenStopButton.visibility = View.VISIBLE
             sirenStopTextView.visibility = View.VISIBLE
-            playSound(R.raw.siren_sound, sirenStartButton, sirenStartTextView, sirenStopButton, sirenStopTextView)
+            playSound(
+                R.raw.siren_sound,
+                sirenStartButton,
+                sirenStartTextView,
+                sirenStopButton,
+                sirenStopTextView
+            )
         }
 
         sirenStopButton.setOnClickListener {
@@ -270,10 +277,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-}
-
-fun NavController.navigateSingleTop(id: Int) {
-    if (currentDestination?.id != id) {
-        navigate(id)
+    private fun NavController.navigateSingleTop(id: Int) {
+        if (currentDestination?.id != id) {
+            navigate(id)
+        }
     }
 }

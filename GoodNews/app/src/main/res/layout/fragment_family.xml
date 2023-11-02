@@ -14,15 +14,17 @@
             android:id="@+id/familyTextView"
             style="@style/FragmentTitle"
             android:text="내 가족"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/meetingPlaceWrap"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_background_with_shadow"
             android:padding="20dp"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintTop_toBottomOf="@id/familyTextView">
 
             <TextView
@@ -34,7 +36,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/meetingPlaceGroup"
-                android:layout_width="212dp"
+                android:layout_width="188dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -160,13 +162,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="가족 추가"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/meetingPlaceWrap" />
 
         <LinearLayout
             android:id="@+id/familyAddGroup"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="44dp"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/familyAddTextView">
 
@@ -176,7 +180,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="4"
                 android:background="@drawable/input_stroke"
-                android:hint="가족의 휴대폰 번호를 입력해 주세요."
+                android:hint="휴대폰 번호를 입력해 주세요."
                 android:inputType="phone"
                 android:maxLength="11" />
 
@@ -194,10 +198,28 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/familyList"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintTop_toBottomOf="@id/familyAddGroup" />
+
+
+        <!-- 가이드라인 -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVerticalEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="20dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

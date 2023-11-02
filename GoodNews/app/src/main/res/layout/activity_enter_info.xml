@@ -5,8 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp"
     tools:context=".enterinfo.EnterInfoActivity">
 
     <TextView
@@ -18,8 +16,8 @@
         android:textColor="@color/font_color"
         android:textSize="32sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!--  이름, input박스  -->
@@ -28,16 +26,18 @@
         style="@style/EnterInfoLabel"
         android:text="이름"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/enterInfoTitle" />
 
     <EditText
         android:id="@+id/nameEditText"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="44dp"
         android:background="@drawable/input_stroke"
         android:hint="이름을 입력해 주세요."
         android:maxLength="5"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/nameTextView" />
     <!--  휴대폰 번호, input박스  -->
     <TextView
@@ -45,14 +45,16 @@
         style="@style/EnterInfoLabel"
         android:text="휴대폰 번호"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/nameEditText" />
 
     <LinearLayout
         android:id="@+id/phoneGroup"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/phoneTextView">
 
         <EditText
@@ -112,14 +114,16 @@
         style="@style/EnterInfoLabel"
         android:text="생년월일"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/phoneGroup" />
 
     <LinearLayout
         android:id="@+id/birthGroup"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/birthTextView">
 
         <!-- 년 Spinner -->
@@ -186,14 +190,16 @@
         style="@style/EnterInfoLabel"
         android:text="성별"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/birthGroup" />
 
     <LinearLayout
         android:id="@+id/genderGroup"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/genderTextView">
 
         <TextView
@@ -225,24 +231,27 @@
         style="@style/EnterInfoLabel"
         android:text="혈액형"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/genderGroup" />
 
     <TextView
         android:id="@+id/bloodAddText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="위급 상황 시 필요한 정보이니 정확하게 입력해 주세요."
         android:textColor="@color/explain_gray"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
         app:layout_constraintTop_toBottomOf="@id/bloodTextView" />
 
     <LinearLayout
         android:id="@+id/bloodGroup"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
         app:layout_constraintTop_toBottomOf="@id/bloodAddText">
 
         <TextView
@@ -291,7 +300,7 @@
         style="@style/EnterInfoLabel"
         android:text="특이사항 (지병)"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/bloodGroup" />
 
     <TextView
@@ -301,45 +310,66 @@
         android:text="본인이 가지고 있는 질병을 입력해 주세요."
         android:textColor="@color/explain_gray"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
         app:layout_constraintTop_toBottomOf="@id/warningTextView" />
 
     <EditText
         android:id="@+id/warningEditText"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="70dp"
         android:background="@drawable/input_stroke"
         android:gravity="top"
         android:hint="50자 이내로 작성해 주세요."
         android:inputType="textMultiLine"
         android:maxLength="50"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
         app:layout_constraintTop_toBottomOf="@id/warningAddText" />
 
 
     <!--  정보 등록, 다음에 등록하기 버튼  -->
     <TextView
         android:id="@+id/submit_info"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/btn_match_parent"
         android:gravity="center"
         android:text="@string/submit"
         android:textColor="@color/white"
         android:textSize="21sp"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
         app:layout_constraintBottom_toTopOf="@id/later_info" />
 
     <TextView
         android:id="@+id/later_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
         android:layout_gravity="bottom"
+        android:paddingTop="10dp"
         android:layout_marginBottom="10dp"
         android:gravity="center"
         android:text="@string/later"
         android:textColor="@color/main"
         android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <!-- 가이드라인 -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVerticalEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="20dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

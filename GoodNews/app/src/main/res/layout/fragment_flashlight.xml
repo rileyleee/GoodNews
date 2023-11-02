@@ -14,15 +14,17 @@
             android:id="@+id/flashTextView"
             style="@style/FragmentTitle"
             android:text="긴급 손전등"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/flashAddText"
-            style="@style/AddText"
+            style="@style/AddTextNotWidth"
+            android:layout_width="0dp"
             android:layout_marginTop="8dp"
             android:text="긴급 손전등은 긴급 시, 원하는 메시지를 모스부호로 띄워줍니다."
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/flashTextView" />
 
         <androidx.core.widget.NestedScrollView
@@ -42,21 +44,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:listitem="@layout/item_flash" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/flashStartTextView"
                     style="@style/FragmentSubTitle"
                     android:text="모스부호 메시지"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                     app:layout_constraintTop_toBottomOf="@id/flashList" />
 
                 <LinearLayout
                     android:id="@+id/flashInputGroup"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:orientation="horizontal"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
                     app:layout_constraintTop_toBottomOf="@id/flashStartTextView">
 
                     <EditText
@@ -83,7 +86,7 @@
                     android:id="@+id/flashInterpretTextView"
                     style="@style/FragmentSubTitle"
                     android:text="모스부호 해석"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                     app:layout_constraintTop_toBottomOf="@id/flashInputGroup" />
 
                 <RadioGroup
@@ -92,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="@id/flashInterpretTextView"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
                     app:layout_constraintTop_toTopOf="@id/flashInterpretTextView">
 
                     <RadioButton
@@ -113,16 +116,20 @@
 
                 <TextView
                     android:id="@+id/flashInterpretAddText"
-                    style="@style/AddText"
+                    android:layout_width="0dp"
+                    style="@style/AddTextNotWidth"
                     android:text="보이는 대로 긴 빛은 길게, 짧은 빛은 짧게 버튼을 눌러주세요."
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
                     app:layout_constraintTop_toBottomOf="@id/flashInterpretTextView" />
 
                 <LinearLayout
                     android:id="@+id/flashInterpretGroup"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:orientation="horizontal"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
                     app:layout_constraintTop_toBottomOf="@id/flashInterpretAddText">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -167,20 +174,22 @@
 
                 <TextView
                     android:id="@+id/morseInputButton"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="44dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/btn_match_parent"
                     android:gravity="center"
                     android:text="눌러주세요"
                     android:textColor="@color/white"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+                    app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
                     app:layout_constraintTop_toBottomOf="@id/flashInterpretGroup" />
 
                 <TextView
                     android:id="@+id/flashRecordTextView"
                     style="@style/FragmentSubTitle"
                     android:text="기록"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                     app:layout_constraintTop_toBottomOf="@id/morseInputButton" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -190,8 +199,38 @@
                     android:nestedScrollingEnabled="false"
                     app:layout_constraintTop_toBottomOf="@id/flashRecordTextView" />
 
+
+                <!-- 가이드라인 -->
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@id/guidelineVertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="20dp" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@id/guidelineVerticalEnd"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="20dp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
+
+        <!-- 가이드라인 -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineVerticalEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="20dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
