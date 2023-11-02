@@ -82,35 +82,37 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 else -> false
+                }
             }
-        // 원래의 selector 다시 적용
-        navController.addOnDestinationChangedListener { _, _, _ ->
-            val originalSelector = ContextCompat.getColorStateList(this, R.drawable.menu_selector)
-            binding.navigationView.itemTextColor = originalSelector
-            binding.navigationView.itemIconTintList = originalSelector
-        }
-
-        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
-        supportFragmentManager.addOnBackStackChangedListener {
-            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
-            if (supportFragmentManager.backStackEntryCount == 0) {
-                binding.toolbar.visibility = View.VISIBLE
-                binding.navigationView.visibility = View.VISIBLE
-                binding.bottomAppBar.visibility = View.VISIBLE
-                binding.mainCircleAddButton.visibility = View.VISIBLE
+            // 원래의 selector 다시 적용
+            navController.addOnDestinationChangedListener { _, _, _ ->
+                val originalSelector =
+                    ContextCompat.getColorStateList(this, R.drawable.menu_selector)
+                binding.navigationView.itemTextColor = originalSelector
+                binding.navigationView.itemIconTintList = originalSelector
             }
-        }
 
-        binding.mainCircleAddButton.setOnClickListener {
-            showDialog()
-            val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
-            val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
-            val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
+            // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
+            supportFragmentManager.addOnBackStackChangedListener {
+                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+                if (supportFragmentManager.backStackEntryCount == 0) {
+                    binding.toolbar.visibility = View.VISIBLE
+                    binding.navigationView.visibility = View.VISIBLE
+                    binding.bottomAppBar.visibility = View.VISIBLE
+                    binding.mainCircleAddButton.visibility = View.VISIBLE
+                }
+            }
 
-            // 생성한 ColorStateList를 BottomNavigationView에 적용
-            navigationView.itemTextColor = colorStateList
-            navigationView.itemIconTintList = colorStateList
-        }
+            binding.mainCircleAddButton.setOnClickListener {
+                showDialog()
+                val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
+                val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
+                val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
+
+                // 생성한 ColorStateList를 BottomNavigationView에 적용
+                navigationView.itemTextColor = colorStateList
+                navigationView.itemIconTintList = colorStateList
+            }
 
     }
 
