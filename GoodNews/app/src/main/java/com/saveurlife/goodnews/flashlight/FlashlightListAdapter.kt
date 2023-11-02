@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.flashlight
 
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +43,19 @@ class FlashlightListAdapter(private var list: ArrayList<FlashlightData>) :
         // 아이템 클릭 시 리스너 onItemClick 메서드 호출
         holder.itemView.setOnClickListener {
             listener?.onItemClick(data, position)
+        }
+
+        // 첫 번째 아이템 시작 여백 주기
+        with(holder.itemView.layoutParams as RecyclerView.LayoutParams) {
+            leftMargin = when (position) {
+                0 -> TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    20f,
+                    holder.itemView.context.resources.displayMetrics
+                ).toInt()
+
+                else -> 0
+            }
         }
     }
 

@@ -16,12 +16,20 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentFlashlightBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class FlashlightFragment : Fragment() {
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+
     private var flashEditText: EditText? = null
     private var flashStartButton: TextView? = null
     private var morseInputButton: TextView? = null
@@ -78,6 +86,10 @@ class FlashlightFragment : Fragment() {
         // 모스 부호 매핑 초기화
         initializeMorseCodeMap()
         flashStartButton!!.setOnClickListener {
+            if (sharedViewModel.isOnFlash.value == true) { // 플래시가 켜져 있으면 return
+                Toast.makeText(activity, "플래시가 이미 켜져 있습니다.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val input = flashEditText!!.text.toString().trim { it <= ' ' }
             val morseCode = convertToMorse(input)
             flashMorseCode(morseCode) {
@@ -474,22 +486,48 @@ class FlashlightFragment : Fragment() {
             Toast.makeText(activity, "No flash available on your device", Toast.LENGTH_SHORT).show()
             return
         }
-        for (i in 0 until morseCode.length) {
-            val c = morseCode[i]
-            if (c == '.') {
-                flashOn()
-                waitMillis(400)
-                flashOff()
-            } else if (c == '-') {
-                flashOn()
-                waitMillis(1200)
-                flashOff()
-            } else if (c == ' ') {
-                waitMillis(1000)
+        sharedViewModel.isOnFlash.value = true
+        CoroutineScope(Dispatchers.Main).launch {
+            for (c in morseCode) {
+                when (c) {
+                    '.' -> {
+                        flashOn()
+                        delay(400)
+                        flashOff()
+                        delay(100)
+                    }
+
+                    '-' -> {
+                        flashOn()
+                        delay(1200)
+                        flashOff()
+                        delay(100)
+                    }
+
+                    ' ' -> {
+                        delay(1000)
+                    }
+                }
             }
-            waitMillis(100)
+            sharedViewModel.isOnFlash.value = false
+            onCompletion?.invoke()
         }
-        onCompletion?.invoke()
+//        for (i in 0 until morseCode.length) {
+//            val c = morseCode[i]
+//            if (c == '.') {
+//                flashOn()
+//                waitMillis(400)
+//                flashOff()
+//            } else if (c == '-') {
+//                flashOn()
+//                waitMillis(1200)
+//                flashOff()
+//            } else if (c == ' ') {
+//                waitMillis(1000)
+//            }
+//            waitMillis(100)
+//        }
+//        onCompletion?.invoke()
     }
 
     private fun hasFlash(): Boolean {
