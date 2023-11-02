@@ -24,9 +24,4 @@
         android:id="@+id/myPageFragment"
         android:title="내정보"
         android:icon="@drawable/baseline_person_24"/>
-
-<!--    <item-->
-<!--        android:id="@+id/flashLightFragment"-->
-<!--        android:title="손전등(임시)"-->
-<!--        android:icon="@drawable/baseline_flashlight_on_24"/>-->
 </menu>

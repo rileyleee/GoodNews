@@ -42,19 +42,19 @@ class MyStatusDialogFragment : DialogFragment() {
         }
 
 
-        binding.safeCircle.setOnClickListener {
+        binding.safeLayer.setOnClickListener {
             listener?.onStatusSelected("safe")
             dismiss()
         }
-        binding.injuryCircle.setOnClickListener {
+        binding.injuryLayer.setOnClickListener {
             listener?.onStatusSelected("injury")
             dismiss()
         }
-        binding.deathCircle.setOnClickListener {
+        binding.deathLayer.setOnClickListener {
             listener?.onStatusSelected("death")
             dismiss()
         }
-        binding.unknownCircle.setOnClickListener {
+        binding.unknownLayer.setOnClickListener {
             listener?.onStatusSelected("unknown")
             dismiss()
         }
