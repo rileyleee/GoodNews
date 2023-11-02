@@ -26,10 +26,10 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
+import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
@@ -152,6 +152,17 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
+        //채팅
+        val chattingLayer = dialog.findViewById<View>(R.id.chattingLayer)
+        chattingLayer.setOnClickListener {
+            // 두 번째 다이얼로그 표시 함수 호출
+            showChattingDialog()
+            dialog.dismiss()
+        }
+
+
+        val navController = findNavController(R.id.nav_host_fragment)
+
         val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
         flashLayer?.setOnClickListener {
             binding.navigationView.menu.getItem(2).isChecked = true
@@ -160,6 +171,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    //채팅 fragment 실행
+    private fun showChattingDialog() {
+        switchToChattingFragment(0)
     }
 
     //toolbar 보여주기
@@ -200,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         secondDialog.setCancelable(true)
         secondDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         secondDialog.window?.setGravity(Gravity.CENTER)
-        secondDialog.setContentView(R.layout.siren_layout)
+        secondDialog.setContentView(R.layout.dialog_siren_layout)
 
         // 필요한 경우 두 번째 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
         val sirenStartButton = secondDialog.findViewById<Button>(R.id.sirenStartButton)
@@ -268,8 +284,25 @@ class MainActivity : AppCompatActivity() {
             sirenStopTextView.visibility = View.GONE
         }
     }
+    fun switchToChattingFragment(selectedTab: Int) {
+        println("$selectedTab 뭘 받아올까요 ??")
+        val transaction = supportFragmentManager.beginTransaction()
+        val chattingFragment = ChattingFragment()
 
-    private fun NavController.navigateSingleTop(id: Int) {
+        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
+        val bundle = Bundle()
+        bundle.putInt("selectedTab", selectedTab)
+        chattingFragment.arguments = bundle
+
+        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
+        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
+        transaction.commit()
+    }
+}
+
+private fun NavController.navigateSingleTop(id: Int) {
+    if (currentDestination?.id != id) {
+        navigate(id)
         val startDestination = this.graph.startDestinationId
         val builder = NavOptions.Builder()
         builder.setLaunchSingleTop(true)  // 이미 back stack의 top에 해당 fragment가 있으면 재사용
