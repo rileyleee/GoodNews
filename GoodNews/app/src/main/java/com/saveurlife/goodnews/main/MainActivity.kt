@@ -29,6 +29,7 @@ import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
+import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -156,6 +157,13 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
+        //채팅
+        val chattingLayer = dialog.findViewById<View>(R.id.chattingLayer)
+        chattingLayer.setOnClickListener {
+            // 두 번째 다이얼로그 표시 함수 호출
+            showChattingDialog()
+            dialog.dismiss()
+        }
 
 
         val navController = findNavController(R.id.nav_host_fragment)
@@ -166,6 +174,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    //채팅 fragment 실행
+    private fun showChattingDialog() {
+        switchToChattingFragment(0)
     }
 
     //toolbar 보여주기
@@ -267,6 +280,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun switchToChattingFragment(selectedTab: Int) {
+        println("$selectedTab 뭘 받아올까요 ??")
+        val transaction = supportFragmentManager.beginTransaction()
+        val chattingFragment = ChattingFragment()
+
+        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
+        val bundle = Bundle()
+        bundle.putInt("selectedTab", selectedTab)
+        chattingFragment.arguments = bundle
+
+        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
+        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
+        transaction.commit()
+    }
 }
 
 fun NavController.navigateSingleTop(id: Int) {
