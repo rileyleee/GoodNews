@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -21,18 +20,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.core.content.ContextCompat
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.flashlight.FlashlightFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -74,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
         // 왜 안 되지... @@ 수정
-        // binding.navigationView.setupWithNavController(navController)
+        binding.navigationView.setupWithNavController(navController)
         binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.homeFragment, R.id.mapFragment, R.id.familyFragment, R.id.myPageFragment -> {
@@ -84,13 +80,6 @@ class MainActivity : AppCompatActivity() {
 
                 else -> false
             }
-        }
-        // 원래의 selector 다시 적용
-        navController.addOnDestinationChangedListener { _, _, _ ->
-            val originalSelector =
-                ContextCompat.getColorStateList(this, R.drawable.menu_selector)
-            binding.navigationView.itemTextColor = originalSelector
-            binding.navigationView.itemIconTintList = originalSelector
         }
 
         // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
@@ -106,15 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.mainCircleAddButton.setOnClickListener {
             showDialog()
-            val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
-            val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
-            val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
-
-            // 생성한 ColorStateList를 BottomNavigationView에 적용
-            navigationView.itemTextColor = colorStateList
-            navigationView.itemIconTintList = colorStateList
         }
-
     }
 
 
@@ -160,10 +141,9 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
-
-        val navController = findNavController(R.id.nav_host_fragment)
         val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
         flashLayer?.setOnClickListener {
+            binding.navigationView.menu.getItem(2).isChecked = true
             navController.navigate(R.id.flashlightFragment)
             dialog.dismiss()
         }
@@ -194,7 +174,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        // return navController.navigateUp() || super.onSupportNavigateUp()
+        return NavigationUI.navigateUp(navController, null)
     }
 
     private fun showSecondDialog() {
@@ -278,8 +259,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun NavController.navigateSingleTop(id: Int) {
-        if (currentDestination?.id != id) {
-            navigate(id)
-        }
+        val startDestination = this.graph.startDestinationId
+        val builder = NavOptions.Builder()
+        builder.setLaunchSingleTop(true)  // 이미 back stack의 top에 해당 fragment가 있으면 재사용
+        builder.setPopUpTo(startDestination, false)  // 시작 destination까지 back stack을 clear하지 않음
+        val options = builder.build()
+        navigate(id, null, options)
     }
+
 }
