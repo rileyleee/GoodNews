@@ -26,6 +26,11 @@
         tools:layout="@layout/fragment_my_page" />
 
     <fragment
+        android:id="@+id/flashlightFragment"
+        android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"
+        tools:layout="@layout/fragment_flashlight" />
+
+    <fragment
         android:id="@+id/alarmFragment"
         android:name="com.saveurlife.goodnews.alarm.AlarmFragment"
         tools:layout="@layout/fragment_alarm" />

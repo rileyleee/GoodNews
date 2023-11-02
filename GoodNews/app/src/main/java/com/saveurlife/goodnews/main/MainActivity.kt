@@ -19,6 +19,9 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.helper.widget.Layer
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -29,9 +32,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
+import com.saveurlife.goodnews.flashlight.FlashlightFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val navController by lazy {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navHostFragment.navController
+    }
+
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
     @SuppressLint("ResourceType")
@@ -51,22 +61,28 @@ class MainActivity : AppCompatActivity() {
         binding.navigationView.background = null
         binding.navigationView.menu.getItem(2).isEnabled = false
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.homeFragment,
                 R.id.mapFragment,
                 R.id.familyFragment,
-                R.id.myPageFragment
+                R.id.myPageFragment,
+                R.id.flashlightFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
-        binding.navigationView.setupWithNavController(navController)
+        // 왜 안 되지... @@ 수정
+        // binding.navigationView.setupWithNavController(navController)
+        binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.homeFragment, R.id.mapFragment, R.id.familyFragment, R.id.myPageFragment -> {
+                    navController.navigateSingleTop(menuItem.itemId)
+                    true
+                }
 
+                else -> false
+            }
         // 원래의 selector 다시 적용
         navController.addOnDestinationChangedListener { _, _, _ ->
             val originalSelector = ContextCompat.getColorStateList(this, R.drawable.menu_selector)
@@ -85,7 +101,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.mainCircleAddButton.setOnClickListener{
+        binding.mainCircleAddButton.setOnClickListener {
             showDialog()
             val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
             val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
@@ -95,7 +111,9 @@ class MainActivity : AppCompatActivity() {
             navigationView.itemTextColor = colorStateList
             navigationView.itemIconTintList = colorStateList
         }
+
     }
+
 
     //Dialog fragment 모달창
     private fun showDialog() {
@@ -140,6 +158,14 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+
+        val navController = findNavController(R.id.nav_host_fragment)
+        val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
+        flashLayer?.setOnClickListener {
+            navController.navigate(R.id.flashlightFragment)
+            dialog.dismiss()
+        }
+
         dialog.show()
     }
 
@@ -158,12 +184,16 @@ class MainActivity : AppCompatActivity() {
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                 return true
             }
+
             else -> {
                 return super.onOptionsItemSelected(item)
             }
         }
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
     private fun showSecondDialog() {
         val secondDialog = Dialog(this)
         secondDialog.window?.setLayout(
@@ -238,4 +268,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+}
+
+fun NavController.navigateSingleTop(id: Int) {
+    if (currentDestination?.id != id) {
+        navigate(id)
+    }
 }
