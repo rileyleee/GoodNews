@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
 
         // 왜 안 되지... @@ 수정
         // binding.navigationView.setupWithNavController(navController)
-        binding.navigationView.setOnItemSelectedListener { menuItem ->
+        binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.homeFragment, R.id.mapFragment, R.id.familyFragment, R.id.myPageFragment -> {
                     navController.navigateSingleTop(menuItem.itemId)
