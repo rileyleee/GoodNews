@@ -49,28 +49,42 @@
         android:id="@+id/tutorial_skip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
         android:layout_marginBottom="30dp"
-        android:layout_marginEnd="30dp"
         android:text="@string/tutorial_skip"
         android:textColor="@color/gray"
         android:textSize="16sp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="@id/tutorial_guideline2" />
 
     <TextView
         android:id="@+id/tutorial_end"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="32dp"
         android:background="@drawable/btn_match_parent"
         android:gravity="center"
         android:text="@string/start"
-        android:textColor="@color/font_color"
+        android:textColor="@color/white"
         android:textSize="21sp"
         android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="@id/tutorial_guideline"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/tutorial_guideline2"
         tools:layout_editor_absoluteX="0dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/tutorial_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/tutorial_guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="20dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

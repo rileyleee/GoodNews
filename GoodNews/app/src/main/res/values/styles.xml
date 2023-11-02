@@ -53,4 +53,8 @@
         <item name="android:textSize">21sp</item>
     </style>
 
+    <!--  Dialog 스타일  -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/scale_in</item>
+    </style>
 </resources>
