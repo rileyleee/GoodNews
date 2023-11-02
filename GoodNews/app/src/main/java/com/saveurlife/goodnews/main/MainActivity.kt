@@ -2,8 +2,10 @@ package com.saveurlife.goodnews.main
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -17,10 +19,13 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
@@ -29,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
+    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -61,11 +67,17 @@ class MainActivity : AppCompatActivity() {
 
         binding.navigationView.setupWithNavController(navController)
 
+        // 원래의 selector 다시 적용
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            val originalSelector = ContextCompat.getColorStateList(this, R.drawable.menu_selector)
+            binding.navigationView.itemTextColor = originalSelector
+            binding.navigationView.itemIconTintList = originalSelector
+        }
 
-        //알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 돌리기
+        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
         supportFragmentManager.addOnBackStackChangedListener {
+            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
             if (supportFragmentManager.backStackEntryCount == 0) {
-                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
                 binding.toolbar.visibility = View.VISIBLE
                 binding.navigationView.visibility = View.VISIBLE
                 binding.bottomAppBar.visibility = View.VISIBLE
@@ -75,6 +87,13 @@ class MainActivity : AppCompatActivity() {
 
         binding.mainCircleAddButton.setOnClickListener{
             showDialog()
+            val inactiveGrayColor = ContextCompat.getColor(this, R.color.inactive_gray)
+            val colorStateList = ColorStateList.valueOf(inactiveGrayColor)
+            val navigationView: BottomNavigationView = findViewById(R.id.navigationView)
+
+            // 생성한 ColorStateList를 BottomNavigationView에 적용
+            navigationView.itemTextColor = colorStateList
+            navigationView.itemIconTintList = colorStateList
         }
     }
 
@@ -94,7 +113,6 @@ class MainActivity : AppCompatActivity() {
 
 
         // 필요한 경우 다이얼로그의 버튼 또는 다른 뷰에 대한 이벤트 리스너를 여기에 추가합니다.
-        // 예: dialog.findViewById<Button>(R.id.your_button_id).setOnClickListener { ... }
         val view = dialog.window?.decorView
 
         // 투명도 애니메이션 설정
