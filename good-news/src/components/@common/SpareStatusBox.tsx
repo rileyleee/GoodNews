@@ -33,6 +33,12 @@ const SpareKeywordStyles: Record<SpareKeyword, SpareKeywordStyle> = {
 const StyledSpareStatusBox = styled.div<SpareStatusProps>`
   color: ${(props) => SpareKeywordStyles[props.keyword || "Undefined"].color};
   font-weight: bold; // 폰트 설정됐으면 해당 폰트로 변경해주기! (font-family)
+  
+  display: flex;
+  align-items: center;
+  *:last-child {
+    margin-left: 0.25rem;
+  }
 `;
 
 const SpareStatusBox = ({ keyword }: SpareStatusProps) => {
