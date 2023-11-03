@@ -1,0 +1,6 @@
+// 아이콘 + 지도정보 박스 (1개 컴포넌트)
+const IntroBox = () => {
+    return(<div>지도</div>)
+}
+
+export default IntroBox
