@@ -3,10 +3,12 @@ import "./App.css";
 import { HOME, ADMIN, LOGIN, NOTFOUND } from "./pages/Pages";
 import { ROUTES } from "./common/constants/Routes";
 import Header from "./components/@common/Header";
+import { GlobalStyles } from "./common/style/GlobalStyles";
 
 function App() {
   return (
     <>
+      <GlobalStyles />
       <Header />
       <Routes>
         <Route path={ROUTES.HOME} Component={HOME} />
