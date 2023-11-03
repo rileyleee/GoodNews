@@ -20,6 +20,7 @@ type SafeKeywordStyle = {
   color: string;
 }
 
+//SafeKeywordStyles: 각 SafeKeyword 값에 따른 스타일 및 아이콘을 매핑
 const SafeKeywordStyles: Record<SafeKeyword, SafeKeywordStyle> = {
   Safe: {
     Icon: LuCheckCircle2,
@@ -38,11 +39,15 @@ const SafeKeywordStyles: Record<SafeKeyword, SafeKeywordStyle> = {
   },
 };
 
-const StyledSafeStatusBox = styled.div<SafeStatusProps>`
-  color: ${(props) => SafeKeywordStyles[props.keyword || "Undefined"].color};
-  font-weight: bold;
-`;
+//스타일링된 컴포넌트 정의
+//styled-components를 사용하여 스타일링된 div 요소를 정의
+//이 요소의 색상은 keyword prop에 따라 다름
+    const StyledSafeStatusBox = styled.div<SafeStatusProps>`
+      color: ${(props) => SafeKeywordStyles[props.keyword || "Undefined"].color};
+      font-weight: bold;
+    `;
 
+//해당 컴포넌트는 상태(keyword)에 따른 텍스트와 아이콘을 렌더링
 const SafeStatusBox = ({keyword}: SafeStatusProps) => {
   const {text, Icon } = SafeKeywordStyles[keyword || "Undefined"];
 
