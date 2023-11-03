@@ -35,4 +35,9 @@
         android:name="com.saveurlife.goodnews.alarm.AlarmFragment"
         tools:layout="@layout/fragment_alarm" />
 
+    <fragment
+        android:id="@+id/chattingFragment"
+        android:name="com.saveurlife.goodnews.chatting.ChattingFragment"
+        tools:layout="@layout/fragment_alarm" />
+
 </navigation>
