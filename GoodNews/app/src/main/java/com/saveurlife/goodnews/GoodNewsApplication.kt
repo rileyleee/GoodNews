@@ -22,19 +22,34 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.OutputStream
+import java.util.zip.ZipInputStream
 
 class GoodNewsApplication : Application() {
 
     companion object {
         lateinit var preferences: PreferencesUtil
     }
+
     override fun onCreate() {
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
 
         super.onCreate()
+
+
+        // 앱의 첫 실행 확인 및 타일 데이터 복사
+        val isFirstRun = preferences.getBoolean("isFirstRun", true)
+        if (isFirstRun) {
+            copyDBFromAssets()
+            preferences.setBoolean("isFirstRun", false)
+        }
+
         //Realm 초기화
         val config = RealmConfiguration.create(
             schema = setOf(
@@ -95,4 +110,67 @@ class GoodNewsApplication : Application() {
             }
         }
     }
+
+
+    // 타일을 내부 저장소로 복사
+    private fun copyDBFromAssets() {
+        val assetManager = assets
+        val zipFileName = "testm.zip"
+
+        val `in` = assetManager.open(zipFileName)
+
+        val osmDir = File(filesDir, "osmdroid")
+        if (!osmDir.exists()) {
+            if (osmDir.mkdirs()) {
+                Log.d("DirectoryStatus", "osmdroid 폴더 생성 성공!")
+            } else {
+                Log.e("DirectoryStatus", "osmdroid 폴더 생성 실패!")
+                return
+            }
+        } else {
+            Log.d("DirectoryStatus", "osmdroid 폴더가 이미 있어!")
+        }
+
+        ZipInputStream(`in`).use { zipInputStream ->
+            var zipEntry = zipInputStream.nextEntry
+            while (zipEntry != null) {
+                val newFile = File(osmDir, zipEntry.name)
+                if (zipEntry.isDirectory) {
+                    newFile.mkdirs()
+                } else {
+                    val fOStream = FileOutputStream(newFile)
+                    val buffer = ByteArray(1024)
+                    var length: Int
+                    while (zipInputStream.read(buffer).also { length = it } != -1) {
+                        fOStream.write(buffer, 0, length)
+                    }
+                    fOStream.close()
+                    Log.d("FileCopyStatus", "${zipEntry.name} 파일 복사 완료!")
+                }
+                zipEntry = zipInputStream.nextEntry
+            }
+            Log.d("UnzipStatus", "압축 해제 완료!")  // 압축 해제 완료 로그 추가
+        }
+    }
 }
+
+
+//        val outFile = File(osmDir, zipFileName)
+//        val out = FileOutputStream(outFile)
+
+//        // 압축 풀기
+//        ZipInputStream(assetManager.open(zipFileName)).use { zipInputStream ->
+//            val zipEntry = zipInputStream.nextEntry
+//
+//            if (zipEntry != null && zipEntry.name == dbName) {
+//                val buffer = ByteArray(1024)
+//                var read: Int
+//                while (zipInputStream.read(buffer).also { read = it } != -1) {
+//                    out.write(buffer, 0, read)
+//                }
+//            }
+//        }
+//        out.flush()
+//        out.close()
+//    }
+//}

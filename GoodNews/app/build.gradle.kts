@@ -65,16 +65,15 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
 
-    //맵 박스 관련 의존성 추가
-    implementation("com.mapbox.maps:android:10.16.1") {
-        // 의존성을 배제할 라이브러리나 모듈이 있는 경우 이 중괄호 안에 작성
-    }
     // 구글의 통합 위치 제공자 사용(사용자의 위치 확인 위함)
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
     // registerForActivityResult 관련 의존성: 호출된 액티비티 종료 시 결과값 처리를 위함
     implementation("androidx.activity:activity-ktx:1.8.0")
     implementation("androidx.fragment:fragment-ktx:1.6.1")
+
+    // OSMdroid: 오프라인 지도 사용(Open Street Map)
+    implementation("org.osmdroid:osmdroid-android:6.1.17")
 
     // REALM 의존성 추가
     implementation("io.realm.kotlin:library-base:1.11.0")
@@ -84,8 +83,11 @@ dependencies {
     // SharedPreferences 의존성 추가
     implementation("androidx.preference:preference-ktx:1.2.1")
 
-    // CSV -> JSON 파일 변환
+    // CSV -> JSON 파일 변환 (대피소 등 시설 정보 import)
     implementation("com.opencsv:opencsv:5.5.2")
+
+    // osm에서 미리 다운로드한 지도 데이터를 저장하기 위함
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
 
     // coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")

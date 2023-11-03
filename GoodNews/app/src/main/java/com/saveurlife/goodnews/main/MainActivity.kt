@@ -23,15 +23,18 @@ import androidx.constraintlayout.helper.widget.Layer
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -79,6 +82,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+
 
         // 왜 안 되지... @@ 수정
         binding.navigationView.setupWithNavController(navController)
