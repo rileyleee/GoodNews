@@ -3,6 +3,7 @@ import Button from "../@common/Button";
 import MapAdmin from "./MapAdmin";
 import MapAdminInfoBoxList from "./MapAdminInfoBoxList";
 import ShelterBoxList from "./ShelterBoxList";
+import SelectBox from "../@common/SelectBox";
 
 // 관리 페이지에서 content 전부
 const AdminContentWrap = () => {
@@ -12,21 +13,25 @@ const AdminContentWrap = () => {
 
   return (
     <>
-      <div>대피소 현황</div>
-      {/* 지역 조회 셀렉트 + 버튼 박스 */}
-      <StyledRegionCheckWrapper>
-        <StyledTempSelect>셀렉트박스1</StyledTempSelect>
-        <StyledTempSelect>셀렉트박스2</StyledTempSelect>
-        <StyledTempSelect>셀렉트박스3</StyledTempSelect>
-        <Button
-          size="Large"
-          color="Main"
-          onClick={handleRegionClick}
-          isActive={true}
-        >
-          조회
-        </Button>
-      </StyledRegionCheckWrapper>
+      <div>
+        <div>대피소 현황</div>
+        <SelectBox />
+        {/* 지역 조회 셀렉트 + 버튼 박스 */}
+        <StyledRegionCheckWrapper>
+          <StyledTempSelect>셀렉트박스1</StyledTempSelect>
+          <StyledTempSelect>셀렉트박스2</StyledTempSelect>
+          <StyledTempSelect>셀렉트박스3</StyledTempSelect>
+          <Button
+            size="Large"
+            color="Main"
+            onClick={handleRegionClick}
+            isActive={true}
+          >
+            조회
+          </Button>
+        </StyledRegionCheckWrapper>
+      </div>
+
       <div>조회한 지역의 이름 에 대한 몇 건의 대피소 조회 결과입니다.</div>
       {/* 2분할 (지도+대피소정보) + (대피소 리스트) */}
       <div>
