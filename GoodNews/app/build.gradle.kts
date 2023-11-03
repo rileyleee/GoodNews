@@ -65,10 +65,6 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
 
-    //맵 박스 관련 의존성 추가
-    implementation("com.mapbox.maps:android:10.16.1") {
-        // 의존성을 배제할 라이브러리나 모듈이 있는 경우 이 중괄호 안에 작성
-    }
     // 구글의 통합 위치 제공자 사용(사용자의 위치 확인 위함)
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
