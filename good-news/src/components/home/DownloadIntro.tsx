@@ -17,9 +17,7 @@ const DownloadIntro = () => {
           <Text className="grid place-items-center pt-20" size="text4">언제 발생할지 모를 재난</Text>
           <Text className="grid place-items-center" size="text4">여러분도 미리 대비하시는게 어떨까요?</Text>
           <div className="flex justify-center align-center pt-10">
-            <Text size="text2">이제&nbsp;</Text>
-            <Text size="text2" isBold={true}>희소식</Text>
-            <Text size="text2">과 함께 시작하세요.</Text>
+            <Text size="text2">이제 <strong>희소식</strong>과 함께 시작하세요.</Text>
           </div>
           <Text className="grid place-items-center pb-6" size="text4">현재까지 2,368,493건의 다운로드</Text>
           <div className="grid place-items-center">

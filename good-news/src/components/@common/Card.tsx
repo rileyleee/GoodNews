@@ -8,6 +8,7 @@ interface CardProps{
   color: CardColor;
   children: ReactNode;
   className?: string;
+  height?: string;
 }
 
 type CardSize = "ExtraLarge" | "Large" | "Medium" | "Small"
@@ -38,8 +39,9 @@ const COLOR_STYLES: Record<CardColor, string> = {
 }
 
 const StyledCard = styled.div<CardProps>`
-    border-radius: ${(props) => CardStyles[props.size].radius}
-    color: ${(props) => COLOR_STYLES[props.color]}
+    border-radius: ${(props) => CardStyles[props.size].radius};
+    background-color: ${(props) => COLOR_STYLES[props.color]};
+    height: ${(props) => props.height || 'auto'};
 `
 
 const Card = ({
@@ -47,12 +49,14 @@ const Card = ({
   color,
   children,
   className,
+  height
 }:CardProps) => {
   return (
     <StyledCard
       size={size}
       color={color}
       className={className}
+      height={height}
     >
       {children}
     </StyledCard>
