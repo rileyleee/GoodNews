@@ -49,7 +49,18 @@ const StyledButton = styled.button<ButtonProps>`
   background-color: ${(props) =>
     props.isActive ? COLOR_STYLES[props.color] : "white"};
   border: 1px solid ${(props) => COLOR_STYLES[props.color]};
-  color: ${(props) => (props.isActive ? "white" : COLOR_STYLES[props.color])};
+  color: ${(props) => {
+    if (props.isActive) {
+      if (props.color === "Undefined" || props.color === "Sub") {
+        return "black";
+      } else {
+        return "white";
+      }
+    } else {
+      // 수정할 필요가 생겼을 때, 변경
+      return COLOR_STYLES[props.color];
+    }
+  }};
   &:hover {
     filter: brightness(0.9);
   }

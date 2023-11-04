@@ -13,7 +13,7 @@ interface TextProps {
 }
 
 type TextSize = "text1" | "text2" | "text3" | "text4" | "text5" | "text6";
-type TextColor = "White" | "Black" | "Gray";
+type TextColor = "White" | "Black" | "Gray" | "Point";
 
 type TextStyle = {
   fontSize: string;
@@ -43,6 +43,7 @@ const COLOR_STYLES: Record<TextColor, string> = {
   White: "#ffffff",
   Black: "#000000",
   Gray: "#545454",
+  Point: "#EB5E28",
 };
 const StyledText = styled.div<TextProps>`
   font-size: ${(props) => TextStyles[props.size].fontSize};

@@ -4,6 +4,7 @@ import { LuAnnoyed, LuFrown, LuSmile } from "react-icons/lu";
 
 interface SpareStatusProps {
   keyword?: SpareKeyword;
+  className?: string;
 }
 
 type SpareKeyword = "Spare" | "Confusion" | "Undefined";
@@ -33,7 +34,7 @@ const SpareKeywordStyles: Record<SpareKeyword, SpareKeywordStyle> = {
 const StyledSpareStatusBox = styled.div<SpareStatusProps>`
   color: ${(props) => SpareKeywordStyles[props.keyword || "Undefined"].color};
   font-weight: bold; // 폰트 설정됐으면 해당 폰트로 변경해주기! (font-family)
-  
+
   display: flex;
   align-items: center;
   *:last-child {
@@ -41,11 +42,11 @@ const StyledSpareStatusBox = styled.div<SpareStatusProps>`
   }
 `;
 
-const SpareStatusBox = ({ keyword }: SpareStatusProps) => {
+const SpareStatusBox = ({ keyword, className }: SpareStatusProps) => {
   const { text, Icon } = SpareKeywordStyles[keyword || "Undefined"];
 
   return (
-    <StyledSpareStatusBox keyword={keyword}>
+    <StyledSpareStatusBox keyword={keyword} className={className}>
       <span>{text}</span>
       <Icon />
     </StyledSpareStatusBox>

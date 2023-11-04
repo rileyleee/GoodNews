@@ -1,21 +1,70 @@
+import styled from "styled-components";
 import Text from "../@common/Text";
+import Button from "../@common/Button";
 
 // 메인페이지의 제일 처음 부분
 const MainIntro = () => {
+  const handleMoveGoogleClick = () => {
+    // 구글 스토어로 이동하기!!!
+    console.log("구글 스토어로 이동합니다.");
+  };
+
+  const handleMoveMapIntroClick = () => {
+    console.log("앱 이용 현황으로 이동합니다.");
+    window.location.hash = "#mapIntro";
+  };
+
   return (
-    <div>
-      메인페이지
-      <div>폰트크기 테스트</div>
-      <div style={{ fontSize: "16px" }}>폰트크기 테스트 16px - 설명문이나 footer 본문</div>
-      <div style={{ fontSize: "20px" }}>폰트크기 테스트 20px</div>
-      <div style={{ fontSize: "24px" }}>폰트크기 테스트 24px</div>
-      <div style={{ fontSize: "32px" }}>폰트크기 테스트 32px</div>
-      <div style={{ fontSize: "36px" }}>폰트크기 테스트 36px</div>
-      <div style={{ fontSize: "40px" }}>폰트크기 테스트 40px</div>
-      <Text size="text1" isBold={true}>안녕하세요?</Text>
-      <Text size="text1" >안녕하세요?</Text>
-    </div>
+    <StyledMainIntroWrapper>
+      {/* 여기에서 이미지 넣어주기 */}
+      <StyledMainContentWrapper>
+        {/* 텍스트 wrap */}
+        <div>
+          <Text size="text1">위급 상황의 손길과 소통</Text>
+          <Text size="text1" isBold={true}>
+            희소식과 함께, 안전하게!
+          </Text>
+        </div>
+
+        {/* 버튼 wrap */}
+        <StyledMainButtonWrapper className="grid gap-4 grid-cols-2">
+          <Button
+            size="Large"
+            color="Sub"
+            isActive={true}
+            className="drop-shadow-lg"
+            onClick={handleMoveGoogleClick}
+          >
+            Google Play
+          </Button>
+          <Button
+            size="Large"
+            color="Sub"
+            isActive={true}
+            className="drop-shadow-lg"
+            onClick={handleMoveMapIntroClick}
+          >
+            앱 이용 현황
+          </Button>
+        </StyledMainButtonWrapper>
+      </StyledMainContentWrapper>
+    </StyledMainIntroWrapper>
   );
 };
 
 export default MainIntro;
+
+const StyledMainIntroWrapper = styled.div`
+  width: 100%;
+  height: calc(100vh - 60px);
+`;
+const StyledMainContentWrapper = styled.div`
+  width: 80%;
+  height: 100%;
+  margin: 0 auto;
+`;
+
+const StyledMainButtonWrapper = styled.div`
+  width: 50%;
+  margin: 0 auto;
+`;
