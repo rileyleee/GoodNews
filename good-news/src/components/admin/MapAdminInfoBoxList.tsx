@@ -89,19 +89,24 @@ const MapAdminInfoBoxList = ({ className }: MapAdminInfoBoxListProps) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-3/4 transform overflow-hidden rounded-2xl bg-white p-7 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-1/2 transform overflow-hidden rounded-2xl bg-white p-7 text-left align-middle shadow-xl transition-all">
                   <Text size="text3" isBold={true} className="text-center">
                     대피소 상태 변경
                   </Text>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      Your payment has been successfully submitted. We’ve sent
-                      you an email with all of the details of your order.
-                    </p>
+
+                  {/* 내용 묶음 */}
+                  <div className="w-4/5 h-80 mx-auto mt-8 flex flex-col justify-between">
+                    <MapAdminInfoBox />
+                    <MapAdminInfoBox />
+                    <MapAdminInfoBox />
+                    <MapAdminInfoBox />
+                    <MapAdminInfoBox />
+                    <MapAdminInfoBox />
+                    <MapAdminInfoBox />
                   </div>
 
                   {/* 버튼 묶음 (수정, 취소) */}
-                  <div className="mt-4 w-1/3 grid grid-cols-2 gap-2 mx-auto">
+                  <div className="mt-8 w-1/3 grid grid-cols-2 gap-2 mx-auto">
                     <Button
                       size="Medium"
                       color="Main"
