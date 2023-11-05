@@ -2,7 +2,8 @@
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
-import styled from "styled-components";
+import MapAdminInfoBox from "./MapAdminInfoBox";
+
 import Button from "../@common/Button";
 import Text from "../@common/Text";
 
@@ -34,17 +35,32 @@ const MapAdminInfoBoxList = ({ className }: MapAdminInfoBoxListProps) => {
 
   return (
     <>
-      <div>
-        대피소 상세 정보 모음 (대피소 정보들 + 수정 버튼)
-        <div>대피소 정보들 들어가요</div>
-        <Button
-          size="Medium"
-          color="Sub"
-          onClick={handleEditInfoClick}
-          isActive={true}
-        >
-          수정
-        </Button>
+      <div className="px-2 flex flex-col justify-between h-full">
+        <MapAdminInfoBox />
+        <MapAdminInfoBox />
+        <MapAdminInfoBox />
+        {/* 규모 + 최대 수용인원 */}
+        <div className="flex justify-between">
+          <MapAdminInfoBox />
+          <MapAdminInfoBox />
+        </div>
+        {/* 위험성 + 혼잡도 */}
+        <div className="flex justify-between">
+          <MapAdminInfoBox />
+          <MapAdminInfoBox />
+        </div>
+        <div className="flex justify-between">
+          <MapAdminInfoBox />
+          <Button
+            size="Small"
+            color="Sub"
+            onClick={handleEditInfoClick}
+            isActive={true}
+            className="w-20"
+          >
+            수정
+          </Button>
+        </div>
       </div>
 
       {/* 수정 모달창 */}
@@ -73,7 +89,7 @@ const MapAdminInfoBoxList = ({ className }: MapAdminInfoBoxListProps) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full w-3/4 transform overflow-hidden rounded-2xl bg-white p-7 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-3/4 transform overflow-hidden rounded-2xl bg-white p-7 text-left align-middle shadow-xl transition-all">
                   <Text size="text3" isBold={true} className="text-center">
                     대피소 상태 변경
                   </Text>
@@ -114,23 +130,3 @@ const MapAdminInfoBoxList = ({ className }: MapAdminInfoBoxListProps) => {
 };
 
 export default MapAdminInfoBoxList;
-
-const StyledModalBackground = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-`;
-
-const StyledModalContent = styled.div`
-  width: 60%;
-  height: 75%;
-  position: absolute;
-  border-radius: 30px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #fff;
-`;

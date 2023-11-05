@@ -1,13 +1,18 @@
 // 관리 페이지에서 content 전부
-import Button from "../@common/Button";
-import MapAdmin from "./MapAdmin";
-import MapAdminInfoBoxList from "./MapAdminInfoBoxList";
-import ShelterBoxList from "./ShelterBoxList";
-import SelectBox from "../@common/SelectBox";
-import Text from "../@common/Text";
+import { useState } from "react";
 import styled from "styled-components";
 
+import MapAdminInfoBoxList from "./MapAdminInfoBoxList";
+import MapAdmin from "./MapAdmin";
+import ShelterBoxList from "./ShelterBoxList";
+
+import Button from "../@common/Button";
+import SelectBox from "../@common/SelectBox";
+import Text from "../@common/Text";
+
 const AdminContentWrap = () => {
+  const [fullRegion, setFullRegion] = useState("-");
+  const [countRegion, setCountRegion] = useState(0);
   const handleRegionClick = () => {
     console.log("지역을 조회하는 버튼을 클릭했습니다.");
   };
@@ -50,13 +55,13 @@ const AdminContentWrap = () => {
 
         <div className="flex justify-end items-center mt-2">
           <Text size="text5" color="Gray" isBold={true}>
-            조회한 지역의 이름
+            {fullRegion}
           </Text>
           <Text size="text6" color="Gray" className="ml-1">
             에 대한
           </Text>
           <Text size="text6" color="Point" isBold={true} className="ml-2">
-            몇 건
+            {countRegion} 건
           </Text>
           <Text size="text6" color="Gray" className="ml-1">
             의 대피소 조회 결과입니다.
@@ -67,7 +72,7 @@ const AdminContentWrap = () => {
       {/* 2분할 (지도+대피소정보) + (대피소 리스트) */}
       <div className="grid grid-cols-2 gap-6 h-5/6">
         {/* (지도+대피소정보) */}
-        <div className="grid grid-rows-2 gap-2">
+        <div className="grid grid-rows-2 gap-4 h-full">
           <MapAdmin />
           <MapAdminInfoBoxList />
         </div>
@@ -85,6 +90,5 @@ export default AdminContentWrap;
 const StyledShelterList = styled.div`
   width: 100%;
   height: 100%;
-  /* background-color: red; */
   overflow-y: auto;
 `;
