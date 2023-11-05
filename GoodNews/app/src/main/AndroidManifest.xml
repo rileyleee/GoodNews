@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 정확한 위치 접근을 위해 필요함 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <!-- 내부 저장소에 쓰고 읽기 권한 추가-->
+    <!-- 외부 저장소에 쓰고 읽기 권한 추가-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -25,7 +25,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodNews"
         tools:targetApi="31"
-        android:allowBackup="true">
+        android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".alarm.AlarmActivity"
             android:exported="false" />

@@ -12,8 +12,8 @@
 
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.saveurlife.goodnews.map.MapFragmentSql"
-        tools:layout="@layout/fragment_map_sql" />
+        android:name="com.saveurlife.goodnews.map.MapFragment"
+        tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/familyFragment"
