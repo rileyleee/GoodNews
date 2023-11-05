@@ -41,22 +41,19 @@ const COLOR_STYLES: Record<CardColor, string> = {
 const StyledCard = styled.div<CardProps>`
     border-radius: ${(props) => CardStyles[props.size].radius};
     background-color: ${(props) => COLOR_STYLES[props.color]};
-    height: ${(props) => props.height || 'auto'};
 `
 
 const Card = ({
   size,
   color,
   children,
-  className,
-  height
+  className
 }:CardProps) => {
   return (
     <StyledCard
       size={size}
       color={color}
       className={className}
-      height={height}
     >
       {children}
     </StyledCard>
