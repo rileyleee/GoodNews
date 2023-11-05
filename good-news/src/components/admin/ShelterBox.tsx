@@ -50,5 +50,6 @@ const StyledShelterWrapper = styled.div`
 
   &:hover {
     background-color: #c0d6df;
+    cursor: pointer;
   }
 `;

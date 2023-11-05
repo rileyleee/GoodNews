@@ -17,9 +17,12 @@ const MainIntro = () => {
   return (
     <StyledMainIntroWrapper>
       {/* 여기에서 이미지 넣어주기 */}
+      <video muted autoPlay loop>
+        <source src="/assets/mainBackground.mp4" type="video/mp4" />
+      </video>
       <StyledMainContentWrapper>
         {/* 텍스트 wrap */}
-        <div>
+        <div className="ml-24">
           <Text size="text1">위급 상황의 손길과 소통</Text>
           <Text size="text1" isBold={true}>
             희소식과 함께, 안전하게!
@@ -56,15 +59,20 @@ export default MainIntro;
 
 const StyledMainIntroWrapper = styled.div`
   width: 100%;
-  height: calc(100vh - 60px);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 `;
 const StyledMainContentWrapper = styled.div`
   width: 80%;
-  height: 100%;
-  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const StyledMainButtonWrapper = styled.div`
   width: 50%;
   margin: 0 auto;
+  margin-top: 52px;
 `;

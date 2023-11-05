@@ -20,6 +20,7 @@ const StyledAdminPageWrapper = styled.div`
   width: 100%;
   height: calc(100vh - 60px);
   display: flex;
+  margin-top: 60px;
   align-items: center;
   justify-content: center;
 `;

@@ -1,5 +1,6 @@
 // 메인 페이지
 import { SectionsContainer, Section } from "react-fullpage";
+
 import MainIntro from "../components/home/MainIntro";
 import SubIntro1 from "../components/home/SubIntro1";
 import SubIntro2 from "../components/home/SubIntro2";
