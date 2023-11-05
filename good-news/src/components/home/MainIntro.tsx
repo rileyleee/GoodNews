@@ -1,8 +1,20 @@
-import styled from "styled-components";
+// 메인페이지의 제일 처음 부분
+import styled, { keyframes } from "styled-components";
+import { LuMouse } from "react-icons/lu";
+
 import Text from "../@common/Text";
 import Button from "../@common/Button";
 
-// 메인페이지의 제일 처음 부분
+// 1. 깜빡거리는 애니메이션 정의
+const blink = keyframes`
+0%, 100% {
+  opacity: 1;
+}
+50% {
+  opacity: 0;
+}
+`;
+
 const MainIntro = () => {
   const handleMoveGoogleClick = () => {
     // 구글 스토어로 이동하기!!!
@@ -51,6 +63,7 @@ const MainIntro = () => {
           </Button>
         </StyledMainButtonWrapper>
       </StyledMainContentWrapper>
+      <StyledLuMouse />
     </StyledMainIntroWrapper>
   );
 };
@@ -75,4 +88,17 @@ const StyledMainButtonWrapper = styled.div`
   width: 50%;
   margin: 0 auto;
   margin-top: 52px;
+`;
+
+const StyledLuMouse = styled(LuMouse)`
+  color: white;
+  width: 32px;
+  height: 32px;
+
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  animation: ${blink} 2s infinite;
 `;

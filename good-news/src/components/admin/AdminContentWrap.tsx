@@ -11,6 +11,9 @@ import SelectBox from "../@common/SelectBox";
 import Text from "../@common/Text";
 
 const AdminContentWrap = () => {
+  const [firstRegion, setFirstRegion] = useState("");
+  const [SecondRegion, setSecondRegion] = useState("");
+  const [thirdRegion, setThirdRegion] = useState("");
   const [fullRegion, setFullRegion] = useState("-");
   const [countRegion, setCountRegion] = useState(0);
   const handleRegionClick = () => {
