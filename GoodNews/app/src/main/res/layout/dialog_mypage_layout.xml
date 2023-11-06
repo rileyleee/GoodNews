@@ -1,38 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/myPageDialogCard"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/myPageDialogCard"
-        android:layout_width="0dp"
-        android:layout_height="600dp"
-        android:background="@drawable/card_component"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/myPageguideline2"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/myPageguideline"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.497" />
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_component"
+    app:layout_constraintEnd_toEndOf="@id/myPageguideline4"
+    app:layout_constraintStart_toStartOf="@id/myPageguideline3">
 
     <TextView
         android:id="@+id/myPageDialogTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="내 정보 수정"
         android:textSize="26sp"
-        android:layout_marginTop="25dp"
+        android:textColor="@color/font_color"
         app:layout_constraintEnd_toEndOf="@+id/myPageDialogCard"
         app:layout_constraintStart_toStartOf="@+id/myPageDialogCard"
         app:layout_constraintTop_toTopOf="@+id/myPageDialogCard" />
 
     <TextView
         android:id="@+id/dialogMypageName"
+        style="@style/MyPageUpdateInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="이름"
-        style="@style/MyPageUpdateInfo"
         app:layout_constraintStart_toStartOf="@+id/myPageguideline3"
         app:layout_constraintTop_toBottomOf="@+id/myPageDialogTitle" />
 
@@ -40,18 +33,19 @@
         android:id="@+id/dialogMypageNameEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="김싸피"
         android:textSize="21dp"
-        android:layout_marginTop="5dp"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageName" />
 
     <TextView
         android:id="@+id/dialogMypagePhone"
+        style="@style/MyPageUpdateInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="전화번호"
-        style="@style/MyPageUpdateInfo"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageNameEdit" />
 
@@ -59,66 +53,42 @@
         android:id="@+id/dialogMypagePhoneEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:enabled="false"
+        android:layout_marginTop="5dp"
         android:text="000-0000-0000"
         android:textSize="21dp"
-        android:layout_marginTop="5dp"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageNameEdit"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypagePhone" />
 
     <TextView
         android:id="@+id/dialogMypagebirth"
+        style="@style/MyPageUpdateInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="생년월일"
-        style="@style/MyPageUpdateInfo"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypagePhoneEdit" />
 
     <TextView
-        android:id="@+id/dialogMypageYear"
+        android:id="@+id/dialogMypagebirthday"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2000년"
+        android:text="2000년 01월 01일"
         android:textSize="21sp"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypagebirth" />
-
-    <TextView
-        android:id="@+id/dialogMypageMonth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="01월"
-        android:textSize="21sp"
-        android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageYear"
-        app:layout_constraintEnd_toStartOf="@id/dialogMypageDay"
-        app:layout_constraintStart_toEndOf="@id/dialogMypageYear"
-        app:layout_constraintTop_toTopOf="@+id/dialogMypageYear" />
-
-
-    <TextView
-        android:id="@+id/dialogMypageDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="01일"
-        android:textSize="21sp"
-        android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageYear"
-        app:layout_constraintStart_toEndOf="@+id/dialogMypageMonth"
-        app:layout_constraintTop_toBottomOf="@+id/dialogMypagebirth"
-        app:layout_constraintEnd_toStartOf="@id/calendar"/>
 
 
     <ImageView
         android:id="@+id/calendar"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:src="@drawable/baseline_calendar_month_24"
         android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageDay"
-        app:layout_constraintStart_toEndOf="@id/dialogMypageDay"
-        app:layout_constraintTop_toTopOf="@id/dialogMypageDay"/>
+        android:src="@drawable/baseline_calendar_month_24"
+        app:layout_constraintBottom_toBottomOf="@+id/dialogMypagebirthday"
+        app:layout_constraintStart_toEndOf="@id/dialogMypagebirthday"
+        app:layout_constraintTop_toTopOf="@id/dialogMypagebirthday" />
 
 
     <TextView
@@ -128,43 +98,44 @@
         android:layout_height="wrap_content"
         android:text="성별"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
-        app:layout_constraintTop_toBottomOf="@+id/dialogMypageDay"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/dialogMypagebirthday" />
 
     <TextView
         android:id="@+id/dialogMypageMan"
         android:layout_width="0dp"
         android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
         android:background="@drawable/input_stroke"
         android:gravity="center"
         android:text="남자"
         android:textSize="16dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp"
+        android:textColor="@color/font_color"
+        app:layout_constraintEnd_toStartOf="@id/dialogMypageWoman"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageNameEdit"
-        app:layout_constraintTop_toBottomOf="@+id/dialogMypageGender"
-        app:layout_constraintEnd_toStartOf="@id/dialogMypageWoman"/>
+        app:layout_constraintTop_toBottomOf="@+id/dialogMypageGender" />
 
     <TextView
         android:id="@+id/dialogMypageWoman"
         android:layout_width="0dp"
         android:layout_height="40dp"
+        android:layout_marginStart="5dp"
         android:background="@drawable/input_stroke"
         android:gravity="center"
         android:text="여자"
         android:textSize="16dp"
-        android:layout_marginStart="5dp"
+        android:textColor="@color/font_color"
         app:layout_constraintBottom_toBottomOf="@+id/dialogMypageMan"
-        app:layout_constraintEnd_toStartOf="@+id/myPageguideline5"
+        app:layout_constraintEnd_toStartOf="@+id/myPageguideline4"
         app:layout_constraintStart_toEndOf="@id/dialogMypageMan"
         app:layout_constraintTop_toTopOf="@+id/dialogMypageMan" />
 
     <TextView
         android:id="@+id/dialogMypageBlood"
+        style="@style/MyPageUpdateInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="혈액형"
-        style="@style/MyPageUpdateInfo"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageMan" />
 
@@ -172,151 +143,116 @@
         android:id="@+id/dialogMypageRhEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="rh+"
         android:textSize="21sp"
-        android:layout_marginTop="5dp"
+        android:textColor="@color/font_color"
         app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"
-        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood"/>
+        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />
 
     <TextView
-        android:id="@+id/dialogMyPageBloodEdit"
+        android:id="@+id/dialogMypageBloodEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
         android:text="O형"
         android:textSize="21sp"
-        android:layout_marginStart="10dp"
+        android:textColor="@color/font_color"
         app:layout_constraintBottom_toBottomOf="@+id/dialogMypageRhEdit"
         app:layout_constraintStart_toEndOf="@id/dialogMypageRhEdit"
-        app:layout_constraintTop_toTopOf="@+id/dialogMypageRhEdit"/>
+        app:layout_constraintTop_toTopOf="@+id/dialogMypageRhEdit" />
+
 
     <ImageView
         android:id="@+id/updateBlood"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:src="@drawable/mypage_blood"
         android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageRhEdit"
-        app:layout_constraintStart_toEndOf="@+id/dialogMyPageBloodEdit"
-        app:layout_constraintTop_toTopOf="@+id/dialogMypageRhEdit" />
-
-
-
-<!--    <Spinner-->
-<!--        android:id="@+id/dialogMypageRhEdit"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="@drawable/input_stroke"-->
-<!--        android:layout_marginTop="5dp"-->
-<!--        android:layout_marginEnd="5dp"-->
-<!--        android:gravity="center"-->
-<!--        app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"-->
-<!--        app:layout_constraintEnd_toStartOf="@id/dialogMyPageBloodEdit"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />-->
-
-<!--    <Spinner-->
-<!--        android:id="@+id/dialogMyPageBloodEdit"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="40dp"-->
-<!--        android:background="@drawable/input_stroke"-->
-<!--        android:gravity="center"-->
-<!--        android:layout_marginStart="5dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageRhEdit"-->
-<!--        app:layout_constraintEnd_toStartOf="@+id/myPageguideline5"-->
-<!--        app:layout_constraintStart_toEndOf="@id/dialogMypageRhEdit"-->
-<!--        app:layout_constraintTop_toTopOf="@+id/dialogMypageRhEdit" />-->
+        android:src="@drawable/mypage_blood"
+        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageBloodEdit"
+        app:layout_constraintStart_toEndOf="@+id/dialogMypageBloodEdit"
+        app:layout_constraintTop_toTopOf="@+id/dialogMypageBloodEdit" />
 
     <TextView
         android:id="@+id/dialogMypageSign"
+        style="@style/MyPageUpdateInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="특이사항"
-        style="@style/MyPageUpdateInfo"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
-        app:layout_constraintTop_toBottomOf="@+id/dialogMyPageBloodEdit" />
-
-<!--    <EditText-->
-<!--        android:id="@+id/dialogMypageSignEdit"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="70dp"-->
-<!--        android:background="@drawable/input_stroke"-->
-<!--        android:gravity="top"-->
-<!--        android:layout_marginTop="5dp"-->
-<!--        android:hint="내가 작성한 글"-->
-<!--        android:inputType="textMultiLine"-->
-<!--        android:maxLength="50"-->
-<!--        app:counterEnabled="true"-->
-<!--        app:layout_constraintEnd_toEndOf="@id/myPageguideline4"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/dialogMypageRhEdit"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/dialogMypageSign" />-->
+        app:layout_constraintTop_toBottomOf="@+id/dialogMypageBloodEdit" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/dialogMypageSignEdit"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_marginTop="5dp"
-        app:errorEnabled="true"
+        app:boxStrokeColor="@color/main"
         app:counterEnabled="true"
         app:counterMaxLength="50"
-        app:boxStrokeColor="@color/main"
-        app:layout_constraintTop_toBottomOf="@id/dialogMypageSign"
-        app:layout_constraintStart_toStartOf="@id/myPageguideline3"
+        app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="@id/myPageguideline4"
-        >
+        app:layout_constraintStart_toStartOf="@id/dialogMypageName"
+        app:layout_constraintTop_toBottomOf="@id/dialogMypageSign">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/textInputEditText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="안녕하세요" />
     </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/updateButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/btn_match_parent"
-            android:text="수정하기"
-            android:textSize="21dp"
-            android:textColor="@color/white"
-            android:layout_marginTop="10dp"
-            app:layout_constraintEnd_toEndOf="@id/myPageguideline4"
-            app:layout_constraintStart_toStartOf="@id/myPageguideline3"
-            app:layout_constraintTop_toBottomOf="@+id/dialogMypageSignEdit" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/updateButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/btn_match_parent"
+        android:backgroundTint="@color/main"
+        android:text="수정하기"
+        android:textColor="@color/font_same"
+        android:textSize="21dp"
+        app:layout_constraintBottom_toBottomOf="@id/myPageDialogCard"
+        app:layout_constraintEnd_toEndOf="@id/myPageguideline4"
+        app:layout_constraintStart_toStartOf="@id/myPageguideline3"
+        app:layout_constraintTop_toBottomOf="@+id/dialogMypageSignEdit" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/myPageguideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/myPageguideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="5dp" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/myPageguideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="20dp"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/myPageguideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="0dp" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/myPageguideline3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.1"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/myPageguideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.07" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/myPageguideline4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.9"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/myPageguideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.93" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/myPageguideline5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.65"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/myPageguideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="1.0" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

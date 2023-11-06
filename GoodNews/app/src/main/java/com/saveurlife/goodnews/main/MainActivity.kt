@@ -3,12 +3,8 @@ package com.saveurlife.goodnews.main
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -21,13 +17,9 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -36,27 +28,20 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 
-
 class MainActivity : AppCompatActivity() {
-    companion object {
-        const val PERMISSIONS_REQUEST_CODE_ALL = 100
-        const val PERMISSIONS_REQUEST_CODE_BACK = 101
-    }
-
-
     private lateinit var binding: ActivityMainBinding
     private val navController by lazy {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navHostFragment.navController
     }
-
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
@@ -92,14 +77,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.mapFragment,
                 R.id.familyFragment,
                 R.id.myPageFragment,
-                R.id.flashlightFragment
+                R.id.flashlightFragment,
+                R.id.chattingFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
-
-        // 권한 요청
-        requestAllPermission()
-
 
         // 왜 안 되지... @@ 수정
         binding.navigationView.setupWithNavController(navController)
@@ -178,6 +160,8 @@ class MainActivity : AppCompatActivity() {
         chattingLayer.setOnClickListener {
             // 두 번째 다이얼로그 표시 함수 호출
             showChattingDialog()
+//            binding.navigationView.menu.getItem(2).isChecked = true
+//            navController.navigate(R.id.chattingFragment)
             dialog.dismiss()
         }
 
@@ -305,104 +289,22 @@ class MainActivity : AppCompatActivity() {
             sirenStopTextView.visibility = View.GONE
         }
     }
-
     fun switchToChattingFragment(selectedTab: Int) {
         println("$selectedTab 뭘 받아올까요 ??")
-        val transaction = supportFragmentManager.beginTransaction()
-        val chattingFragment = ChattingFragment()
+        binding.navigationView.menu.getItem(2).isChecked = true
 
-        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
+//        val transaction = supportFragmentManager.beginTransaction()
+//        val chattingFragment = ChattingFragment()
+//
+//        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
         val bundle = Bundle()
         bundle.putInt("selectedTab", selectedTab)
-        chattingFragment.arguments = bundle
-
-        transaction.replace(
-            R.id.nav_host_fragment,
-            chattingFragment
-        ) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
-        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
-        transaction.commit()
-    }
-
-    // 앱 사용 위한 권한 요청(백그라운드 위치 정보 액세스 권한은 별도로 처리)
-    private fun requestAllPermission() {
-        val permissionsToRequest = mutableListOf<String>()
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) !== PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsToRequest.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) !== PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsToRequest.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-        }
-
-        if (permissionsToRequest.isNotEmpty()) {
-            ActivityCompat.requestPermissions(
-                this,
-                permissionsToRequest.toTypedArray(),
-                PERMISSIONS_REQUEST_CODE_ALL
-            )
-            permissionDialog(this)
-        } else {
-            onAllPermissionsGranted()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSIONS_REQUEST_CODE_ALL) {
-            val deniedPermissions =
-                permissions.filterIndexed { index, _ -> grantResults[index] != PackageManager.PERMISSION_GRANTED }
-            if (deniedPermissions.isEmpty()) {
-                onAllPermissionsGranted()
-            } else {
-                onPermissionsDenied(deniedPermissions)
-            }
-        }
-    }
-
-    private fun onAllPermissionsGranted() {
-        Toast.makeText(this, "앱을 사용하기 위한 모든 권한이 승인되었습니다.", Toast.LENGTH_LONG).show()
-    }
-
-    private fun onPermissionsDenied(deniedPermissions: List<String>) {
-        Toast.makeText(this, "앱을 사용하기 위한 권한이 승인되지 않았습니다.: $deniedPermissions", Toast.LENGTH_LONG)
-            .show()
-    }
-
-    // 백그라운드 권한 요청 (안드로이드 API 30 버전부터 적용)
-    private fun backgroundPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-            PERMISSIONS_REQUEST_CODE_BACK
-        )
-    }
-
-    private fun permissionDialog(context: Context){
-        var builder = AlertDialog.Builder(context)
-        builder.setTitle("백그라운드 위치 권한을 위해 항상 허용으로 설정해주세요")
-
-        var listener = DialogInterface.OnClickListener { _, p1 ->
-            when (p1) {
-                DialogInterface.BUTTON_POSITIVE ->
-                    backgroundPermission()
-            }
-        }
-        builder.setPositiveButton("네", listener)
-        builder.setNegativeButton("아니오", null)
-        builder.show()
+        navController.navigate(R.id.chattingFragment, bundle)
+//        chattingFragment.arguments = bundle
+//
+//        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
+//        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
+//        transaction.commit()
     }
 }
 
