@@ -1,10 +1,17 @@
+// 대피소 박스를 묶는 리스트 컴포넌트
 import ShelterBox from "./ShelterBox";
 
-// 대피소 박스를 묶는 리스트 컴포넌트
 const ShelterBoxList = () => {
   return (
-    <div>
-      대피소 박스를 묶는 리스트 컴포넌트
+    <div className="grid gap-2 pr-2">
+      <ShelterBox />
+      <ShelterBox />
+      <ShelterBox />
+      <ShelterBox />
+      <ShelterBox />
+      <ShelterBox />
+      <ShelterBox />
+      <ShelterBox />
       <ShelterBox />
     </div>
   );

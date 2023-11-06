@@ -10,5 +10,10 @@ export default Header;
 const StyledHeader = styled.div`
   width: 100%;
   height: 60px;
-  background-color: #ccc;
+  line-height: 60px;
+  /* background-color: #ccc; */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
 `;
