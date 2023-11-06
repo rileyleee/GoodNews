@@ -14,11 +14,17 @@ import androidx.appcompat.app.AlertDialog
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
+import com.saveurlife.goodnews.models.Member
+import io.realm.kotlin.Realm
 
 class EnterInfoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEnterInfoBinding
+    lateinit var realm: Realm
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        realm = Realm
+
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -40,7 +46,53 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // 정보 등록 버튼 눌렀을 때, 이벤트
         binding.submitInfo.setOnClickListener {
-            Toast.makeText(this, "정보 등록 버튼 클릭", Toast.LENGTH_SHORT).show()
+            // 사용자 입력 값 추출
+            val name = binding.nameEditText.text.toString()
+
+            val birthYear = binding.dialogEnterYear.text.toString().trim('년')
+            val birthMonth = binding.dialogEnterMonth.text.toString().trim('월')
+            val birthDay = binding.dialogEnterDay.text.toString().trim('일')
+
+            val birthDate = "$birthYear-$birthMonth-$birthDay"
+
+            val gender = when {
+                binding.genderMale.isSelected -> "남성"
+                binding.genderFemale.isSelected -> "여성"
+                else -> null
+            }
+
+            val rhText = binding.dialogRhText.text.toString()
+            val bloodText = binding.dialogBloodText.text.toString()
+
+            val bloodType = "$rhText $bloodText"
+
+            val addInfo = binding.warningEditText.text.toString()
+
+            if (gender == null) {
+                Toast.makeText(this, "성별을 선택해 주세요.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, gender, Toast.LENGTH_SHORT).show()
+            }
+            Toast.makeText(this, addInfo, Toast.LENGTH_SHORT).show()
+
+            // 입력 값 검증 (필수 입력 값 안 들어왔을 때)
+            if (name.isBlank() || birthDate.isBlank()) {
+                Toast.makeText(this, "필수 정보를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+//            else {
+//                // Realm에 저장
+//                realm.write {
+//                    val newMember = Member().apply {
+//                        name = this.name
+//                        birthDate = this.birthDate
+//
+//
+//                    }
+//                }
+//            }
+
+
         }
 
         // 다음에 등록하기 버튼 눌렀을 때, 이벤트
@@ -52,35 +104,22 @@ class EnterInfoActivity : AppCompatActivity() {
         }
     }
 
-//    private fun initBloodSpinners() {
-//        // rh인자
-//        val rhTypes = listOf("선택", "RH+", "RH-", "모름")
-//        val rhAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, rhTypes).also {
-//            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        }
-//        binding.rhSpinner.adapter = rhAdapter
-//        binding.rhSpinner.setSelection(0)
-//
-//        // 혈액형
-//        val bloodTypes = listOf("선택", "A", "B", "AB", "O")
-//        val bloodAdapter =
-//            ArrayAdapter(this, android.R.layout.simple_spinner_item, bloodTypes).also {
-//                it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//            }
-//        binding.bloodSpinner.adapter = bloodAdapter
-//        binding.bloodSpinner.setSelection(0)
-//    }
-
     // 성별 변경
     private fun initGenderSelection() {
         // 남자 클릭 했을 때
         binding.genderMale.setOnClickListener {
+            it.isSelected = true // 남자를 선택된 상태로 설정
+            binding.genderFemale.isSelected = false // 여자는 선택되지 않은 상태로 설정
+
             it.setBackgroundResource(com.saveurlife.goodnews.R.drawable.input_stroke_selected)
             binding.genderFemale.setBackgroundResource(com.saveurlife.goodnews.R.drawable.input_stroke)
         }
 
         // 여자 클릭 했을 때
         binding.genderFemale.setOnClickListener {
+            it.isSelected = true // 여자를 선택된 상태로 설정
+            binding.genderMale.isSelected = false // 남자는 선택되지 않은 상태로 설정
+
             it.setBackgroundResource(com.saveurlife.goodnews.R.drawable.input_stroke_selected)
             binding.genderMale.setBackgroundResource(com.saveurlife.goodnews.R.drawable.input_stroke)
         }
@@ -243,7 +282,7 @@ class EnterInfoActivity : AppCompatActivity() {
 
         bloodDialog.show()
 
-        requestBlood.setOnClickListener{
+        requestBlood.setOnClickListener {
             val selectedRh = rhs[rhPicker.value]
             val selectedBloodType = blood[bloodPicker.value]
 

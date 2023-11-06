@@ -23,6 +23,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@id/submit_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,6 +57,7 @@
                 android:id="@+id/phoneTextView"
                 style="@style/EnterInfoLabel"
                 android:text="휴대폰 번호"
+                android:layout_marginTop="12dp"
                 android:textColor="@color/font_color"
                 app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                 app:layout_constraintTop_toBottomOf="@id/nameEditText" />
@@ -126,6 +128,7 @@
                 android:id="@+id/birthTextView"
                 style="@style/EnterInfoLabel"
                 android:text="생년월일"
+                android:layout_marginTop="12dp"
                 android:textColor="@color/font_color"
                 app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                 app:layout_constraintTop_toBottomOf="@id/phoneGroup" />
@@ -188,6 +191,7 @@
                 android:id="@+id/genderTextView"
                 style="@style/EnterInfoLabel"
                 android:text="성별"
+                android:layout_marginTop="12dp"
                 android:textColor="@color/font_color"
                 app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                 app:layout_constraintTop_toBottomOf="@id/birthGroup" />
@@ -234,6 +238,7 @@
                 android:id="@+id/bloodTextView"
                 style="@style/EnterInfoLabel"
                 android:text="혈액형"
+                android:layout_marginTop="12dp"
                 android:textColor="@color/font_color"
                 app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                 app:layout_constraintTop_toBottomOf="@id/genderGroup" />
@@ -298,6 +303,7 @@
                 android:id="@+id/warningTextView"
                 style="@style/EnterInfoLabel"
                 android:text="특이사항 (지병)"
+                android:layout_marginTop="12dp"
                 android:textColor="@color/font_color"
                 app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                 app:layout_constraintTop_toBottomOf="@id/bloodGroup" />
