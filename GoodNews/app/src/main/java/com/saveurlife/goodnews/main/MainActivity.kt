@@ -23,7 +23,6 @@ import androidx.constraintlayout.helper.widget.Layer
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -78,7 +77,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.mapFragment,
                 R.id.familyFragment,
                 R.id.myPageFragment,
-                R.id.flashlightFragment
+                R.id.flashlightFragment,
+                R.id.chattingFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -160,6 +160,8 @@ class MainActivity : AppCompatActivity() {
         chattingLayer.setOnClickListener {
             // 두 번째 다이얼로그 표시 함수 호출
             showChattingDialog()
+//            binding.navigationView.menu.getItem(2).isChecked = true
+//            navController.navigate(R.id.chattingFragment)
             dialog.dismiss()
         }
 
@@ -289,17 +291,20 @@ class MainActivity : AppCompatActivity() {
     }
     fun switchToChattingFragment(selectedTab: Int) {
         println("$selectedTab 뭘 받아올까요 ??")
-        val transaction = supportFragmentManager.beginTransaction()
-        val chattingFragment = ChattingFragment()
+        binding.navigationView.menu.getItem(2).isChecked = true
 
-        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
+//        val transaction = supportFragmentManager.beginTransaction()
+//        val chattingFragment = ChattingFragment()
+//
+//        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
         val bundle = Bundle()
         bundle.putInt("selectedTab", selectedTab)
-        chattingFragment.arguments = bundle
-
-        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
-        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
-        transaction.commit()
+        navController.navigate(R.id.chattingFragment, bundle)
+//        chattingFragment.arguments = bundle
+//
+//        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
+//        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
+//        transaction.commit()
     }
 }
 
