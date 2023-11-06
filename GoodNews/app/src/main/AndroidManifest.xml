@@ -7,8 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 와이파이 접근 권한/ 상태확인 -->
 
     <!-- (포어그라운드) 지도에 사용자의 위치를 표시하거나 사용자의 위치 정보를 얻기 위해 필요함: 위험권한 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 정확한 위치 접근을 위해 필요함 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 네트워크 이용 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- GPS 이용 -->
 
     <!--(백그라운드) 안드로이드 10 (API 레벨 29) 이상에서 필요한 백그라운드 위치 정보 접근 권한-->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
