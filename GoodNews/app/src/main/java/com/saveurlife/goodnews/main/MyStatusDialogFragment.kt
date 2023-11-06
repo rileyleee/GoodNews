@@ -19,6 +19,8 @@ class MyStatusDialogFragment : DialogFragment() {
 
     private var listener: StatusSelectListener? = null
 
+    private lateinit var preferencesUtil: PreferencesUtil
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (parentFragment is StatusSelectListener) {
@@ -35,6 +37,8 @@ class MyStatusDialogFragment : DialogFragment() {
     ): View? {
         binding = FragmentMyStatusDialogBinding.inflate(inflater, container, false)
 
+        preferencesUtil = PreferencesUtil(requireContext())
+
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         binding.myStatusCancle.setOnClickListener{
@@ -44,18 +48,22 @@ class MyStatusDialogFragment : DialogFragment() {
 
         binding.safeLayer.setOnClickListener {
             listener?.onStatusSelected("safe")
+            preferencesUtil.setString("status","safe")
             dismiss()
         }
         binding.injuryLayer.setOnClickListener {
             listener?.onStatusSelected("injury")
+            preferencesUtil.setString("status","injury")
             dismiss()
         }
         binding.deathLayer.setOnClickListener {
             listener?.onStatusSelected("death")
+            preferencesUtil.setString("status","death")
             dismiss()
         }
         binding.unknownLayer.setOnClickListener {
             listener?.onStatusSelected("unknown")
+            preferencesUtil.setString("status","unknown")
             dismiss()
         }
 
