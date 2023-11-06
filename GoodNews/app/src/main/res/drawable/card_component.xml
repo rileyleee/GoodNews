@@ -5,7 +5,7 @@
         android:top="10dp"
         android:right="10dp"
         android:bottom="10dp" />
-    <solid android:color="@color/background"/>
+    <solid android:color="@color/modal"/>
     <corners
         android:bottomLeftRadius="16dp"
         android:bottomRightRadius="16dp"
