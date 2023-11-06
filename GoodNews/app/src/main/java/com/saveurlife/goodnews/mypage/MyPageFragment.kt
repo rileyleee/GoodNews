@@ -38,12 +38,12 @@ class MyPageFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
-
         preferencesUtil = PreferencesUtil(requireContext())
 
-        //어둡게 보기 기능
-        val switchDarkMode = binding.switchDarkMode
-        switchDarkMode.setOnCheckedChangeListener { buttonView, isChecked ->
+        //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
+        val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
+        binding.switchDarkMode.isChecked = isDarkMode
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // 스위치가 켜졌을 때: 다크 모드로 변경
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -51,6 +51,7 @@ class MyPageFragment : Fragment() {
                 // 스위치가 꺼졌을 때: 라이트 모드로 변경
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
+            preferencesUtil.setBoolean("darkMode", isChecked)
         }
 
         return binding.root
@@ -82,6 +83,7 @@ class MyPageFragment : Fragment() {
         binding.significant.text = preferencesUtil.getString("significant", "0")
         binding.age.text = preferencesUtil.getString("age","0")
         binding.significant.text = preferencesUtil.getString("significant", "0")
+        binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode",false)
     }
 
     //dialog 모달창에 정보 불러오기
@@ -152,7 +154,7 @@ class MyPageFragment : Fragment() {
 
     private fun updateGenderSelection(selectedGender: String, binding: DialogMypageLayoutBinding) {
         //Fragment 클래스에서 제공하는 메소드로, 현재 Fragment가 연결된 Context
-        val colorValueClick = ContextCompat.getColor(requireContext(), R.color.sub)
+        val colorValueClick = ContextCompat.getColor(requireContext(), R.color.gender)
         val colorStateListClick = ColorStateList.valueOf(colorValueClick)
         val colorValue = ContextCompat.getColor(requireContext(), R.color.white)
         val colorStateList = ColorStateList.valueOf(colorValue)
