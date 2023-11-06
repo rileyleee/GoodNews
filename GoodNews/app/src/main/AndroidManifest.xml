@@ -3,30 +3,33 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 앱에서 인터넷 사용을 위해 필요함 -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!--인터넷 접근 권한-->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /><!-- 와이파이 접근 권한/ 상태확인-->
-    <uses-permission android:name="android.permission.BLUETOOTH" /><!-- 블루투스 상태확인: 자세한 설정은 준용에게 확인-->
-    <uses-permission android:name="android.permission.SET_ALARM"/> <!--알람 설정: 자세한 설정은 예진에게 확인-->
-    <!-- 지도에 사용자의 위치를 표시하거나 사용자의 위치 정보를 얻기 위해 필요함: 위험권한-->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 인터넷 접근 권한 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 와이파이 접근 권한/ 상태확인 -->
+
+    <!-- (포어그라운드) 지도에 사용자의 위치를 표시하거나 사용자의 위치 정보를 얻기 위해 필요함: 위험권한 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 정확한 위치 접근을 위해 필요함 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <!-- 외부 저장소에 쓰고 읽기 권한 추가-->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!--(백그라운드) 안드로이드 10 (API 레벨 29) 이상에서 필요한 백그라운드 위치 정보 접근 권한-->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- 외부 저장소에 쓰고 읽기 권한 추가 -->
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 
     <application
         android:name=".GoodNewsApplication"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="희소식"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodNews"
-        tools:targetApi="31"
-        android:allowBackup="true"
-        android:enableOnBackInvokedCallback="true">
+        tools:targetApi="31">
+
         <activity
             android:name=".alarm.AlarmActivity"
             android:exported="false" />
