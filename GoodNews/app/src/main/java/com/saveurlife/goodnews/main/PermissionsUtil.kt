@@ -111,4 +111,5 @@ class PermissionsUtil(private val activity: Activity) {
             }
         }
     }
+
 }
