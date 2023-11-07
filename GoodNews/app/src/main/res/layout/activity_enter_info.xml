@@ -40,6 +40,15 @@
                 android:textColor="@color/font_color"
                 app:layout_constraintStart_toStartOf="@id/guidelineVertical"
                 app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/nameTextView"
+                app:layout_constraintTop_toTopOf="@id/nameTextView"
+                app:layout_constraintBottom_toBottomOf="@id/nameTextView"
+                android:layout_marginStart="8dp"
+                android:text="(필수 입력)"
+                android:textColor="@color/point"/>
 
             <EditText
                 android:id="@+id/nameEditText"
@@ -269,7 +278,7 @@
                     android:id="@+id/dialogRhText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="RH"
+                    android:text="Rh"
                     android:textSize="21sp"
                     app:layout_constraintBottom_toBottomOf="@id/bloodGroup"
                     app:layout_constraintStart_toStartOf="@id/bloodGroup"
@@ -357,28 +366,13 @@
         android:layout_gravity="bottom"
         android:background="@drawable/btn_match_parent"
         android:gravity="center"
+        android:layout_marginBottom="12dp"
         android:text="@string/submit"
         android:textColor="@color/white"
         android:textSize="21sp"
-        app:layout_constraintBottom_toTopOf="@id/later_info"
         app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineVertical" />
-
-    <TextView
-        android:id="@+id/later_info"
-        android:layout_width="0dp"
-        android:layout_height="36dp"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="10dp"
-        android:gravity="center"
-        android:paddingTop="10dp"
-        android:text="@string/later"
-        android:textColor="@color/main"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-
-        app:layout_constraintStart_toStartOf="@id/guidelineVertical" />
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <!-- 가이드라인 -->
     <androidx.constraintlayout.widget.Guideline

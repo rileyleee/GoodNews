@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.NumberPicker
@@ -14,16 +15,22 @@ import androidx.appcompat.app.AlertDialog
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
+import com.saveurlife.goodnews.main.PreferencesUtil
+import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
 
 class EnterInfoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEnterInfoBinding
-    lateinit var realm: Realm
+    private lateinit var realm: Realm
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        realm = Realm
+        // realm 열기 - member class
+        val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+        realm = Realm.open(config)
 
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -46,62 +53,16 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // 정보 등록 버튼 눌렀을 때, 이벤트
         binding.submitInfo.setOnClickListener {
-            // 사용자 입력 값 추출
-            val name = binding.nameEditText.text.toString()
-
-            val birthYear = binding.dialogEnterYear.text.toString().trim('년')
-            val birthMonth = binding.dialogEnterMonth.text.toString().trim('월')
-            val birthDay = binding.dialogEnterDay.text.toString().trim('일')
-
-            val birthDate = "$birthYear-$birthMonth-$birthDay"
-
-            val gender = when {
-                binding.genderMale.isSelected -> "남성"
-                binding.genderFemale.isSelected -> "여성"
-                else -> null
-            }
-
-            val rhText = binding.dialogRhText.text.toString()
-            val bloodText = binding.dialogBloodText.text.toString()
-
-            val bloodType = "$rhText $bloodText"
-
-            val addInfo = binding.warningEditText.text.toString()
-
-            if (gender == null) {
-                Toast.makeText(this, "성별을 선택해 주세요.", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, gender, Toast.LENGTH_SHORT).show()
-            }
-            Toast.makeText(this, addInfo, Toast.LENGTH_SHORT).show()
-
-            // 입력 값 검증 (필수 입력 값 안 들어왔을 때)
-            if (name.isBlank() || birthDate.isBlank()) {
-                Toast.makeText(this, "필수 정보를 입력해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-//            else {
-//                // Realm에 저장
-//                realm.write {
-//                    val newMember = Member().apply {
-//                        name = this.name
-//                        birthDate = this.birthDate
-//
-//
-//                    }
-//                }
-//            }
-
-
+            submitUserInfo()
         }
 
         // 다음에 등록하기 버튼 눌렀을 때, 이벤트
-        binding.laterInfo.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-
-            Toast.makeText(this, "다음에 등록하기 버튼 클릭", Toast.LENGTH_SHORT).show()
-        }
+//        binding.laterInfo.setOnClickListener {
+//            val intent = Intent(this, MainActivity::class.java)
+//            startActivity(intent)
+//
+//            Toast.makeText(this, "다음에 등록하기 버튼 클릭", Toast.LENGTH_SHORT).show()
+//        }
     }
 
     // 성별 변경
@@ -239,8 +200,6 @@ class EnterInfoActivity : AppCompatActivity() {
 
     }
 
-    // 혈액형 변경 함수
-
     //혈액형 변경하기
     private fun showBloodSettingDialog(dialog: View) {
         val rhs = arrayOf("모름", "Rh+", "Rh-")
@@ -292,6 +251,77 @@ class EnterInfoActivity : AppCompatActivity() {
 
             bloodDialog.dismiss()
         }
+    }
+
+    // 정보 등록 함수
+    private fun submitUserInfo() {
+        // PreferencesUtil 인스턴스 생성
+        val preferencesUtil = PreferencesUtil(this)
+
+        // 사용자 입력 값 추출 @@ 전화번호 추가로 처리 수정 필
+        val setName = binding.nameEditText.text.toString()
+
+        val birthYear = binding.dialogEnterYear.text.toString()
+        val birthMonth = binding.dialogEnterMonth.text.toString()
+        val birthDay = binding.dialogEnterDay.text.toString()
+
+        val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
+            "입력하지 않음"
+        } else {
+            "$birthYear $birthMonth $birthDay"
+        }
+
+        val setGender = when {
+            binding.genderMale.isSelected -> "남자"
+            binding.genderFemale.isSelected -> "여자"
+            else -> "입력하지 않음"
+        }
+
+        val rhText = binding.dialogRhText.text.toString()
+        val bloodText = binding.dialogBloodText.text.toString()
+
+        val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
+            "입력하지 않음"
+        } else {
+            "$rhText $bloodText"
+        }
+
+        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { "입력하지 않음" }
+
+        // 입력 값 검증 (필수 입력 값 안 들어왔을 때)
+        if (setName.isBlank()) {
+            Toast.makeText(this, "필수 정보 이름을 입력해 주세요.", Toast.LENGTH_LONG).show()
+            return
+        } else {
+            Log.i(
+                "저장 정보",
+                setBirthDate + " " + setName + " " + setGender + " " + setBloodType + " " + setAddInfo
+            )
+            // Realm에 저장
+            realm.writeBlocking {
+                copyToRealm(Member().apply {
+                    birthDate = setBirthDate
+                    name = setName
+                    gender = setGender
+                    bloodType = setBloodType
+                    addInfo = setAddInfo
+                })
+            }
+            // Shared에 저장
+            preferencesUtil.setString("name", setName)
+
+            // 인터넷이 있을 때 Spring => @@ 수정 필
+
+            Log.i("저장", "저장완료")
+            // 메인으로 이동
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        realm.close()
     }
 
 }
