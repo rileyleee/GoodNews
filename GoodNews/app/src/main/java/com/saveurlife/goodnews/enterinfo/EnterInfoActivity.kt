@@ -25,9 +25,6 @@ class EnterInfoActivity : AppCompatActivity() {
         permissionsUtil = PermissionsUtil(this)
         permissionsUtil.requestAllPermissions()
 
-        // 백그라운드 권한 요청
-        permissionsUtil.permissionDialog(this)
-
         initDateSpinners() // Spinner 데이터 설정 함수 호출
         initBloodSpinners()
 
