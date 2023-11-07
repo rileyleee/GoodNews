@@ -139,28 +139,27 @@
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageMan" />
 
-    <TextView
-        android:id="@+id/dialogMypageRhEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="rh+"
-        android:textSize="21sp"
-        android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"
-        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />
+<!--    <TextView-->
+<!--        android:id="@+id/dialogMypageRhEdit"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:text="rh+"-->
+<!--        android:textSize="21sp"-->
+<!--        android:textColor="@color/font_color"-->
+<!--        app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />-->
 
     <TextView
         android:id="@+id/dialogMypageBloodEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:text="O형"
+        android:layout_marginTop="5dp"
+        android:text="Rh+ O형"
         android:textSize="21sp"
         android:textColor="@color/font_color"
-        app:layout_constraintBottom_toBottomOf="@+id/dialogMypageRhEdit"
-        app:layout_constraintStart_toEndOf="@id/dialogMypageRhEdit"
-        app:layout_constraintTop_toTopOf="@+id/dialogMypageRhEdit" />
+        app:layout_constraintStart_toStartOf="@id/dialogMypageBlood"
+        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />
 
 
     <ImageView
@@ -200,7 +199,7 @@
             android:id="@+id/textInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="안녕하세요" />
+            android:text="" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.appcompat.widget.AppCompatButton
