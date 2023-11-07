@@ -76,9 +76,15 @@ class MainActivity : AppCompatActivity() {
 //            })
 //        }
 
-        //가족 등록 모달창
+        //Member 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
+//        if(items.isEmpty()){
+//            val dialog = FamilyAlarmFragment()
+//            dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+//        }
+
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+
 
         // viewmodel 설정
         sharedViewModel.isOnFlash.observe(this, Observer { isOn ->
