@@ -21,9 +21,13 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 
+import com.saveurlife.goodnews.service.UserDeviceInfoService;
+
 class EnterInfoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEnterInfoBinding
     private lateinit var realm: Realm
+
+    val userDeviceInfoService = UserDeviceInfoService(this);
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,14 +59,6 @@ class EnterInfoActivity : AppCompatActivity() {
         binding.submitInfo.setOnClickListener {
             submitUserInfo()
         }
-
-        // 다음에 등록하기 버튼 눌렀을 때, 이벤트
-//        binding.laterInfo.setOnClickListener {
-//            val intent = Intent(this, MainActivity::class.java)
-//            startActivity(intent)
-//
-//            Toast.makeText(this, "다음에 등록하기 버튼 클릭", Toast.LENGTH_SHORT).show()
-//        }
     }
 
     // 성별 변경
@@ -85,8 +81,6 @@ class EnterInfoActivity : AppCompatActivity() {
             binding.genderMale.setBackgroundResource(com.saveurlife.goodnews.R.drawable.input_stroke)
         }
     }
-
-    // 생년월일 선택 함수
 
     //생년월일 변경하기
     private fun showBirthSettingDialog(dialog: View) {
@@ -253,13 +247,17 @@ class EnterInfoActivity : AppCompatActivity() {
         }
     }
 
+
     // 정보 등록 함수
     private fun submitUserInfo() {
         // PreferencesUtil 인스턴스 생성
         val preferencesUtil = PreferencesUtil(this)
 
-        // 사용자 입력 값 추출 @@ 전화번호 추가로 처리 수정 필
+        // 사용자 입력 값 추출
         val setName = binding.nameEditText.text.toString()
+
+        val setMemberId = userDeviceInfoService.deviceId.toString()
+        val setPhone = userDeviceInfoService.phoneNumber.toString()
 
         val birthYear = binding.dialogEnterYear.text.toString()
         val birthMonth = binding.dialogEnterMonth.text.toString()
@@ -297,10 +295,13 @@ class EnterInfoActivity : AppCompatActivity() {
                 "저장 정보",
                 setBirthDate + " " + setName + " " + setGender + " " + setBloodType + " " + setAddInfo
             )
+
             // Realm에 저장
             realm.writeBlocking {
                 copyToRealm(Member().apply {
+                    memberId = setMemberId
                     birthDate = setBirthDate
+                    phone = setPhone // 기기에 맞게 수정 필요@@
                     name = setName
                     gender = setGender
                     bloodType = setBloodType
@@ -310,7 +311,7 @@ class EnterInfoActivity : AppCompatActivity() {
             // Shared에 저장
             preferencesUtil.setString("name", setName)
 
-            // 인터넷이 있을 때 Spring => @@ 수정 필
+            // 인터넷이 있을 때 Spring => @@ 수정 필요
 
             Log.i("저장", "저장완료")
             // 메인으로 이동

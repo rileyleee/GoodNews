@@ -299,7 +299,7 @@
                     android:id="@+id/blood"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@drawable/mypage_blood"
+                    android:src="@drawable/blood"
 
                     app:layout_constraintBottom_toBottomOf="@id/bloodGroup"
                     app:layout_constraintEnd_toEndOf="@id/bloodGroup"
