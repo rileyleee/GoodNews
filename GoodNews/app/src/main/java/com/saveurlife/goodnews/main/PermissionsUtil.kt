@@ -88,14 +88,13 @@ class PermissionsUtil(private val activity: Activity) {
     }
 
     fun onAllPermissionsGranted() {
-        Toast.makeText(activity, "앱을 사용하기 위한 모든 권한이 승인되었습니다.", Toast.LENGTH_LONG).show()
+        Toast.makeText(activity, "앱을 사용하기 위한 모든 권한 승인", Toast.LENGTH_LONG).show()
     }
 
     fun onPermissionsDenied(deniedPermissions: List<String>) {
-        Log.d("ㅋㅋㅋㅋ",deniedPermissions.toString())
         Toast.makeText(
             activity,
-            ": $deniedPermissions",
+            "앱을 사용하기 위한 권한 승인이 완료되지 않음: $deniedPermissions",
             Toast.LENGTH_LONG
         ).show()
         activity.finish()
@@ -112,5 +111,4 @@ class PermissionsUtil(private val activity: Activity) {
             }
         }
     }
-
 }
