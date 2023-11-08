@@ -32,6 +32,7 @@ class GoodNewsApplication : Application() {
 
     companion object {
         lateinit var preferences: PreferencesUtil
+        lateinit var realmConfiguration: RealmConfiguration
     }
 
     override fun onCreate() {
@@ -45,12 +46,11 @@ class GoodNewsApplication : Application() {
         // 앱의 첫 실행 확인 및 타일 데이터 복사
         val isFirstRun = preferences.getBoolean("isFirstRun", true)
         if (isFirstRun) {
-//            copyDBFromAssets()
             preferences.setBoolean("isFirstRun", false)
         }
 
         //Realm 초기화
-        val config = RealmConfiguration.create(
+        realmConfiguration = RealmConfiguration.create(
             schema = setOf(
                 AidKit::class,
                 Alert::class,
@@ -67,7 +67,7 @@ class GoodNewsApplication : Application() {
             )
         )
 
-        val realm: Realm = Realm.open(config)
+        val realm: Realm = Realm.open(realmConfiguration)
 
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
@@ -82,7 +82,6 @@ class GoodNewsApplication : Application() {
             CoroutineScope(Dispatchers.IO).launch {
                 realm.write {
                     for (record in records) {
-                        // Assuming the CSV columns are id, type, name, latitude, longitude, canUse, addInfo
                         val offMapFacility = OffMapFacility().apply {
                             id = record[0].toInt()
                             type = record[1]
