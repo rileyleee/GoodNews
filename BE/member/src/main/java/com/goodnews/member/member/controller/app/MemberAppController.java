@@ -1,9 +1,7 @@
-package com.goodnews.member.member.controller;
+package com.goodnews.member.member.controller.app;
 
 import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.common.dto.LoginDto;
-import com.goodnews.member.common.dto.RefreshTokenResponseDto;
-import com.goodnews.member.common.dto.TokenDto;
 import com.goodnews.member.member.dto.request.member.MemberInfoUpdateRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberLoginAdminRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberRegistRequestDto;
@@ -16,14 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 
 @Tag(name = "Member", description = "멤버 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
-public class MemberController {
+@RequestMapping("/api/members/app")
+public class MemberAppController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
@@ -58,40 +54,7 @@ public class MemberController {
         return memberService.getMemberInfo(memberFirstLoginRequestDto.getMemberId());
     }
 
-    @Operation(summary = "관리자 로그인", description = "관리자 로그인(아이디,비밀번호)")
-    @PostMapping("/admin/login")
-    private ResponseEntity<BaseResponseDto> loginAdmin(@RequestBody MemberLoginAdminRequestDto memberLoginAdminRequestDto) {
-
-        LoginDto member = memberService.loginAdmin(memberLoginAdminRequestDto);
-
-        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberId());
-        jwtTokenProvider.storeRefreshToken(member.getMemberId(), refreshToken);
-
-        return ResponseEntity.ok()
-                .header("Authorization", accessToken)
-                .header("Authorization-Refresh", refreshToken)
-                .body(BaseResponseDto.builder()
-                        .success(true)
-                        .message("관리자 로그인을 성공하셨습니다")
-                        .build());
-    }
-
-    @Operation(summary = "access&refresh 토큰 재발급", description = "access토큰 만료되면 refresh 토큰을 이용하여 재발급하는 API")
-    @PostMapping("/reissue")
-    public ResponseEntity<RefreshTokenResponseDto> reissue(HttpServletRequest httpServletRequest) {
-        String refreshToken = httpServletRequest.getHeader("Authorization-Refresh");
-
-        TokenDto tokenDto = memberService.reissue(refreshToken);
 
 
-        return  ResponseEntity.ok()
-                .header("Authorization", tokenDto.getAccessToken())
-                .header("Authorization-Refresh",tokenDto.getRefreshToken())
-                .body(RefreshTokenResponseDto.builder()
-                        .message("accessToken 과 refreshToken이 재발급 성공하셨습니다")
-                        .memberId(tokenDto.getMemberId())
-                        .build());
-    }
 
 }

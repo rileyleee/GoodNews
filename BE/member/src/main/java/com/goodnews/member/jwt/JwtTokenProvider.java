@@ -8,10 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -25,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
-    private final UserDetailsService userDetailsService;
+
 
     @Value("${jwt.secretKey}")
     private String secretKey;
@@ -67,10 +63,10 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
-        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
-    }
+//    public Authentication getAuthentication(String token) {
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
+//        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
+//    }
 
     public String getUserPk(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();

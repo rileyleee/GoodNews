@@ -122,7 +122,6 @@ public class MemberService {
         Optional<Member> findAdmin = memberRepository.findByIdAndPassword(memberLoginAdminRequestDto.getId(), memberLoginAdminRequestDto.getPassword());
         memberValidator.checkAdmin(findAdmin, memberLoginAdminRequestDto.getId());
 
-
         return LoginDto.builder()
                 .memberId(findAdmin.get().getId())
                 .build();

@@ -1,0 +1,55 @@
+server:
+  port: 8001
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: gateway-service
+
+
+  cloud:
+    gateway:
+      routes:
+        - id: member-service
+          uri: http://localhost:64000
+          predicates:
+            - Path=/api/members/app/**, /api/family/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+        - id: member-service
+          uri: http://localhost:64000
+          predicates:
+            - Path=/api/members/web/reissue
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
+        - id: member-service
+          uri: http://localhost:64000
+          predicates:
+            - Path=/api/members/web/login
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+        - id: map-service
+          uri: http://localhost:64001
+          predicates:
+            - Path=/api/map/**
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+
+jwt:
+  secretKey: aWQgyiORSXixtGdZLzfh
+  access:
+    expiration: 3600000
+  refresh:
+    expiration: 18000000
+
