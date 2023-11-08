@@ -36,8 +36,9 @@ class MainMeshFragment() : Fragment(R.layout.fragment_main_mesh) {
 
         TabLayoutMediator(tabs, viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> "내 주변"
-                1 -> "가족"
+                0 -> "주변 목록"
+                1 -> "연결 가능"
+                2 -> "가족"
                 else -> null
             }
         }.attach()
