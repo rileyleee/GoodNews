@@ -8,14 +8,22 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
+import com.saveurlife.goodnews.main.PermissionsUtil
 import java.util.Calendar
 
 class EnterInfoActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityEnterInfoBinding
+    private lateinit var permissionsUtil: PermissionsUtil
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 위험 권한 요청
+        permissionsUtil = PermissionsUtil(this)
+        permissionsUtil.requestAllPermissions()
 
         initDateSpinners() // Spinner 데이터 설정 함수 호출
         initBloodSpinners()
@@ -87,4 +95,16 @@ class EnterInfoActivity : AppCompatActivity() {
         binding.bloodSpinner.adapter = bloodAdapter
         binding.bloodSpinner.setSelection(0)
     }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionsUtil.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onDestroy() {
+        permissionsUtil.dismissDialog()
+        super.onDestroy()
+    }
+
+
 }
