@@ -1,22 +1,30 @@
 package com.saveurlife.goodnews.enterinfo
 
+import UserDeviceInfoService
 import android.R
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PermissionsUtil
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
 import java.util.Calendar
 
 class EnterInfoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEnterInfoBinding
     private lateinit var permissionsUtil: PermissionsUtil
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)

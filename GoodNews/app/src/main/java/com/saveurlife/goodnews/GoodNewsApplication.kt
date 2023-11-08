@@ -42,13 +42,6 @@ class GoodNewsApplication : Application() {
 
         super.onCreate()
 
-
-        // 앱의 첫 실행 확인 및 타일 데이터 복사
-        val isFirstRun = preferences.getBoolean("isFirstRun", true)
-        if (isFirstRun) {
-            preferences.setBoolean("isFirstRun", false)
-        }
-
         //Realm 초기화
         realmConfiguration = RealmConfiguration.create(
             schema = setOf(
@@ -76,7 +69,8 @@ class GoodNewsApplication : Application() {
         val records = csvReader.readAll()
 
         // 데이터가 없는 경우에만 등록하도록!
-        if (realm.query<OffMapFacility>().count().equals(0L)) {
+        if (realm.query<OffMapFacility>().count().find()==0L) {
+            Log.d("데이터 존재 여부", "시설 정보 없어요")
 
             // 비동기 처리를 위해 코루틴 사용
             CoroutineScope(Dispatchers.IO).launch {
@@ -106,6 +100,8 @@ class GoodNewsApplication : Application() {
 
                 realm.close()
             }
+        } else {
+            Log.d("데이터 존재 여부", "시설 정보 있어요")
         }
     }
 }
