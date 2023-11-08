@@ -23,10 +23,14 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
+import com.saveurlife.goodnews.main.PermissionsUtil
+import java.util.Calendar
 
 class EnterInfoActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityEnterInfoBinding
     private lateinit var realm: Realm
+    private lateinit var permissionsUtil: PermissionsUtil
 
     val userDeviceInfoService = UserDeviceInfoService(this);
 
@@ -37,6 +41,10 @@ class EnterInfoActivity : AppCompatActivity() {
 
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 위험 권한 요청
+        permissionsUtil = PermissionsUtil(this)
+        permissionsUtil.requestAllPermissions()
 
         // EditText 비활성화
         with(binding) {
@@ -63,9 +71,9 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // 정보 등록 버튼 눌렀을 때, 이벤트
         binding.submitInfo.setOnClickListener {
-//             submitUserInfo()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            submitUserInfo()
+            // val intent = Intent(this, MainActivity::class.java)
+            // startActivity(intent)
         }
     }
 
@@ -329,5 +337,16 @@ class EnterInfoActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionsUtil.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onDestroy() {
+        permissionsUtil.dismissDialog()
+        super.onDestroy()
+    }
+
 
 }

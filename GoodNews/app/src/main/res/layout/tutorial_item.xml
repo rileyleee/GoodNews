@@ -64,6 +64,7 @@
         android:layout_gravity="bottom"
         android:layout_marginBottom="32dp"
         android:background="@drawable/btn_match_parent"
+        android:backgroundTint="@color/main"
         android:gravity="center"
         android:text="@string/start"
         android:textColor="@color/white"

@@ -70,7 +70,7 @@ class GoodNewsApplication : Application() {
 
         // 데이터가 없는 경우에만 등록하도록!
         if (realm.query<OffMapFacility>().count().find()==0L) {
-            Log.d("데이터 존재 여부", "없어요")
+            Log.d("데이터 존재 여부", "시설 정보 없어요")
 
             // 비동기 처리를 위해 코루틴 사용
             CoroutineScope(Dispatchers.IO).launch {
@@ -101,7 +101,7 @@ class GoodNewsApplication : Application() {
                 realm.close()
             }
         } else {
-            Log.d("데이터 존재 여부", "있어요")
+            Log.d("데이터 존재 여부", "시설 정보 있어요")
         }
     }
 }

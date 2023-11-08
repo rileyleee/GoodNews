@@ -1,37 +1,80 @@
 package com.saveurlife.goodnews.mypage
 
-import android.app.DatePickerDialog
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.icu.util.Calendar
 import android.os.Bundle
+import android.text.Editable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.NumberPicker
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.databinding.DialogBloodSettingBinding
+import com.saveurlife.goodnews.databinding.DialogCalendarSettingBinding
+import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
+import com.saveurlife.goodnews.main.PreferencesUtil
+import com.saveurlife.goodnews.models.Location
+import com.saveurlife.goodnews.models.Member
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
+import java.util.Calendar
 
 class MyPageFragment : Fragment() {
     private lateinit var binding: FragmentMyPageBinding
+
+    private lateinit var preferencesUtil: PreferencesUtil
+
+    private var selectedYear: String? = null
+    private var selectedMonth: String? = null
+    private var selectedDay: String? = null
+    private var selectedRh: String? = null
+    private var selectedBlood: String? = null
+    private var myAge: Int? = null
+
+    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+    private val realm: Realm = Realm.open(config)
+    private val items: RealmResults<Member> = realm.query<Member>().find()
+
+
+    //Realm에서 정보 가져오기
+    private var realmName: String? = null
+    private var realmPhone: Long? = null
+    private var realmBirth: String? = null
+    private var realmGender: String? = null
+    private var realmBloodType: String? = null
+    private var realmaddInfo: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
+        preferencesUtil = PreferencesUtil(requireContext())
 
-        //어둡게 보기 기능
-        val switchDarkMode = binding.switchDarkMode
+        //Realm에서 내 정보 가져오기
+        items.forEach { member ->
+            realmName = member.name
+            realmPhone = member.phone
+            realmBirth = member.birthDate
+            realmGender = member.gender
+            realmBloodType = member.bloodType
+            realmaddInfo = member.addInfo
+        }
 
-        switchDarkMode.setOnCheckedChangeListener { buttonView, isChecked ->
+
+        //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
+        val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
+        binding.switchDarkMode.isChecked = isDarkMode
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // 스위치가 켜졌을 때: 다크 모드로 변경
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -39,100 +82,209 @@ class MyPageFragment : Fragment() {
                 // 스위치가 꺼졌을 때: 라이트 모드로 변경
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
+            preferencesUtil.setBoolean("darkMode", isChecked)
         }
+        //객체 만들기
+//        realm.writeBlocking {
+//            copyToRealm(Member().apply {
+//                memberId = 0
+//                phone = 1012345678
+//                name = "김싸피"
+//                birthDate = "입력하지 않음"
+//                gender = "입력하지 않음"
+//                bloodType = "입력하지 않음"
+//                addInfo = "입력하지 않음"
+//            })
+//        }
+
+        //객체 가져오기
+//        val items: RealmResults<Member> = realm.query<Member>().find()
+//        println("$items 뭐가 나올까나")
+
+        //특정 조건으로 객체 가져오기
+//        val incompleteItems: RealmResults<Member> =
+//            realm.query<Member>("memberId == 0")
+//                .find()
+//        incompleteItems.forEach { member ->
+//            println("${member.memberId}")
+//            println("${member.name}")
+//            println("${member.phone}")
+//        }
+//        println(incompleteItems)
+
+        //변경
+//        realm.writeBlocking {
+//            findLatest(incompleteItems[0])?.phone = 1111111111111
+//        }
+
+        //삭제
+//        realm.writeBlocking {
+//            val writeTransactionItems = query<Member>().find()
+//            delete(writeTransactionItems.first())
+//        }
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //정보 수정 버튼 클릭 시
+        //데이터 불러오기
+        initData()
+
+        //정보 수정 버튼 클릭 시(내 정보 수정할 수 있는 모달창)
         binding.myPageUpdateButton.setOnClickListener {
             showMyPageDialog()
         }
     }
 
-    private fun selectDate() {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+    override fun onResume() {
+        super.onResume()
+    }
 
-        // DatePickerDialog 생성
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            { _, selectedYear, selectedMonth, selectedDay ->
-                // 사용자가 선택한 날짜를 처리합니다. 여기서는 간단하게 Toast로 표시합니다.
-                val selectedDate = "${selectedYear}-${selectedMonth + 1}-${selectedDay}"
-                Toast.makeText(requireContext(), selectedDate, Toast.LENGTH_SHORT).show()
-            },
-            year, month, day
-        )
-        datePickerDialog.show()
+    //myPageFragment에 정보 불러오기
+    private fun initData() {
+        binding.name.text = realmName
+        binding.phoneNumber.text = realmPhone.toString()
+
+        if(realmBirth == "입력하지 않음"){
+            binding.birthday.text = "생년월일 미입력"
+        }else{
+            binding.birthday.text = realmBirth
+        }
+
+        if(realmBloodType == "입력하지 않음"){
+            binding.rh.text = "혈액형"
+            binding.blood.text = "미입력"
+        }else{
+            val parts = realmBloodType!!.split(" ")
+            binding.rh.text = parts[0]
+            binding.blood.text = parts[1]
+        }
+
+        if(realmaddInfo == "입력하지 않음"){
+            binding.significant.isVisible = false
+        }else{
+            binding.significant.isVisible = true
+            binding.significant.text = realmaddInfo
+        }
+        if(realmBirth == "입력하지 않음"){
+            binding.age.isVisible = false
+        }else{
+            binding.age.text = preferencesUtil.getString("age","0")
+            binding.age.isVisible = true
+        }
+        binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode",false)
+    }
+
+    //dialog 모달창에 정보 불러오기
+    private fun initDataDialog(dialogBinding: DialogMypageLayoutBinding) {
+        dialogBinding.dialogMypageNameEdit.text = realmName
+        dialogBinding.dialogMypagePhoneEdit.text = realmPhone.toString()
+        dialogBinding.dialogMypagebirthday.text = realmBirth
+        dialogBinding.dialogMypageBloodEdit.text = realmBloodType
+        if(realmGender == "입력하지 않음"){
+            noGenderSelection(dialogBinding)
+        }
+        if(realmaddInfo != "입력하지 않음"){
+            dialogBinding.textInputEditText.text = Editable.Factory.getInstance().newEditable(realmaddInfo)
+        }
+
     }
 
     //정보 수정 버튼 모달 창
     private fun showMyPageDialog() {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_mypage_layout, null)
+        val binding = DialogMypageLayoutBinding.inflate(LayoutInflater.from(context))
+        //데이터 불러오기
+        initDataDialog(binding)
+
+        var gender = realmGender
+        if(gender == "남자"){
+            updateGenderSelection("남자", binding)
+        }else if(gender == "여자"){
+            updateGenderSelection("여자", binding)
+        }else{
+            noGenderSelection(binding)
+        }
 
         val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
+            .setView(binding.root)
             .create()
-
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
+        dialog.setCancelable(false)
         dialog.show()
 
-        //생년월일 수정 시
-        val calendar = dialog.findViewById<View>(R.id.calendar)
-        calendar?.setOnClickListener {
+        //생년월일 수정
+        binding.calendar.setOnClickListener {
             // 두 번째 다이얼로그 표시 함수 호출
-//            selectDate()
-            showBirthSettingDialog(dialogView)
+            showBirthSettingDialog(binding)
         }
 
-        //성별 수정 시
-        val genderMan = dialog.findViewById<View>(R.id.dialogMypageMan)
-        val genderWoman = dialog.findViewById<View>(R.id.dialogMypageWoman)
-        //남자 선택
-        genderMan?.setOnClickListener{
-            //Fragment 클래스에서 제공하는 메소드로, 현재 Fragment가 연결된 Context
-            val colorValueClick = ContextCompat.getColor(requireContext(), R.color.sub)
-            val colorStateListClick = ColorStateList.valueOf(colorValueClick)
-            val colorValue = ContextCompat.getColor(requireContext(), R.color.white)
-            val colorStateList = ColorStateList.valueOf(colorValue)
-            genderMan.backgroundTintList = colorStateListClick
-            genderWoman?.backgroundTintList = colorStateList
+        //성별 수정 - 남자 선택
+        binding.dialogMypageMan.setOnClickListener{
+            updateGenderSelection("남자", binding)
         }
-        //여자 선택
-        genderWoman?.setOnClickListener{
-            //Fragment 클래스에서 제공하는 메소드로, 현재 Fragment가 연결된 Context
-            val colorValueClick = ContextCompat.getColor(requireContext(), R.color.sub)
-            val colorStateListClick = ColorStateList.valueOf(colorValueClick)
-            val colorValue = ContextCompat.getColor(requireContext(), R.color.white)
-            val colorStateList = ColorStateList.valueOf(colorValue)
-            genderWoman.backgroundTintList = colorStateListClick
-            genderMan?.backgroundTintList = colorStateList
+        //성별 수정 - 여자 선택
+        binding.dialogMypageWoman.setOnClickListener{
+            updateGenderSelection("여자", binding)
         }
 
-        //혈액형 변경
-        val blood = dialog.findViewById<View>(R.id.updateBlood)
-        blood?.setOnClickListener {
-            showBloodSettingDialog(dialogView)
+        //혈액형 수정
+        binding.updateBlood.setOnClickListener {
+            showBloodSettingDialog(binding)
         }
 
 
         //수정하기 클릭 시
-        val updateButton = dialog.findViewById<View>(R.id.updateButton)
-        updateButton?.setOnClickListener {
-           dialog.dismiss()
+        binding.updateButton.setOnClickListener {
+            //특이사항 수정
+            var textInputEditText = binding.textInputEditText.text.toString()
+            if (textInputEditText.length <= 50) {
+                realm.writeBlocking {
+                    findLatest(items[0])?.addInfo = textInputEditText
+                    realmaddInfo = textInputEditText
+                }
+                initData()
+                dialog.dismiss()
+            } else {
+                // 50자를 초과하는 경우 경고 메시지 표시 또는 다른 처리 수행
+                Toast.makeText(context, "특이사항은 50자 이내로 입력해주세요.", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
 
+    //성별 미입력
+    private fun noGenderSelection(binding: DialogMypageLayoutBinding){
+        val colorValue = ContextCompat.getColor(requireContext(), R.color.white)
+        val colorStateList = ColorStateList.valueOf(colorValue)
 
+        binding.dialogMypageWoman.backgroundTintList = colorStateList
+        binding.dialogMypageMan.backgroundTintList = colorStateList
+    }
+
+    // 성별 선택
+    private fun updateGenderSelection(selectedGender: String, binding: DialogMypageLayoutBinding) {
+        //Fragment 클래스에서 제공하는 메소드로, 현재 Fragment가 연결된 Context
+        val colorValueClick = ContextCompat.getColor(requireContext(), R.color.gender)
+        val colorStateListClick = ColorStateList.valueOf(colorValueClick)
+        val colorValue = ContextCompat.getColor(requireContext(), R.color.white)
+        val colorStateList = ColorStateList.valueOf(colorValue)
+
+        if (selectedGender == "여자") {
+            binding.dialogMypageWoman.backgroundTintList = colorStateListClick
+            binding.dialogMypageMan.backgroundTintList = colorStateList
+        } else {
+            binding.dialogMypageWoman.backgroundTintList = colorStateList
+            binding.dialogMypageMan.backgroundTintList = colorStateListClick
+        }
+        realm.writeBlocking {
+            findLatest(items[0])?.gender = selectedGender
+            realmGender = selectedGender
+        }
     }
 
     //생년월일 변경하기
-    private fun showBirthSettingDialog(dialog: View) {
+    private fun showBirthSettingDialog(dialog: DialogMypageLayoutBinding) {
         val year = arrayOf("1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927",
             "1928", "1929", "1930", "1931", "1932", "1933", "1934", "1935", "1936", "1937",
             "1938", "1939", "1940", "1941", "1942", "1943", "1944", "1945", "1946", "1947",
@@ -149,99 +301,153 @@ class MyPageFragment : Fragment() {
             "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31")
 
         //dialog로 띄울 xml파일
-        val birthDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_calendar_setting, null)
+        val birthDialogBinding = DialogCalendarSettingBinding.inflate(LayoutInflater.from(context))
 
-        val yearPicker = birthDialogView.findViewById<NumberPicker>(R.id.yearPicker) //년도 picker
-        val monthPicker = birthDialogView.findViewById<NumberPicker>(R.id.monthPicker) //월 picker
-        val dayPicker = birthDialogView.findViewById<NumberPicker>(R.id.dayPicker) //일 picker
+        val yearPicker = birthDialogBinding.yearPicker //년도 picker
+        val monthPicker = birthDialogBinding.monthPicker //월 picker
+        val dayPicker = birthDialogBinding.dayPicker //일 picker
+        val requestBirth = birthDialogBinding.requestBirth //수정 버튼
 
-        var dialogYearEdit = dialog.findViewById<TextView>(R.id.dialogMypageYear) //년도 변경 text
-        var dialogMonthEdit = dialog.findViewById<TextView>(R.id.dialogMypageMonth) //월 변경 text
-        var dialogDayEdit = dialog.findViewById<TextView>(R.id.dialogMypageDay) //일 변경 text
-
-        var requestBirth = birthDialogView.findViewById<TextView>(R.id.requestBirth) //수정 버튼
-
-        yearPicker?.minValue = 0 //최소값
-        yearPicker?.maxValue = year.size - 1 //최대값
-        yearPicker?.displayedValues = year //년도 배열에 대한 값
-        yearPicker?.wrapSelectorWheel = false
-        yearPicker?.setOnValueChangedListener { picker, oldVal, newVal ->
-            dialogYearEdit.text = "${year[newVal]}년" //선택한 값을 변경 text에 넣기
+        if(realmBirth == "입력하지 않음"){
+            selectedYear = "2000"
+            selectedMonth = "01"
+            selectedDay = "01"
+        }else{
+            val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일").map { it.trim() }
+            //기존 생년월일 불러오기
+            selectedYear = savedYear
+            selectedMonth = savedMonth
+            selectedDay = savedDay
         }
 
-        monthPicker?.minValue = 0
-        monthPicker?.maxValue = month.size - 1
-        monthPicker?.displayedValues = month
-        monthPicker?.wrapSelectorWheel = false
-        monthPicker?.setOnValueChangedListener { picker, oldVal, newVal ->
-            dialogMonthEdit.text = "${month[newVal]}월"
+        //년도 선택
+        yearPicker?.apply{
+            minValue = 0 //최소값
+            maxValue = year.size - 1 //최대값
+            displayedValues = year //년도 배열에 대한 값
+            wrapSelectorWheel = false
+            value = year.indexOf(selectedYear)
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                selectedYear = year[newVal]
+                //만 나이 계산
+                val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+                myAge = currentYear - (selectedYear?.toInt() ?: 0)
+                preferencesUtil.setString("age", "만 ${myAge}세")
+            }
         }
 
-        dayPicker?.minValue = 0
-        dayPicker?.maxValue = day.size - 1
-        dayPicker?.displayedValues = day
-        dayPicker?.wrapSelectorWheel = false
-        dayPicker?.setOnValueChangedListener { picker, oldVal, newVal ->
-            dialogDayEdit.text = "${day[newVal]}일"
+        //월 선택
+        monthPicker?.apply{
+            minValue = 0
+            maxValue = month.size - 1
+            displayedValues = month
+            wrapSelectorWheel = false
+            value = month.indexOf(selectedMonth)
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                selectedMonth = month[newVal]
+            }
+        }
+
+        //일 선택
+        dayPicker?.apply{
+            minValue = 0
+            maxValue = day.size - 1
+            displayedValues = day
+            wrapSelectorWheel = false
+            value = day.indexOf(selectedDay)
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                selectedDay = day[newVal]
+            }
         }
 
         //Dialog 띄우기
         val birthDialog = AlertDialog.Builder(requireContext())
-            .setView(birthDialogView)
+            .setView(birthDialogBinding.root)
             .create()
 
         //배경 투명하게 만들기
         birthDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         //birthDialog 보여주기
+        birthDialog.setCancelable(false)
         birthDialog.show()
         //완료버튼 누르면 birthDialog 창 닫기
         requestBirth.setOnClickListener{
+            val newBirthday = "${selectedYear}년 ${selectedMonth}월 ${selectedDay}일"
+            dialog.dialogMypagebirthday.text = newBirthday
+            realm.writeBlocking {
+                findLatest(items[0])?.birthDate = newBirthday
+                realmBirth = newBirthday
+            }
             birthDialog.dismiss()
         }
     }
 
     //혈액형 변경하기
-    private fun showBloodSettingDialog(dialog: View) {
+    private fun showBloodSettingDialog(dialog: DialogMypageLayoutBinding) {
         val rhs = arrayOf("모름", "Rh+", "Rh-")
         val blood = arrayOf("A형", "AB형", "B형", "O형")
 
-        val bloodDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_blood_setting, null)
+        val bloodDialogBinding = DialogBloodSettingBinding.inflate(LayoutInflater.from(context))
 
-        val rhPicker = bloodDialogView.findViewById<NumberPicker>(R.id.rhPicker)
-        val bloodPicker = bloodDialogView.findViewById<NumberPicker>(R.id.bloodPicker)
+        val rhPicker = bloodDialogBinding.rhPicker
+        val bloodPicker = bloodDialogBinding.bloodPicker
+        val requestBlood = bloodDialogBinding.requestBlood
 
-        var dialogMypageRhEdit = dialog.findViewById<TextView>(R.id.dialogMypageRhEdit)
-        var dialogMyPageBloodEdit = dialog.findViewById<TextView>(R.id.dialogMyPageBloodEdit)
+        if(realmBloodType == "입력하지 않음"){
+            selectedRh = "모름"
+            selectedBlood = "A형"
+        }else{
+            val parts = realmBloodType!!.split(" ")
+            val savedRh = parts[0] // "Rh+"
+            val savedBlood = parts[1] // "0형"
 
-        var requestBlood = bloodDialogView.findViewById<TextView>(R.id.requestBlood)
-
-        rhPicker?.minValue = 0
-        rhPicker?.maxValue = rhs.size - 1
-        rhPicker?.displayedValues = rhs
-        rhPicker?.wrapSelectorWheel = false
-        rhPicker?.setOnValueChangedListener { picker, oldVal, newVal ->
-            // 선택된 값을 사용 시 화면 업데이트
-            dialogMypageRhEdit.text = rhs[newVal]
-
+            selectedRh = savedRh
+            selectedBlood = savedBlood
         }
 
-        bloodPicker?.minValue = 0
-        bloodPicker?.maxValue = blood.size - 1
-        bloodPicker?.displayedValues = blood
-        bloodPicker?.wrapSelectorWheel = false
-        bloodPicker?.setOnValueChangedListener { picker, oldVal, newVal ->
-            dialogMyPageBloodEdit.text = blood[newVal]
+        rhPicker?.apply{
+            minValue = 0
+            maxValue = rhs.size - 1
+            displayedValues = rhs
+            wrapSelectorWheel = false
+            value = rhs.indexOf(selectedRh) //인덱스 값 저장
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                // 선택된 값을 사용 시 화면 업데이트
+                selectedRh = if (rhs[newVal] == "모름") "Rh불명" else rhs[newVal]
+            }
         }
+
+        bloodPicker?.apply{
+            minValue = 0
+            maxValue = blood.size - 1
+            displayedValues = blood
+            wrapSelectorWheel = false
+            value = blood.indexOf(selectedBlood)
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                selectedBlood = blood[newVal]
+            }
+        }
+
 
         val bloodDialog = AlertDialog.Builder(requireContext())
-            .setView(bloodDialogView)
+            .setView(bloodDialogBinding.root)
             .create()
 
         bloodDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
+        bloodDialog.setCancelable(false)
         bloodDialog.show()
 
         requestBlood.setOnClickListener{
+            binding.rh.text = selectedRh
+            binding.blood.text = selectedBlood
+
+//            dialog.dialogMypageRhEdit.text = selectedRh
+            dialog.dialogMypageBloodEdit.text = "$selectedRh $selectedBlood"
+
+            realm.writeBlocking {
+                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
+                realmBloodType = "$selectedRh $selectedBlood"
+            }
             bloodDialog.dismiss()
         }
     }

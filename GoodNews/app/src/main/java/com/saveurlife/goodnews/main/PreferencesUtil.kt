@@ -57,4 +57,9 @@ class PreferencesUtil(context: Context) {
         preferences.edit().putString(key, value.toString()).apply()
     }
 
+    //key 삭제
+    fun removeKey(key: String){
+        preferences.edit().remove(key).apply()
+    }
+
 }

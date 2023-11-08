@@ -23,7 +23,6 @@ import androidx.constraintlayout.helper.widget.Layer
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -35,6 +34,12 @@ import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
+import com.saveurlife.goodnews.models.Location
+import com.saveurlife.goodnews.models.Member
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -43,6 +48,10 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navHostFragment.navController
     }
+
+    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+    private val realm: Realm = Realm.open(config)
+    private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
@@ -55,10 +64,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+//
+//        realm.writeBlocking {
+//            copyToRealm(Member().apply {
+//                phone = 1012345678
+//                name = "김싸피"
+//                birthDate = "입력하지 않음"
+//                gender = "입력하지 않음"
+//                bloodType = "입력하지 않음"
+//                addInfo = "입력하지 않음"
+//            })
+//        }
 
-        //가족 등록 모달창
+        //Member 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
+//        if(items.isEmpty()){
+//            val dialog = FamilyAlarmFragment()
+//            dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+//        }
+
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+
 
         // viewmodel 설정
         sharedViewModel.isOnFlash.observe(this, Observer { isOn ->
@@ -78,7 +104,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.mapFragment,
                 R.id.familyFragment,
                 R.id.myPageFragment,
-                R.id.flashlightFragment
+                R.id.flashlightFragment,
+                R.id.chattingFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -160,6 +187,8 @@ class MainActivity : AppCompatActivity() {
         chattingLayer.setOnClickListener {
             // 두 번째 다이얼로그 표시 함수 호출
             showChattingDialog()
+//            binding.navigationView.menu.getItem(2).isChecked = true
+//            navController.navigate(R.id.chattingFragment)
             dialog.dismiss()
         }
 
@@ -289,17 +318,20 @@ class MainActivity : AppCompatActivity() {
     }
     fun switchToChattingFragment(selectedTab: Int) {
         println("$selectedTab 뭘 받아올까요 ??")
-        val transaction = supportFragmentManager.beginTransaction()
-        val chattingFragment = ChattingFragment()
+        binding.navigationView.menu.getItem(2).isChecked = true
 
-        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
+//        val transaction = supportFragmentManager.beginTransaction()
+//        val chattingFragment = ChattingFragment()
+//
+//        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
         val bundle = Bundle()
         bundle.putInt("selectedTab", selectedTab)
-        chattingFragment.arguments = bundle
-
-        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
-        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
-        transaction.commit()
+        navController.navigate(R.id.chattingFragment, bundle)
+//        chattingFragment.arguments = bundle
+//
+//        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
+//        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
+//        transaction.commit()
     }
 }
 

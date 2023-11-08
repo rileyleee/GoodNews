@@ -2,8 +2,8 @@
 <resources>
     <!--  다크모드일 때 사용될 색상으로 변경 필요  -->
     <!--  기본색  -->
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF000000</color>
     <color name="gray">#B5B5B5</color>
 
     <!--  배경색  -->
@@ -26,6 +26,25 @@
 
     <!--  글자색  -->
     <color name="font_color">#FFFFFFFF</color>
+    <color name="font_same">#FFFFFFFF</color>
+
+    <!--  카드 색  -->
+    <color name="card_color">#FF1A2227</color>
+
+    <!--  background/main  -->
+    <color name="bg_main">#2D598A</color>
+
+    <!--  모달창  -->
+    <color name="modal">#FF1A2227</color>
+
+    <!--  버튼  -->
+    <color name="button">#FF2D598A</color>
+
+    <!-- 성별 체크   -->
+    <color name="gender">#2D598A</color>
+
+    <!--  항상 같은 색  -->
+    <color name="all_black">#FF000000</color>
 
     <!--  하단바  -->
     <color name="navi_bar">#1A2227</color>

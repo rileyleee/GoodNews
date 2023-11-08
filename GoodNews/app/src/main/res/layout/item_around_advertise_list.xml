@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="15dp">
+
+    <ImageView
+        android:id="@+id/advertisePersonImage"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/baseline_person_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline4"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/advertiseName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="김싸피"
+        android:textColor="@color/font_color"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/advertisePersonImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/bleConnect"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:background="@drawable/btn_sub"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline5"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/bleImage"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/dialog_donut_ble"
+        app:layout_constraintBottom_toBottomOf="@id/bleConnect"
+        app:layout_constraintEnd_toStartOf="@id/bleTextView"
+        app:layout_constraintStart_toStartOf="@id/bleConnect"
+        app:layout_constraintTop_toTopOf="@id/bleConnect" />
+
+    <TextView
+        android:id="@+id/bleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="5dp"
+        android:text="연결 요청"
+        android:textColor="@color/font_color"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/bleConnect"
+        app:layout_constraintEnd_toEndOf="@+id/bleConnect"
+        app:layout_constraintStart_toEndOf="@id/bleImage"
+        app:layout_constraintTop_toTopOf="@id/bleConnect" />
+
+    <TextView
+        android:id="@+id/bleCut"
+        android:layout_width="110dp"
+        android:layout_height="40dp"
+        android:background="@drawable/btn_match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline5"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/bleCutImage"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/dialog_donut_ble"
+        app:layout_constraintBottom_toBottomOf="@id/bleCut"
+        app:layout_constraintEnd_toStartOf="@id/bleCutTextView"
+        app:layout_constraintStart_toStartOf="@id/bleCut"
+        app:layout_constraintTop_toTopOf="@id/bleCut"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/bleCutTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="5dp"
+        android:text="연결 끊기"
+        android:textColor="@color/font_color"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/bleCut"
+        app:layout_constraintEnd_toEndOf="@+id/bleCut"
+        app:layout_constraintStart_toEndOf="@id/bleCutImage"
+        app:layout_constraintTop_toTopOf="@id/bleCut"
+        android:visibility="gone"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/requestBleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="bleConnect,bleImage,bleTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline5"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/cutBleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="bleCut,bleCutImage,bleCutTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline5"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
