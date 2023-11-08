@@ -12,6 +12,7 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
@@ -32,12 +33,17 @@ class EnterInfoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // realm 열기 - member class
-        val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-        realm = Realm.open(config)
+        realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // EditText 비활성화
+        with(binding) {
+            phoneEditText1.isEnabled = false
+            phoneEditText2.isEnabled = false
+            phoneEditText3.isEnabled = false
+        }
 
         initGenderSelection() // 성별 선택
 
@@ -57,7 +63,9 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // 정보 등록 버튼 눌렀을 때, 이벤트
         binding.submitInfo.setOnClickListener {
-            submitUserInfo()
+//             submitUserInfo()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -308,6 +316,8 @@ class EnterInfoActivity : AppCompatActivity() {
                     addInfo = setAddInfo
                 })
             }
+
+            realm.close()
             // Shared에 저장
             preferencesUtil.setString("name", setName)
 
@@ -318,11 +328,6 @@ class EnterInfoActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        realm.close()
     }
 
 }
