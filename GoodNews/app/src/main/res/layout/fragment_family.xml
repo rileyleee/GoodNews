@@ -21,6 +21,7 @@
             android:id="@+id/meetingPlaceWrap"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:background="@drawable/rounded_background_with_shadow"
             android:padding="20dp"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
@@ -162,6 +163,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="가족 추가"
+            android:layout_marginTop="12dp"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/meetingPlaceWrap" />
 
@@ -169,6 +171,7 @@
             android:id="@+id/familyAddGroup"
             android:layout_width="0dp"
             android:layout_height="44dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             android:orientation="horizontal"
@@ -200,6 +203,7 @@
             android:id="@+id/familyList"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"

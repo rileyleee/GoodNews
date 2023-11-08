@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".map.EmergencyInfoDialogFragment">
+
+    <LinearLayout
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/card_component"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            android:text="위험 정보 공유"
+            android:textColor="@color/font_color"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/locationTextView"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:background="@drawable/input_stroke"
+                android:backgroundTint="@color/inactive_gray"
+                android:enabled="false"
+                android:text=""
+                android:textColor="@color/explain_gray"
+                android:textSize="16sp"
+                tools:text="사용자의 위도 / 경도 표시" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                android:layout_weight="1">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/emergencyStatusSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:thumb="@drawable/switch_track_thumb"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:switchMinWidth="0dp"
+                    app:track="@drawable/emergency_track_selector" />
+
+                <TextView
+                    android:id="@+id/dangerTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="위험"
+                    android:textColor="@color/white"
+                    android:textSize="12dp"
+                    app:layout_constraintBottom_toBottomOf="@id/emergencyStatusSwitch"
+                    app:layout_constraintEnd_toEndOf="@id/emergencyStatusSwitch"
+                    app:layout_constraintTop_toTopOf="@id/emergencyStatusSwitch" />
+
+                <TextView
+                    android:id="@+id/safeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="안전"
+                    android:textColor="@color/white"
+                    android:textSize="12dp"
+                    app:layout_constraintBottom_toBottomOf="@id/emergencyStatusSwitch"
+                    app:layout_constraintStart_toStartOf="@id/emergencyStatusSwitch"
+                    app:layout_constraintTop_toTopOf="@id/emergencyStatusSwitch"
+                    android:visibility="gone"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/emergencyAddSubmit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_match_parent"
+                android:text="등록"
+                android:textColor="@color/white" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/emergencyAddCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_white"
+                android:text="닫기"
+                android:textColor="@color/main" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

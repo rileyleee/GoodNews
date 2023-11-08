@@ -2,6 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+<<<<<<< 4232ed999c70cb112578f66326cc69f2b0a66b96
+    <!-- 앱에서 인터넷 사용을 위해 필요함 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!--인터넷 접근 권한-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /><!-- 와이파이 접근 권한/ 상태확인-->
+    <uses-permission android:name="android.permission.BLUETOOTH" /><!-- 블루투스 상태확인: 자세한 설정은 준용에게 확인-->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SET_ALARM"/> <!--알람 설정: 자세한 설정은 예진에게 확인-->
+    <!-- 지도에 사용자의 위치를 표시하거나 사용자의 위치 정보를 얻기 위해 필요함: 위험권한-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 정확한 위치 접근을 위해 필요함 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+=======
     <!-- 인터넷, 네트워크, 와이파이 관련 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -53,6 +64,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
+>>>>>>> aacbd316dca9bee1f09ffb16554d577e4acdcc6c
 
     <application
         android:name=".GoodNewsApplication"
