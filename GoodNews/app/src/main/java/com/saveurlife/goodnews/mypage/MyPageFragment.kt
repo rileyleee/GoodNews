@@ -47,7 +47,7 @@ class MyPageFragment : Fragment() {
 
     //Realm에서 정보 가져오기
     private var realmName: String? = null
-    private var realmPhone: Long? = null
+    private var realmPhone: String? = null
     private var realmBirth: String? = null
     private var realmGender: String? = null
     private var realmBloodType: String? = null
