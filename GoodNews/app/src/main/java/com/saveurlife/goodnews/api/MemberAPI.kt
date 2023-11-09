@@ -106,44 +106,6 @@ class MemberAPI {
         })
     }
 
-    // 토큰 재발급
-    fun reissue(){
-        // request -> 없음
-        val call = memberService.reissue()
-
-        // response
-        call.enqueue(object : Callback<TokenInfo> {
-            override fun onResponse(call: Call<TokenInfo>, response: Response<TokenInfo>) {
-                if(response.isSuccessful){
-                    val responseBody = response.body()
-
-                    Log.d("API RESP", responseBody.toString())
-
-                    // 받아온 데이터에 대한 응답을 처리
-                    if(responseBody!=null){
-                        val memberId = responseBody.memberId
-                        val message = responseBody.message
-                        // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
-
-
-
-                    }else{
-                        Log.d("API ERROR", "값이 안왔음.")
-                    }
-                } else {
-                    Log.d("API ERROR", response.toString())
-                }
-            }
-            override fun onFailure(call: Call<TokenInfo>, t: Throwable) {
-                Log.d("API ERROR", t.toString())
-            }
-        })
-    }
-
     // 추가 정보 등록
     fun registMemberInfo(memberId:String, name:String, birthDate:String, gender:String, bloodType:String, addInfo:String){
         // request
