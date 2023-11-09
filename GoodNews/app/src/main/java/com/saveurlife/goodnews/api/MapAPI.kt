@@ -64,45 +64,4 @@ class MapAPI {
         })
     }
 
-    // 지도 시설 상세 보기
-    fun findDetailFacilityInfo(facilityId:String){
-        val data = RequestFacilityId(facilityId)
-        val json = gson.toJson(data)
-        val requestBody = json.toRequestBody(mediaType)
-
-        val call = mapService.findDetailFacilityInfo(requestBody)
-
-        // response
-        call.enqueue(object : Callback<ResponseFacilityDetail> {
-            override fun onResponse(call: Call<ResponseFacilityDetail>, response: Response<ResponseFacilityDetail>) {
-                if(response.isSuccessful){
-                    val responseBody = response.body()
-
-                    Log.d("API RESP", responseBody.toString())
-
-                    // 받아온 데이터에 대한 응답을 처리
-                    if(responseBody!=null){
-                        val data = responseBody.data
-                        // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
-
-
-
-                    }else{
-                        Log.d("API ERROR", "값이 안왔음.")
-                    }
-                } else {
-                    Log.d("API ERROR", response.toString())
-                }
-            }
-            override fun onFailure(call: Call<ResponseFacilityDetail>, t: Throwable) {
-                Log.d("API ERROR", t.toString())
-            }
-        })
-
-
-    }
 }
