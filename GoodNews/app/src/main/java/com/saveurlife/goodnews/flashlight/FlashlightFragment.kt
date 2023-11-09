@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentFlashlightBinding
@@ -32,11 +33,11 @@ class FlashlightFragment : Fragment() {
 
     private var flashEditText: EditText? = null
     private var flashStartButton: TextView? = null
-    private var morseInputButton: TextView? = null
+    private var morseInputButton: MaterialButton? = null
     private var languageRadioGroup: RadioGroup? = null
     private var isEng = false
     private var morseOutputTextView: TextView? = null
-    private var clearButton: Button? = null
+    private var clearButton: MaterialButton? = null
     private var morseRecordButton: TextView? = null
     private val convertedCharactersEng = StringBuilder()
     private val convertedCharactersKor = StringBuilder()

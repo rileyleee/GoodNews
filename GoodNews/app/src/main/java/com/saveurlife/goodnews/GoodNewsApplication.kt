@@ -22,21 +22,28 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStreamReader
+import java.util.zip.ZipInputStream
 
 class GoodNewsApplication : Application() {
 
     companion object {
         lateinit var preferences: PreferencesUtil
+        lateinit var realmConfiguration: RealmConfiguration
     }
+
     override fun onCreate() {
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
 
         super.onCreate()
+
         //Realm 초기화
-        val config = RealmConfiguration.create(
+        realmConfiguration = RealmConfiguration.create(
             schema = setOf(
                 AidKit::class,
                 Alert::class,
@@ -53,7 +60,7 @@ class GoodNewsApplication : Application() {
             )
         )
 
-        val realm: Realm = Realm.open(config)
+        val realm: Realm = Realm.open(realmConfiguration)
 
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
@@ -62,13 +69,13 @@ class GoodNewsApplication : Application() {
         val records = csvReader.readAll()
 
         // 데이터가 없는 경우에만 등록하도록!
-        if (realm.query<OffMapFacility>().count().equals(0L)) {
+        if (realm.query<OffMapFacility>().count().find()==0L) {
+            Log.d("데이터 존재 여부", "시설 정보 없어요")
 
             // 비동기 처리를 위해 코루틴 사용
             CoroutineScope(Dispatchers.IO).launch {
                 realm.write {
                     for (record in records) {
-                        // Assuming the CSV columns are id, type, name, latitude, longitude, canUse, addInfo
                         val offMapFacility = OffMapFacility().apply {
                             id = record[0].toInt()
                             type = record[1]
@@ -93,6 +100,8 @@ class GoodNewsApplication : Application() {
 
                 realm.close()
             }
+        } else {
+            Log.d("데이터 존재 여부", "시설 정보 있어요")
         }
     }
 }

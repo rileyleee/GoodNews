@@ -12,6 +12,8 @@ import com.saveurlife.goodnews.databinding.FragmentMyStatusBinding
 class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener {
     private lateinit var binding: FragmentMyStatusBinding
 
+    private lateinit var preferencesUtil: PreferencesUtil
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -39,6 +41,10 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyStatusBinding.inflate(inflater, container, false)
+        preferencesUtil = PreferencesUtil(requireContext())
+
+        val savedStatus = preferencesUtil.getString("status", "unknown")
+        onStatusSelected(savedStatus)
 
         return binding.root
     }
