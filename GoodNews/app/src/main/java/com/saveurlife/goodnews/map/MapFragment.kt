@@ -1,8 +1,8 @@
 package com.saveurlife.goodnews.map
 
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Paint
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -10,10 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import org.osmdroid.config.Configuration
@@ -31,16 +28,25 @@ import org.osmdroid.views.overlay.TilesOverlay
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
+import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
+import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
     private lateinit var locationProvider: LocationProvider
-    private var currGeoPoint: GeoPoint? = null
+    private lateinit var facilityProvider: FacilityProvider
+    private lateinit var currGeoPoint: GeoPoint
 
+    private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
 
-    private val mapTileArchivePath = "daejeon_ssafy.sqlite" // 지도 파일 변경 시 수정1
+    // 타일 provider, 최소 줌 및 해상도 설정
+    val provider:String = "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
+    val minZoom:Int = 12
+    val maxZoom:Int = 15
+    val pixel:Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
     val max = GeoPoint(38.6111, 131.8696)
@@ -59,16 +65,19 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mapView = view.findViewById(R.id.map) as MapView
+
+        // 현재 내 위치 정보 제공자
         locationProvider = LocationProvider(requireContext())
+
+        // 오프라인 시설 정보 제공자
+        facilityProvider = FacilityProvider(requireContext())
+        locationProvider.initLocationClient()
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
 
-        // 사용자 위치 정보 받아오는 메서드
-        locationProvider.initLocationClient()
-
-        mapView = view.findViewById(R.id.map) as MapView
-
+        
         val context = requireContext()
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
 
@@ -78,12 +87,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val centerLat = centerGeoPoint.latitude
         val centerLon = centerGeoPoint.longitude
 
-//        // 현재 내 위치(나중에 자체 트래킹할 예정)
-//        var currGeoPoint = GeoPoint(36.37610711596839, 127.3952801221493)
-
         val tileSource = XYTileSource(
-            "4uMaps", // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-            12, 15, 256, ".png",
+            provider,
+            minZoom, maxZoom, pixel, ".png",
             arrayOf("http://127.0.0.1")
         )
         val simpleReceiver = SimpleRegisterReceiver(context)
@@ -139,12 +145,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         }
 
+        addFacilitiesToMap()
     }
 
     @Throws(IOException::class)
     private fun getMapsFile(context: Context): File {
         val resourceInputStream =
-            context.resources.openRawResource(R.raw.daejeon_ssafy) // 지도 파일 변경 시 수정3
+            context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
 
         // 파일 경로
         val file = File(context.filesDir, mapTileArchivePath)
@@ -164,25 +171,74 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         return file
     }
 
-    fun updateCurrentLocation(geoPoint: GeoPoint) {
-        currGeoPoint?.let {
-            val markerOverlay = MarkerOverlay(it)
-            mapView.overlays.add(markerOverlay)
-            mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
-        }
-    }
-
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
         Toast.makeText(
             context,
-            "현재 위경도가 바뀌었습니다: 위도: ${location.latitude} 경도: ${location.longitude}",
+            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
             Toast.LENGTH_SHORT
         ).show()
+
         currGeoPoint?.let {
             updateCurrentLocation(it)
         }
+    }
+
+    // 현재 위치 마커로 찍기
+    fun updateCurrentLocation(geoPoint: GeoPoint) {
+        Log.v("현재 위치","$geoPoint")
+        val markerOverlay = MarkerOverlay(geoPoint)
+        mapView.overlays.add(markerOverlay)
+        mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
+    }
+
+    // 시설 FastSimplyOverlay 설정
+    private fun createOverlayWithOptions(pointTheme: SimplePointTheme): SimpleFastPointOverlay {
+        // 오버레이 옵션 설정
+        val textStyle = Paint().apply {
+            style = Paint.Style.FILL
+            color = Color.BLUE
+//            textAlign = Paint.Align.CENTER
+//            textSize = 24f
+            isAntiAlias = true
+
+        }
+
+        Log.d("Overlay 설정", "오버레이 글씨 스타일")
+
+        val opt = SimpleFastPointOverlayOptions.getDefaultStyle().apply {
+            setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
+            setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE)
+            setRadius(10.0F)
+            setIsClickable(true)
+            setCellSize(15)
+//            setTextStyle(textStyle)
+        }
+
+        Log.d("Overlay 설정", "오버레이 크기 스타일 설정")
+
+        val overlay = SimpleFastPointOverlay(pointTheme, opt)
+        overlay.setOnClickListener(SimpleFastPointOverlay.OnClickListener{ points, point ->
+            Log.d("시설정보 로그찍기", "${points.get(point)}")
+            Toast.makeText(context, "시설정보: ${points.get(point)}", Toast.LENGTH_SHORT).show()
+        })
+
+        Log.d("Overlay 설정", "오버레이 최종 선언")
+
+        return overlay
+    }
+
+
+    // 시설 위치 마커로 찍는 함수
+    private fun addFacilitiesToMap() {
+        Log.d("FacilityMarker", "시설 위치 마커로 그리는 거 호출 완료")
+        val facilitiesOverlayItems = facilityProvider.getFacilityData()
+        val pointTheme = SimplePointTheme(facilitiesOverlayItems, true)
+
+        val facMarkerOverlay = createOverlayWithOptions(pointTheme)
+        mapView.overlays.add(facMarkerOverlay)
+        mapView.invalidate()
     }
 
     override fun onResume() {

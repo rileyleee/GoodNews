@@ -65,11 +65,12 @@ class GoodNewsApplication : Application() {
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
             CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
+//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.testfacilitydata)))
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 
         // 데이터가 없는 경우에만 등록하도록!
-        if (realm.query<OffMapFacility>().count().find()==0L) {
+        if (realm.query<OffMapFacility>().count().find() == 0L) {
             Log.d("데이터 존재 여부", "시설 정보 없어요")
 
             // 비동기 처리를 위해 코루틴 사용
