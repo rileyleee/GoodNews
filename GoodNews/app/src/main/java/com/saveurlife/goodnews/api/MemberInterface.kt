@@ -17,10 +17,6 @@ interface MemberInterface {
     @POST("members/search")
     fun findMemberInfo(@Body memberId: RequestBody): Call<ResponseMember>
 
-    // 토큰 재발급
-    @POST("members/reissue")
-    fun reissue(): Call<TokenInfo>
-
     // 추가 정보 등록
     @POST("members/registinfo")
     fun registMemberInfo(@Body memberAddInfo: RequestBody): Call<ResponseRegistMember>
