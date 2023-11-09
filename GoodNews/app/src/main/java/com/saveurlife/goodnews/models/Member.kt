@@ -6,6 +6,7 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 
 class Member() : RealmObject {
     @PrimaryKey
+
     var memberId: String = ""
     var phone: String = ""
     var birthDate: String = ""
