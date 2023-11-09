@@ -90,4 +90,12 @@ dependencies {
 
     implementation("org.modelmapper:modelmapper:3.1.1")
 
+
+    // http 통신을 위한 retrofit2, okhttp3 추가
+
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // 응답이 json이므로 파싱 쉽게 하기위해 추가
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
 }
