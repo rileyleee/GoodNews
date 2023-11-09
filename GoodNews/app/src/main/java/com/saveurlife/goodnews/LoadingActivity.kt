@@ -3,6 +3,9 @@ package com.saveurlife.goodnews
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.saveurlife.goodnews.api.FamilyAPI
+import com.saveurlife.goodnews.api.MapAPI
+import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 
