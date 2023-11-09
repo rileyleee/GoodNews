@@ -6,13 +6,14 @@ import android.graphics.Paint
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -32,8 +33,10 @@ import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 
+
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
+    private lateinit var binding: FragmentMapBinding
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
     private lateinit var locationProvider: LocationProvider
@@ -53,17 +56,24 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     val min = GeoPoint(33.1120, 124.6100)
     val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_map, container, false)
+        // Inflate the layout for this fragment
+        binding = FragmentMapBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-
+    // 임시 코드
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 임시 버튼 클릭했을 때
+        binding.emergencyAddButton.setOnClickListener {
+            showEmergencyDialog()
+        }
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -77,7 +87,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
 
-        
+
         val context = requireContext()
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
 
@@ -146,6 +156,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
 
         addFacilitiesToMap()
+
     }
 
     @Throws(IOException::class)
@@ -251,4 +262,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         mapView.onPause()
     }
 
+
+    // 임시 코드
+    private fun showEmergencyDialog() {
+        val dialogFragment = EmergencyInfoDialogFragment()
+        dialogFragment.show(childFragmentManager, "EmergencyInfoDialogFragment")
+    }
 }

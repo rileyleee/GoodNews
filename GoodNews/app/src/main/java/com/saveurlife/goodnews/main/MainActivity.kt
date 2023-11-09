@@ -34,6 +34,12 @@ import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
+import com.saveurlife.goodnews.models.Location
+import com.saveurlife.goodnews.models.Member
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -42,6 +48,10 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navHostFragment.navController
     }
+
+    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+    private val realm: Realm = Realm.open(config)
+    private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
@@ -54,10 +64,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+//
+//        realm.writeBlocking {
+//            copyToRealm(Member().apply {
+//                phone = 1012345678
+//                name = "김싸피"
+//                birthDate = "입력하지 않음"
+//                gender = "입력하지 않음"
+//                bloodType = "입력하지 않음"
+//                addInfo = "입력하지 않음"
+//            })
+//        }
 
-        //가족 등록 모달창
+        //Member 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
+//        if(items.isEmpty()){
+//            val dialog = FamilyAlarmFragment()
+//            dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+//        }
+
         val dialog = FamilyAlarmFragment()
         dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+
 
         // viewmodel 설정
         sharedViewModel.isOnFlash.observe(this, Observer { isOn ->

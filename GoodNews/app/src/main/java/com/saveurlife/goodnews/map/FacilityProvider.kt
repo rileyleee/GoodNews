@@ -1,7 +1,6 @@
 package com.saveurlife.goodnews.map
 
 import android.content.Context
-import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.models.OffMapFacility
 import io.realm.kotlin.Realm

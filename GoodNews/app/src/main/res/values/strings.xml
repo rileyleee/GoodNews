@@ -22,5 +22,6 @@
     <string name="hyphen">-</string>
     <string name="update_my_info"><u>정보수정</u></string>
     <string name="seeLocation"><u>위치 보기</u></string>
+    <string name="location"><u>위치</u></string>
 
 </resources>

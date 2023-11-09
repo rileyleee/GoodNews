@@ -101,7 +101,7 @@
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/name"
-            app:layout_constraintTop_toBottomOf="@+id/name" />
+            app:layout_constraintTop_toBottomOf="@+id/name"/>
 
         <View
             android:id="@+id/bloodLine"
@@ -170,7 +170,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:gravity="right"
-        android:text="50글자를 넣으려면 얼만큼이어야할까 50글자를 넣으려면 얼만큼이어야할까 얼만큼이어야할까 얼"
+        android:text="특이사항"
         android:textSize="16sp"
         android:textColor="@color/font_color"
         android:layout_marginTop="5dp"

@@ -15,12 +15,13 @@
         app:layout_constraintBottom_toBottomOf="@id/dialogGuideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
+<!-- 안녕 내가 누구게 -->
+<!-- -->
     <ImageView
         android:id="@+id/centerWifi"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/dialog_donut_wifi"
+        android:src="@drawable/dialog_donut_ble"
         app:layout_constraintBottom_toBottomOf="@id/centerMenu"
         app:layout_constraintEnd_toEndOf="@id/centerMenu"
         app:layout_constraintStart_toStartOf="@id/centerMenu"

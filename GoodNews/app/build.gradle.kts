@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.saveurlife.goodnews"
-        minSdk = 26
+        minSdk = 30
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -91,5 +91,10 @@ dependencies {
     implementation("com.github.MKergall:osmbonuspack:6.9.0")
 
     // coroutine
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
+    implementation ("com.airbnb.android:lottie:6.1.0")
+
+    implementation("org.modelmapper:modelmapper:3.1.1")
+
 }
