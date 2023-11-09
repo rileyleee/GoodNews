@@ -7,7 +7,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Overlay
 
-class MarkerOverlay(private val geoPoint: GeoPoint) : Overlay() {
+class MyLocationMarkerOverlay(private val geoPoint: GeoPoint) : Overlay() {
 
     override fun draw(canvas: Canvas, mapView: MapView, shadow: Boolean) {
         super.draw(canvas, mapView, shadow)

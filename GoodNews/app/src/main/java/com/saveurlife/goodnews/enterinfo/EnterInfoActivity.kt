@@ -17,14 +17,10 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
-
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
-import java.util.Calendar
 
 
 class EnterInfoActivity : AppCompatActivity() {

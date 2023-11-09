@@ -27,27 +27,27 @@ class LoadingActivity : AppCompatActivity() {
         binding = ActivityLoadingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        Handler().postDelayed(Runnable {
-            val i = Intent(this@LoadingActivity, TutorialActivity::class.java)
-            startActivity(i)
-            finish()
-        }, 2000)
-
-
-
 //        Handler().postDelayed(Runnable {
-//            // 앱의 MainActivity로 넘어가기
-//            if(items.isEmpty()){
-//                val i = Intent(this@LoadingActivity, TutorialActivity::class.java)
-//                startActivity(i)
-//                // 현재 액티비티 닫기
-//                finish()
-//            }else{
-//                val i = Intent(this@LoadingActivity, MainActivity::class.java)
-//                startActivity(i)
-//                finish()
-//            }
+//            val i = Intent(this@LoadingActivity, TutorialActivity::class.java)
+//            startActivity(i)
+//            finish()
 //        }, 2000)
+
+
+
+        Handler().postDelayed(Runnable {
+            // 앱의 MainActivity로 넘어가기
+            if(items.isEmpty()){
+                val i = Intent(this@LoadingActivity, TutorialActivity::class.java)
+                startActivity(i)
+                // 현재 액티비티 닫기
+                finish()
+            }else{
+                val i = Intent(this@LoadingActivity, MainActivity::class.java)
+                startActivity(i)
+                finish()
+            }
+        }, 2000)
 
 
 

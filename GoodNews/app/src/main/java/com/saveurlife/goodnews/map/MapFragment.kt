@@ -6,11 +6,14 @@ import android.graphics.Paint
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
@@ -44,12 +47,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var currGeoPoint: GeoPoint
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     // 타일 provider, 최소 줌 및 해상도 설정
-    val provider:String = "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-    val minZoom:Int = 12
-    val maxZoom:Int = 15
-    val pixel:Int = 256
+    val provider: String =
+        "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
+    val minZoom: Int = 12
+    val maxZoom: Int = 15
+    val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
     val max = GeoPoint(38.6111, 131.8696)
@@ -63,6 +68,21 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentMapBinding.inflate(inflater, container, false)
+
+        // BottomSheetBehavior 초기화 및 설정
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                // BottomSheet 상태 변경에 따른 로직
+            }
+
+            override fun onSlide(bottomSheetView: View, slideOffset: Float) {
+                // 슬라이드에 따른 UI 변화 처리
+            }
+        })
+
         return binding.root
     }
 
@@ -70,10 +90,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 임시 버튼 클릭했을 때
-        binding.emergencyAddButton.setOnClickListener {
-            showEmergencyDialog()
-        }
+
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -157,6 +174,65 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         addFacilitiesToMap()
 
+        // 정보 공유 버튼 클릭했을 때
+        binding.emergencyAddButton.setOnClickListener {
+            showEmergencyDialog()
+        }
+
+        // BottomSheetBehavior 설정
+        val bottomSheet = view.findViewById<View>(R.id.bottom_sheet)
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        // 하단 시트가 확장된 경우 mapMainContents의 자식들을 비활성화
+                        binding.mapMainContents.isEnabled = false
+                        disableEnableControls(false, binding.mapMainContents)
+                    }
+
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        // 하단 시트가 축소된 경우 mapMainContents의 자식들을 활성화
+                        binding.mapMainContents.isEnabled = true
+                        disableEnableControls(true, binding.mapMainContents)
+                    }
+                    // 다른 상태에 대한 처리...
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // 슬라이드에 따른 UI 변화 처리
+            }
+        })
+
+
+        // 뷰의 레이아웃이 완료된 후에 높이를 계산
+        bottomSheet.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                // 레이아웃 리스너 제거
+                bottomSheet.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                // 프래그먼트의 전체 높이를 얻음
+                val fragmentHeight = view.height
+
+                // 64dp를 픽셀로 변환
+                val expandedOffsetPixels = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 64f, resources.displayMetrics
+                ).toInt()
+
+                // expandedOffset을 뺀 높이를 계산
+                val expandedHeight = fragmentHeight - expandedOffsetPixels
+
+                // BottomSheet의 높이를 설정
+                val layoutParams = bottomSheet.layoutParams
+                layoutParams.height = expandedHeight
+                bottomSheet.layoutParams = layoutParams
+            }
+        })
+
     }
 
     @Throws(IOException::class)
@@ -198,9 +274,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 현재 위치 마커로 찍기
     fun updateCurrentLocation(geoPoint: GeoPoint) {
-        Log.v("현재 위치","$geoPoint")
-        val markerOverlay = MarkerOverlay(geoPoint)
-        mapView.overlays.add(markerOverlay)
+        Log.v("현재 위치", "$geoPoint")
+        val myLocationMarkerOverlay = MyLocationMarkerOverlay(geoPoint)
+        mapView.overlays.add(myLocationMarkerOverlay)
         mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
     }
 
@@ -230,7 +306,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         Log.d("Overlay 설정", "오버레이 크기 스타일 설정")
 
         val overlay = SimpleFastPointOverlay(pointTheme, opt)
-        overlay.setOnClickListener(SimpleFastPointOverlay.OnClickListener{ points, point ->
+        overlay.setOnClickListener(SimpleFastPointOverlay.OnClickListener { points, point ->
             Log.d("시설정보 로그찍기", "${points.get(point)}")
             Toast.makeText(context, "시설정보: ${points.get(point)}", Toast.LENGTH_SHORT).show()
         })
@@ -263,9 +339,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
 
-    // 임시 코드
     private fun showEmergencyDialog() {
         val dialogFragment = EmergencyInfoDialogFragment()
         dialogFragment.show(childFragmentManager, "EmergencyInfoDialogFragment")
+    }
+
+    private fun disableEnableControls(enable: Boolean, vg: ViewGroup) {
+        for (i in 0 until vg.childCount) {
+            val child = vg.getChildAt(i)
+            child.isEnabled = enable
+            if (child is ViewGroup) {
+                disableEnableControls(enable, child)
+            }
+        }
     }
 }
