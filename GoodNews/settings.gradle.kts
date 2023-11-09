@@ -10,6 +10,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven{// 지도 저장 위한 osmbonuspack 라이브러리 저장소
+            url = uri("https://jitpack.io")
+        }
     }
 }
 
