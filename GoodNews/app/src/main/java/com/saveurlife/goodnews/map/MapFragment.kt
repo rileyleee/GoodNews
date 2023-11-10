@@ -52,8 +52,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 타일 provider, 최소 줌 및 해상도 설정
     val provider: String =
         "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-    val minZoom: Int = 12
-    val maxZoom: Int = 15
+    val minZoom: Int = 7
+    val maxZoom: Int = 13
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
