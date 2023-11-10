@@ -17,8 +17,16 @@
             android:id="@+id/map"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 추가 코드 시작 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/facilityTypeList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent" />
+        <!-- 추가 코드 끝 -->
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/emergencyAddButton"
@@ -55,9 +63,9 @@
         android:layout_height="wrap_content"
         android:background="@drawable/top_rounded_shape"
         android:descendantFocusability="beforeDescendants"
+        android:elevation="10dp"
         android:focusableInTouchMode="true"
         android:orientation="vertical"
-        android:elevation="10dp"
         app:behavior_expandedOffset="64dp"
         app:behavior_hideable="false"
         app:behavior_peekHeight="48dp"
@@ -72,19 +80,22 @@
             <View
                 android:id="@+id/drag_handler"
                 android:layout_width="54dp"
-                android:layout_height="4dp"
+                android:layout_height="6dp"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/btn_match_parent"
                 android:backgroundTint="@color/inactive_gray" />
 
-            <TextView
-                android:id="@+id/testTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <!-- 추가 코드 시작 -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/facilityListWrap"
                 android:layout_marginTop="40dp"
-                android:text="하단시트 테스트입니다."
-                android:textSize="32sp"
-                android:textStyle="bold" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                tools:listitem="@layout/item_list_facility"
+                app:layout_constraintTop_toTopOf="parent" />
+            <!-- 추가 코드 끝 -->
 
             <FrameLayout
                 android:id="@+id/fragment"

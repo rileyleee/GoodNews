@@ -13,10 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
+import com.saveurlife.goodnews.models.FacilityUIType
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -45,6 +48,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
+
+    // 추가 코드
+    private lateinit var categoryRecyclerView: RecyclerView
+    private lateinit var categoryAdapter: FacilityCategoryAdapter
+    private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -82,6 +90,20 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 // 슬라이드에 따른 UI 변화 처리
             }
         })
+
+        // 추가 코드 (recyclerView)
+        categoryRecyclerView = binding.facilityTypeList
+        categoryRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        categoryAdapter = FacilityCategoryAdapter(getCategories()) { selectedCategory ->
+            // 선택된 카테고리 처리 로직, 예를 들어 다른 RecyclerView를 업데이트하거나 지도에 마커를 표시하는 등
+            handleSelectedCategory(selectedCategory)
+            Log.d("CategorySelected", "Selected category: ${selectedCategory.displayName}")
+        }
+        categoryRecyclerView.adapter = categoryAdapter
+
+        // 처음에 "전체" 카테고리가 선택되도록 합니다.
+        handleSelectedCategory(FacilityUIType.ALL)
 
         return binding.root
     }
@@ -190,12 +212,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         // 하단 시트가 확장된 경우 mapMainContents의 자식들을 비활성화
                         binding.mapMainContents.isEnabled = false
+                        binding.map.setOnTouchListener { _, _ -> false }
                         disableEnableControls(false, binding.mapMainContents)
                     }
 
                     BottomSheetBehavior.STATE_COLLAPSED -> {
                         // 하단 시트가 축소된 경우 mapMainContents의 자식들을 활성화
                         binding.mapMainContents.isEnabled = true
+                        binding.map.setOnTouchListener { _, _ -> true }
                         disableEnableControls(true, binding.mapMainContents)
                     }
                     // 다른 상태에 대한 처리...
@@ -261,11 +285,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-        Toast.makeText(
-            context,
-            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
-            Toast.LENGTH_SHORT
-        ).show()
+//        Toast.makeText(
+//            context,
+//            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
+//            Toast.LENGTH_SHORT
+//        ).show()
 
         currGeoPoint?.let {
             updateCurrentLocation(it)
@@ -352,5 +376,17 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 disableEnableControls(enable, child)
             }
         }
+    }
+
+    // 첫 번째 RecyclerView의 데이터를 가져오는 메서드 (추가)
+    private fun getCategories(): List<FacilityUIType> {
+        // 실제 데이터를 반환
+        return FacilityUIType.values().toList()
+    }
+
+    // 선택된 카테고리를 처리하는 메서드
+    private fun handleSelectedCategory(category: FacilityUIType) {
+        // TODO: 여기에서 선택된 카테고리에 따라 다른 UI 요소를 업데이트합니다.
+        // 예: 하단 시트의 RecyclerView를 업데이트하거나 지도상의 마커를 업데이트하는 등
     }
 }
