@@ -148,7 +148,6 @@ class LocationProvider(private val context: Context) {
     // 위치 업데이트 처리 함수
     private fun onLocationUpdated(location: Location) {
 
-
         // 로그에 위치 정보 기록
         Log.d("LocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
 
@@ -163,7 +162,6 @@ class LocationProvider(private val context: Context) {
                 latitude = lastLat
                 longitude = lastLon
             }
-
             updateMemberLocation(newLocation, memberId)
         }
         locationUpdateListener?.onLocationChanged(location)
