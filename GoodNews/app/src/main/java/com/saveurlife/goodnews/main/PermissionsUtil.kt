@@ -20,8 +20,6 @@ class PermissionsUtil(private val activity: Activity) {
     private var dialog: AlertDialog? = null
 
     val sharedPreferences = GoodNewsApplication.preferences
-    private val isBackgroundPermissionApproved =
-        sharedPreferences.getBoolean("isBackgroundPermissionApproved", false)
 
 
     // 앱 사용 위한 권한 요청(백그라운드 위치 정보 액세스 권한은 별도로 처리)
@@ -61,17 +59,6 @@ class PermissionsUtil(private val activity: Activity) {
             )
         } else {
             onAllPermissionsGranted()
-
-            if (!sharedPreferences.getBoolean(
-                    "isBackgroundPermissionApproved",
-                    false
-                ) && ActivityCompat.checkSelfPermission(
-                    activity,
-                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                permissionDialog(activity)
-            }
         }
     }
 

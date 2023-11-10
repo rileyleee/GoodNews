@@ -1,12 +1,15 @@
 package com.saveurlife.goodnews.map
 
+import android.app.Activity
 import android.content.Context
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -14,6 +17,8 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.saveurlife.goodnews.main.MainActivity
+import com.saveurlife.goodnews.main.PermissionsUtil
 import java.util.concurrent.TimeUnit
 
 class LocationProvider(private val context: Context) {
@@ -50,8 +55,20 @@ class LocationProvider(private val context: Context) {
             Log.d("LocationSettings", "모든 위치 업데이트 관련 설정 완료")
         }
 
-        task.addOnFailureListener { exception ->
-            Log.e("LocationSettings", "모든 위치 업데이트 관련 설정 미완: ${exception.message}")
+        task.addOnFailureListener { e ->
+            Log.e("LocationSettings", "모든 위치 업데이트 관련 설정 미완: ${e.message}")
+            if (e is ResolvableApiException) {
+                try {
+                    // context가 Activity의 인스턴스일 경우에만 startResolutionForResult() 호출
+                    if (context is Activity) {
+                        e.startResolutionForResult(context, 100)
+                    } else {
+                        Log.e("LocationProvider", "Context is not an Activity instance.")
+                    }
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // 에러를 무시함.
+                }
+            }
         }
         requestingLocation()
     }
