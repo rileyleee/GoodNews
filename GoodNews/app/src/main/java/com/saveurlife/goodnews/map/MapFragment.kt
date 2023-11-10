@@ -261,11 +261,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-        Toast.makeText(
-            context,
-            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
-            Toast.LENGTH_SHORT
-        ).show()
 
         currGeoPoint?.let {
             updateCurrentLocation(it)
@@ -336,6 +331,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+        locationProvider.stopLocationUpdates() // 위치 정보 업데이트 중지
     }
 
 

@@ -42,6 +42,7 @@ class GoodNewsApplication : Application() {
 
         super.onCreate()
 
+
         //Realm 초기화
         realmConfiguration = RealmConfiguration.create(
             schema = setOf(
