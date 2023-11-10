@@ -173,13 +173,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-            if (latestLocationFromRealm == null) {
+            if (latestLocationFromRealm == null) { // 나중에 서울시청으로 변경
                 mapView.controller.setCenter(
                     GeoPoint(
                         36.37497534353303,
                         127.3914186217678
                     )
-                ) // 나중에 서울시청으로 변경
+                )
             } else {
                 mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
                     GeoPoint(
