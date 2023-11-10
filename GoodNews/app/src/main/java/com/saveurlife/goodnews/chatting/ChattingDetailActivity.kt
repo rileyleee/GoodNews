@@ -1,40 +1,66 @@
-package com.saveurlife.goodnews.alarm
+package com.saveurlife.goodnews.chatting
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.widget.LinearLayout
+import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.databinding.ActivityAlarmBinding
+import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
+import com.saveurlife.goodnews.databinding.ActivityMainBinding
+import com.saveurlife.goodnews.databinding.FragmentOneChattingBinding
 
-class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
-    private lateinit var binding: ActivityAlarmBinding
+class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
+    private lateinit var binding: ActivityChattingDetailBinding
     private lateinit var gestureDetector: GestureDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityAlarmBinding.inflate(layoutInflater)
+        binding = ActivityChattingDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //MainActivity-OneChattingFragment에서 받은 값 채팅창에 초기화
+        val chatName = intent.getStringExtra("chatName")
+        val chatOtherStatus = intent.getStringExtra("chatOtherStatus")
+        binding.chatDetailNameHeader.text = chatName
+        updateOtherStatus(chatOtherStatus)
+
+        //채팅 목록으로 돌아갈 때 스와이프
         gestureDetector = GestureDetector(this, this)
 
-        val mainLayout: ConstraintLayout = findViewById(R.id.mainLayout) // 레이아웃 ID는 적절히 변경해주세요
-        mainLayout.setOnTouchListener { _, event ->
+        binding.chattingDetailLayout.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
             true
         }
 
+        //채팅 목록으로 돌아가기
         binding.backButton.setOnClickListener {
             finish()
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
+
+        val chatting = listOf(
+            ChattingDetailData("김싸피", "갈게"),
+            ChattingDetailData("김싸피", "안녕"),
+            ChattingDetailData("김싸피", "어디야"),
+            ChattingDetailData("김싸피", "안녕하세요"),
+            ChattingDetailData("김싸피", "조심해")
+        )
     }
 
-    //onFling - 사용자가 빠르게 화면을 스와이프했을 때 호출
+    //상태 초기화
+    private fun updateOtherStatus(chatOtherStatus: String?) {
+        when(chatOtherStatus){
+            "safe" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
+            "injury" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_injury_circle)
+            "death" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_death_circle)
+            "unknown" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_circle)
+        }
+    }
+
+    //스와이프
     override fun onFling(
         e1: MotionEvent?, //스와이프의 시작 지점에 대한 이벤트 정보
         e2: MotionEvent, //스와이프의 종료 지점에 대한 이벤트 정보
@@ -56,27 +82,14 @@ class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         return false
     }
 
-
-    //사용하진 않고 오버라이드만 해둔것
-//    GestureDetector.OnGestureListener 인터페이스는 다양한 제스처 이벤트를 처리하기 위한 여러 메서드를 포함
-//    이 인터페이스를 구현할 때는 해당 인터페이스에 정의된 모든 메서드를 구현해야함.
-//    그렇기 때문에 사용하지 않는 메서드들도 선언해야함.
-//    GestureDetector.OnGestureListener 제스처 이벤트를 처리 메서드
-//    onDown(): 화면에 손가락을 터치했을 때 호출
-//    onShowPress(): 화면에 손가락을 누르고 있을 때 호출
-//    onSingleTapUp(): 화면을 한 번 터치하고 떼었을 때 호출
-//    onScroll(): 화면을 드래그할 때 호출
-//    onLongPress(): 화면에 손가락을 길게 누르고 있을 때 호출
+    //사용하진 않지만 오버라이드 해줘야함
     override fun onDown(e: MotionEvent): Boolean {
         return false
     }
-
     override fun onShowPress(e: MotionEvent) {}
-
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         return false
     }
-
     override fun onScroll(
         e1: MotionEvent?,
         e2: MotionEvent,
@@ -85,6 +98,5 @@ class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     ): Boolean {
         return false
     }
-
     override fun onLongPress(e: MotionEvent) {}
 }

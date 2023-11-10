@@ -71,9 +71,9 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // 정보 등록 버튼 눌렀을 때, 이벤트
         binding.submitInfo.setOnClickListener {
-            submitUserInfo()
-            // val intent = Intent(this, MainActivity::class.java)
-            // startActivity(intent)
+//            submitUserInfo()
+             val intent = Intent(this, MainActivity::class.java)
+             startActivity(intent)
         }
     }
 

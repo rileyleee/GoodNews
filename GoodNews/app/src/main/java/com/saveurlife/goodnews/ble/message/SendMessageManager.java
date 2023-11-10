@@ -21,7 +21,7 @@ public class SendMessageManager {
     private UserDeviceInfoService userDeviceInfoService;
     private LocationService locationService;
     private String myId;
-    private String myName = "김예진";
+    private String myName = "김나연";
 
     private int sendSize = 5;
 

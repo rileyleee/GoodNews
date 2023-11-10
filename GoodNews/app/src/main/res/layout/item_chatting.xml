@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chatWindow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/background">
+
+    <TextView
+        android:id="@+id/chattingStatus"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/my_status_safe_circle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/chattingName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="김싸피"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toEndOf="@id/chattingStatus"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/chattingLast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="마지막 대화"
+        android:textSize="16sp"
+        android:textColor="@color/font_color"
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toBottomOf="@id/chattingName"
+        app:layout_constraintStart_toStartOf="@id/chattingName"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/chattingTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="대화 시간"
+        android:textSize="16sp"
+        android:textColor="@color/font_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/chattingName"/>
+
+    <TextView
+        android:id="@+id/chattingNew"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/chatting_new"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/chattingTime"
+        app:layout_constraintTop_toBottomOf="@id/chattingTime" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -32,9 +32,7 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
         }
 
         //상태(숫자)에 따라 색 변경
-        private fun updateHealthStatusBackground(
-            healthStatus: String
-        ) {
+        private fun updateHealthStatusBackground(healthStatus: String) {
             when (healthStatus) {
                 "1" ->  this.binding.aroundStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
                 "2" ->  this.binding.aroundStatus.setBackgroundResource(R.drawable.my_status_injury_circle)

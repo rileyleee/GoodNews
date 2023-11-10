@@ -37,10 +37,13 @@ class GoodNewsApplication : Application() {
 
     override fun onCreate() {
 
+
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
 
         super.onCreate()
+
+
 
         //Realm 초기화
         realmConfiguration = RealmConfiguration.create(
@@ -59,8 +62,8 @@ class GoodNewsApplication : Application() {
                 OffMapFacility::class
             )
         )
-
         val realm: Realm = Realm.open(realmConfiguration)
+
 
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =

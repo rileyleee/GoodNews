@@ -79,7 +79,7 @@ public class BleService extends Service {
     private LocationService locationService;
     private UserDeviceInfoService userDeviceInfoService;
     private static String myId;
-    private static String myName = "김예진";
+    private static String myName = "김나연";
     private BleServiceScanCallback mBleScanCallback;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;
@@ -422,7 +422,7 @@ public class BleService extends Service {
 
             int existingDeviceIndex = -1;
             for (int i = 0; i < bluetoothDevices.size(); i++) {
-                if (bluetoothDevices.get(i).getAddress().equals(deviceAddress)) {
+                if (bluetoothDevices.get(i).getAddress().equals(deviceAddress)||deviceArrayList.get(i).equals(deviceId)) {
                     existingDeviceIndex = i;
                     break;
                 }
@@ -431,12 +431,12 @@ public class BleService extends Service {
             if (existingDeviceIndex != -1) {
                 bluetoothDevices.set(existingDeviceIndex, device);
                 deviceArrayList.set(existingDeviceIndex, deviceId);
-                deviceArrayListName.set(existingDeviceIndex, deviceName);
-                deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
+                deviceArrayListName.set(existingDeviceIndex, deviceId+"/"+deviceName);
+//                deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
             } else {
                 bluetoothDevices.add(device);
                 deviceArrayList.add(deviceId);
-                deviceArrayListName.add(deviceName); // your existing code where you add devices
+                deviceArrayListName.add(deviceId+"/"+deviceName); // your existing code where you add devices
                 deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
             }
         }

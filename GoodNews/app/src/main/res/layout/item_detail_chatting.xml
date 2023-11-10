@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/chatDetailName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="이름"
+        android:textSize="16sp"
+        android:textColor="@color/font_color"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/chatDetailContext"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="채팅 내용"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        app:layout_constraintTop_toBottomOf="@id/chatDetailName"
+        app:layout_constraintStart_toStartOf="@id/chatDetailName"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
