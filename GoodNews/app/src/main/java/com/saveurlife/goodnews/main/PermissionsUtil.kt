@@ -21,7 +21,6 @@ class PermissionsUtil(private val activity: Activity) {
 
     val sharedPreferences = GoodNewsApplication.preferences
 
-
     // 앱 사용 위한 권한 요청(백그라운드 위치 정보 액세스 권한은 별도로 처리)
     fun requestAllPermissions() {
 
