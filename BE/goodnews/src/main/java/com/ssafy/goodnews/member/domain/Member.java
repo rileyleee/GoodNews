@@ -20,15 +20,17 @@ import java.time.LocalDateTime;
 public class Member extends BaseConnectEntity {
     @Id
     private String id;
+    private String phoneNumber;
     private String name;
     private String birthdate;
     private String gender;
     private String bloodtype;
     private String addinfo;
-    private String state;
+    private int state;
     private Double lat;
     private Double lon;
     private String password;
+
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -45,8 +47,9 @@ public class Member extends BaseConnectEntity {
     }
 
     @Builder
-    public Member(String id, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection,Role role) {
+    public Member(String id,String phoneNumber, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection,Role role,int state) {
         this.id = id;
+        this.phoneNumber = phoneNumber;
         this.name = name;
         this.birthdate = birthDate;
         this.gender = gender;
@@ -54,6 +57,7 @@ public class Member extends BaseConnectEntity {
         this.addinfo = addInfo;
         this.lastConnection = LocalDateTime.now();
         this.role = Role.USER;
+        this.state = state;
     }
 
 
