@@ -112,7 +112,7 @@ class LocationProvider(private val context: Context) {
         }
     }
 
-    // 사용자 위치 realm에 업데이트
+    // 사용자 위치 realm에 업데이트 (나중에 여기 말고 백그라운드에서 저장하는 게 맞음)
     private fun updateMemberLocation(
         newLocation: com.saveurlife.goodnews.models.Location,
         memberId: String

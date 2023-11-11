@@ -59,7 +59,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
-    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location? = null
+    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -104,8 +104,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 임시 코드
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -171,14 +169,22 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             mapView.overlayManager.tilesOverlay.loadingBackgroundColor = Color.GRAY
             mapView.overlayManager.tilesOverlay.loadingLineColor = Color.BLACK
 
+
+
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-            if (latestLocationFromRealm == null) { // 나중에 서울시청으로 변경
+            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
+                Log.i("mapCenter","지도 중심좌표는 서울시청입니다.")
                 mapView.controller.setCenter(
                     GeoPoint(
-                        36.37497534353303,
-                        127.3914186217678
+                        37.566535,
+                        126.9779692
                     )
+//                    GeoPoint( //대전 임시 좌표
+//                    36.37497534353303,
+//                    127.3914186217678
+//                )
+
                 )
             } else {
                 mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
@@ -201,8 +207,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         }
 
+        // 지도 위에 시설 정보 그리기
         addFacilitiesToMap()
-        latestLocation()
+
+        // 최근 위치 realm에서 가져오기
+        findLatestLocation()
+
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
@@ -388,7 +398,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
     }
 
-    private fun latestLocation() {
+    private fun findLatestLocation() {
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -398,13 +408,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             try {
                 Log.i("LatestLocation", "DB 작업합니다.")
                 // 데이터베이스 작업 수행
-                val latestLocation =
+                latestLocationFromRealm =
                     realm.query<com.saveurlife.goodnews.models.Location>()
                         .sort("time", Sort.DESCENDING).first().find()
 
-                Log.v("LatestLocationFromRealm", "위도: ${latestLocation!!.latitude} 경도: ${latestLocation!!.longitude}")
+                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
 
-                if (latestLocation!=null) {
+                if (latestLocationFromRealm!=null) {
                     Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
                 } else {
                     Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
