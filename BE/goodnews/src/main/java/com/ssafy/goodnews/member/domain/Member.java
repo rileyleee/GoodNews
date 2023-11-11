@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -31,11 +32,14 @@ public class Member extends BaseConnectEntity {
     private Double lon;
     private String password;
 
+    @LastModifiedDate
+    private LocalDateTime locationTime;
+
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
+    @LastModifiedDate
     private LocalDateTime lastConnection;
 
     public LocalDateTime getLastConnection() {
@@ -81,9 +85,14 @@ public class Member extends BaseConnectEntity {
         this.addinfo = memberInfoUpdateRequestDto.getAddInfo();
     }
 
-
-
     public void updateMemberState(int state) {
         this.state = state;
+    }
+
+    public void updateMember(Member member) {
+        this.lat = member.getLat();
+        this.lon = member.getLon();
+        this.locationTime = LocalDateTime.now();
+        this.lastConnection = LocalDateTime.now();
     }
 }

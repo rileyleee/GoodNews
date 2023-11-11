@@ -1,5 +1,6 @@
 package com.ssafy.goodnews.member.service;
 
+import com.ssafy.goodnews.common.domain.BaseEntity;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.dto.LoginDto;
 import com.ssafy.goodnews.common.dto.TokenDto;
@@ -11,10 +12,7 @@ import com.ssafy.goodnews.jwt.JwtTokenProvider;
 import com.ssafy.goodnews.member.domain.Family;
 import com.ssafy.goodnews.member.domain.FamilyMember;
 import com.ssafy.goodnews.member.domain.Member;
-import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
-import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
-import com.ssafy.goodnews.member.dto.request.member.MemberLoginAdminRequestDto;
-import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.*;
 import com.ssafy.goodnews.member.dto.response.member.MemberFirstLoginResponseDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberInfoResponseDto;
 import com.ssafy.goodnews.member.repository.MemberRepository;
@@ -203,6 +201,17 @@ public class MemberService {
         return BaseResponseDto.builder()
                 .success(true)
                 .message("회원 상태 정보 수정을 성공했습니다")
+                .build();
+    }
+
+    @Transactional
+    public BaseResponseDto updateMember(String memberId, MemberUpdateDto memberUpdateDto) {
+        Optional<Member> findMember = memberRepository.findById(memberId);
+        memberValidator.checkMember(findMember, memberId);
+        findMember.get().updateMember(findMember.get());
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("멤버 위치 및 마지막 연결 시각을 업데이트했습니다")
                 .build();
     }
 }

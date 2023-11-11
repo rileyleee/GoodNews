@@ -99,4 +99,13 @@ public class MemberController {
         return memberService.updateMemberState(memberId,memberStateRequestDto.getState());
     }
 
+
+    @Operation(summary = "멤버 위치 및 연결시각 업데이트", description = "멤버 위도,경도,마지막 연결시각 업데이트 ")
+    @PutMapping("/get/{memberId}")
+    private BaseResponseDto updateMember(@PathVariable String memberId, @RequestBody MemberUpdateDto memberUpdateDto) {
+
+
+        return memberService.updateMember(memberId,memberUpdateDto);
+    }
+
 }
