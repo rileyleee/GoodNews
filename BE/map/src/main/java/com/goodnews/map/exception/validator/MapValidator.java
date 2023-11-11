@@ -3,7 +3,6 @@ package com.goodnews.map.exception.validator;
 
 import com.goodnews.map.exception.CustomException;
 import com.goodnews.map.exception.message.MapErrorEnum;
-import com.goodnews.map.map.domain.LocalPopulation;
 import com.goodnews.map.map.domain.OffMapInfo;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -16,15 +15,7 @@ import java.util.Optional;
 @Component
 public class MapValidator {
 
-    public void checkLocalPopulation(Optional<LocalPopulation> population, int id) {
-        if (population.isEmpty()) {
-            throw CustomException.builder()
-                    .status(HttpStatus.BAD_REQUEST)
-                    .code(MapErrorEnum.INVALID_POPULATION.getCode())
-                    .message(MapErrorEnum.INVALID_POPULATION.getMessage() + id)
-                    .build();
-        }
-    }
+
 
     public void checkFaciltiy(Optional<OffMapInfo> offMapInfo, String id) {
         if (offMapInfo.isEmpty()) {

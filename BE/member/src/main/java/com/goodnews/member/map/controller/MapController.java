@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 @Tag(name = "Map", description = "지도 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/map")
+@RequestMapping("/api/m")
 public class MapController {
 
     private final MapService mapService;

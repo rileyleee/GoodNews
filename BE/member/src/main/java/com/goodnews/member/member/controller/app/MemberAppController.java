@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Member", description = "멤버 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/members/app")
+@RequestMapping("/member-service/api/members/app")
 public class MemberAppController {
 
     private final JwtTokenProvider jwtTokenProvider;

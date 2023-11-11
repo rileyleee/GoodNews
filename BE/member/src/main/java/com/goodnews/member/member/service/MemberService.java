@@ -1,8 +1,12 @@
 package com.goodnews.member.member.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.common.dto.LoginDto;
 import com.goodnews.member.common.dto.TokenDto;
+import com.goodnews.member.map.domain.FacilityState;
+import com.goodnews.member.map.dto.request.MapRegistFacilityRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberInfoUpdateRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberLoginAdminRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberRegistRequestDto;
@@ -21,10 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -165,4 +173,6 @@ public class MemberService {
 
         return findMember.get();
     }
+
+
 }

@@ -1,11 +1,18 @@
 server:
   port: 8761
-
+  ssl:
+    enabled: true
+    key-store-type: pkcs12
+    key-store: classpath:ssl/keystore.p12
+    key-store-password: gnteam307
 spring:
   application:
     name: discoveryservice
 
 eureka:
+
   client:
     register-with-eureka: false
     fetch-registry: false
+#    service-url:
+#      defaultZone: http://saveurlife.kr:8761/eureka

@@ -35,18 +35,6 @@ public class MapController {
         return mapService.findFacilityInfo(page - 1, size);
     }
 
-    @Operation(summary = "앱 이용자 조회", description = "앱 이용자 정보 조회(지역명,인구수)")
-    @PostMapping("/getallmember")
-    private BaseResponseDto findPopulation(HttpServletRequest httpServletRequest) {
-        String token = httpServletRequest.getHeader("Authorization");
-        return mapService.findPopulation();
-    }
-
-    @Operation(summary = "앱 이용자 업데이트", description = "앱 이용자 정보 업데이트(인구수)")
-    @PutMapping("/getallmember")
-    private BaseResponseDto updatePopulation(@RequestBody MapPopulationRequestDto mapPopulationRequestDto) {
-        return mapService.updatePopulation(mapPopulationRequestDto);
-    }
 
     @Operation(summary = "지도 시설 상세 보기", description = "지도시설 상세 보기(타입,명칭,경도,위도,사용가능,보유자원)조회")
     @PostMapping("/facilitydetail")
@@ -54,17 +42,4 @@ public class MapController {
         return mapService.detailFacility(mapFacilityRequestDto.getId());
     }
 
-    @Operation(summary = "지도 시설 상태 등록", description = "지도시설(버튼타입,내용,경도,위도)등록")
-    @PostMapping("/registfacility")
-    private BaseResponseDto registMapFacility(@RequestBody MapRegistFacilityRequestDto mapRegistFacilityRequestDto) throws JsonProcessingException {
-
-        return mapService.registFacility(mapRegistFacilityRequestDto);
-    }
-
-    @Operation(summary = "지도 시설 상태 조회", description = "지도시설(버튼타입,내용,경도,위도)조회")
-    @PostMapping("/getfacilitystate")
-    private BaseResponseDto getMapFacility() {
-
-        return mapService.getFacilityState();
-    }
 }
