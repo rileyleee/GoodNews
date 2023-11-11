@@ -68,8 +68,8 @@ class MainActivity : AppCompatActivity() {
     private val sharedViewModel: SharedViewModel by viewModels()
 
     //ble
-    private lateinit var bleService: BleService
-    //서비스가 현재 바인드되었는지 여부를 나타내는 변수
+    lateinit var bleService: BleService
+    //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
     private var isBound = false
 
     private val connection = object : ServiceConnection {
@@ -77,10 +77,12 @@ class MainActivity : AppCompatActivity() {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             val binder = service as BleService.LocalBinder
             bleService = binder.service
+            sharedViewModel.bleService.value = binder.service
             isBound = true
 
             // BleService의 LiveData를 관찰하고 SharedViewModel을 통해 업데이트합니다.
             // 데이터가 변경될 때마다 SharedViewModel의 bleDeviceNames 라이브 데이터를 새로운 값으로 업데이트
+            if (::bleService.isInitialized) {
             bleService.getDeviceArrayListNameLiveData().observe(this@MainActivity, Observer { deviceNames ->
                 val deviceMap = mutableMapOf<String, String>()
                 deviceNames.forEach { deviceName ->
@@ -98,7 +100,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 sharedViewModel.bleDeviceMap.value = deviceMap
-            })
+            })}
         }
 
         //서비스 연결이 끊어졌을 때 호출
@@ -196,7 +198,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startAdvertiseAndScan() {
-        if (isBound) {
+        if (isBound && ::bleService.isInitialized) {
             bleService.startAdvertiseAndScan()
             Toast.makeText(this, "광고 및 스캔 시작", Toast.LENGTH_SHORT).show()
         } else {

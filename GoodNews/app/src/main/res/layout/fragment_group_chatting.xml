@@ -1,13 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".chatting.GroupChattingFragment">
+    android:layout_height="wrap_content"
+    tools:context=".chatting.GroupChattingFragment"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="그룹 채팅" />
+        android:id="@+id/createGroup"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/dash_line"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/font_color"
+        android:textSize="21sp"
+        app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd2"
+        app:layout_constraintStart_toStartOf="@id/guidelineVertical2"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/createGroupAddText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ 그룹 생성"
+        android:textColor="@color/inactive_gray"
+        android:textSize="21sp"
+        app:layout_constraintBottom_toBottomOf="@+id/createGroup"
+        app:layout_constraintEnd_toEndOf="@+id/createGroup"
+        app:layout_constraintStart_toStartOf="@+id/createGroup"
+        app:layout_constraintTop_toTopOf="@+id/createGroup"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewChatting"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createGroup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/item_group_chatting"/>
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVertical2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="30dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineVerticalEnd2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="30dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/toolbarGuideLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="60dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

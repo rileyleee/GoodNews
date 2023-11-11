@@ -4,11 +4,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.saveurlife.goodnews.ble.service.BleService
+import com.saveurlife.goodnews.chatting.OnechattingData
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ItemAroundAdvertiseListBinding
 
-class BleAdvertiseAdapter (private var userList: List<BleMeshAdvertiseData>, private val sharedViewModel: SharedViewModel) : RecyclerView.Adapter<BleAdvertiseAdapter.Holder>() {
+class BleAdvertiseAdapter (private var userList: List<BleMeshAdvertiseData>, private val sharedViewModel: SharedViewModel, private val bleService: BleService) : RecyclerView.Adapter<BleAdvertiseAdapter.Holder>() {
 
+    // 클릭 리스너 인터페이스 정의
+    interface OnItemClickListener {
+        fun onButtonClick(deviceId: String)
+    }
+
+
+    var onItemClickListener: OnItemClickListener? = null
+
+    //RecyclerView의 각 항목에 대한 뷰 홀더 객체를 생성
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -24,10 +35,13 @@ class BleAdvertiseAdapter (private var userList: List<BleMeshAdvertiseData>, pri
         holder.bind(user)
 
         // requestBleButton 클릭 리스너
+        // 광고, 스캔하여 이사람과 연결되고 싶을 때 클릭
         holder.binding.requestBleButton.setOnClickListener {
             sharedViewModel.updateBleDeviceState(user.deviceId, true)
+            bleService?.connectOrDisconnect(user.deviceId)
         }
         // stopBleButton 클릭 리스너
+        //연결된 사람과 연결을 해제하고 싶을 때 클릭
         holder.binding.cutBleButton.setOnClickListener {
             sharedViewModel.updateBleDeviceState(user.deviceId, false)
         }
@@ -46,5 +60,10 @@ class BleAdvertiseAdapter (private var userList: List<BleMeshAdvertiseData>, pri
         fun bind(user: BleMeshAdvertiseData) {
             binding.advertiseName.text = user.name
         }
+    }
+
+    fun updateDevices(newDevices: List<BleMeshAdvertiseData>) {
+        userList = newDevices
+        notifyDataSetChanged() // 데이터가 변경되었음을 알림
     }
 }

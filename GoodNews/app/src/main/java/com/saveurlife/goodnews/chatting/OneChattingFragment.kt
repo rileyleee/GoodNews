@@ -20,7 +20,7 @@ class OneChattingFragment : Fragment() {
             OnechattingData("이싸피", "안녕", "오후 1:04", false, "injury"),
             OnechattingData("선싸피", "어디야", "오전 10:22", true,"death"),
             OnechattingData("신싸피", "안녕하세요", "2023-11-07", false, "unknown"),
-            OnechattingData("박싸피", "조심해", "2023-11-06", true, "safe")
+            OnechattingData("박싸피", "조심해", "2023-11-06", true, "safe"),
         )
 
         val adapter = OneChattingAdapter(chatting)

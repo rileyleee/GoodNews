@@ -21,18 +21,12 @@ class ChattingDetailAdapter(private val chatting: List<ChattingDetailData>) : Re
         holder.bind(chatting)
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount() = chatting.size
 
     class ViewHolder(private val binding: ItemDetailChattingBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(chatting: ChattingDetailData){
             binding.chatDetailName.text = chatting.userId
             binding.chatDetailContext.text = chatting.message
         }
-
-
     }
-
-
 }

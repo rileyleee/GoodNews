@@ -1,11 +1,13 @@
 package com.saveurlife.goodnews.chatting
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
@@ -34,20 +36,37 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
             true
         }
 
-        //채팅 목록으로 돌아가기
-        binding.backButton.setOnClickListener {
-            finish()
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
-        }
-
 
         val chatting = listOf(
             ChattingDetailData("김싸피", "갈게"),
             ChattingDetailData("김싸피", "안녕"),
             ChattingDetailData("김싸피", "어디야"),
             ChattingDetailData("김싸피", "안녕하세요"),
-            ChattingDetailData("김싸피", "조심해")
+            ChattingDetailData("김싸피", "조심해"),
+            ChattingDetailData("김싸피", "조심해"),
+            ChattingDetailData("김싸피", "조심해"),
+            ChattingDetailData("김싸피", "조심해"),
+            ChattingDetailData("김싸피", "조심해조심해조심해조심해조심해조심해조심해조심해"),
+            ChattingDetailData("김싸피", "조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해조심해")
         )
+
+        val adapter = ChattingDetailAdapter(chatting)
+        val recyclerView = binding.recyclerViewChatting
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+
+        //recyclerView에서 방해받지 않으면서 스와이프
+        recyclerView.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            false // 이벤트를 RecyclerView에게 계속 전달
+        }
+
+
+        //채팅 목록으로 돌아가기
+        binding.backButton.setOnClickListener {
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
     }
 
     //상태 초기화

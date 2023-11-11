@@ -52,12 +52,14 @@
             android:id="@+id/recyclerViewChatting"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/chatDetailHeader"
             app:layout_constraintBottom_toTopOf="@id/chatDetailFooter"
             app:layout_constraintStart_toStartOf="parent"
-            />
-    <!--    tools:listitem="@layout/item_chatting"-->
+            tools:listitem="@layout/item_detail_chatting"/>
+
 
     <EditText
         android:id="@+id/chatDetailInput"

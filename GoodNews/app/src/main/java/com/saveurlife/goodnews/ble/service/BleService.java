@@ -299,8 +299,8 @@ public class BleService extends Service {
     }
 
     //deviceList.setOnItemClickListener
-    public void connectOrDisconnect(int position) {
-        BluetoothDevice selectedDevice = bluetoothDevices.get(position);
+    public void connectOrDisconnect(String deviceId) {
+        BluetoothDevice selectedDevice = bluetoothDevices.get(deviceArrayList.indexOf(deviceId));
 
         if (bleConnectedDevicesArrayList.contains(selectedDevice.getAddress())) {
             BluetoothGatt gatt = deviceGattMap.remove(selectedDevice.getAddress());
@@ -320,6 +320,27 @@ public class BleService extends Service {
             connectToDevice(selectedDevice);
         }
     }
+
+    public BluetoothDevice getBluetoothDeviceById(String deviceId) {
+        for (BluetoothDevice device : bluetoothDevices) {
+            if (device.getAddress().equals(deviceId)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    public void disconnect(BluetoothDevice device) {
+        if (device != null) {
+            BluetoothGatt gatt = deviceGattMap.get(device.getAddress());
+            if (gatt != null) {
+                gatt.disconnect();
+                deviceGattMap.remove(device.getAddress());
+                // 필요한 경우 추가적인 연결 해제 로직
+            }
+        }
+    }
+
 
     public void disconnect(int position) {
         String address = bleConnectedDevicesArrayList.get(position);
@@ -432,7 +453,6 @@ public class BleService extends Service {
                 bluetoothDevices.set(existingDeviceIndex, device);
                 deviceArrayList.set(existingDeviceIndex, deviceId);
                 deviceArrayListName.set(existingDeviceIndex, deviceId+"/"+deviceName);
-//                deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
             } else {
                 bluetoothDevices.add(device);
                 deviceArrayList.add(deviceId);

@@ -14,6 +14,10 @@ class OneChattingAdapter(private val chattingList: List<OnechattingData>) : Recy
         fun onItemClick(chatData: OnechattingData)
     }
 
+//    interface OnChattingItemClickListener {
+//        fun onItemClicked(data: OnechattingData)
+//    }
+
     var listener: OnItemClickListener? = null
 
     override fun onCreateViewHolder(
@@ -21,6 +25,7 @@ class OneChattingAdapter(private val chattingList: List<OnechattingData>) : Recy
         viewType: Int
     ): ViewHolder {
         var binding = ItemChattingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+
         return ViewHolder(binding)
     }
 
@@ -49,9 +54,5 @@ class OneChattingAdapter(private val chattingList: List<OnechattingData>) : Recy
                 else -> binding.chattingNew.visibility = View.VISIBLE
             }
         }
-    }
-
-    interface OnChattingItemClickListener {
-        fun onItemClicked(data: OnechattingData)
     }
 }
