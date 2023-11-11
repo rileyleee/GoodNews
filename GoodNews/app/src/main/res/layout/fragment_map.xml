@@ -24,6 +24,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/facilityTypeList"
             android:layout_width="match_parent"
+            android:layout_marginTop="40dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent" />
         <!-- 추가 코드 끝 -->
@@ -32,7 +33,7 @@
             android:id="@+id/emergencyAddButton"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginBottom="60dp"
+            android:layout_marginBottom="64dp"
             android:background="@drawable/btn_match_parent"
             android:drawableLeft="@drawable/baseline_warning_24"
             android:text="정보 공유"
@@ -68,7 +69,7 @@
         android:orientation="vertical"
         app:behavior_expandedOffset="64dp"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="48dp"
+        app:behavior_peekHeight="52dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout

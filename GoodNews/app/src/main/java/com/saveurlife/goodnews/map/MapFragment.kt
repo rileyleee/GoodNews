@@ -9,10 +9,12 @@ import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -20,6 +22,7 @@ import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
+import com.saveurlife.goodnews.models.OffMapFacility
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -52,6 +55,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
     private lateinit var categoryAdapter: FacilityCategoryAdapter
+    private lateinit var listRecyclerView: RecyclerView
+    private lateinit var listAdapter: FacilityListAdapter
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
@@ -91,16 +96,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
         })
 
-        // 추가 코드 (recyclerView)
+        // 추가 코드 (recyclerView / divider)
         categoryRecyclerView = binding.facilityTypeList
         categoryRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        categoryAdapter = FacilityCategoryAdapter(getCategories()) { selectedCategory ->
+        categoryAdapter = FacilityCategoryAdapter(getCategories()) { category ->
+            selectedCategory = category
             // 선택된 카테고리 처리 로직, 예를 들어 다른 RecyclerView를 업데이트하거나 지도에 마커를 표시하는 등
-            handleSelectedCategory(selectedCategory)
-            Log.d("CategorySelected", "Selected category: ${selectedCategory.displayName}")
+            handleSelectedCategory(category)
+            Log.d("CategorySelected", "Selected category: ${category.displayName}")
         }
         categoryRecyclerView.adapter = categoryAdapter
+
+        listRecyclerView = binding.facilityListWrap
+        listRecyclerView.layoutManager = LinearLayoutManager(context)
+        val facilities = getFacilityListData()
+        listAdapter = FacilityListAdapter(facilities)
+        listRecyclerView.adapter = listAdapter
+
+        val dividerItemDecoration = DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
+        listRecyclerView.addItemDecoration(dividerItemDecoration)
 
         // 처음에 "전체" 카테고리가 선택되도록 합니다.
         handleSelectedCategory(FacilityUIType.ALL)
@@ -212,14 +227,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         // 하단 시트가 확장된 경우 mapMainContents의 자식들을 비활성화
                         binding.mapMainContents.isEnabled = false
-                        binding.map.setOnTouchListener { _, _ -> false }
+                        bottomSheet.setOnTouchListener { _, _ -> true }
                         disableEnableControls(false, binding.mapMainContents)
                     }
 
                     BottomSheetBehavior.STATE_COLLAPSED -> {
                         // 하단 시트가 축소된 경우 mapMainContents의 자식들을 활성화
                         binding.mapMainContents.isEnabled = true
-                        binding.map.setOnTouchListener { _, _ -> true }
+                        bottomSheet.setOnTouchListener(null)
                         disableEnableControls(true, binding.mapMainContents)
                     }
                     // 다른 상태에 대한 처리...
@@ -382,6 +397,65 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun getCategories(): List<FacilityUIType> {
         // 실제 데이터를 반환
         return FacilityUIType.values().toList()
+    }
+
+    private fun getFacilityListData(): List<OffMapFacility> {
+        // 실제 데이터를 반환 (임시 데이터...)
+        return listOf(
+            OffMapFacility().apply {
+                id = 1
+                type = "병원"
+                name = "행복한 병원"
+                longitude = 127.001
+                latitude = 37.564
+                canUse = true
+                addInfo = "24시간 운영"
+            },
+            OffMapFacility().apply {
+                id = 2
+                type = "소방서"
+                name = "안전한 소방서"
+                longitude = 127.002
+                latitude = 37.565
+                canUse = true
+                addInfo = "긴급 구조 전문"
+            },
+            OffMapFacility().apply {
+                id = 3
+                type = "경찰서"
+                name = "믿음직한 경찰서"
+                longitude = 127.003
+                latitude = 37.566
+                canUse = false
+                addInfo = "24시간 순찰"
+            },
+            OffMapFacility().apply {
+                id = 4
+                type = "경찰서"
+                name = "믿음직한 경찰서"
+                longitude = 127.003
+                latitude = 37.566
+                canUse = false
+                addInfo = "24시간 순찰"
+            },
+            OffMapFacility().apply {
+                id = 5
+                type = "경찰서"
+                name = "믿음직한 경찰서"
+                longitude = 127.003
+                latitude = 37.566
+                canUse = false
+                addInfo = "24시간 순찰"
+            },
+            OffMapFacility().apply {
+                id = 6
+                type = "경찰서"
+                name = "믿음직한 경찰서"
+                longitude = 127.003
+                latitude = 37.566
+                canUse = false
+                addInfo = "24시간 순찰"
+            })
     }
 
     // 선택된 카테고리를 처리하는 메서드
