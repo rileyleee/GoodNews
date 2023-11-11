@@ -82,12 +82,12 @@ class FacilityProvider(private val context: Context) {
             realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "민방위 대피소").find()
 
         // 데이터 확인
-        SheltersT1.forEach { fac ->
-            Log.v(
-                "FacDataFromRealm",
-                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
-            )
-        }
+//        SheltersT1.forEach { fac ->
+//            Log.v(
+//                "FacDataFromRealm",
+//                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
+//            )
+//        }
         // 변수에 담기
         val points = SheltersT1.map { fac ->
             LabelledGeoPoint(fac.latitude, fac.longitude, fac.name)

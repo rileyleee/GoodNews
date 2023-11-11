@@ -17,6 +17,20 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
+import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.notifications.ResultsChange
+import io.realm.kotlin.query.Sort
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -45,6 +59,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
+    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -89,8 +104,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 임시 코드
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -156,9 +169,31 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             mapView.overlayManager.tilesOverlay.loadingBackgroundColor = Color.GRAY
             mapView.overlayManager.tilesOverlay.loadingLineColor = Color.BLACK
 
+
+
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-            mapView.controller.setCenter(GeoPoint(36.37497534353303, 127.3914186217678))
+            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
+                Log.i("mapCenter","지도 중심좌표는 서울시청입니다.")
+                mapView.controller.setCenter(
+                    GeoPoint(
+                        37.566535,
+                        126.9779692
+                    )
+//                    GeoPoint( //대전 임시 좌표
+//                    36.37497534353303,
+//                    127.3914186217678
+//                )
+
+                )
+            } else {
+                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                    GeoPoint(
+                        latestLocationFromRealm!!.latitude,
+                        latestLocationFromRealm!!.longitude
+                    )
+                )
+            }
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -172,11 +207,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         }
 
+        // 지도 위에 시설 정보 그리기
         addFacilitiesToMap()
+
+        // 최근 위치 realm에서 가져오기
+        findLatestLocation()
+
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
-            showEmergencyDialog()
+            showEmergencyDialog(currGeoPoint)
         }
 
         // BottomSheetBehavior 설정
@@ -261,11 +301,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-        Toast.makeText(
-            context,
-            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
-            Toast.LENGTH_SHORT
-        ).show()
 
         currGeoPoint?.let {
             updateCurrentLocation(it)
@@ -307,8 +342,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         val overlay = SimpleFastPointOverlay(pointTheme, opt)
         overlay.setOnClickListener(SimpleFastPointOverlay.OnClickListener { points, point ->
-            Log.d("시설정보 로그찍기", "${points.get(point)}")
-            Toast.makeText(context, "시설정보: ${points.get(point)}", Toast.LENGTH_SHORT).show()
+//            Log.d("시설정보 로그찍기", "${points.get(point)}")
+//            Toast.makeText(context, "시설정보: ${points.get(point)}", Toast.LENGTH_SHORT).show()
         })
 
         Log.d("Overlay 설정", "오버레이 최종 선언")
@@ -336,11 +371,20 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onPause() {
         super.onPause()
         mapView.onPause()
+        locationProvider.stopLocationUpdates() // 위치 정보 업데이트 중지
     }
 
 
-    private fun showEmergencyDialog() {
+    private fun showEmergencyDialog(currGeoPoint: GeoPoint) {
         val dialogFragment = EmergencyInfoDialogFragment()
+
+        // 현재 위치를 정보 공유 fragment로 전달
+        val location = Bundle()
+        location.putDouble("latitude", currGeoPoint.latitude)
+        location.putDouble("longitude", currGeoPoint.longitude)
+
+        dialogFragment.arguments = location
+
         dialogFragment.show(childFragmentManager, "EmergencyInfoDialogFragment")
     }
 
@@ -350,6 +394,36 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             child.isEnabled = enable
             if (child is ViewGroup) {
                 disableEnableControls(enable, child)
+            }
+        }
+    }
+
+    private fun findLatestLocation() {
+        Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
+
+        CoroutineScope(Dispatchers.IO).launch {
+
+            // Realm 인스턴스 열기
+            val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+            try {
+                Log.i("LatestLocation", "DB 작업합니다.")
+                // 데이터베이스 작업 수행
+                latestLocationFromRealm =
+                    realm.query<com.saveurlife.goodnews.models.Location>()
+                        .sort("time", Sort.DESCENDING).first().find()
+
+                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
+
+                if (latestLocationFromRealm!=null) {
+                    Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
+                } else {
+                    Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
+                }
+
+            } catch (e: Exception) {
+                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
+            } finally {
+                realm.close()
             }
         }
     }

@@ -14,6 +14,7 @@ class Member() : RealmObject {
     var gender: String = ""
     var bloodType: String = ""
     var addInfo: String = ""
+    var state: String = ""
     var lastConnection: RealmInstant = RealmInstant.from(0, 0)
     var lastUpdate: RealmInstant = RealmInstant.from(0, 0)
     var location: Location? = null
@@ -27,6 +28,7 @@ class Member() : RealmObject {
         gender: String,
         bloodType: String,
         addInfo: String,
+        state: String,
         lastConnection: RealmInstant,
         lastUpdate: RealmInstant,
         location: Location,
@@ -39,6 +41,7 @@ class Member() : RealmObject {
         this.gender = gender
         this.bloodType = bloodType
         this.addInfo = addInfo
+        this.state = state
         this.lastConnection = lastConnection
         this.lastUpdate = lastUpdate
         this.location = location
