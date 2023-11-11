@@ -42,6 +42,19 @@ public class Member extends BaseConnectEntity {
         return lastConnection;
     }
 
+
+    public void updateAllMemberInfo(Member member) {
+        this.id = member.getId();
+        this.phoneNumber = member.getPhoneNumber();
+        this.name = member.getName();
+        this.birthdate = member.getBirthdate();
+        this.gender = member.getGender();
+        this.bloodtype = member.getBloodtype();
+        this.addinfo = member.getAddinfo();
+        this.lat = member.getLat();
+        this.lon = member.getLon();
+    }
+
     public void setLastConnection(LocalDateTime lastConnection) {
         this.lastConnection = lastConnection;
     }
@@ -67,6 +80,8 @@ public class Member extends BaseConnectEntity {
         this.bloodtype= memberInfoUpdateRequestDto.getBloodType();
         this.addinfo = memberInfoUpdateRequestDto.getAddInfo();
     }
+
+
 
     public void updateMemberState(int state) {
         this.state = state;

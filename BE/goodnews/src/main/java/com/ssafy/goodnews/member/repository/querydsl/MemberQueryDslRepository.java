@@ -50,6 +50,8 @@ public class MemberQueryDslRepository {
                 .fetchOne());
     }
 
+
+
     public List<FamilyPlace> findALlFamilyPlace(String memberId) {
 
         return queryFactory

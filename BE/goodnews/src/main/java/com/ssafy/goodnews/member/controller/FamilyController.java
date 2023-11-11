@@ -21,7 +21,7 @@ public class FamilyController {
 
     private final FamilyService familyService;
 
-    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 전화번호")
+    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 기기번호")
     @PostMapping("/registfamily")
     private BaseResponseDto registFamily(@RequestBody MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
 
@@ -36,7 +36,7 @@ public class FamilyController {
         return familyService.updateFamilyMember(memberFirstLoginRequestDto);
     }
 
-    @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태) 조회")
+    @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태,상태,마지막 연결 시각) 조회")
     @PostMapping("/familyinfo")
     private BaseResponseDto getFamilyMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         return familyService.getFamilyMemberInfo(memberFirstLoginRequestDto.getMemberId());

@@ -69,11 +69,11 @@ public class FamilyService {
                     .family(saveFamily)
                     .member(findOther.get())
                     .build());
-            saveFamilyMember.updateApprove(true);
+
             familyMemberRepository.save(FamilyMember.builder()
                     .family(saveFamily)
                     .member(findMember.get())
-                    .build());
+                    .build()).updateApprove(true);
             return BaseResponseDto
                     .builder().success(true)
                     .message("가족 신청 요청을 성공했습니다")
@@ -112,7 +112,12 @@ public class FamilyService {
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberId);
         familyValidator.checkUpdateFamily(familyMember, memberId);
         List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
-
+        if (familyMemberList.isEmpty()) {
+            return BaseResponseDto.builder()
+                    .success(true)
+                    .message("가족 구성원이 존재하지 않습니다")
+                    .build();
+        }
         return BaseResponseDto.builder()
                 .success(true)
                 .message("가족 구성원 정보를 조회 성공하셨습니다")

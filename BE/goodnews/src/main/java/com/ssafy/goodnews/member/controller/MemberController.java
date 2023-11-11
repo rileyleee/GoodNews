@@ -25,7 +25,7 @@ public class MemberController {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
 
-    @Operation(summary = "추가 정보 등록", description = "멤버 추가 정보(전화번호,이름,생년월일,성별,혈액형,특이사항) 등록")
+    @Operation(summary = "추가 정보 등록", description = "멤버 추가 정보(기기번호,전화번호,이름,생년월일,성별,혈액형,특이사항) 등록")
     @PostMapping("/registinfo")
     private BaseResponseDto registMemberInfo(@RequestBody MemberRegistRequestDto memberRegistRequestDto) {
 

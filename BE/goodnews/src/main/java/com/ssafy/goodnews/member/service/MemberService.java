@@ -4,9 +4,12 @@ import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.dto.LoginDto;
 import com.ssafy.goodnews.common.dto.TokenDto;
 import com.ssafy.goodnews.common.exception.CustomException;
+import com.ssafy.goodnews.common.exception.validator.FamilyValidator;
 import com.ssafy.goodnews.common.exception.validator.MemberValidator;
 import com.ssafy.goodnews.common.exception.validator.TokenValidator;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
+import com.ssafy.goodnews.member.domain.Family;
+import com.ssafy.goodnews.member.domain.FamilyMember;
 import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
@@ -15,6 +18,7 @@ import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberFirstLoginResponseDto;
 import com.ssafy.goodnews.member.dto.response.member.MemberInfoResponseDto;
 import com.ssafy.goodnews.member.repository.MemberRepository;
+import com.ssafy.goodnews.member.repository.querydsl.MemberQueryDslRepository;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,18 +35,23 @@ import java.util.Optional;
 @Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final MemberQueryDslRepository memberQueryDslRepository;
     private final TokenValidator tokenValidator;
     private final MemberValidator memberValidator;
     private final JwtTokenProvider jwtTokenProvider;
     @Value("${jwt.secretKey}")
     private String secretKey;
     private final RedisTemplate<String, String> redisTemplate;
+    private FamilyValidator familyValidator;
 
     @Transactional
     public BaseResponseDto registMemberInfo(MemberRegistRequestDto memberRegistRequestDto) {
 
+
+
         Member newMember = Member.builder()
                 .id(memberRegistRequestDto.getMemberId())
+                .phoneNumber(memberRegistRequestDto.getPhoneNumber())
                 .name(memberRegistRequestDto.getName())
                 .birthDate(memberRegistRequestDto.getBirthDate())
                 .gender(memberRegistRequestDto.getGender())
@@ -50,7 +59,15 @@ public class MemberService {
                 .addInfo(memberRegistRequestDto.getAddInfo())
                 .build();
 
-        memberRepository.save(newMember);
+        Optional<Member> findMember = memberRepository.findById(memberRegistRequestDto.getMemberId());
+        if (findMember.isPresent()) {
+            findMember.get().updateAllMemberInfo(newMember);
+        } else {
+
+            memberRepository.save(newMember);
+        }
+
+
 
 
         return BaseResponseDto.builder()
@@ -104,14 +121,24 @@ public class MemberService {
     @Transactional(readOnly = true)
     public BaseResponseDto getMemberInfo(String memberId) {
         Optional<Member> findMember = memberRepository.findById(memberId);
-
         memberValidator.checkMember(findMember, memberId);
-
+        Optional<Family> findFamily = memberQueryDslRepository.findFamilyId(memberId);
+        if (findFamily.isEmpty()) {
+            return BaseResponseDto.builder()
+                    .success(true)
+                    .message("회원 정보 조회를 성공했습니다")
+                    .data(MemberInfoResponseDto.builder()
+                            .member(findMember.get())
+                            .familyId(null)
+                            .build()
+                    ).build();
+        }
         return BaseResponseDto.builder()
                 .success(true)
                 .message("회원 정보 조회를 성공했습니다")
                 .data(MemberInfoResponseDto.builder()
                         .member(findMember.get())
+                        .familyId(findFamily.get().getFamilyId())
                         .build()
                 ).build();
     }

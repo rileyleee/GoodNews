@@ -157,4 +157,14 @@ public class MapService {
     }
 
 
+    @Transactional(readOnly = true)
+    public BaseResponseDto getFacility() {
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("시설 상태 정보 전체 조회 성공했습니다")
+                .data(facilityStateRepository.findAll())
+                .build();
+    }
+
 }

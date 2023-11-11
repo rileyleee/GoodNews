@@ -76,4 +76,11 @@ public class MapController {
 
         return mapService.registFacility(mapRegistFacilityRequestDto);
     }
+
+    @Operation(summary = "지도 시설 상태 조회", description = "지도시설(버튼타입,내용,경도,위도)등록")
+    @PostMapping("/getfacility")
+    private BaseResponseDto getMapFacility() {
+
+        return mapService.getFacility();
+    }
 }
