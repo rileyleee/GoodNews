@@ -5,10 +5,7 @@ import com.ssafy.goodnews.common.dto.LoginDto;
 import com.ssafy.goodnews.common.dto.RefreshTokenResponseDto;
 import com.ssafy.goodnews.common.dto.TokenDto;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
-import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
-import com.ssafy.goodnews.member.dto.request.member.MemberInfoUpdateRequestDto;
-import com.ssafy.goodnews.member.dto.request.member.MemberLoginAdminRequestDto;
-import com.ssafy.goodnews.member.dto.request.member.MemberRegistRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.*;
 import com.ssafy.goodnews.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -92,6 +89,14 @@ public class MemberController {
                         .message("accessToken 과 refreshToken이 재발급 성공하셨습니다")
                         .memberId(tokenDto.getMemberId())
                         .build());
+    }
+
+    @Operation(summary = "멤버 상태 정보 수정", description = "멤버 상태(0:모름,1:건강,2:부싱,3:죽음) 수정")
+    @PutMapping("/state/{memberId}")
+    private BaseResponseDto updateMemberState(@PathVariable String memberId, @RequestBody MemberStateRequestDto memberStateRequestDto) {
+
+
+        return memberService.updateMemberState(memberId,memberStateRequestDto.getState());
     }
 
 }

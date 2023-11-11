@@ -166,4 +166,16 @@ public class MemberService {
 
         return findMember.get();
     }
+
+    @Transactional
+    public BaseResponseDto updateMemberState(String memberId, int state) {
+
+        Optional<Member> findMember = memberRepository.findById(memberId);
+        memberValidator.checkMember(findMember,memberId);
+        findMember.get().updateMemberState(state);
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("회원 상태 정보 수정을 성공했습니다")
+                .build();
+    }
 }

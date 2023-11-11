@@ -67,4 +67,8 @@ public class Member extends BaseConnectEntity {
         this.bloodtype= memberInfoUpdateRequestDto.getBloodType();
         this.addinfo = memberInfoUpdateRequestDto.getAddInfo();
     }
+
+    public void updateMemberState(int state) {
+        this.state = state;
+    }
 }
