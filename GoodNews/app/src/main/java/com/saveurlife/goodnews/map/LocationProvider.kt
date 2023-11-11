@@ -1,12 +1,15 @@
 package com.saveurlife.goodnews.map
 
+import android.app.Activity
 import android.content.Context
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -14,17 +17,35 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.main.MainActivity
+import com.saveurlife.goodnews.main.PermissionsUtil
+import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
+import io.realm.kotlin.types.RealmInstant
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class LocationProvider(private val context: Context) {
 
-    interface LocationUpdateListener{
+    private lateinit var realm: Realm
+    private lateinit var newLocation: com.saveurlife.goodnews.models.Location
+    private val userDeviceInfoService = UserDeviceInfoService(context)
+    private val memberId = userDeviceInfoService.deviceId
+
+
+    interface LocationUpdateListener {
         fun onLocationChanged(location: Location)
     }
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
-    private var locationUpdateListener: LocationUpdateListener ?= null
+    private var locationUpdateListener: LocationUpdateListener? = null
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -50,8 +71,20 @@ class LocationProvider(private val context: Context) {
             Log.d("LocationSettings", "모든 위치 업데이트 관련 설정 완료")
         }
 
-        task.addOnFailureListener { exception ->
-            Log.e("LocationSettings", "모든 위치 업데이트 관련 설정 미완: ${exception.message}")
+        task.addOnFailureListener { e ->
+            Log.e("LocationSettings", "모든 위치 업데이트 관련 설정 미완: ${e.message}")
+            if (e is ResolvableApiException) {
+                try {
+                    // context가 Activity의 인스턴스일 경우에만 startResolutionForResult() 호출
+                    if (context is Activity) {
+                        e.startResolutionForResult(context, 100)
+                    } else {
+                        Log.e("LocationProvider", "Context is not an Activity instance.")
+                    }
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // 에러를 무시함.
+                }
+            }
         }
         requestingLocation()
     }
@@ -79,18 +112,58 @@ class LocationProvider(private val context: Context) {
         }
     }
 
+    // 사용자 위치 realm에 업데이트 (나중에 여기 말고 백그라운드에서 저장하는 게 맞음)
+    private fun updateMemberLocation(
+        newLocation: com.saveurlife.goodnews.models.Location,
+        memberId: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Realm 인스턴스 열기
+            val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+            try {
+                // 데이터베이스 작업 수행
+                realm.write {
+                    Log.v("현재 memberId", memberId)
+                    val memberToUpdate =
+                        realm.query<Member>("memberId == $0", memberId).first().find()
+                    val latestMember = memberToUpdate?.let { findLatest(it) }
+                    latestMember?.let { member ->
+                        member.location = newLocation
+                        Log.d("LocationProvider", "위치 정보 realm에 업데이트 완료")
+                    }
+                }
+                val latestLocation: Member = realm.query<Member>("memberId=$0", memberId).find().first()
+                // Toast.makeText(context, "최신 위치: ${latestLocation.location}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                // 예외 처리
+                Log.e("LocationProvider", "위치 정보 업데이트 중 오류 발생", e)
+            } finally {
+                // 작업 완료 후 Realm 인스턴스 닫기
+                realm.close()
+            }
+        }
+    }
+
     // 위치 업데이트 처리 함수
     private fun onLocationUpdated(location: Location) {
+
         // 로그에 위치 정보 기록
         Log.d("LocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
 
         // 위치 정보를 mapfragment에 전달하여 위치 표시 되도록
         location?.let { location ->
-            var lasLat = location.latitude
+            var lastLat = location.latitude
             var lastLon = location.longitude
-            var lastAlt = location.altitude
-        }
+//            var lastAlt = location.altitude
 
+            var newLocation = com.saveurlife.goodnews.models.Location().apply {
+                time = RealmInstant.now()
+                latitude = lastLat
+                longitude = lastLon
+            }
+            updateMemberLocation(newLocation, memberId)
+        }
         locationUpdateListener?.onLocationChanged(location)
     }
 
@@ -130,7 +203,7 @@ class LocationProvider(private val context: Context) {
     }
 
     // MapFragment와 공유하기 위한 클래스 간 통신
-    fun setLocationUpdateListener(listener: LocationUpdateListener){
+    fun setLocationUpdateListener(listener: LocationUpdateListener) {
         this.locationUpdateListener = listener
     }
 

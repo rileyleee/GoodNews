@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.enterinfo
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.main.MainActivity
@@ -30,6 +32,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var permissionsUtil: PermissionsUtil
 
     val userDeviceInfoService = UserDeviceInfoService(this);
+    val sharedPreferences = GoodNewsApplication.preferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +46,18 @@ class EnterInfoActivity : AppCompatActivity() {
         // 위험 권한 요청
         permissionsUtil = PermissionsUtil(this)
         permissionsUtil.requestAllPermissions()
+
+        // 백그라운드 위치 권한 요청
+        if (!sharedPreferences.getBoolean(
+                "isBackgroundPermissionApproved",
+                false
+            ) && ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsUtil.permissionDialog(this)
+        }
 
         // EditText 비활성화
         with(binding) {
