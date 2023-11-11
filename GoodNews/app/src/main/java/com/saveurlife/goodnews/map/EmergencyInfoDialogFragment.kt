@@ -70,6 +70,13 @@ class EmergencyInfoDialogFragment : DialogFragment() {
             }
         }
 
+        // 등록 버튼 클릭했을 때
+        binding.emergencyAddSubmit.setOnClickListener {
+            // 서버로 전송하는 코드 작성 필요 @@ + Toast로 알림도 필요한가?
+
+            dismiss() // 다이얼로그 닫기
+        }
+
         // 취소 버튼 클릭했을 때
         binding.emergencyAddCancel.setOnClickListener {
             dismiss() // 다이얼로그 닫기
