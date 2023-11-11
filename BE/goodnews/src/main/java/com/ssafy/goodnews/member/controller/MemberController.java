@@ -40,7 +40,7 @@ public class MemberController {
 
         return memberService.firstLoginSearch(memberFirstLoginRequestDto);
     }
-    @Operation(summary = "멤버 정보 수정", description = "멤버 정보(이름,생년월일,혈액형,특이사항) 수정")
+    @Operation(summary = "멤버 정보 수정", description = "멤버 정보(이름,생년월일,혈액형,특이사항,성별,경도,위도) 수정")
     @PutMapping("/{memberId}")
     private BaseResponseDto updateMemberInfo(@PathVariable String memberId, @RequestBody MemberInfoUpdateRequestDto memberInfoUpdateRequestDto) {
 

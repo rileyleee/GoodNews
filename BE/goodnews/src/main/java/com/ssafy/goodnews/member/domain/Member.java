@@ -83,6 +83,9 @@ public class Member extends BaseConnectEntity {
         this.birthdate = memberInfoUpdateRequestDto.getBirthDate();
         this.bloodtype= memberInfoUpdateRequestDto.getBloodType();
         this.addinfo = memberInfoUpdateRequestDto.getAddInfo();
+        this.gender = memberInfoUpdateRequestDto.getGender();
+        this.lon = memberInfoUpdateRequestDto.getLon();
+        this.lat= memberInfoUpdateRequestDto.getLat();
     }
 
     public void updateMemberState(int state) {
