@@ -206,7 +206,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
-            showEmergencyDialog()
+            showEmergencyDialog(currGeoPoint)
         }
 
         // BottomSheetBehavior 설정
@@ -365,8 +365,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
 
-    private fun showEmergencyDialog() {
+    private fun showEmergencyDialog(currGeoPoint: GeoPoint) {
         val dialogFragment = EmergencyInfoDialogFragment()
+
+        // 현재 위치를 정보 공유 fragment로 전달
+        val location = Bundle()
+        location.putDouble("latitude", currGeoPoint.latitude)
+        location.putDouble("longitude", currGeoPoint.longitude)
+
+        dialogFragment.arguments = location
+
         dialogFragment.show(childFragmentManager, "EmergencyInfoDialogFragment")
     }
 
