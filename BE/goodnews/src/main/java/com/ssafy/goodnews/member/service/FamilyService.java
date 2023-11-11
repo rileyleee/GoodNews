@@ -121,7 +121,10 @@ public class FamilyService {
                                 MemberResponseDto.builder()
                                         .memberId(member.getId())
                                         .name(member.getName())
+                                        .phoneNumber(member.getPhoneNumber())
                                         .lastConnection(member.getLastConnection().toString())
+                                        .state(member.getState())
+                                        .familyId(familyMember.get().getId())
                                         .build())
                         .collect(Collectors.toList()))
                 .build();
