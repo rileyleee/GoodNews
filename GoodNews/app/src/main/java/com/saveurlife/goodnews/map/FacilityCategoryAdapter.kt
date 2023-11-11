@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -30,13 +31,11 @@ class FacilityCategoryAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val category = categories[position]
-        holder.binding.facilityTypeName.text = category.displayName
-
-        // 현재 뷰 홀더의 실제 위치 가져오기
-        val actualPosition = holder.adapterPosition
 
         // 강조 표시 로직
         holder.binding.root.isSelected = position == selectedPosition
+
+        holder.binding.facilityTypeName.text = category.displayName
 
         // "전체" 카테고리일 경우 아이콘을 숨깁니다.
         if (category == FacilityUIType.ALL) {
@@ -47,13 +46,19 @@ class FacilityCategoryAdapter(
         }
 
         holder.binding.root.setOnClickListener {
-            // 이전에 선택된 아이템 UI 업데이트
-            notifyItemChanged(selectedPosition)
+            Log.d("test", holder.binding.root.isSelected.toString())
+            Log.d("test", "클릭인덱스" + position)
+            // 이전에 선택된 아이템의 상태 업데이트
+            if (selectedPosition != RecyclerView.NO_POSITION) {
+                notifyItemChanged(selectedPosition)
+            }
+
             // 새로운 아이템 선택
             selectedPosition = position
             notifyItemChanged(selectedPosition)
 
             onCategorySelected(category)
+            Log.d("test", holder.binding.root.isSelected.toString())
         }
 
         // 첫 번째 아이템 시작 여백 주기

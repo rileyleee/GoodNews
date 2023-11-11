@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentEmergencyInfoDialogBinding
@@ -34,6 +35,13 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                 binding.dangerTextView.visibility = View.VISIBLE
                 binding.safeTextView.visibility = View.GONE
             }
+        }
+
+        // 등록 버튼 클릭했을 때
+        binding.emergencyAddSubmit.setOnClickListener {
+            // 서버로 전송하는 코드 작성 필요 @@ + Toast로 알림도 필요한가?
+
+            dismiss() // 다이얼로그 닫기
         }
 
         // 취소 버튼 클릭했을 때

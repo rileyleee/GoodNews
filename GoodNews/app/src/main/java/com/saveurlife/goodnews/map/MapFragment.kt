@@ -7,13 +7,12 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,12 +34,12 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
@@ -105,8 +104,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             // 선택된 카테고리 처리 로직, 예를 들어 다른 RecyclerView를 업데이트하거나 지도에 마커를 표시하는 등
             handleSelectedCategory(category)
             Log.d("CategorySelected", "Selected category: ${category.displayName}")
+            Log.d("test", "바뀌면 안됨"+categoryAdapter.toString())
+
+
         }
         categoryRecyclerView.adapter = categoryAdapter
+
 
         listRecyclerView = binding.facilityListWrap
         listRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -117,6 +120,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dividerItemDecoration = DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
 
+
         // 처음에 "전체" 카테고리가 선택되도록 합니다.
         handleSelectedCategory(FacilityUIType.ALL)
 
@@ -126,8 +130,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 임시 코드
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
 
         mapView = view.findViewById(R.id.map) as MapView
 
