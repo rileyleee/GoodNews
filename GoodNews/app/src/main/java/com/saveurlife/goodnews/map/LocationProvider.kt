@@ -33,8 +33,7 @@ import java.util.concurrent.TimeUnit
 
 class LocationProvider(private val context: Context) {
 
-    private lateinit var realm: Realm
-    private lateinit var newLocation: com.saveurlife.goodnews.models.Location
+
     private val userDeviceInfoService = UserDeviceInfoService(context)
     private val memberId = userDeviceInfoService.deviceId
 
@@ -112,38 +111,7 @@ class LocationProvider(private val context: Context) {
         }
     }
 
-    // 사용자 위치 realm에 업데이트 (나중에 여기 말고 백그라운드에서 저장하는 게 맞음)
-    private fun updateMemberLocation(
-        newLocation: com.saveurlife.goodnews.models.Location,
-        memberId: String
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            // Realm 인스턴스 열기
-            val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
-            try {
-                // 데이터베이스 작업 수행
-                realm.write {
-                    Log.v("현재 memberId", memberId)
-                    val memberToUpdate =
-                        realm.query<Member>("memberId == $0", memberId).first().find()
-                    val latestMember = memberToUpdate?.let { findLatest(it) }
-                    latestMember?.let { member ->
-                        member.location = newLocation
-                        Log.d("LocationProvider", "위치 정보 realm에 업데이트 완료")
-                    }
-                }
-                val latestLocation: Member = realm.query<Member>("memberId=$0", memberId).find().first()
-                // Toast.makeText(context, "최신 위치: ${latestLocation.location}", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                // 예외 처리
-                Log.e("LocationProvider", "위치 정보 업데이트 중 오류 발생", e)
-            } finally {
-                // 작업 완료 후 Realm 인스턴스 닫기
-                realm.close()
-            }
-        }
-    }
 
     // 위치 업데이트 처리 함수
     private fun onLocationUpdated(location: Location) {
@@ -155,14 +123,14 @@ class LocationProvider(private val context: Context) {
         location?.let { location ->
             var lastLat = location.latitude
             var lastLon = location.longitude
-//            var lastAlt = location.altitude
+
 
             var newLocation = com.saveurlife.goodnews.models.Location().apply {
                 time = RealmInstant.now()
                 latitude = lastLat
                 longitude = lastLon
             }
-            updateMemberLocation(newLocation, memberId)
+
         }
         locationUpdateListener?.onLocationChanged(location)
     }
