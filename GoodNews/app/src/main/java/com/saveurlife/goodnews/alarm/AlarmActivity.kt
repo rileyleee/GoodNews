@@ -1,13 +1,16 @@
 package com.saveurlife.goodnews.alarm
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.LinearLayout
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityAlarmBinding
+import com.saveurlife.goodnews.service.LocationTrackingService
 
 class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var binding: ActivityAlarmBinding
@@ -29,6 +32,16 @@ class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
         binding.backButton.setOnClickListener {
             finish()
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
+
+        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+        onBackPressedDispatcher.addCallback(this) {
+            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+            val intent = Intent(this@AlarmActivity, LocationTrackingService::class.java)
+            stopService(intent)
+
+            // 기본적인 뒤로 가기 동작 수행 (옵션)
+            finish()
         }
 
     }
@@ -86,4 +99,12 @@ class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     }
 
     override fun onLongPress(e: MotionEvent) {}
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        //위치 정보 저장 중지
+        val serviceIntent = Intent(this, LocationTrackingService::class.java)
+        stopService(serviceIntent)
+    }
 }

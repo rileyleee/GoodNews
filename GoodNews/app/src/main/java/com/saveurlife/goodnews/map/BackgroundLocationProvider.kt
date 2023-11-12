@@ -31,8 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
-class LocationProvider(private val context: Context) {
-
+class BackgroundLocationProvider(private val context: Context) {
 
     private val userDeviceInfoService = UserDeviceInfoService(context)
     private val memberId = userDeviceInfoService.deviceId
@@ -59,7 +58,7 @@ class LocationProvider(private val context: Context) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         locationRequest =
-            LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(10)).build()
+            LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(30)).build()
         Log.d("LocationRequest", "위치 정보 요청 성공적으로 설정되었음: $locationRequest")
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
@@ -111,7 +110,36 @@ class LocationProvider(private val context: Context) {
         }
     }
 
+    // 사용자 위치 realm에 업데이트 (나중에 여기 말고 백그라운드에서 저장하는 게 맞음)
+    private fun updateMemberLocation(
+        newLocation: com.saveurlife.goodnews.models.Location,
+        memberId: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Realm 인스턴스 열기
+            val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
+            try {
+                // 데이터베이스 작업 수행
+                realm.write {
+                    Log.v("현재 memberId", memberId)
+                    val memberToUpdate =
+                        realm.query<Member>("memberId == $0", memberId).first().find()
+                    val latestMember = memberToUpdate?.let { findLatest(it) }
+                    latestMember?.let { member ->
+                        member.location = newLocation
+                        Log.d("LocationProvider", "위치 정보 realm에 업데이트 완료")
+                    }
+                }
+            } catch (e: Exception) {
+                // 예외 처리
+                Log.e("LocationProvider", "위치 정보 업데이트 중 오류 발생", e)
+            } finally {
+                // 작업 완료 후 Realm 인스턴스 닫기
+                realm.close()
+            }
+        }
+    }
 
     // 위치 업데이트 처리 함수
     private fun onLocationUpdated(location: Location) {
@@ -123,45 +151,16 @@ class LocationProvider(private val context: Context) {
         location?.let { location ->
             var lastLat = location.latitude
             var lastLon = location.longitude
-
-
             var newLocation = com.saveurlife.goodnews.models.Location().apply {
                 time = RealmInstant.now()
                 latitude = lastLat
                 longitude = lastLon
             }
-
+            updateMemberLocation(newLocation, memberId)
         }
         locationUpdateListener?.onLocationChanged(location)
     }
 
-    // 마지막 위치 요청
-    fun requestLastLocation() { // 권한 한 번 더 확인하고
-        if (ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // 권한이 없으면 함수 종료
-            Toast.makeText(
-                context,
-                "위치 정보 권한 없음",
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-
-        // 마지막으로 알려진 위치 정보 요청
-        fusedLocationProviderClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                location?.let {
-                    onLocationUpdated(it)
-                }
-            }
-    }
 
     // 위치 업데이트 중단
     fun stopLocationUpdates() {
@@ -174,6 +173,5 @@ class LocationProvider(private val context: Context) {
     fun setLocationUpdateListener(listener: LocationUpdateListener) {
         this.locationUpdateListener = listener
     }
-
 
 }
