@@ -65,6 +65,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
     private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
+    // 이전 마커에 대한 참조를 저장할 변수
+    private var previousLocationOverlay: MyLocationMarkerOverlay? = null
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -249,7 +251,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
 
         // 지도 위에 시설 정보 그리기
-        addFacilitiesToMap()
+        // addFacilitiesToMap()
 
         // 최근 위치 realm에서 가져오기
         findLatestLocation()
@@ -357,10 +359,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 현재 위치 마커로 찍기
     fun updateCurrentLocation(geoPoint: GeoPoint) {
+        // 이전 위치 오버레이가 있으면 지도에서 제거
+        previousLocationOverlay?.let {
+            Log.d("updateCurrentLocation", "이전 내 위치 마커를 삭제했습니다.")
+            mapView.overlays.remove(it)
+        }
         Log.v("현재 위치", "$geoPoint")
         val myLocationMarkerOverlay = MyLocationMarkerOverlay(geoPoint)
         mapView.overlays.add(myLocationMarkerOverlay)
         mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
+
+        // 새 위치를 다시 이전 위치 마커에 반영
+        previousLocationOverlay = myLocationMarkerOverlay
     }
 
     // 시설 FastSimplyOverlay 설정
@@ -516,7 +526,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // TODO: 여기에서 선택된 카테고리에 따라 다른 UI 요소를 업데이트합니다.
         // 예: 하단 시트의 RecyclerView를 업데이트하거나 지도상의 마커를 업데이트하는 등
     }
-}
+
 
     private fun findLatestLocation() {
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")

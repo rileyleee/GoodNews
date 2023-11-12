@@ -33,11 +33,6 @@ import java.util.concurrent.TimeUnit
 
 class LocationProvider(private val context: Context) {
 
-
-    private val userDeviceInfoService = UserDeviceInfoService(context)
-    private val memberId = userDeviceInfoService.deviceId
-
-
     interface LocationUpdateListener {
         fun onLocationChanged(location: Location)
     }
@@ -120,18 +115,6 @@ class LocationProvider(private val context: Context) {
         Log.d("LocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
 
         // 위치 정보를 mapfragment에 전달하여 위치 표시 되도록
-        location?.let { location ->
-            var lastLat = location.latitude
-            var lastLon = location.longitude
-
-
-            var newLocation = com.saveurlife.goodnews.models.Location().apply {
-                time = RealmInstant.now()
-                latitude = lastLat
-                longitude = lastLon
-            }
-
-        }
         locationUpdateListener?.onLocationChanged(location)
     }
 
@@ -174,6 +157,5 @@ class LocationProvider(private val context: Context) {
     fun setLocationUpdateListener(listener: LocationUpdateListener) {
         this.locationUpdateListener = listener
     }
-
 
 }
