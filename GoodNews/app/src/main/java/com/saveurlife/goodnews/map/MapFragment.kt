@@ -65,7 +65,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
-//    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location? = null
+    private var latestLocationFromRealm = GeoPoint(37.566535, 126.9779692) // 서울 시청으로 초기화
 
     // 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -218,27 +218,23 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-//            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
-                Log.i("mapCenter", "지도 중심좌표는 서울시청입니다.")
-                mapView.controller.setCenter(
-                    GeoPoint(
-                        37.566535,
-                        126.9779692
-                    )
-//                    GeoPoint( //대전 임시 좌표
-//                    36.37497534353303,
-//                    127.3914186217678
-//                )
 
+            if (latestLocationFromRealm != GeoPoint(
+                    0.0,
+                    0.0
                 )
-//            } else {
-//                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
-//                    GeoPoint(
-//                        latestLocationFromRealm!!.latitude,
-//                        latestLocationFromRealm!!.longitude
-//                    )
-//                )
-//            }
+            ) {
+                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                    GeoPoint(
+                        latestLocationFromRealm.latitude,
+                        latestLocationFromRealm.longitude
+                    )
+                )
+            } else { // 서울시청
+                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                    GeoPoint(37.566535, 126.9779692)
+                )
+            }
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -253,7 +249,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
 
         // 지도 위에 시설 정보 그리기
-         //addFacilitiesToMap()
+        //addFacilitiesToMap()
         addFacilitiesToMapWithinScreen()
 
         // 최근 위치 realm에서 가져오기
@@ -560,35 +556,55 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun findLatestLocation() {
+        val userDeviceInfoService = UserDeviceInfoService(context)
+        val memberId = userDeviceInfoService.deviceId
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
         CoroutineScope(Dispatchers.IO).launch {
 
             // Realm 인스턴스 열기
             val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
-//            try {
-//                Log.i("LatestLocation", "DB 작업합니다.")
-//                // 데이터베이스 작업 수행
-//                latestLocationFromRealm =
-//                    realm.query<com.saveurlife.goodnews.models.Location>()
-//                        .sort("time", Sort.DESCENDING).first().find()
-//
-//                Log.v(
-//                    "LatestLocationFromRealm",
-//                    "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}"
-//                )
-//
+            try {
+
+                Log.i("LatestLocation", "DB 작업합니다.")
+
+                // 데이터베이스 작업 수행
+                var currentUser = realm.query<Member>("memberId ==$0", memberId).first().find()
+                var latestLat = currentUser?.latitude
+                var latestLon = currentUser?.longitude
+
+                // Realm에서 최근 위치 가져와서 화면 중심좌표 재설정
+
+                if (latestLat != null && latestLon != null) {
+                    latestLocationFromRealm?.latitude = latestLat
+                    latestLocationFromRealm?.longitude = latestLon
+
+                    mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                        GeoPoint(
+                            latestLocationFromRealm!!.latitude,
+                            latestLocationFromRealm!!.longitude
+                        )
+                    )
+                    mapView.invalidate()
+                }
+
+                Log.v(
+                    "LatestLocationFromRealm",
+                    "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}"
+                )
+
+
 //                if (latestLocationFromRealm != null) {
 //                    Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
 //                } else {
 //                    Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
 //                }
-//
-//            } catch (e: Exception) {
-//                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
-//            } finally {
-//                realm.close()
-//            }
+
+            } catch (e: Exception) {
+                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
+            } finally {
+                realm.close()
+            }
         }
     }
 }
