@@ -17,7 +17,7 @@ data class ResponseRegistMember(val success: Boolean, val message: String, val d
 data class ResponseLogin(val success: Boolean, val message: String, val data:FirstLogin)
 
 
-data class MemberInfo(val memberId:String, val phoneNumber:String, val name:String, val birthDate: String, val gender: String, val bloodType: String, val addInfo: String, val state:String, val lat:Double, val lon:String, val familyId: String)
+data class MemberInfo(val memberId:String, val phoneNumber:String, val name:String, val birthDate: String, val gender: String, val bloodType: String, val addInfo: String, val state:String, val lat:Double, val lon:Double, val familyId: String)
 data class MemberRegistInfo(val lastUpdate:String, val memberId: String, val phoneNumber: String, val name: String, val birthDate: String, val gender: String, val bloodType: String, val addInfo: String, val state:String, val lat:Double, val lon:String, val password:String, val locationTime:String, val role:String, val lastConnection:String)
 data class FirstLogin(val firstLogin: Boolean)
 

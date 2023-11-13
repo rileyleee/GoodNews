@@ -65,9 +65,11 @@ class MapAPI {
     }
 
     // 지도 시설 상태 조회
-    fun getAllMapFacility(){
+    fun getAllMapFacility(): ArrayList<FacilityState>? {
         // request
         val call = mapService.getAllMapFacility()
+
+        var resp : ArrayList<FacilityState>? = null
         // response
         call.enqueue(object : Callback<ResponseAllFacilityState> {
             override fun onResponse(call: Call<ResponseAllFacilityState>, response: Response<ResponseAllFacilityState>) {
@@ -79,6 +81,7 @@ class MapAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
+                        resp = data
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -98,6 +101,7 @@ class MapAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
+        return resp
 
     }
 
