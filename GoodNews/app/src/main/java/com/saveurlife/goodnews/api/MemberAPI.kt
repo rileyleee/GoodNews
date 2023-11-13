@@ -62,7 +62,86 @@ class MemberAPI {
             }
         })
     }
+    
+    // 멤버 상태 정보 수정
+    fun updateMemberInfo(memberId:String, state:String){
+        // request
+        val data = RequestState(state)
+        val json = gson.toJson(data)
+        val requestBody = json.toRequestBody(mediaType)
 
+        val call = memberService.updateMemberState(memberId, requestBody)
+        call.enqueue(object : Callback<ResponseState> {
+            override fun onResponse(call: Call<ResponseState>, response: Response<ResponseState>) {
+                if(response.isSuccessful){
+                    val responseBody = response.body()
+
+                    Log.d("API RESP", responseBody.toString())
+
+                    // 받아온 데이터에 대한 응답을 처리
+                    if(responseBody!=null){
+                        val data = responseBody.data
+                        // 원하는 작업을 여기에 추가해 주세요.
+
+
+
+
+
+
+
+                    }else{
+                        Log.d("API ERROR", "값이 안왔음.")
+                    }
+                } else {
+                    Log.d("API ERROR", response.toString())
+                }
+            }
+            override fun onFailure(call: Call<ResponseState>, t: Throwable) {
+                Log.d("API ERROR", t.toString())
+            }
+        })
+    }
+
+    
+    
+    // 멤버 위치 및 연결시각 업데이트
+    fun updateMember(memberId:String, lat:Double ,lon:Double){
+        // request
+        val data = RequestLocation(lat, lon)
+        val json = gson.toJson(data)
+        val requestBody = json.toRequestBody(mediaType)
+
+        val call = memberService.updateMember(memberId, requestBody)
+        call.enqueue(object : Callback<ResponseLocation> {
+            override fun onResponse(call: Call<ResponseLocation>, response: Response<ResponseLocation>) {
+                if(response.isSuccessful){
+                    val responseBody = response.body()
+
+                    Log.d("API RESP", responseBody.toString())
+
+                    // 받아온 데이터에 대한 응답을 처리
+                    if(responseBody!=null){
+                        val data = responseBody.data
+                        // 원하는 작업을 여기에 추가해 주세요.
+
+
+
+
+
+
+
+                    }else{
+                        Log.d("API ERROR", "값이 안왔음.")
+                    }
+                } else {
+                    Log.d("API ERROR", response.toString())
+                }
+            }
+            override fun onFailure(call: Call<ResponseLocation>, t: Throwable) {
+                Log.d("API ERROR", t.toString())
+            }
+        })
+    }
 
     // 멤버 정보 조회
     fun findMemberInfo(memberId : String): MemberInfo? {
