@@ -25,9 +25,9 @@ class MemberAPI {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     // 멤버 정보 수정
-    fun updateMemberInfo(memberId : String, name:String, birthDate:String, bloodType:String, addInfo:String){
+    fun updateMemberInfo(memberId : String, name:String, gender: String, birthDate:String, bloodType:String, addInfo:String, lat:Double, lon: Double){
         // request
-        val data = RequestMemberInfo(name, birthDate, bloodType, addInfo)
+        val data = RequestMemberInfo(name, gender, birthDate, bloodType, addInfo, lat, lon)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -186,9 +186,9 @@ class MemberAPI {
     }
 
     // 추가 정보 등록
-    fun registMemberInfo(memberId:String, name:String, birthDate:String, gender:String, bloodType:String, addInfo:String){
+    fun registMemberInfo(memberId:String, phoneNumber: String, name:String, birthDate:String, gender:String, bloodType:String, addInfo:String){
         // request
-        val data = RequestMemberAddInfo(memberId, name, birthDate, gender, bloodType, addInfo)
+        val data = RequestMemberAddInfo(memberId, phoneNumber, name, birthDate, gender, bloodType, addInfo)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
