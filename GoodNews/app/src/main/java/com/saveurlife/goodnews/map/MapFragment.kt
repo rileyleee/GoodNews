@@ -559,7 +559,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 예: 하단 시트의 RecyclerView를 업데이트하거나 지도상의 마커를 업데이트하는 등
     }
 
-
     private fun findLatestLocation() {
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
