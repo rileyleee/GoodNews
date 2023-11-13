@@ -120,7 +120,8 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
                         addInfo = data.addInfo
                         lastConnection = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
                         lastUpdate = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
-                        location = Location(RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt()), data.lon, data.lat)
+                        latitude = data.lat
+                        longitude = data.lon
                         // familyId server 추가 후 변경
                     }
                 )
@@ -169,7 +170,8 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
                             FamilyPlace().apply {
                                 placeId = it.placeId
                                 name = it.name
-                                location = Location(RealmInstant.from(0,0) ,data.lon, data.lat)
+                                latitude = data.lat
+                                longitude = data.lon
                                 canUse = it.canuse
                             }
                         )
