@@ -129,7 +129,7 @@ public class FamilyService {
                                         .phoneNumber(member.getPhoneNumber())
                                         .lastConnection(member.getLastConnection().toString())
                                         .state(member.getState())
-                                        .familyId(familyMember.get().getId())
+                                        .familyId(Integer.toString(familyMember.get().getId()))
                                         .build())
                         .collect(Collectors.toList()))
                 .build();
