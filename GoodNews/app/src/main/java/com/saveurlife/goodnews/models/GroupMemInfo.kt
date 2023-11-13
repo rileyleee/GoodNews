@@ -11,14 +11,17 @@ class GroupMemInfo():RealmObject {
     var name: String = ""
     var lastConnection: RealmInstant = RealmInstant.from(0,0)
     var state: Char = '0'
-    var location: Location? = null
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
 
-    constructor(id: Int, name:String, groupId: Long, lastConnection:RealmInstant, state:Char, location: Location): this(){
+    constructor(id: Int, name:String, groupId: Long, lastConnection:RealmInstant, state:Char, latitude: Double, longitude: Double): this(){
         this.id = id
         this.name = name
         this.groupId = groupId
         this.lastConnection = lastConnection
         this.state = state
-        this.location = location
+        this.latitude = latitude
+        this.longitude = longitude
+
     }
 }

@@ -29,15 +29,14 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
@@ -49,8 +48,10 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
-    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-    private val realm: Realm = Realm.open(config)
+//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+//    private val realm: Realm = Realm.open(config)
+
+    val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
