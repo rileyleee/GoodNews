@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,6 +43,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
+import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
@@ -58,7 +60,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
-    private lateinit var screenRect:BoundingBox
+    private lateinit var screenRect: BoundingBox
     private var latestLocationFromRealm = GeoPoint(37.566535, 126.9779692) // 서울 시청으로 초기화
 
     // 이전 마커에 대한 참조를 저장할 변수
@@ -162,15 +164,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val context = requireContext()
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
 
-        // 현재 기기에서 보이는 지도의 중심 좌표
-//        val projection = mapView.projection
-//        Log.v("projection","$projection")
-//        val centerGeoPoint = projection.fromPixels(mapView.width / 2, mapView.height / 2)
-//        val centerLat = centerGeoPoint.latitude
-//        val centerLon = centerGeoPoint.longitude
-
-//        Log.v("화면 중심 좌표","위도: $centerLat 경도: $centerLon")x
-
         val tileSource = XYTileSource(
             provider,
             minZoom, maxZoom, pixel, ".png",
@@ -217,12 +210,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
 
-            if (latestLocationFromRealm != GeoPoint(
-                    0.0,
-                    0.0
+            if (latestLocationFromRealm.latitude != 0.0 && latestLocationFromRealm.longitude != 0.0) {
 
-            )) {
-                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                // Realm에서 가져온 사용자의 마지막 위치로 중심 설정
+                mapView.controller.setCenter(
                     GeoPoint(
                         latestLocationFromRealm.latitude,
                         latestLocationFromRealm.longitude
@@ -251,16 +242,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         findLatestLocation()
 
         // 지도 초기화 후 화면 경계 초기 값 설정
-        mapView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        mapView.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 screenRect = mapView.boundingBox // 초기화
 
-                Log.v("screenRect","$screenRect")
+                Log.v("screenRect", "$screenRect")
 
                 // 지도 위에 시설 정보 그리기
-                // addFacilitiesToMap()
-                addFacilitiesToMapWithinScreen()
+                addFacilitiesToMap()
 
             }
         })
@@ -274,7 +265,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 // 지도 위에 시설 정보 그리기
-                addFacilitiesToMapWithinScreen()
+                addFacilitiesToMap()
             }
             false
         }
@@ -390,56 +381,59 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         previousLocationOverlay = myLocationMarkerOverlay
     }
 
-    // 시설 FastSimplyOverlay 설정
-    private fun createOverlayWithOptions(pointTheme: SimplePointTheme): SimpleFastPointOverlay {
+
+    // 데이터를 가진 SimpleFastOverlays
+
+    private fun createOverlayWithOptions(facilities: List<OffMapFacility>): SimpleFastPointOverlay {
+        // 시설 목록을 LabelledGeoPoint 목록으로 변환
+        val points = facilities.map { facility ->
+            LabelledGeoPoint(facility.latitude, facility.longitude, facility.name)
+        }
+        val pointTheme = SimplePointTheme(points, true)
+
         // 오버레이 옵션 설정
-        val textStyle = Paint().apply {
-            style = Paint.Style.FILL
-            color = Color.BLUE
-//            textAlign = Paint.Align.CENTER
-//            textSize = 24f
-            isAntiAlias = true
-
-        }
-
-        Log.d("Overlay 설정", "오버레이 글씨 스타일")
-
         val opt = SimpleFastPointOverlayOptions.getDefaultStyle().apply {
-            setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
-            setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE)
-            setRadius(10.0F)
+            algorithm = SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION
+            symbol = SimpleFastPointOverlayOptions.Shape.SQUARE
+            setRadius(5.0f)
             setIsClickable(true)
-            setCellSize(15)
-//            setTextStyle(textStyle)
+            cellSize = 15
+            // 텍스트 스타일 설정을 제거하거나 투명하게 설정
+            textStyle = Paint().apply {
+                color = Color.TRANSPARENT
+                textSize = 0f
+            }
+            pointStyle = Paint().apply {
+                color = Color.YELLOW
+                style = Paint.Style.FILL
+                isAntiAlias = true
+            }
         }
 
-        Log.d("Overlay 설정", "오버레이 크기 스타일 설정")
-
-        val overlay = SimpleFastPointOverlay(pointTheme, opt)
-        overlay.setOnClickListener(SimpleFastPointOverlay.OnClickListener { points, point ->
-//            Log.d("시설정보 로그찍기", "${points.get(point)}")
-//            Toast.makeText(context, "시설정보: ${points.get(point)}", Toast.LENGTH_SHORT).show()
-        })
-
-        Log.d("Overlay 설정", "오버레이 최종 선언")
+        // 오버레이 생성 및 클릭 리스너 설정
+        val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
+            setOnClickListener { _, index ->
+                val facility = facilities[index]
+                Toast.makeText(
+                    context,
+                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
         return overlay
     }
 
-
-
     // 이전 시설 마커 관리하기 위한 리스트
     private val previousFacilityOverlayItems = mutableListOf<SimpleFastPointOverlay>()
 
-    // 시설 위치 마커로 찍는 함수(화면 반영 후)
-    private fun addFacilitiesToMapWithinScreen() {
-        Log.d("FacilityMarker", "화면 경계로 시설 위치 마커 그리는 거 호출 완료")
-
+    // 시설 위치 마커로 찍는 함수 내부에서 사용
+    private fun addFacilitiesToMap() {
 
         // 마커로 찍을 시설 목록 필터링
-        val facilitiesOverlayItems = facilityProvider.getFacilityData().filter {
-            screenRect.contains(GeoPoint(it.latitude, it.longitude))
-        }
+        val facilitiesOverlayItems = facilityProvider.getFacilityData()
+            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -447,16 +441,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 previousOverlay
             )
         }
+        // 리스트 초기화
         previousFacilityOverlayItems.clear()
 
-        val pointTheme = SimplePointTheme(facilitiesOverlayItems, true)
+        // 새 오버레이 생성
+        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
 
-        val facMarkerOverlay = createOverlayWithOptions(pointTheme)
-        mapView.overlays.add(facMarkerOverlay)
+        // 오버레이를 지도에 추가
+        mapView.overlays.add(overlay)
         mapView.invalidate()
 
         // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
-        previousFacilityOverlayItems.add(facMarkerOverlay)
+        previousFacilityOverlayItems.add(overlay)
     }
 
     override fun onResume() {
