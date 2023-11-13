@@ -165,8 +165,8 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             familyAPI.getFamilyUpdatePlaceInfo(
                 it.placeId,
                 it.name,
-                it.location!!.latitude,
-                it.location!!.longitude
+                it.latitude,
+                it.longitude
             )
         }
 
@@ -189,7 +189,8 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                     FamilyPlace().apply {
                         placeId = temp.placeId
                         name = temp.name
-                        location = Location(RealmInstant.from(0, 0), temp.lon, temp.lat)
+                        latitude = temp.lat
+                        longitude = temp.lon
                         canUse = it.canuse
                     }
                 }
