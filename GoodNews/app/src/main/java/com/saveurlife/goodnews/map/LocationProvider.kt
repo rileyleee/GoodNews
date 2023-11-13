@@ -17,26 +17,9 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
-import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.main.MainActivity
-import com.saveurlife.goodnews.main.PermissionsUtil
-import com.saveurlife.goodnews.models.Member
-import com.saveurlife.goodnews.service.UserDeviceInfoService
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
-import io.realm.kotlin.types.RealmInstant
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class LocationProvider(private val context: Context) {
-
-
-    private val userDeviceInfoService = UserDeviceInfoService(context)
-    private val memberId = userDeviceInfoService.deviceId
-
 
     interface LocationUpdateListener {
         fun onLocationChanged(location: Location)
@@ -112,7 +95,6 @@ class LocationProvider(private val context: Context) {
     }
 
 
-
     // 위치 업데이트 처리 함수
     private fun onLocationUpdated(location: Location) {
 
@@ -123,14 +105,6 @@ class LocationProvider(private val context: Context) {
         location?.let { location ->
             var lastLat = location.latitude
             var lastLon = location.longitude
-
-
-            var newLocation = com.saveurlife.goodnews.models.Location().apply {
-                time = RealmInstant.now()
-                latitude = lastLat
-                longitude = lastLon
-            }
-
         }
         locationUpdateListener?.onLocationChanged(location)
     }

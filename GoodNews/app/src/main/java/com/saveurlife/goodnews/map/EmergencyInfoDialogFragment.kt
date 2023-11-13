@@ -87,10 +87,7 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
     private fun saveEmergencyInfoToRealm() {
 
-        val userDeviceInfoService = UserDeviceInfoService(context);
-        val memberId: String = userDeviceInfoService.deviceId
         var currentTime = RealmInstant.now()
-        val timeForId = currentTime.epochSeconds
 
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {
@@ -99,7 +96,6 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                 realm.write {
                     copyToRealm(MapInstantInfo().apply {
 
-                        id = "$memberId${timeForId}"
                         content = inputText
                         state = isSafe
                         latitude = (currLatitude * 10000).toInt() / 10000.0

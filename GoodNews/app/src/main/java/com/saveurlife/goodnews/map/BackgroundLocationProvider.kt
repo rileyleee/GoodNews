@@ -18,17 +18,16 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.main.MainActivity
-import com.saveurlife.goodnews.main.PermissionsUtil
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.Calendar
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 class BackgroundLocationProvider(private val context: Context) {
@@ -112,7 +111,7 @@ class BackgroundLocationProvider(private val context: Context) {
 
     // 사용자 위치 realm에 업데이트 (나중에 여기 말고 백그라운드에서 저장하는 게 맞음)
     private fun updateMemberLocation(
-        newLocation: com.saveurlife.goodnews.models.Location,
+        location: Location,
         memberId: String
     ) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -126,8 +125,20 @@ class BackgroundLocationProvider(private val context: Context) {
                     val memberToUpdate =
                         realm.query<Member>("memberId == $0", memberId).first().find()
                     val latestMember = memberToUpdate?.let { findLatest(it) }
+
+                    // 업데이트 시각 보정(보완 필요)
+                    val tempTime = RealmInstant.now()
+                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                    calendar.timeInMillis = tempTime.epochSeconds * 1000 + tempTime.nanosecondsOfSecond / 1000000
+
+                    // 한국 시간대로 변경
+                    calendar.timeZone = TimeZone.getTimeZone("Asia/Seoul")
+
+                    val latestUpdate = RealmInstant.from(calendar.timeInMillis / 1000, (calendar.timeInMillis % 1000).toInt() * 1000000)
                     latestMember?.let { member ->
-                        member.location = newLocation
+                        member.latitude = location.latitude
+                        member.longitude = location.longitude
+                        member.lastUpdate = latestUpdate
                         Log.d("LocationProvider", "위치 정보 realm에 업데이트 완료")
                     }
                 }
@@ -149,14 +160,7 @@ class BackgroundLocationProvider(private val context: Context) {
 
         // 위치 정보를 mapfragment에 전달하여 위치 표시 되도록
         location?.let { location ->
-            var lastLat = location.latitude
-            var lastLon = location.longitude
-            var newLocation = com.saveurlife.goodnews.models.Location().apply {
-                time = RealmInstant.now()
-                latitude = lastLat
-                longitude = lastLon
-            }
-            updateMemberLocation(newLocation, memberId)
+            updateMemberLocation(location, memberId)
         }
         locationUpdateListener?.onLocationChanged(location)
     }

@@ -64,7 +64,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
-    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
+    //private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -214,7 +214,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
+//            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
                 Log.i("mapCenter","지도 중심좌표는 서울시청입니다.")
                 mapView.controller.setCenter(
                     GeoPoint(
@@ -227,14 +227,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 //                )
 
                 )
-            } else {
-                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
-                    GeoPoint(
-                        latestLocationFromRealm!!.latitude,
-                        latestLocationFromRealm!!.longitude
-                    )
-                )
-            }
+//            } else {
+//                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+//                    GeoPoint(
+//                        latestLocationFromRealm!!.latitude,
+//                        latestLocationFromRealm!!.longitude
+//                    )
+//                )
+//            }
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -524,26 +524,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // Realm 인스턴스 열기
             val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
-            try {
-                Log.i("LatestLocation", "DB 작업합니다.")
-                // 데이터베이스 작업 수행
-                latestLocationFromRealm =
-                    realm.query<com.saveurlife.goodnews.models.Location>()
-                        .sort("time", Sort.DESCENDING).first().find()
-
-                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
-
-                if (latestLocationFromRealm!=null) {
-                    Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
-                } else {
-                    Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
-                }
-
-            } catch (e: Exception) {
-                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
-            } finally {
-                realm.close()
-            }
+//            try {
+//                Log.i("LatestLocation", "DB 작업합니다.")
+//                // 데이터베이스 작업 수행
+//                latestLocationFromRealm =
+//                    realm.query<com.saveurlife.goodnews.models.Location>()
+//                        .sort("time", Sort.DESCENDING).first().find()
+//
+//                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
+//
+//                if (latestLocationFromRealm!=null) {
+//                    Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
+//                } else {
+//                    Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
+//                }
+//
+//            } catch (e: Exception) {
+//                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
+//            } finally {
+//                realm.close()
+//            }
         }
     }
 }

@@ -65,7 +65,7 @@ class MemberAPI {
 
 
     // 멤버 정보 조회
-    fun findMemberInfo(memberId : String){
+    fun findMemberInfo(memberId : String): MemberInfo? {
 
         // request
         val data = RequestMemberId(memberId)
@@ -75,6 +75,7 @@ class MemberAPI {
         val call = memberService.findMemberInfo(requestBody)
 
         // response
+        var resp: MemberInfo ?= null
         call.enqueue(object : Callback<ResponseMember> {
             override fun onResponse(call: Call<ResponseMember>, response: Response<ResponseMember>) {
                 if(response.isSuccessful){
@@ -85,12 +86,8 @@ class MemberAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
-
+                        // 원하는 작업을 여기에 추가해 주세요
+                        resp = data
 
 
                     }else{
@@ -104,6 +101,7 @@ class MemberAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
+        return resp
     }
 
     // 추가 정보 등록

@@ -221,11 +221,12 @@ class FamilyAPI {
     }
 
     // 가족 모임장소 상세 조회
-    fun getFamilyPlaceInfoDetail(placeId: Int){
+    fun getFamilyPlaceInfoDetail(placeId: Int): PlaceDetailInfo? {
         // request
         val data = RequestPlaceId(placeId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
+        var resp:PlaceDetailInfo? = null
 
         val call = familyService.getFamilyPlaceInfoDetail(requestBody)
         call.enqueue(object : Callback<ResponsePlaceDetail> {
@@ -238,6 +239,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
+                        resp = data
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -257,14 +259,17 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
+        return resp
     }
 
     // 가족 구성원 조회
-    fun getFamilyMemberInfo(memberId: String){
+    fun getFamilyMemberInfo(memberId: String): ArrayList<FamilyInfo>? {
         // request
         val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
+
+        var resp: ArrayList<FamilyInfo>? = null
 
         val call = familyService.getFamilyMemberInfo(requestBody)
         call.enqueue(object : Callback<ResponseMemberInfo> {
@@ -277,6 +282,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
+                        resp = data
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -296,14 +302,17 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
+        return resp
     }
 
     //가족 모임장소 조회
-    fun getFamilyPlaceInfo(memberId:String){
+    fun getFamilyPlaceInfo(memberId:String): ArrayList<PlaceInfo>? {
         // request
         val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
+
+        var resp:ArrayList<PlaceInfo>? = null
 
         val call = familyService.getFamilyPlaceInfo(requestBody)
         call.enqueue(object : Callback<ResponsePlaceInfo> {
@@ -316,6 +325,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
+                        resp = data
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -335,6 +345,7 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
+        return resp
     }
 
 }
