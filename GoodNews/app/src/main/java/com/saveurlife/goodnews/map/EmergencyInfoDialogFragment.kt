@@ -3,19 +3,15 @@ package com.saveurlife.goodnews.map
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.text.style.CharacterStyle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentEmergencyInfoDialogBinding
 import com.saveurlife.goodnews.models.MapInstantInfo
-import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
@@ -87,10 +83,7 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
     private fun saveEmergencyInfoToRealm() {
 
-        val userDeviceInfoService = UserDeviceInfoService(context);
-        val memberId: String = userDeviceInfoService.deviceId
         var currentTime = RealmInstant.now()
-        val timeForId = currentTime.epochSeconds
 
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {
@@ -98,8 +91,6 @@ class EmergencyInfoDialogFragment : DialogFragment() {
             try {
                 realm.write {
                     copyToRealm(MapInstantInfo().apply {
-
-                        id = "$memberId${timeForId}"
                         content = inputText
                         state = isSafe
                         latitude = (currLatitude * 10000).toInt() / 10000.0
