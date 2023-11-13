@@ -14,6 +14,7 @@ import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant
 import java.lang.Exception
@@ -55,11 +56,12 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
 
     override fun doWork(): Result {
         // 초기에 기존 정보를 가져 오고자 할 경우 모든 정보를 realm에 저장한다.
+        val userDeviceInfoService = UserDeviceInfoService(applicationContext)
 
         // 기기 id를 가져온다
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
         preferences = PreferencesUtil(applicationContext)
-        phoneId = "테스트" // 값 바꿔 두기
+        phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
 
         mapAPI = MapAPI()

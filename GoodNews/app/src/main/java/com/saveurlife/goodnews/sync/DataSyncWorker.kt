@@ -11,9 +11,9 @@ import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
@@ -55,10 +55,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
     override fun doWork(): Result {
         // 실행 시 이전 동기화 이후 모든 데이터를 전송한다.
+        val userDeviceInfoService = UserDeviceInfoService(applicationContext)
 
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
         preferences = PreferencesUtil(applicationContext)
-        phoneId = "테스트" // 값 바꿔 두기
+        phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
 
         mapAPI = MapAPI()
