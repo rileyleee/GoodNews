@@ -14,13 +14,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.DialogBloodSettingBinding
 import com.saveurlife.goodnews.databinding.DialogCalendarSettingBinding
 import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
@@ -40,8 +40,10 @@ class MyPageFragment : Fragment() {
     private var selectedBlood: String? = null
     private var myAge: Int? = null
 
-    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-    private val realm: Realm = Realm.open(config)
+//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+//    private val realm: Realm = Realm.open(config)
+
+    val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
 
 

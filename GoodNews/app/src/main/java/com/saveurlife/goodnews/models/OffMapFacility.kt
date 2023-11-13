@@ -9,8 +9,8 @@ open class OffMapFacility : RealmObject {
     var id: Int = 0
     var type: String = ""
     var name: String = ""
-    var longitude: Double = 0.0
     var latitude: Double = 0.0
+    var longitude: Double = 0.0
     var canUse: Boolean = false
     var addInfo: String = ""
     // realmList null 안된다고 오류 떠서 주석처리
