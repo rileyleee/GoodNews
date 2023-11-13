@@ -11,11 +11,11 @@ public class MemberResponseDto {
     private String phoneNumber;
     private String name;
     private String lastConnection;
-    private int state;
+    private String state;
     private String familyId;
 
     @Builder
-    public MemberResponseDto(String memberId,String phoneNumber, String name, String lastConnection,int state,String familyId) {
+    public MemberResponseDto(String memberId,String phoneNumber, String name, String lastConnection,String state,String familyId) {
         this.memberId = memberId;
         this.phoneNumber = phoneNumber;
         this.name = name;

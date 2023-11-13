@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class MemberStateRequestDto {
-    private int state;
+    private String state;
 }

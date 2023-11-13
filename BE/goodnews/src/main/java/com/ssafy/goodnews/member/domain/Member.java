@@ -27,7 +27,7 @@ public class Member extends BaseConnectEntity {
     private String gender;
     private String bloodtype;
     private String addinfo;
-    private int state;
+    private String state;
     private Double lat;
     private Double lon;
     private String password;
@@ -64,7 +64,7 @@ public class Member extends BaseConnectEntity {
     }
 
     @Builder
-    public Member(String id,String phoneNumber, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection,Role role,int state) {
+    public Member(String id,String phoneNumber, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection,Role role,String state) {
         this.id = id;
         this.phoneNumber = phoneNumber;
         this.name = name;
@@ -88,7 +88,7 @@ public class Member extends BaseConnectEntity {
         this.lat= memberInfoUpdateRequestDto.getLat();
     }
 
-    public void updateMemberState(int state) {
+    public void updateMemberState(String state) {
         this.state = state;
     }
 

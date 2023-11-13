@@ -193,7 +193,7 @@ public class MemberService {
     }
 
     @Transactional
-    public BaseResponseDto updateMemberState(String memberId, int state) {
+    public BaseResponseDto updateMemberState(String memberId, String state) {
 
         Optional<Member> findMember = memberRepository.findById(memberId);
         memberValidator.checkMember(findMember,memberId);

@@ -14,7 +14,7 @@ public class MemberInfoResponseDto {
     private String gender;
     private String bloodType;
     private String addInfo;
-    private int state;
+    private String state;
     private Double lat;
     private Double lon;
     private String familyId;
