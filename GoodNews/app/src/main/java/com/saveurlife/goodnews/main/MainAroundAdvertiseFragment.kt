@@ -12,11 +12,6 @@
     import androidx.recyclerview.widget.RecyclerView
     import com.saveurlife.goodnews.R
     import com.saveurlife.goodnews.ble.BleAdvertiseAdapter
-    import com.saveurlife.goodnews.ble.BleMeshAdvertiseData
-    import com.saveurlife.goodnews.ble.service.BleService
-    import com.saveurlife.goodnews.chatting.ChattingDetailActivity
-    import com.saveurlife.goodnews.chatting.OneChattingAdapter
-    import com.saveurlife.goodnews.chatting.OnechattingData
     import com.saveurlife.goodnews.common.SharedViewModel
 
     class MainAroundAdvertiseFragment : Fragment() {

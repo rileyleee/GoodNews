@@ -80,6 +80,7 @@ public class BleService extends Service {
     private UserDeviceInfoService userDeviceInfoService;
     private static String myId;
     private static String myName = "김나연";
+//private static String myName = "김예진";
     private BleServiceScanCallback mBleScanCallback;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;

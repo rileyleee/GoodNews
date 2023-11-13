@@ -22,6 +22,7 @@ public class SendMessageManager {
     private LocationService locationService;
     private String myId;
     private String myName = "김나연";
+//    private String myName = "김예진";
 
     private int sendSize = 5;
 

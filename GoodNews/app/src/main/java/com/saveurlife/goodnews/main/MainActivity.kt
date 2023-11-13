@@ -100,7 +100,22 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 sharedViewModel.bleDeviceMap.value = deviceMap
-            })}
+            })
+
+            bleService.getBleMeshConnectedDevicesArrayListLiveData().observe(this@MainActivity) { connectedDevicesMap ->
+
+                sharedViewModel.updateBleMeshConnectedDevicesMap(connectedDevicesMap)
+
+                connectedDevicesMap.forEach { (deviceId, connectedUsersMap) ->
+                    println("BLE 장치 ID: $deviceId")
+
+                    connectedUsersMap.forEach { (userId, user) ->
+                        println("사용자 ID: $userId, 이름: ${user.userName}, 상태: ${user.healthStatus}, 업데이트시간:${user.updateTime}, 위도: ${user.lat}, 경도: ${user.lon}")
+                    }
+
+                }
+            }
+            }
         }
 
         //서비스 연결이 끊어졌을 때 호출
