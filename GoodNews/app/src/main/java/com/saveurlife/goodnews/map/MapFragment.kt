@@ -150,10 +150,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         // 현재 내 위치 정보 제공자
         locationProvider = LocationProvider(requireContext())
+        locationProvider.initLocationClient()
 
         // 오프라인 시설 정보 제공자
         facilityProvider = FacilityProvider(requireContext())
-        locationProvider.initLocationClient()
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
