@@ -13,6 +13,7 @@ import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
@@ -55,10 +56,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
     override fun doWork(): Result {
         // 실행 시 이전 동기화 이후 모든 데이터를 전송한다.
+        val userDeviceInfoService = UserDeviceInfoService(applicationContext)
 
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
         preferences = PreferencesUtil(applicationContext)
-        phoneId = "테스트" // 값 바꿔 두기
+        phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
 
         mapAPI = MapAPI()
@@ -89,21 +91,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             return Result.failure()
         }
     }
-
-    private fun fetchDataTimeStamp() {
-
-        // realm에 시간 갱신
-        realm.writeBlocking {
-            copyToRealm(
-                // Member
-                Member().apply {
-                    lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
-                }
-            )
-        }
-        
-    }
-
     // 내 정보
     private fun fetchDataMember(){
         // 현재의 정보를 서버로 보낸다
@@ -112,12 +99,14 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         if(result!=null){
             var memberId = result.memberId
             var name = result.name
-//            var gender = result.gender -> server 수정 필요
+            var gender = result.gender
             var birthDate = result.birthDate
             var bloodType = result.bloodType
             var addInfo = result.addInfo
+            var lat = result.latitude
+            var lon = result.longitude
 
-            memberAPI.updateMemberInfo(memberId, name, birthDate,bloodType, addInfo)
+            memberAPI.updateMemberInfo(memberId, name, gender, birthDate, bloodType, addInfo, lat, lon)
             result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
 
         }
@@ -143,15 +132,17 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             val localDateTime = LocalDateTime.parse(tempTime, formatter)
             val milliseconds =
                 localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val temp = memberAPI.findMemberInfo(it.memberId)
             realm.writeBlocking {
                     FamilyMemInfo().apply {
                         id = it.memberId
                         name = it.name
-                        // 휴대폰 번호는 server 추가 필요
+                        phone = it.phoneNumber
                         lastConnection = RealmInstant.from(milliseconds / 1000, (milliseconds % 1000).toInt())
-                        // state는 server 추가 후 반영
-                        // location은 server 추가 후 반영
-                        // familyId는 server 추가 후 변영
+                        state = it.state
+                        latitude = temp!!.lat
+                        longitude = temp!!.lon
+                        familyId = it.familyId.toInt()
                     }
             }
         }
@@ -216,8 +207,30 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             }
         }
 
-        // 이전 접속 시간을 보내면
-        // 그 시간 이후로 받아 온다.
-        // => server 변경 후 수정
+        // server 추가 이후 만들어야 함.
+        // 위험정보를 모두 가져와서 저장한다.
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+        mapAPI.getAllMapFacility()?.forEach {
+            var tempState:String = ""
+            if(it.buttonType){
+                tempState = "1"
+            }else{
+                tempState = "0"
+            }
+            val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
+            val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            realm.writeBlocking {
+                copyToRealm(
+                    MapInstantInfo().apply {
+                        state = tempState
+                        content = it.text
+                        time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
+                        latitude = it.lat
+                        longitude = it.lon
+                    }
+                )
+            }
+        }
     }
 }
