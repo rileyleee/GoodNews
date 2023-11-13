@@ -88,21 +88,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             return Result.failure()
         }
     }
-
-    private fun fetchDataTimeStamp() {
-
-        // realm에 시간 갱신
-        realm.writeBlocking {
-            copyToRealm(
-                // Member
-                Member().apply {
-                    lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
-                }
-            )
-        }
-        
-    }
-
     // 내 정보
     private fun fetchDataMember(){
         // 현재의 정보를 서버로 보낸다
