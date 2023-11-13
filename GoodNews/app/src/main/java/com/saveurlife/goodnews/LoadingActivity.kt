@@ -9,7 +9,6 @@ import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 

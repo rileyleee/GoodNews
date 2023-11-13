@@ -65,10 +65,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
+<<<<<<< HEAD
     private var latestLocationFromRealm = GeoPoint(37.566535, 126.9779692) // 서울 시청으로 초기화
 
     // 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
+=======
+    //private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
+>>>>>>> e03636f13a088b72e12297421964c6b8eb9f0684
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -155,10 +159,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         // 현재 내 위치 정보 제공자
         locationProvider = LocationProvider(requireContext())
+        locationProvider.initLocationClient()
 
         // 오프라인 시설 정보 제공자
         facilityProvider = FacilityProvider(requireContext())
-        locationProvider.initLocationClient()
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
@@ -218,11 +222,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
+<<<<<<< HEAD
+=======
+//            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
+                Log.i("mapCenter","지도 중심좌표는 서울시청입니다.")
+                mapView.controller.setCenter(
+                    GeoPoint(
+                        37.566535,
+                        126.9779692
+                    )
+//                    GeoPoint( //대전 임시 좌표
+//                    36.37497534353303,
+//                    127.3914186217678
+//                )
+>>>>>>> e03636f13a088b72e12297421964c6b8eb9f0684
 
             if (latestLocationFromRealm != GeoPoint(
                     0.0,
                     0.0
                 )
+<<<<<<< HEAD
             ) {
                 mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
                     GeoPoint(
@@ -235,6 +254,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     GeoPoint(37.566535, 126.9779692)
                 )
             }
+=======
+//            } else {
+//                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+//                    GeoPoint(
+//                        latestLocationFromRealm!!.latitude,
+//                        latestLocationFromRealm!!.longitude
+//                    )
+//                )
+//            }
+>>>>>>> e03636f13a088b72e12297421964c6b8eb9f0684
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -564,6 +593,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // Realm 인스턴스 열기
             val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+<<<<<<< HEAD
             try {
 
                 Log.i("LatestLocation", "DB 작업합니다.")
@@ -595,16 +625,37 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
 
 //                if (latestLocationFromRealm != null) {
+=======
+//            try {
+//                Log.i("LatestLocation", "DB 작업합니다.")
+//                // 데이터베이스 작업 수행
+//                latestLocationFromRealm =
+//                    realm.query<com.saveurlife.goodnews.models.Location>()
+//                        .sort("time", Sort.DESCENDING).first().find()
+//
+//                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
+//
+//                if (latestLocationFromRealm!=null) {
+>>>>>>> e03636f13a088b72e12297421964c6b8eb9f0684
 //                    Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
 //                } else {
 //                    Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
 //                }
+<<<<<<< HEAD
 
             } catch (e: Exception) {
                 Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
             } finally {
                 realm.close()
             }
+=======
+//
+//            } catch (e: Exception) {
+//                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
+//            } finally {
+//                realm.close()
+//            }
+>>>>>>> e03636f13a088b72e12297421964c6b8eb9f0684
         }
     }
 }
