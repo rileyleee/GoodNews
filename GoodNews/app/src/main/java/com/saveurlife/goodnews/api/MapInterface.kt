@@ -10,4 +10,7 @@ interface MapInterface {
     // 지도 시설 상태 등록
     @POST("map/registfacility")
     fun registMapFacility(@Body placeStateInfo: RequestBody): Call<ResponseFacilityRegist>
+
+    @POST("map/getfacility")
+    fun getAllMapFacility():Call<ResponseAllFacilityState>
 }
