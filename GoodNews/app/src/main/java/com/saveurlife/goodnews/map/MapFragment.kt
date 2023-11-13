@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
@@ -8,10 +9,10 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,16 +27,9 @@ import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.notifications.ResultsChange
-import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -48,7 +42,6 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
-import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
@@ -65,6 +58,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
+    private lateinit var screenRect:BoundingBox
     private var latestLocationFromRealm = GeoPoint(37.566535, 126.9779692) // 서울 시청으로 초기화
 
     // 이전 마커에 대한 참조를 저장할 변수
@@ -148,6 +142,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     // 임시 코드
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -168,10 +163,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
 
         // 현재 기기에서 보이는 지도의 중심 좌표
-        val projection = mapView.projection
-        val centerGeoPoint = projection.fromPixels(mapView.width / 2, mapView.height / 2)
-        val centerLat = centerGeoPoint.latitude
-        val centerLon = centerGeoPoint.longitude
+//        val projection = mapView.projection
+//        Log.v("projection","$projection")
+//        val centerGeoPoint = projection.fromPixels(mapView.width / 2, mapView.height / 2)
+//        val centerLat = centerGeoPoint.latitude
+//        val centerLon = centerGeoPoint.longitude
+
+//        Log.v("화면 중심 좌표","위도: $centerLat 경도: $centerLon")x
 
         val tileSource = XYTileSource(
             provider,
@@ -246,15 +244,40 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             // 기기 화면 DPI에 따라 스케일 DPI 적용(기기별로 보이는 지도 크기 최대한 유사하도록)
             mapView.isTilesScaledToDpi = false
 
+            mapView.invalidate()
         }
-
-        // 지도 위에 시설 정보 그리기
-        //addFacilitiesToMap()
-        addFacilitiesToMapWithinScreen()
 
         // 최근 위치 realm에서 가져오기
         findLatestLocation()
 
+        // 지도 초기화 후 화면 경계 초기 값 설정
+        mapView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                screenRect = mapView.boundingBox // 초기화
+
+                Log.v("screenRect","$screenRect")
+
+                // 지도 위에 시설 정보 그리기
+                // addFacilitiesToMap()
+                addFacilitiesToMapWithinScreen()
+
+            }
+        })
+
+        // 사용자가 터치할 때마다 경계 변경
+        mapView.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                // 사용자가 화면을 터치하고 뗄 때마다 호출
+                screenRect = mapView.boundingBox
+
+                Log.v("screenRect", "$screenRect")
+
+                // 지도 위에 시설 정보 그리기
+                addFacilitiesToMapWithinScreen()
+            }
+            false
+        }
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
@@ -345,11 +368,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-//        Toast.makeText(
-//            context,
-//            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
-//            Toast.LENGTH_SHORT
-//        ).show()
 
         currGeoPoint?.let {
             updateCurrentLocation(it)
@@ -409,16 +427,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
 
-    // 시설 위치 마커로 찍는 함수(화면 반영 전)
-    private fun addFacilitiesToMap() {
-        Log.d("FacilityMarker", "시설 위치 마커로 그리는 거 호출 완료")
-        val facilitiesOverlayItems = facilityProvider.getFacilityData()
-        val pointTheme = SimplePointTheme(facilitiesOverlayItems, true)
-
-        val facMarkerOverlay = createOverlayWithOptions(pointTheme)
-        mapView.overlays.add(facMarkerOverlay)
-        mapView.invalidate()
-    }
 
     // 이전 시설 마커 관리하기 위한 리스트
     private val previousFacilityOverlayItems = mutableListOf<SimpleFastPointOverlay>()
@@ -426,7 +434,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 시설 위치 마커로 찍는 함수(화면 반영 후)
     private fun addFacilitiesToMapWithinScreen() {
         Log.d("FacilityMarker", "화면 경계로 시설 위치 마커 그리는 거 호출 완료")
-        val screenRect = mapView.projection.boundingBox
+
+
+        // 마커로 찍을 시설 목록 필터링
         val facilitiesOverlayItems = facilityProvider.getFacilityData().filter {
             screenRect.contains(GeoPoint(it.latitude, it.longitude))
         }
@@ -566,7 +576,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
             try {
-
                 Log.i("LatestLocation", "DB 작업합니다.")
 
                 // 데이터베이스 작업 수행
