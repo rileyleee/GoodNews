@@ -17,7 +17,8 @@ class Member() : RealmObject {
     var state: String = ""
     var lastConnection: RealmInstant = RealmInstant.from(0, 0)
     var lastUpdate: RealmInstant = RealmInstant.from(0, 0)
-    var location: Location? = null
+    var latitude: Double = 0.0
+    var longitude: Double =0.0
     var familyId: Long = 0
 
     constructor(
@@ -31,7 +32,8 @@ class Member() : RealmObject {
         state: String,
         lastConnection: RealmInstant,
         lastUpdate: RealmInstant,
-        location: Location,
+        latitude: Double,
+        longitude: Double,
         familyId: Long
     ) : this() {
         this.memberId = memberId
@@ -44,7 +46,8 @@ class Member() : RealmObject {
         this.state = state
         this.lastConnection = lastConnection
         this.lastUpdate = lastUpdate
-        this.location = location
+        this.latitude = latitude
+        this.longitude = longitude
         this.familyId = familyId
     }
 }
