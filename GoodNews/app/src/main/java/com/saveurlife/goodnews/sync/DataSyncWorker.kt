@@ -11,7 +11,6 @@ import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
@@ -19,6 +18,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker(context, workerParams){
@@ -66,6 +66,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         memberAPI = MemberAPI()
 
         newTime = System.currentTimeMillis()
+        newTime += TimeUnit.HOURS.toMillis(9)
         try {
 
             // 1. 회원 가입 정보 -> member table

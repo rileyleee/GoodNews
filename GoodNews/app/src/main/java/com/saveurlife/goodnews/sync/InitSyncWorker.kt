@@ -12,7 +12,6 @@ import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant

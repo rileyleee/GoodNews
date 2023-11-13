@@ -26,14 +26,14 @@ import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.TimeZone
 import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates
 
 class BackgroundLocationProvider(private val context: Context) {
 
     private val userDeviceInfoService = UserDeviceInfoService(context)
     private val memberId = userDeviceInfoService.deviceId
+    private var currentTime by Delegates.notNull<Long>()
 
 
     interface LocationUpdateListener {
@@ -126,15 +126,11 @@ class BackgroundLocationProvider(private val context: Context) {
                         realm.query<Member>("memberId == $0", memberId).first().find()
                     val latestMember = memberToUpdate?.let { findLatest(it) }
 
-                    // 업데이트 시각 보정(보완 필요)
-                    val tempTime = RealmInstant.now()
-                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                    calendar.timeInMillis = tempTime.epochSeconds * 1000 + tempTime.nanosecondsOfSecond / 1000000
+                    // 업데이트 시각 보정(+9시간 처리-> 한국 시각)
+                    currentTime = System.currentTimeMillis()
+                    currentTime += TimeUnit.HOURS.toMillis(9)
 
-                    // 한국 시간대로 변경
-                    calendar.timeZone = TimeZone.getTimeZone("Asia/Seoul")
-
-                    val latestUpdate = RealmInstant.from(calendar.timeInMillis / 1000, (calendar.timeInMillis % 1000).toInt() * 1000000)
+                    val latestUpdate = RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
                     latestMember?.let { member ->
                         member.latitude = location.latitude
                         member.longitude = location.longitude
