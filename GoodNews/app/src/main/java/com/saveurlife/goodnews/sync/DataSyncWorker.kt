@@ -111,12 +111,14 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         if(result!=null){
             var memberId = result.memberId
             var name = result.name
-//            var gender = result.gender -> server 수정 필요
+            var gender = result.gender
             var birthDate = result.birthDate
             var bloodType = result.bloodType
             var addInfo = result.addInfo
+            var lat = result.latitude
+            var lon = result.longitude
 
-            memberAPI.updateMemberInfo(memberId, name, birthDate,bloodType, addInfo)
+            memberAPI.updateMemberInfo(memberId, name, gender, birthDate, bloodType, addInfo, lat, lon)
             result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
 
         }
@@ -142,15 +144,17 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             val localDateTime = LocalDateTime.parse(tempTime, formatter)
             val milliseconds =
                 localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val temp = memberAPI.findMemberInfo(it.memberId)
             realm.writeBlocking {
                     FamilyMemInfo().apply {
                         id = it.memberId
                         name = it.name
-                        // 휴대폰 번호는 server 추가 필요
+                        phone = it.phoneNumber
                         lastConnection = RealmInstant.from(milliseconds / 1000, (milliseconds % 1000).toInt())
-                        // state는 server 추가 후 반영
-                        // location은 server 추가 후 반영
-                        // familyId는 server 추가 후 변영
+                        state = it.state
+                        latitude = temp!!.lat
+                        longitude = temp!!.lon
+                        familyId = it.familyId.toInt()
                     }
             }
         }
@@ -215,8 +219,30 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             }
         }
 
-        // 이전 접속 시간을 보내면
-        // 그 시간 이후로 받아 온다.
-        // => server 변경 후 수정
+        // server 추가 이후 만들어야 함.
+        // 위험정보를 모두 가져와서 저장한다.
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+        mapAPI.getAllMapFacility()?.forEach {
+            var tempState:String = ""
+            if(it.buttonType){
+                tempState = "1"
+            }else{
+                tempState = "0"
+            }
+            val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
+            val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            realm.writeBlocking {
+                copyToRealm(
+                    MapInstantInfo().apply {
+                        state = tempState
+                        content = it.text
+                        time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
+                        latitude = it.lat
+                        longitude = it.lon
+                    }
+                )
+            }
+        }
     }
 }

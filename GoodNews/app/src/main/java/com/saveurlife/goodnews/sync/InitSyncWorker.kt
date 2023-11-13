@@ -12,7 +12,7 @@ import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
-import com.saveurlife.goodnews.models.Location
+import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant
@@ -112,17 +112,18 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
                 copyToRealm(
                     Member().apply {
                         memberId = data.memberId
-                        // phone server 변경 후 반영
+                        phone = data.phoneNumber
                         birthDate = data.birthDate
                         name = data.name
                         gender = data.gender
                         bloodType = data.bloodType
                         addInfo = data.addInfo
+                        state = data.state
                         lastConnection = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
                         lastUpdate = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
                         latitude = data.lat
                         longitude = data.lon
-                        // familyId server 추가 후 변경
+                        familyId = data.familyId.toInt()
                     }
                 )
             }
@@ -138,16 +139,19 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
                 var tempTime = it.lastConnection
                 val localDateTime = LocalDateTime.parse(tempTime, formatter)
                 val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                val temp = memberAPI.findMemberInfo(it.memberId)
                 realm.writeBlocking {
                     copyToRealm(
                         FamilyMemInfo().apply {
                             id = it.memberId
                             name = it.name
-                            // 휴대폰 번호는 server 추가 필요
+                            phone = it.phoneNumber
                             lastConnection = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
-                            // state는 server 추가 후 반영
-                            // location은 server 추가 후 반영
-                            // familyId는 server 추가 후 변영
+                            state = it.state
+                            // 가능하면 server 코드 변경
+                            latitude = temp!!.lat
+                            longitude = temp!!.lon
+                            familyId = it.familyId.toInt()
                         }
                     )
                 }
@@ -188,5 +192,29 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
     // 위험 정보
     private fun fetchDataMapInstantInfo() {
         // server 추가 이후 만들어야 함.
+        // 위험정보를 모두 가져와서 저장한다.
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+        mapAPI.getAllMapFacility()?.forEach {
+            var tempState:String = ""
+            if(it.buttonType){
+                tempState = "1"
+            }else{
+                tempState = "0"
+            }
+            val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
+            val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            realm.writeBlocking {
+                copyToRealm(
+                    MapInstantInfo().apply {
+                        state = tempState
+                        content = it.text
+                        time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
+                        latitude = it.lat
+                        longitude = it.lon
+                    }
+                )
+            }
+        }
     }
 }
