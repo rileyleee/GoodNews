@@ -22,6 +22,5 @@ class GroupMemInfo():RealmObject {
         this.state = state
         this.latitude = latitude
         this.longitude = longitude
-
     }
 }

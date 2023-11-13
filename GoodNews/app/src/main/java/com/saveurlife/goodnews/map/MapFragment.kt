@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -26,16 +28,9 @@ import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.notifications.ResultsChange
-import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -48,6 +43,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
+import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
@@ -64,7 +60,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
-    //private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
+    private lateinit var screenRect: BoundingBox
+    private var latestLocationFromRealm = GeoPoint(37.566535, 126.9779692) // 서울 시청으로 초기화
+
+    // 이전 마커에 대한 참조를 저장할 변수
+    private var previousLocationOverlay: MyLocationMarkerOverlay? = null
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -119,7 +119,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             // 선택된 카테고리 처리 로직, 예를 들어 다른 RecyclerView를 업데이트하거나 지도에 마커를 표시하는 등
             handleSelectedCategory(category)
             Log.d("CategorySelected", "Selected category: ${category.displayName}")
-            Log.d("test", "바뀌면 안됨"+categoryAdapter.toString())
+            Log.d("test", "바뀌면 안됨" + categoryAdapter.toString())
 
 
         }
@@ -132,7 +132,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         listAdapter = FacilityListAdapter(facilities)
         listRecyclerView.adapter = listAdapter
 
-        val dividerItemDecoration = DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
+        val dividerItemDecoration =
+            DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
 
 
@@ -143,6 +144,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     // 임시 코드
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -161,12 +163,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         val context = requireContext()
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
-
-        // 현재 기기에서 보이는 지도의 중심 좌표
-        val projection = mapView.projection
-        val centerGeoPoint = projection.fromPixels(mapView.width / 2, mapView.height / 2)
-        val centerLat = centerGeoPoint.latitude
-        val centerLon = centerGeoPoint.longitude
 
         val tileSource = XYTileSource(
             provider,
@@ -211,30 +207,23 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             mapView.overlayManager.tilesOverlay.loadingLineColor = Color.BLACK
 
 
-
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-//            if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
-                Log.i("mapCenter","지도 중심좌표는 서울시청입니다.")
+
+            if (latestLocationFromRealm.latitude != 0.0 && latestLocationFromRealm.longitude != 0.0) {
+
+                // Realm에서 가져온 사용자의 마지막 위치로 중심 설정
                 mapView.controller.setCenter(
                     GeoPoint(
-                        37.566535,
-                        126.9779692
+                        latestLocationFromRealm.latitude,
+                        latestLocationFromRealm.longitude
                     )
-//                    GeoPoint( //대전 임시 좌표
-//                    36.37497534353303,
-//                    127.3914186217678
-//                )
-
                 )
-//            } else {
-//                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
-//                    GeoPoint(
-//                        latestLocationFromRealm!!.latitude,
-//                        latestLocationFromRealm!!.longitude
-//                    )
-//                )
-//            }
+            } else { // 서울시청
+                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                    GeoPoint(37.566535, 126.9779692)
+                )
+            }
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -246,14 +235,40 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             // 기기 화면 DPI에 따라 스케일 DPI 적용(기기별로 보이는 지도 크기 최대한 유사하도록)
             mapView.isTilesScaledToDpi = false
 
+            mapView.invalidate()
         }
-
-        // 지도 위에 시설 정보 그리기
-        addFacilitiesToMap()
 
         // 최근 위치 realm에서 가져오기
         findLatestLocation()
 
+        // 지도 초기화 후 화면 경계 초기 값 설정
+        mapView.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                mapView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                screenRect = mapView.boundingBox // 초기화
+
+                Log.v("screenRect", "$screenRect")
+
+                // 지도 위에 시설 정보 그리기
+                addFacilitiesToMap()
+
+            }
+        })
+
+        // 사용자가 터치할 때마다 경계 변경
+        mapView.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                // 사용자가 화면을 터치하고 뗄 때마다 호출
+                screenRect = mapView.boundingBox
+
+                Log.v("screenRect", "$screenRect")
+
+                // 지도 위에 시설 정보 그리기
+                addFacilitiesToMap()
+            }
+            false
+        }
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
@@ -344,11 +359,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-//        Toast.makeText(
-//            context,
-//            "현재 위경도: 위도: ${location.latitude} 경도: ${location.longitude}",
-//            Toast.LENGTH_SHORT
-//        ).show()
 
         currGeoPoint?.let {
             updateCurrentLocation(it)
@@ -357,58 +367,92 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 현재 위치 마커로 찍기
     fun updateCurrentLocation(geoPoint: GeoPoint) {
+        // 이전 위치 오버레이가 있으면 지도에서 제거
+        previousLocationOverlay?.let {
+            Log.d("updateCurrentLocation", "이전 내 위치 마커를 삭제했습니다.")
+            mapView.overlays.remove(it)
+        }
         Log.v("현재 위치", "$geoPoint")
         val myLocationMarkerOverlay = MyLocationMarkerOverlay(geoPoint)
         mapView.overlays.add(myLocationMarkerOverlay)
         mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
+
+        // 새 위치를 다시 이전 위치 마커에 반영
+        previousLocationOverlay = myLocationMarkerOverlay
     }
 
-    // 시설 FastSimplyOverlay 설정
-    private fun createOverlayWithOptions(pointTheme: SimplePointTheme): SimpleFastPointOverlay {
+
+    // 데이터를 가진 SimpleFastOverlays
+
+    private fun createOverlayWithOptions(facilities: List<OffMapFacility>): SimpleFastPointOverlay {
+        // 시설 목록을 LabelledGeoPoint 목록으로 변환
+        val points = facilities.map { facility ->
+            LabelledGeoPoint(facility.latitude, facility.longitude, facility.name)
+        }
+        val pointTheme = SimplePointTheme(points, true)
+
         // 오버레이 옵션 설정
-        val textStyle = Paint().apply {
-            style = Paint.Style.FILL
-            color = Color.BLUE
-//            textAlign = Paint.Align.CENTER
-//            textSize = 24f
-            isAntiAlias = true
-
-        }
-
-        Log.d("Overlay 설정", "오버레이 글씨 스타일")
-
         val opt = SimpleFastPointOverlayOptions.getDefaultStyle().apply {
-            setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
-            setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE)
-            setRadius(10.0F)
+            algorithm = SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION
+            symbol = SimpleFastPointOverlayOptions.Shape.SQUARE
+            setRadius(5.0f)
             setIsClickable(true)
-            setCellSize(15)
-//            setTextStyle(textStyle)
+            cellSize = 15
+            // 텍스트 스타일 설정을 제거하거나 투명하게 설정
+            textStyle = Paint().apply {
+                color = Color.TRANSPARENT
+                textSize = 0f
+            }
+            pointStyle = Paint().apply {
+                color = Color.YELLOW
+                style = Paint.Style.FILL
+                isAntiAlias = true
+            }
         }
 
-        Log.d("Overlay 설정", "오버레이 크기 스타일 설정")
-
-        val overlay = SimpleFastPointOverlay(pointTheme, opt)
-        overlay.setOnClickListener(SimpleFastPointOverlay.OnClickListener { points, point ->
-//            Log.d("시설정보 로그찍기", "${points.get(point)}")
-//            Toast.makeText(context, "시설정보: ${points.get(point)}", Toast.LENGTH_SHORT).show()
-        })
-
-        Log.d("Overlay 설정", "오버레이 최종 선언")
+        // 오버레이 생성 및 클릭 리스너 설정
+        val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
+            setOnClickListener { _, index ->
+                val facility = facilities[index]
+                Toast.makeText(
+                    context,
+                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
         return overlay
     }
 
+    // 이전 시설 마커 관리하기 위한 리스트
+    private val previousFacilityOverlayItems = mutableListOf<SimpleFastPointOverlay>()
 
-    // 시설 위치 마커로 찍는 함수
+    // 시설 위치 마커로 찍는 함수 내부에서 사용
     private fun addFacilitiesToMap() {
-        Log.d("FacilityMarker", "시설 위치 마커로 그리는 거 호출 완료")
-        val facilitiesOverlayItems = facilityProvider.getFacilityData()
-        val pointTheme = SimplePointTheme(facilitiesOverlayItems, true)
 
-        val facMarkerOverlay = createOverlayWithOptions(pointTheme)
-        mapView.overlays.add(facMarkerOverlay)
+        // 마커로 찍을 시설 목록 필터링
+        val facilitiesOverlayItems = facilityProvider.getFacilityData()
+            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 기존에 표시된 마커 제거
+        previousFacilityOverlayItems.forEach { previousOverlay ->
+            mapView.overlays.remove(
+                previousOverlay
+            )
+        }
+        // 리스트 초기화
+        previousFacilityOverlayItems.clear()
+
+        // 새 오버레이 생성
+        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+
+        // 오버레이를 지도에 추가
+        mapView.overlays.add(overlay)
         mapView.invalidate()
+
+        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+        previousFacilityOverlayItems.add(overlay)
     }
 
     override fun onResume() {
@@ -518,32 +562,49 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun findLatestLocation() {
+        val userDeviceInfoService = UserDeviceInfoService(context)
+        val memberId = userDeviceInfoService.deviceId
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
         CoroutineScope(Dispatchers.IO).launch {
 
             // Realm 인스턴스 열기
             val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
-//            try {
-//                Log.i("LatestLocation", "DB 작업합니다.")
-//                // 데이터베이스 작업 수행
-//                latestLocationFromRealm =
-//                    realm.query<com.saveurlife.goodnews.models.Location>()
-//                        .sort("time", Sort.DESCENDING).first().find()
-//
-//                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
-//
-//                if (latestLocationFromRealm!=null) {
-//                    Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
-//                } else {
-//                    Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
-//                }
-//
-//            } catch (e: Exception) {
-//                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
-//            } finally {
-//                realm.close()
-//            }
+
+            try {
+                Log.i("LatestLocation", "DB 작업합니다.")
+
+                // 데이터베이스 작업 수행
+                var currentUser = realm.query<Member>("memberId ==$0", memberId).first().find()
+                var latestLat = currentUser?.latitude
+                var latestLon = currentUser?.longitude
+
+                // Realm에서 최근 위치 가져와서 화면 중심좌표 재설정
+
+                if (latestLat != null && latestLon != null) {
+                    latestLocationFromRealm?.latitude = latestLat
+                    latestLocationFromRealm?.longitude = latestLon
+
+                    mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
+                        GeoPoint(
+                            latestLocationFromRealm!!.latitude,
+                            latestLocationFromRealm!!.longitude
+                        )
+                    )
+                    mapView.invalidate()
+                }
+
+                Log.v(
+                    "LatestLocationFromRealm",
+                    "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}"
+                )
+
+
+            } catch (e: Exception) {
+                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
+            } finally {
+                realm.close()
+            }
         }
     }
 }

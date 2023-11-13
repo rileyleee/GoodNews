@@ -149,5 +149,4 @@ class LocationProvider(private val context: Context) {
         this.locationUpdateListener = listener
     }
 
-
 }

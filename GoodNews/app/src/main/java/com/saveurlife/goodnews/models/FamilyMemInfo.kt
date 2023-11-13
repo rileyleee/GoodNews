@@ -1,6 +1,5 @@
 package com.saveurlife.goodnews.models
 
-import android.provider.ContactsContract.CommonDataKinds.Phone
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey

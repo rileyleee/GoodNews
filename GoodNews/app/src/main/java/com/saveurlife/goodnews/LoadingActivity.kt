@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
-import com.saveurlife.goodnews.main.FamilyAlarmFragment
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.tutorial.TutorialActivity

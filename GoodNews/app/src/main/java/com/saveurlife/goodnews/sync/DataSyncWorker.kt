@@ -19,6 +19,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker(context, workerParams){
@@ -67,6 +68,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         memberAPI = MemberAPI()
 
         newTime = System.currentTimeMillis()
+        newTime += TimeUnit.HOURS.toMillis(9)
         try {
 
             // 1. 회원 가입 정보 -> member table

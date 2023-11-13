@@ -34,7 +34,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
-import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.models.Member

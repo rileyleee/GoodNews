@@ -43,7 +43,7 @@ class LocationTrackingService : Service(), BackgroundLocationProvider.LocationUp
         Log.i("foregroundService","알림 생성 호출!")
         createNotificationChannel()
         val notification: Notification =
-            NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle("Foreground Service")
+            NotificationCompat.Builder(this, CHANNEL_ID).setContentTitle("희소식이 안전을 위해 위치 정보를 저장하고 있습니다.")
                 .setSmallIcon(
                     R.mipmap.ic_launcher_round
                 )

@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.InputStreamReader
 
-
 class GoodNewsApplication : Application() {
 
     companion object {
