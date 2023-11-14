@@ -44,6 +44,9 @@ import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    val sharedPreferences = GoodNewsApplication.preferences
+
     private val navController by lazy {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -80,14 +83,16 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         //Member 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
-        if(items.isEmpty()){
+        if (items.isEmpty()) {
             val dialog = FamilyAlarmFragment()
             dialog.show(supportFragmentManager, "FamilyAlarmFragment")
         }
 
-//        val dialog = FamilyAlarmFragment()
-//        dialog.show(supportFragmentManager, "FamilyAlarmFragment")
-
+        // 다시 보지 않기 여부에 따라 다이얼로그 띄워주기
+        if (sharedPreferences.getBoolean("mapDownloadIgnore", false) == false) {
+            val dialog = MapAlarmFragment()
+            dialog.show(supportFragmentManager, "MapAlarmFragment")
+        }
 
         // viewmodel 설정
         sharedViewModel.isOnFlash.observe(this, Observer { isOn ->
@@ -113,7 +118,6 @@ class MainActivity : AppCompatActivity() {
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
-        // 왜 안 되지... @@ 수정
         binding.navigationView.setupWithNavController(navController)
         binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -331,6 +335,7 @@ class MainActivity : AppCompatActivity() {
             sirenStopTextView.visibility = View.GONE
         }
     }
+
     fun switchToChattingFragment(selectedTab: Int) {
         println("$selectedTab 뭘 받아올까요 ??")
         binding.navigationView.menu.getItem(2).isChecked = true
@@ -350,8 +355,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 위치 정보 사용
-    fun callLocationTrackingService(){
-       val intent = Intent(this, LocationTrackingService::class.java)
+    fun callLocationTrackingService() {
+        val intent = Intent(this, LocationTrackingService::class.java)
         ContextCompat.startForegroundService(this, intent)
     }
 
