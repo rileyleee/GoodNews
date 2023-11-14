@@ -10,6 +10,7 @@ import com.ssafy.goodnews.map.domain.LocalPopulation;
 import com.ssafy.goodnews.map.domain.OffMapInfo;
 import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
 import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
+import com.ssafy.goodnews.map.dto.response.FacilityStateResponseDto;
 import com.ssafy.goodnews.map.dto.response.MapPopulationResponseDto;
 import com.ssafy.goodnews.map.dto.response.MapResponseDto;
 import com.ssafy.goodnews.map.repository.FacilityStateRepository;
@@ -23,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -167,4 +169,23 @@ public class MapService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public BaseResponseDto getDurationFacility(String date) {
+        List<FacilityStateResponseDto> list = facilityStateRepository.findByLastModifiedDateAfter(date).stream()
+                .map(facilityState -> FacilityStateResponseDto.builder()
+                        .id(facilityState.getId())
+                        .buttonType(facilityState.getButtonType())
+                        .text(facilityState.getText())
+                        .lon(facilityState.getLon())
+                        .lat(facilityState.getLat())
+                        .lastModifiedDate(facilityState.getLastModifiedDate())
+                        .build())
+                .collect(Collectors.toList());
+        mapValidator.checkFaciltiyState(list,date);
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("기간 이후 시설 상태 정보 조회를 성공했습니다")
+                .data(list)
+                .build();
+    }
 }

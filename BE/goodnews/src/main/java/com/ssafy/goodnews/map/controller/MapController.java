@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
 import com.ssafy.goodnews.common.exception.validator.TokenValidator;
 import com.ssafy.goodnews.jwt.JwtTokenProvider;
+import com.ssafy.goodnews.map.dto.request.FacilityDurationReqeustDto;
 import com.ssafy.goodnews.map.dto.request.MapFacilityRequestDto;
 import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
 import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
@@ -82,5 +83,12 @@ public class MapController {
     private BaseResponseDto getMapFacility() {
 
         return mapService.getFacility();
+    }
+
+    @Operation(summary = "지도 시설 상태 기간 이후 조회", description = "기간(yyyy-mm-dd hh-mm-ss)요청하면(버튼타입,내용,경도,위도)조회")
+    @PostMapping("/afterfacility")
+    private BaseResponseDto getDurationFacility(@RequestBody FacilityDurationReqeustDto facilityDurationReqeustDto) {
+
+        return mapService.getDurationFacility(facilityDurationReqeustDto.getDate());
     }
 }

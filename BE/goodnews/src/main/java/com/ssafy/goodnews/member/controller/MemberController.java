@@ -48,7 +48,7 @@ public class MemberController {
         return memberService.updateMemberInfo(memberId,memberInfoUpdateRequestDto);
     }
 
-    @Operation(summary = "멤버 정보 조회", description = "멤버 정보(전화번호,이름,생년월일,성별,혈액형,특이사항,상태(0:모름,1:건강,2:부싱,3:죽음) 조회")
+    @Operation(summary = "멤버 정보 조회", description = "멤버 정보(전화번호,이름,생년월일,성별,혈액형,특이사항,상태(0:모름,1:건강,2:부싱,3:죽음),familyId 조회")
     @PostMapping("/search")
     private BaseResponseDto findMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
 
