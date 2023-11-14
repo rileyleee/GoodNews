@@ -46,19 +46,22 @@ class FacilityCategoryAdapter(
         }
 
         holder.binding.root.setOnClickListener {
-            Log.d("test", holder.binding.root.isSelected.toString())
-            Log.d("test", "클릭인덱스" + position)
+            // 현재 뷰 홀더의 위치를 얻음
+            val currentPosition = holder.adapterPosition
+            if (currentPosition == RecyclerView.NO_POSITION) {
+                return@setOnClickListener
+            }
+
             // 이전에 선택된 아이템의 상태 업데이트
             if (selectedPosition != RecyclerView.NO_POSITION) {
                 notifyItemChanged(selectedPosition)
             }
 
             // 새로운 아이템 선택
-            selectedPosition = position
+            selectedPosition = currentPosition
             notifyItemChanged(selectedPosition)
 
-            onCategorySelected(category)
-            Log.d("test", holder.binding.root.isSelected.toString())
+            onCategorySelected(categories[currentPosition])
         }
 
         // 첫 번째 아이템 시작 여백 주기
