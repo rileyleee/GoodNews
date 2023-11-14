@@ -55,6 +55,9 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
+    companion object{
+        var checkFlash : Boolean = false
+    }
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
 //    private val realm: Realm = Realm.open(config)
 

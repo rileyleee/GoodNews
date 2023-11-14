@@ -133,7 +133,7 @@ class FlashlightFragment : Fragment() {
         // 모스 부호 매핑 초기화
         initializeMorseCodeMap()
         flashStartButton!!.setOnClickListener {
-            if (sharedViewModel.isOnFlash.value == true) { // 플래시가 켜져 있으면 return
+            if (MainActivity.checkFlash == true) { // 플래시가 켜져 있으면 return
                 Toast.makeText(activity, "플래시가 이미 켜져 있습니다.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -201,19 +201,15 @@ class FlashlightFragment : Fragment() {
                 morseOutputTextView!!.text = convertedCharactersKor
             }
         }
-        // RecyclerView 손전등 테스트 데이터
-//        var recordTestData = arrayListOf(
-//            FlashlightData(FlashType.SELF, "살려주세요", "... --- ..."),
-//            FlashlightData(FlashType.OTHER, "나의 위치", "-- .- .. -."),
-//            FlashlightData(FlashType.SELF, "Record 3", ".- .-. .")
-//        )
-
 
         // ListItem 클릭 이벤트
         flashListAdapter.setOnItemClickListener(object : FlashlightListAdapter.OnItemClickListener {
             override fun onItemClick(data: FlashlightData, position: Int) {
                 if (flashListAdapter.isFlashing) return
-
+                if (MainActivity.checkFlash == true) { // 플래시가 켜져 있으면 return
+                    Toast.makeText(activity, "플래시가 이미 켜져 있습니다.", Toast.LENGTH_SHORT).show()
+                    return
+                }
                 flashListAdapter.isFlashing = true
                 // 아이템 눌린 모양으로 변경
                 val viewHolder =
@@ -224,12 +220,6 @@ class FlashlightFragment : Fragment() {
                     flashListAdapter.isFlashing = false
                     viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
                 }
-
-                // 테스트 이벤트 @@
-//                testMorseCode(data.morseCode) {
-//                    flashListAdapter.isFlashing = false
-//                    viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
-//                }
             }
         })
     }
@@ -538,6 +528,7 @@ class FlashlightFragment : Fragment() {
             return
         }
         sharedViewModel.isOnFlash.value = true
+        MainActivity.checkFlash = true
         CoroutineScope(Dispatchers.Main).launch {
             for (c in morseCode) {
                 when (c) {
@@ -561,6 +552,7 @@ class FlashlightFragment : Fragment() {
                 }
             }
             sharedViewModel.isOnFlash.value = false
+            MainActivity.checkFlash = false
             onCompletion?.invoke()
         }
 //        for (i in 0 until morseCode.length) {
