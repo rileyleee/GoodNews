@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.sync
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.work.Worker
@@ -59,7 +60,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         val userDeviceInfoService = UserDeviceInfoService(applicationContext)
 
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        preferences = PreferencesUtil(applicationContext)
+        preferences = GoodNewsApplication.preferences
         phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
 

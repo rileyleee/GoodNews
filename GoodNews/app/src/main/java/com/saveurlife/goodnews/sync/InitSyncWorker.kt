@@ -20,7 +20,7 @@ import io.realm.kotlin.types.RealmInstant
 import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
+import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
@@ -31,6 +31,8 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
     private lateinit var mapAPI:MapAPI
     private lateinit var familyAPI: FamilyAPI
     private lateinit var memberAPI: MemberAPI
+    private var newTime by Delegates.notNull<Long>()
+
 
     // 다른 곳에서 가져가서 사용할 경우 아래의 코드를 가져가서 실행해주세요!
     // 서버 연결 시에만 요청하도록 추가해주세요!
@@ -60,9 +62,12 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
 
         // 기기 id를 가져온다
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        preferences = PreferencesUtil(applicationContext)
+        preferences = GoodNewsApplication.preferences
         phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
+
+        newTime = System.currentTimeMillis()
+        newTime += TimeUnit.HOURS.toMillis(9)
 
         mapAPI = MapAPI()
         familyAPI = FamilyAPI()
@@ -89,7 +94,7 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
             return Result.failure()
         } finally {
             // 마지막 동기화 시간 반영
-            preferences.setLong("SyncTime", Date().time)
+            preferences.setLong("SyncTime", newTime)
             Log.d("Init Sync", "정보를 받아왔습니다.")
 
             Toast.makeText(
@@ -105,9 +110,6 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
     // 회원
     private fun fetchDataMember(){
         var data = memberAPI.findMemberInfo(phoneId)
-//        family -> server 수정 필요
-        var currentTimeMillis = System.currentTimeMillis()
-// memberId 값 변경되면 추가로 변경 해야 함.
         // realm 저장
         if(data != null){
             realm.writeBlocking {
@@ -121,8 +123,8 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
                         bloodType = data.bloodType
                         addInfo = data.addInfo
                         state = data.state
-                        lastConnection = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
-                        lastUpdate = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
+                        lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
+                        lastUpdate = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
                         latitude = data.lat
                         longitude = data.lon
                         familyId = data.familyId.toInt()
@@ -131,32 +133,32 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
             }
         }
     }
+
     // 가족 구성원
-    private fun fetchDataFamilyMemInfo(){
-        var data = familyAPI.getFamilyMemberInfo(phoneId)
+    private fun fetchDataFamilyMemInfo() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
-        if(data !=null){
-            data.forEach {
-                var tempTime = it.lastConnection
-                val localDateTime = LocalDateTime.parse(tempTime, formatter)
-                val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-                val temp = memberAPI.findMemberInfo(it.memberId)
-                realm.writeBlocking {
-                    copyToRealm(
-                        FamilyMemInfo().apply {
-                            id = it.memberId
-                            name = it.name
-                            phone = it.phoneNumber
-                            lastConnection = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
-                            state = it.state
-                            // 가능하면 server 코드 변경
-                            latitude = temp!!.lat
-                            longitude = temp!!.lon
-                            familyId = it.familyId.toInt()
-                        }
-                    )
-                }
+        familyAPI.getFamilyMemberInfo(phoneId)?.forEach {
+            var tempTime = it.lastConnection
+            val localDateTime = LocalDateTime.parse(tempTime, formatter)
+            val milliseconds =
+                localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val temp = memberAPI.findMemberInfo(it.memberId)
+            realm.writeBlocking {
+                copyToRealm(
+                    FamilyMemInfo().apply {
+                        id = it.memberId
+                        name = it.name
+                        phone = it.phoneNumber
+                        lastConnection =
+                            RealmInstant.from(milliseconds / 1000, (milliseconds % 1000).toInt())
+                        state = it.state
+                        // 가능하면 server 코드 변경
+                        latitude = temp!!.lat
+                        longitude = temp!!.lon
+                        familyId = it.familyId.toInt()
+                    }
+                )
             }
         }
     }
