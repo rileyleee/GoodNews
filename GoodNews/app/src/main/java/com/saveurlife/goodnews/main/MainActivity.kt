@@ -17,9 +17,11 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -29,15 +31,14 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
-import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.LocationTrackingService
 import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
@@ -49,8 +50,10 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
-    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-    private val realm: Realm = Realm.open(config)
+//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+//    private val realm: Realm = Realm.open(config)
+
+    val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
@@ -136,6 +139,18 @@ class MainActivity : AppCompatActivity() {
 
         binding.mainCircleAddButton.setOnClickListener {
             showDialog()
+        }
+        // 위치 정보 사용 함수 호출
+        callLocationTrackingService()
+
+        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+        onBackPressedDispatcher.addCallback(this) {
+            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
+            stopService(intent)
+
+            // 기본적인 뒤로 가기 동작 수행 (옵션)
+            finish()
         }
     }
 
@@ -332,6 +347,20 @@ class MainActivity : AppCompatActivity() {
 //        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
 //        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
 //        transaction.commit()
+    }
+
+    // 위치 정보 사용
+    fun callLocationTrackingService(){
+       val intent = Intent(this, LocationTrackingService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        //위치 정보 저장 중지
+        val serviceIntent = Intent(this, LocationTrackingService::class.java)
+        stopService(serviceIntent)
     }
 }
 

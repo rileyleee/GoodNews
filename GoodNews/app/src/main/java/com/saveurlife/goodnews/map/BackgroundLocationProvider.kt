@@ -17,9 +17,24 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.types.RealmInstant
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates
 
-class LocationProvider(private val context: Context) {
+class BackgroundLocationProvider(private val context: Context) {
+
+    private val userDeviceInfoService = UserDeviceInfoService(context)
+    private val memberId = userDeviceInfoService.deviceId
+    private var currentTime by Delegates.notNull<Long>()
+
 
     interface LocationUpdateListener {
         fun onLocationChanged(location: Location)
@@ -42,7 +57,7 @@ class LocationProvider(private val context: Context) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         locationRequest =
-            LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(10)).build()
+            LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, TimeUnit.SECONDS.toMillis(30)).build()
         Log.d("LocationRequest", "위치 정보 요청 성공적으로 설정되었음: $locationRequest")
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
@@ -94,6 +109,44 @@ class LocationProvider(private val context: Context) {
         }
     }
 
+    // 사용자 위치 realm에 업데이트 (나중에 여기 말고 백그라운드에서 저장하는 게 맞음)
+    private fun updateMemberLocation(
+        location: Location,
+        memberId: String
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Realm 인스턴스 열기
+            val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+            try {
+                // 데이터베이스 작업 수행
+                realm.write {
+                    Log.v("현재 memberId", memberId)
+                    val memberToUpdate =
+                        realm.query<Member>("memberId == $0", memberId).first().find()
+                    val latestMember = memberToUpdate?.let { findLatest(it) }
+
+                    // 업데이트 시각 보정(+9시간 처리-> 한국 시각)
+                    currentTime = System.currentTimeMillis()
+                    currentTime += TimeUnit.HOURS.toMillis(9)
+
+                    val latestUpdate = RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
+                    latestMember?.let { member ->
+                        member.latitude = location.latitude
+                        member.longitude = location.longitude
+                        member.lastUpdate = latestUpdate
+                        Log.d("LocationProvider", "위치 정보 realm에 업데이트 완료")
+                    }
+                }
+            } catch (e: Exception) {
+                // 예외 처리
+                Log.e("LocationProvider", "위치 정보 업데이트 중 오류 발생", e)
+            } finally {
+                // 작업 완료 후 Realm 인스턴스 닫기
+                realm.close()
+            }
+        }
+    }
 
     // 위치 업데이트 처리 함수
     private fun onLocationUpdated(location: Location) {
@@ -103,39 +156,11 @@ class LocationProvider(private val context: Context) {
 
         // 위치 정보를 mapfragment에 전달하여 위치 표시 되도록
         location?.let { location ->
-            var lastLat = location.latitude
-            var lastLon = location.longitude
+            updateMemberLocation(location, memberId)
         }
         locationUpdateListener?.onLocationChanged(location)
     }
 
-    // 마지막 위치 요청
-    fun requestLastLocation() { // 권한 한 번 더 확인하고
-        if (ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // 권한이 없으면 함수 종료
-            Toast.makeText(
-                context,
-                "위치 정보 권한 없음",
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-
-        // 마지막으로 알려진 위치 정보 요청
-        fusedLocationProviderClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                location?.let {
-                    onLocationUpdated(it)
-                }
-            }
-    }
 
     // 위치 업데이트 중단
     fun stopLocationUpdates() {

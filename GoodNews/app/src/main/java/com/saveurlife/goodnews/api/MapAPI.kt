@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MapAPI {
 
     // Retrofit 인스턴스 생성
-   private val retrofit = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
         .baseUrl("https://www.saveurlife.kr/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
@@ -63,5 +63,88 @@ class MapAPI {
             }
         })
     }
+
+    // 지도 시설 상태 조회
+    fun getAllMapFacility(): ArrayList<FacilityState>? {
+        // request
+        val call = mapService.getAllMapFacility()
+
+        var resp : ArrayList<FacilityState>? = null
+        // response
+        call.enqueue(object : Callback<ResponseAllFacilityState> {
+            override fun onResponse(call: Call<ResponseAllFacilityState>, response: Response<ResponseAllFacilityState>) {
+                if(response.isSuccessful){
+                    val responseBody = response.body()
+
+                    Log.d("API RESP", responseBody.toString())
+
+                    // 받아온 데이터에 대한 응답을 처리
+                    if(responseBody!=null){
+                        val data = responseBody.data
+                        resp = data
+                        // 원하는 작업을 여기에 추가해 주세요.
+
+
+
+
+
+
+
+                    }else{
+                        Log.d("API ERROR", "값이 안왔음.")
+                    }
+                } else {
+                    Log.d("API ERROR", response.toString())
+                }
+            }
+            override fun onFailure(call: Call<ResponseAllFacilityState>, t: Throwable) {
+                Log.d("API ERROR", t.toString())
+            }
+        })
+        return resp
+    }
+
+    // 기간 이후 시설 상태 조회
+    // 주의 사항!!!!!
+    // "2023-11-12 03:12:02" 이런 형태로 보내셔야 합니다.
+    fun getDurationFacility(date: String){
+        val data = RequestPlaceDate(date)
+        val json = gson.toJson(data)
+        val requestBody = json.toRequestBody(mediaType)
+
+        val call = mapService.getDurationFacility(requestBody)
+
+        // response
+        call.enqueue(object : Callback<ResponseDurationFacilityState> {
+            override fun onResponse(call: Call<ResponseDurationFacilityState>, response: Response<ResponseDurationFacilityState>) {
+                if(response.isSuccessful){
+                    val responseBody = response.body()
+
+                    Log.d("API RESP", responseBody.toString())
+
+                    // 받아온 데이터에 대한 응답을 처리
+                    if(responseBody!=null){
+                        val data = responseBody.data
+                        // 원하는 작업을 여기에 추가해 주세요.
+
+
+
+
+
+
+
+                    }else{
+                        Log.d("API ERROR", "값이 안왔음.")
+                    }
+                } else {
+                    Log.d("API ERROR", response.toString())
+                }
+            }
+            override fun onFailure(call: Call<ResponseDurationFacilityState>, t: Throwable) {
+                Log.d("API ERROR", t.toString())
+            }
+        })
+    }
+
 
 }

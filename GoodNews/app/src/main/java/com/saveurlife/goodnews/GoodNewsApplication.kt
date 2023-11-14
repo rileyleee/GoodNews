@@ -11,7 +11,6 @@ import com.saveurlife.goodnews.models.ChatMessage
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.GroupMemInfo
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
@@ -22,11 +21,7 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStreamReader
-import java.util.zip.ZipInputStream
 
 class GoodNewsApplication : Application() {
 
@@ -52,7 +47,6 @@ class GoodNewsApplication : Application() {
                 FamilyMemInfo::class,
                 FamilyPlace::class,
                 GroupMemInfo::class,
-                Location::class,
                 MapInstantInfo::class,
                 Member::class,
                 MorseCode::class,
