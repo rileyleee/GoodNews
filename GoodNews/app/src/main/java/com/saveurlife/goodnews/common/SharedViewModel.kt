@@ -13,7 +13,7 @@ class SharedViewModel : ViewModel() {
     val isOnFlash: MutableLiveData<Boolean> = MutableLiveData(false)
 
     //bleService
-    val bleService: MutableLiveData<BleService?> = MutableLiveData()
+    var bleService: MutableLiveData<BleService?> = MutableLiveData()
 
     // BLE 장치의 ID와 이름 매핑
     val bleDeviceMap: MutableLiveData<Map<String, String>> = MutableLiveData()
@@ -28,8 +28,8 @@ class SharedViewModel : ViewModel() {
     private val _bleMeshConnectedDevicesMapLiveData = MutableLiveData<Map<String, Map<String, BleMeshConnectedUser>>>()
     val bleMeshConnectedDevicesMapLiveData: LiveData<Map<String, Map<String, BleMeshConnectedUser>>> = _bleMeshConnectedDevicesMapLiveData
 
-
-
+    //연결/미연결 ui
+    val isMainAroundVisible = MutableLiveData<Boolean>(true)
 
     //bleDeviceMap의 데이터가 변경될 때마다(새로운 BLE 장치가 발견되거나 기존 장치의 이름이 변경될 때)
     // _bleDevices 리스트를 최신 상태로 유지

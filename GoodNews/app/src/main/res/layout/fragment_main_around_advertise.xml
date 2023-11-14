@@ -6,6 +6,61 @@
     tools:context=".main.MainAroundAdvertiseFragment"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <TextView
+        android:id="@+id/mainAroundInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Bluetooth가 연결되지 않았습니다. \n 아래 '+' 버튼을 눌러 Bluetooth 아이콘을 \n 클릭하여 연결해주세요."
+        android:textSize="16sp"
+        android:lineSpacingExtra="3dp"
+        android:background="@drawable/card_component"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineAd"
+        app:layout_constraintEnd_toEndOf="@id/guidelineAd2"
+        android:visibility="visible"/>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieBle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/guidelineAd"
+        app:layout_constraintEnd_toEndOf="@id/guidelineAd2"
+        app:layout_constraintTop_toBottomOf="@id/mainAroundInfoConnect"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/connect_ble_lottie"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/mainAroundInfoConnect"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="블루투스가 연결되었으나 \n 연결할 장치가 없습니다."
+        android:textSize="16sp"
+        android:lineSpacingExtra="3dp"
+        android:background="@drawable/card_component"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineAd3"
+        app:layout_constraintEnd_toEndOf="@id/guidelineAd4"
+        android:visibility="invisible"/>
+
+    <ImageView
+        android:id="@+id/mainAroundImage"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@drawable/no_connect_ble"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mainAroundInfo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="visible"/>
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMainAroundAdvertise"
         android:layout_width="match_parent"
@@ -15,6 +70,35 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/item_around_advertise_list" />
+        tools:listitem="@layout/item_around_advertise_list"
+        android:visibility="visible"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineAd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.03"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineAd2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.98"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineAd3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineAd4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

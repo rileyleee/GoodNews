@@ -43,8 +43,6 @@ class GoodNewsApplication : Application() {
 
         super.onCreate()
 
-
-
         //Realm 초기화
         realmConfiguration = RealmConfiguration.create(
             schema = setOf(
@@ -62,7 +60,12 @@ class GoodNewsApplication : Application() {
                 OffMapFacility::class
             )
         )
+
+//        Realm.deleteRealm(realmConfiguration)
+
         val realm: Realm = Realm.open(realmConfiguration)
+
+
 
 
         //오프라인 지도 위 시설정보 초기 입력

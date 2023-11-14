@@ -13,16 +13,26 @@
     import com.saveurlife.goodnews.R
     import com.saveurlife.goodnews.ble.BleAdvertiseAdapter
     import com.saveurlife.goodnews.common.SharedViewModel
+    import com.saveurlife.goodnews.databinding.FragmentMainAroundAdvertiseBinding
 
     class MainAroundAdvertiseFragment : Fragment() {
+        private lateinit var binding: FragmentMainAroundAdvertiseBinding
         private var adapter: BleAdvertiseAdapter? = null
-        private lateinit var recyclerView: RecyclerView
         private val sharedViewModel: SharedViewModel by activityViewModels()
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-            val view = inflater.inflate(R.layout.fragment_main_around_advertise, container, false)
-            recyclerView = view.findViewById(R.id.recyclerViewMainAroundAdvertise)
-            recyclerView.layoutManager = LinearLayoutManager(context)
+//            val view = inflater.inflate(R.layout.fragment_main_around_advertise, container, false)
+//            recyclerView = view.findViewById(R.id.recyclerViewMainAroundAdvertise)
+//            recyclerView.layoutManager = LinearLayoutManager(context)
+
+            binding = FragmentMainAroundAdvertiseBinding.inflate(inflater, container, false)
+            binding.recyclerViewMainAroundAdvertise.layoutManager = LinearLayoutManager(context)
+
+            //연결, 미연결 ui
+            sharedViewModel.isMainAroundVisible.observe(viewLifecycleOwner) { isVisible ->
+                setViewsVisibility(isVisible)
+            }
+
 
             //BLE 서비스 관찰자
             //SharedViewModel의 bleService LiveData가 변경될 때마다 호출
@@ -38,7 +48,17 @@
                     adapter = BleAdvertiseAdapter(listOf(), sharedViewModel, service)
                     //RecyclerView의 어댑터로 위에서 생성한 adapter를 설정
                     //이를 통해 RecyclerView는 BLE 장치 목록을 화면에 표시할 준비 마침
-                    recyclerView.adapter = adapter
+                    binding.recyclerViewMainAroundAdvertise.adapter = adapter
+                }
+            }
+
+            // MainActivity에서 sharedViewModel의 isMainAroundVisible 값 확인
+            sharedViewModel.isMainAroundVisible.observe(viewLifecycleOwner) { isVisible ->
+                if (isVisible == false) {
+                    // isMainAroundVisible이 false일 때 수행할 동작
+                    binding.mainAroundInfo.visibility = View.GONE
+                    binding.mainAroundInfoConnect.visibility = View.VISIBLE
+                    binding.lottieBle.visibility = View.VISIBLE
                 }
             }
 
@@ -46,12 +66,27 @@
             //SharedViewModel의 bleDevices LiveData가 변경될 때마다 호출
             sharedViewModel.bleDevices.observe(viewLifecycleOwner) { bleDevices ->
                 adapter?.updateDevices(bleDevices)
+
+                if (bleDevices.isNullOrEmpty()) {
+                    // 데이터가 비어 있을 때 수행할 동작
+                    binding.mainAroundInfo.visibility = View.GONE
+                    binding.mainAroundInfoConnect.visibility = View.VISIBLE
+                    binding.lottieBle.visibility = View.VISIBLE
+                }else{
+                    binding.mainAroundInfoConnect.visibility = View.GONE
+                    binding.lottieBle.visibility = View.GONE
+                }
             }
 
             //구분선
-            val dividerItemDecoration = DividerItemDecoration(recyclerView.context, LinearLayoutManager(context).orientation)
-            recyclerView.addItemDecoration(dividerItemDecoration)
+            val dividerItemDecoration = DividerItemDecoration(binding.recyclerViewMainAroundAdvertise.context, LinearLayoutManager(context).orientation)
+            binding.recyclerViewMainAroundAdvertise.addItemDecoration(dividerItemDecoration)
 
-            return view
+            return binding.root
+        }
+
+        private fun setViewsVisibility(isVisible: Boolean) {
+            binding.mainAroundInfo.visibility = if (isVisible) View.VISIBLE else View.GONE
+            binding.mainAroundImage.visibility = if (isVisible) View.VISIBLE else View.GONE
         }
     }

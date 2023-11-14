@@ -1,14 +1,25 @@
 package com.saveurlife.goodnews.chatting
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.graphics.Rect
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.IBinder
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.ble.BleMeshConnectedUser
+import com.saveurlife.goodnews.ble.service.BleService
+import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.databinding.FragmentOneChattingBinding
@@ -20,16 +31,67 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     private lateinit var binding: ActivityChattingDetailBinding
     private lateinit var gestureDetector: GestureDetector
 
+    private val sharedViewModel: SharedViewModel by viewModels()
+
+    lateinit var bleService: BleService
+    //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
+    private var isBound = false
+
+    private val connection = object : ServiceConnection {
+        //Service가 연결되었을 때 호출
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as BleService.LocalBinder
+//            bleService = binder.service
+            sharedViewModel.bleService.value = binder.service
+            isBound = true
+        }
+
+        //서비스 연결이 끊어졌을 때 호출
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            isBound = false
+        }
+    }
+
+
+    // dp를 픽셀로 변환하는 함수
+    private fun dpToPx(context: Context, dp: Int): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp.toFloat(),
+            context.resources.displayMetrics
+        ).toInt()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChattingDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //MainActivity-OneChattingFragment에서 받은 값 채팅창에 초기화
-        val chatName = intent.getStringExtra("chatName")
-        val chatOtherStatus = intent.getStringExtra("chatOtherStatus")
-        binding.chatDetailNameHeader.text = chatName
-        updateOtherStatus(chatOtherStatus)
+        //ble - 서비스 바인딩
+        Intent(this, BleService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+
+
+        val user = intent.getSerializableExtra("chattingUser") as BleMeshConnectedUser
+        println("무슨 값이 넘어왔나요 ?????? $user")
+        val userData = user.toString().split('/')
+        if (userData.size >= 6) {
+            val userId = userData[0]
+            val userName = userData[1]
+            val updateTime = userData[2]
+            val healthStatus = userData[3]
+            val lat = userData[4].toDouble()
+            val lon = userData[5].toDouble()
+
+            //상대방 이름
+            binding.chattingToolbar.chatDetailNameHeader.text = userName
+            //상태 업데이트
+            updateOtherStatus(healthStatus)
+
+        }
+
+
 
         val chatting = mutableListOf(
             ChattingDetailData("김싸피", "갈게", "오전 9:27"),
@@ -53,6 +115,11 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         adapter.notifyDataSetChanged()
         recyclerView.scrollToPosition(chatting.size - 1)
 
+        binding.chatDetailInput.setOnClickListener{
+            adapter.notifyDataSetChanged()
+            recyclerView.scrollToPosition(chatting.size - 1)
+        }
+
 
         //채팅 입력
         binding.chatDetailSpend.setOnClickListener {
@@ -66,6 +133,8 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
                 // 새로운 메시지 객체 생성
                 val newMessage = ChattingDetailData("사용자 이름", inputMessage, formattedDateTime, isUserMessage = true)
 
+//                bleService.sendMessageChat(user.userId, inputMessage)
+
                 // 채팅 목록에 추가하고 어댑터에 알림
                 (recyclerView.adapter as ChattingDetailAdapter).addMessage(newMessage)
                 //RecyclerView가 표시하는 목록인 chatting 리스트의 마지막 항목으로 스크롤
@@ -75,6 +144,40 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
                 binding.chatDetailInput.text.clear()
             }
         }
+
+//        //
+//
+//        binding.chattingDetailLayout.viewTreeObserver.addOnGlobalLayoutListener {
+//            val r = Rect()
+//            binding.chattingDetailLayout.getWindowVisibleDisplayFrame(r)
+//            val screenHeight = binding.chattingDetailLayout.rootView.height
+//
+//            // 키보드 높이 계산
+//            val keypadHeight = screenHeight - r.bottom
+//
+//            if (keypadHeight > screenHeight * 0.15) { // 키보드가 화면의 15% 이상을 차지하는 경우
+//                recyclerView.scrollToPosition(adapter.itemCount - 1)
+//            }
+//        }
+
+        var isKeyboardVisible = false
+
+        val rootView = findViewById<View>(R.id.chattingDetailLayout) // 루트 뷰 ID
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val heightDiff = rootView.rootView.height - rootView.height
+            if (heightDiff > dpToPx(this, 200)) { // 키보드가 나타난 것으로 간주
+                if (!isKeyboardVisible) {
+                    recyclerView.scrollToPosition(adapter.itemCount - 1) // 처음 키보드가 나타나면 RecyclerView를 맨 아래로 스크롤
+                    isKeyboardVisible = true
+                }
+            } else {
+                isKeyboardVisible = false
+            }
+        }
+
+
+
+
 
         //채팅 목록으로 돌아갈 때 스와이프
         gestureDetector = GestureDetector(this, this)
@@ -91,7 +194,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         }
 
         //채팅 목록으로 돌아가기
-        binding.backButton.setOnClickListener {
+        binding.chattingToolbar.backButton.setOnClickListener {
             finish()
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
@@ -100,10 +203,10 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     //상태 초기화
     private fun updateOtherStatus(chatOtherStatus: String?) {
         when(chatOtherStatus){
-            "safe" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
-            "injury" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_injury_circle)
-            "death" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_death_circle)
-            "unknown" -> binding.chatDetailStatus.setBackgroundResource(R.drawable.my_status_circle)
+            "safe" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
+            "injury" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_injury_circle)
+            "death" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_death_circle)
+            "unknown" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_circle)
         }
     }
 

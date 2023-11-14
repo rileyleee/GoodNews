@@ -62,4 +62,13 @@ class PreferencesUtil(context: Context) {
         preferences.edit().remove(key).apply()
     }
 
+    companion object {
+        @Volatile private var instance: PreferencesUtil? = null
+
+        fun getInstance(context: Context): PreferencesUtil =
+            instance ?: synchronized(this) {
+                instance ?: PreferencesUtil(context.applicationContext).also { instance = it }
+            }
+    }
+
 }
