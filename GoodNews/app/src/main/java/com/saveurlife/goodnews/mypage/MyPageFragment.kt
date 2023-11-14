@@ -31,9 +31,8 @@ import java.util.Calendar
 
 class MyPageFragment : Fragment() {
     private lateinit var binding: FragmentMyPageBinding
-
     private lateinit var preferencesUtil: PreferencesUtil
-    private var mapDownloader = MapDownloader()
+    private lateinit var mapDownloader: MapDownloader
     private var selectedYear: String? = null
     private var selectedMonth: String? = null
     private var selectedDay: String? = null
@@ -90,12 +89,9 @@ class MyPageFragment : Fragment() {
 
         // 지도 다운로드 버튼 클릭 했을 때
         binding.mapDownloadButton.setOnClickListener {
-            Log.d("MapDownloader","지도 다운로드 하러가야지")
-            val url = "https://saveurlife.kr/images/7_15_korea-001.sqlite"
-            val fileName = "7_15_korea-001.sqlite"
-            mapDownloader.downloadMapFile(requireContext(), url, fileName)
+            Log.d("com.saveurlife.goodnews.map.MapDownloader","지도 다운로드 하러가야지")
+            startMapFileDownload()
         }
-
 
         //객체 만들기
 //        realm.writeBlocking {
@@ -142,6 +138,8 @@ class MyPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mapDownloader = MapDownloader(requireContext())
+
         //데이터 불러오기
         initData()
 
@@ -153,6 +151,7 @@ class MyPageFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        mapDownloader.registerReceiver()
     }
 
     //myPageFragment에 정보 불러오기
@@ -502,6 +501,15 @@ class MyPageFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        mapDownloader.unregisterReceiver(requireContext())
+        mapDownloader.unregisterReceiver()
     }
+
+    private fun startMapFileDownload() {
+        Log.v("mypagefragment","지도 다운로드 함수 호출")
+        val url = "https://saveurlife.kr/images/7_15_korea-001.sqlite"
+        val fileName = "7_15_korea-001.sqlite"
+
+        mapDownloader.downloadFile(url, fileName)
+    }
+
 }
