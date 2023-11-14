@@ -29,7 +29,7 @@ public class FamilyController {
     }
 
 
-    @Operation(summary = "가족 신청 수락", description = "가족 신청 수락 approve 수정")
+    @Operation(summary = "가족 신청 수락 및 거절", description = "가족 신청 수락 approve 수정 거절 시 삭제 refuse: false or true")
     @PutMapping("/acceptfamily")
     private BaseResponseDto updateRegistFamily(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
 

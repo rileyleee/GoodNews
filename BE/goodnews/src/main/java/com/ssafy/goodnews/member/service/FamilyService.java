@@ -101,10 +101,18 @@ public class FamilyService {
     public BaseResponseDto updateFamilyMember(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberFirstLoginRequestDto.getMemberId());
         familyValidator.checkUpdateFamily(familyMember, memberFirstLoginRequestDto.getMemberId());
-        familyMember.get().updateApprove(true);
+
+        if (!memberFirstLoginRequestDto.getRefuse()) {
+            familyMember.get().updateApprove(true);
+            return BaseResponseDto.builder()
+                    .success(true)
+                    .message("가족 신청을 수락하셨습니다")
+                    .build();
+        }
+        familyMemberRepository.delete(familyMember.get());
         return BaseResponseDto.builder()
                 .success(true)
-                .message("가족 신청을 수락하셨습니다")
+                .message("가족 신청을 거절했습니다")
                 .build();
     }
 
