@@ -9,6 +9,7 @@ import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -51,6 +52,8 @@ class LoadingActivity : AppCompatActivity() {
         }, 2000)
 
 
+        val temp = DeviceStateService()
+        Log.d("test",temp.isNetworkAvailable(this).toString())
 
 
 //        binding.start.setOnClickListener {

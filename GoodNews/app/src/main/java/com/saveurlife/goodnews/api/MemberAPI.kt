@@ -197,7 +197,7 @@ class MemberAPI {
     fun findMemberInfo(memberId : String): MemberInfo? {
 
         // request
-        val data = RequestMemberId(memberId)
+        val data = RequestMemberId(memberId,false)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -310,7 +310,7 @@ class MemberAPI {
 
     // 최초 로그인 유무 조회
     fun firstLoginInfo(memberId:String){
-        val data = RequestMemberId(memberId)
+        val data = RequestMemberId(memberId,false)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
