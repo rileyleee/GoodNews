@@ -209,21 +209,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-
-            if (latestLocationFromRealm.latitude != 0.0 && latestLocationFromRealm.longitude != 0.0) {
-
-                // Realm에서 가져온 사용자의 마지막 위치로 중심 설정
-                mapView.controller.setCenter(
-                    GeoPoint(
-                        latestLocationFromRealm.latitude,
-                        latestLocationFromRealm.longitude
-                    )
-                )
-            } else { // 서울시청
-                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
-                    GeoPoint(37.566535, 126.9779692)
-                )
-            }
+            mapView.controller.setCenter(
+                GeoPoint(latestLocationFromRealm.latitude, latestLocationFromRealm.longitude)
+            )
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -237,9 +225,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             mapView.invalidate()
         }
-
-        // 최근 위치 realm에서 가져오기
-        findLatestLocation()
 
         // 지도 초기화 후 화면 경계 초기 값 설정
         mapView.viewTreeObserver.addOnGlobalLayoutListener(object :
@@ -269,6 +254,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
             false
         }
+
+        // 내 위치로 이동 버튼 클릭했을 때
+//        binding.findMyLocationButton.setOnClickListener {
+//            findLatestLocation()
+//        }
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
@@ -561,7 +551,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 예: 하단 시트의 RecyclerView를 업데이트하거나 지도상의 마커를 업데이트하는 등
     }
 
-    private fun findLatestLocation() {
+    private fun findLatestLocation() { // GPS 버튼 클릭하면 본인 위치로 찾아가게
         val userDeviceInfoService = UserDeviceInfoService(context)
         val memberId = userDeviceInfoService.deviceId
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
@@ -576,23 +566,23 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
                 // 데이터베이스 작업 수행
                 var currentUser = realm.query<Member>("memberId ==$0", memberId).first().find()
-                var latestLat = currentUser?.latitude
-                var latestLon = currentUser?.longitude
 
                 // Realm에서 최근 위치 가져와서 화면 중심좌표 재설정
-
-                if (latestLat != null && latestLon != null) {
-                    latestLocationFromRealm?.latitude = latestLat
-                    latestLocationFromRealm?.longitude = latestLon
-
-                    mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
-                        GeoPoint(
-                            latestLocationFromRealm!!.latitude,
-                            latestLocationFromRealm!!.longitude
-                        )
-                    )
-                    mapView.invalidate()
+                if (currentUser?.latitude == 0.0 && currentUser?.longitude == 0.0) {
+                    Log.v("렘에서 가져온 최근 위치", "0.0 , 0.0")
+                    Log.i("렘에서 가져온 최근 위치", "서울로 변경합니다.")
+                    latestLocationFromRealm.latitude = 37.566535
+                    latestLocationFromRealm.longitude = 126.9779692
+                }else{ // 사용자의 위치 정보가 있으면 해당 위치로 다시 중심 조정
+                    latestLocationFromRealm.latitude = currentUser!!.latitude
+                    latestLocationFromRealm.longitude = currentUser!!.longitude
                 }
+
+                mapView.controller.setCenter(
+                    GeoPoint(latestLocationFromRealm.latitude, latestLocationFromRealm.longitude)
+                )
+
+                mapView.invalidate()
 
                 Log.v(
                     "LatestLocationFromRealm",
