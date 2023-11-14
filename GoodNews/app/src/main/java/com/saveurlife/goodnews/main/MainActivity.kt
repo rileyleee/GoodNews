@@ -49,6 +49,9 @@ import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    val sharedPreferences = GoodNewsApplication.preferences
+
     private val navController by lazy {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -93,9 +96,11 @@ class MainActivity : AppCompatActivity() {
             dialog.show(supportFragmentManager, "FamilyAlarmFragment")
         }
 
-//        val dialog = FamilyAlarmFragment()
-//        dialog.show(supportFragmentManager, "FamilyAlarmFragment")
-
+        // 다시 보지 않기 여부에 따라 다이얼로그 띄워주기
+        if (sharedPreferences.getBoolean("mapDownloadIgnore", false) == false) {
+            val dialog = MapAlarmFragment()
+            dialog.show(supportFragmentManager, "MapAlarmFragment")
+        }
 
         // viewmodel 설정
         sharedViewModel.isOnFlash.observe(this, Observer { isOn ->
@@ -121,7 +126,6 @@ class MainActivity : AppCompatActivity() {
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
-        // 왜 안 되지... @@ 수정
         binding.navigationView.setupWithNavController(navController)
         binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {

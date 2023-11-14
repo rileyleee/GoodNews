@@ -118,7 +118,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
         })
 
-        // 추가 코드 (recyclerView / divider)
+        // 서브 카테고리 선택 처리
+        binding.subCategoryWrap.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.radioAll -> updateFacilitiesBySubCategory("전체")
+                R.id.radioCivilDefense -> updateFacilitiesBySubCategory("민방위")
+                R.id.radioTsunami -> updateFacilitiesBySubCategory("지진해일")
+            }
+        }
+
         categoryRecyclerView = binding.facilityTypeList
         categoryRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -144,12 +152,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
 
-
         // 처음에 "전체" 카테고리가 선택되도록 합니다.
         handleSelectedCategory(FacilityUIType.ALL)
-
-        // sharedPreference에 초기화하기
-
 
         return binding.root
     }
@@ -590,19 +594,44 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun handleSelectedCategory(category: FacilityUIType) {
         // TODO: 여기에서 선택된 카테고리에 따라 다른 UI 요소를 업데이트합니다.
         // 예: 하단 시트의 RecyclerView를 업데이트하거나 지도상의 마커를 업데이트하는 등
-        // 선택된 카테고리에 해당하는 시설 데이터를 가져옴 (리사이클러뷰에 표시될 것)
-        /* 임시 코드
-        * val filteredFacilities = facilityProvider.getFilteredFacilities(category)
-        */
 
-        // 새로운 데이터를 가진 어댑터 생성 -> 새로운 카테고리 데이터로 교체
-        // listAdapter = FacilityListAdapter(filteredFacilities)
+        // 대피소일 경우
+        if (category == FacilityUIType.SHELTER) {
+            val subCategory = binding.subCategoryWrap
+            subCategory.visibility = View.VISIBLE
+            subCategory.check(R.id.radioAll)
+        } else {
+            binding.subCategoryWrap.visibility = View.GONE
+        }
 
-        // 리사이클러뷰에 새 어댑터 설정 -> 새로운 데이터로 화면 갱신
-        // listRecyclerView.adapter = listAdapter
-
+        updateFacilitiesByCategory(category)
     }
 
+    // 업데이트 코드
+    private fun updateFacilitiesByCategory(category: FacilityUIType) {
+        // 해당 데이터 가져오기 => facilityProvider에서 처리
+        // val filteredFacilities = facilityProvider.getFilteredFacilities(category)
+
+        // 지도 마커?
+        // addFacilitiesToMap(filteredFacilities)
+
+        // 리스트 어댑터에 넣어주기
+        // listAdapter.updateData(filteredFacilities)
+    }
+
+    // 서브 카테고리 업데이트 코드
+    private fun updateFacilitiesBySubCategory(subCategory: String) {
+        // 해당 데이터 가져오기 => facilityProvider에서 처리
+        // val filteredFacilities = facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+
+        // 지도 마커?
+        // addFacilitiesToMap(filteredFacilities)
+
+        // 리스트 어댑터에 넣어주기
+        // listAdapter.updateData(filteredFacilities)
+    }
+
+   
     private fun findLatestLocation() { // GPS 버튼 클릭하면 본인 위치로 찾아가게
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 

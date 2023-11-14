@@ -10,7 +10,7 @@ import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.OffMapFacility
 
 class FacilityListAdapter(
-    private val facilities: List<OffMapFacility>,
+    private var facilities: List<OffMapFacility>,
     private val preferencesUtil: PreferencesUtil
 ) :
     RecyclerView.Adapter<FacilityListAdapter.FacilityViewHolder>() {
@@ -49,6 +49,12 @@ class FacilityListAdapter(
                 }
             }
         }
+    }
+
+    // 리스트 업데이트
+    fun updateData(newFacilities: List<OffMapFacility>) {
+        facilities = newFacilities // 새로운 리스트로 교체
+        notifyDataSetChanged() // 리스트를 새로고침합니다.
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FacilityViewHolder {
