@@ -18,28 +18,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates
 
 
 class EmergencyInfoDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentEmergencyInfoDialogBinding
     private lateinit var inputText: String
     private var isSafe: String = ""
+    private var currentTime by Delegates.notNull<Long>()
 
     // 위치 정보 초기화
     private var currLatitude: Double = 0.0
     private var currLongitude: Double = 0.0
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.emergencyAddSubmit.setOnClickListener {
-            inputText = binding.locationTextView.text.toString()
-            isSafe = if (binding.safeTextView.visibility == View.VISIBLE) {
-                "0" // 안전
-            } else {
-                "1" // 위험
-            }
-            saveEmergencyInfoToRealm()
-        }
     }
 
     override fun onCreateView(
@@ -72,9 +65,13 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         // 등록 버튼 클릭했을 때
         binding.emergencyAddSubmit.setOnClickListener {
-            // 서버로 전송하는 코드 작성 필요 @@ + Toast로 알림도 필요한가?
-
-            dismiss() // 다이얼로그 닫기
+            inputText = binding.locationTextView.text.toString()
+            isSafe = if (binding.safeTextView.visibility == View.VISIBLE) {
+                "0" // 안전
+            } else {
+                "1" // 위험
+            }
+            saveEmergencyInfoToRealm()
         }
 
         // 취소 버튼 클릭했을 때
@@ -87,10 +84,16 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
     private fun saveEmergencyInfoToRealm() {
 
-        var currentTime = RealmInstant.now()
+
+        // 업데이트 시각 보정(+9시간 처리-> 한국 시각)
+        currentTime = System.currentTimeMillis()
+        currentTime += TimeUnit.HOURS.toMillis(9)
+
+        val timeRealmInstant = RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
 
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {
+
             val realm = Realm.open(GoodNewsApplication.realmConfiguration)
             try {
                 realm.write {
@@ -99,7 +102,7 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                         state = isSafe
                         latitude = (currLatitude * 10000).toInt() / 10000.0
                         longitude = (currLongitude * 10000).toInt() / 10000.0
-                        time = currentTime
+                        time = timeRealmInstant
                     })
                 }
                 withContext(Dispatchers.Main) {
@@ -110,6 +113,7 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                 Log.e("EmergencyInfoDialogFragment", "긴급 정보를 Realm에 저장하는 과정에서 오류", e)
             } finally {
                 realm.close()
+                dismiss() // 다이얼로그 닫기
             }
         }
     }
