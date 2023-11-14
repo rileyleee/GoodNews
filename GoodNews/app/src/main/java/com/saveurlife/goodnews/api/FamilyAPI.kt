@@ -138,9 +138,9 @@ class FamilyAPI {
     }
 
     // 가족 신청 수락
-    fun updateRegistFamily(memberId:String){
+    fun updateRegistFamily(memberId:String, refuse:Boolean){
         // request
-        val data = RequestMemberId(memberId)
+        val data = RequestMemberId(memberId, refuse)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -248,6 +248,7 @@ class FamilyAPI {
     }
 
     // 가족 신청 요청
+    // familyid 전화번호임!!!!
     fun registFamily(memberId:String, familyId:String){
         // request
         val data = RequestFamilyRegist(memberId, familyId)
@@ -365,7 +366,8 @@ class FamilyAPI {
     // 가족 구성원 조회
     fun getFamilyMemberInfo(memberId: String): ArrayList<FamilyInfo>? {
         // request
-        val data = RequestMemberId(memberId)
+        // refuse는 필요없어서 아무값
+        val data = RequestMemberId(memberId, true)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -425,7 +427,8 @@ class FamilyAPI {
     //가족 모임장소 조회
     fun getFamilyPlaceInfo(memberId:String): ArrayList<PlaceInfo>? {
         // request
-        val data = RequestMemberId(memberId)
+        // refuse는 쓸모 없어서 아무값
+        val data = RequestMemberId(memberId, true)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
