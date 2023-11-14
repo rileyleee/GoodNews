@@ -87,6 +87,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     val min = GeoPoint(33.1120, 124.6100)
     val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
+    // 마지막 위치 초기 설정 => 서울 시청
     val sharedPref = GoodNewsApplication.preferences
     var lastLat = sharedPref.getDouble("lastLat", 37.566535)
     var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
@@ -414,12 +415,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-
-        // sharedPreference에 저장
-        GoodNewsApplication.preferences.setDouble("lastLat", location.latitude)
-        GoodNewsApplication.preferences.setDouble("lastLon", location.longitude)
-        Log.d("마지막 위치 저장완료", "위도: $lastLat, 경도: $lastLon")
-
         currGeoPoint?.let {
             updateCurrentLocation(it)
         }
@@ -660,13 +655,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
         CoroutineScope(Dispatchers.IO).launch {
+
+            val newLastLat = sharedPref.getDouble("lastLat", 37.566535)
+            val newLastLon = sharedPref.getDouble("lastLon", 126.9779692)
+
             withContext(Dispatchers.Main) {
 
                 mapView.controller.setCenter(
                     GeoPoint(
-                        lastLat, lastLon
+                        newLastLat, newLastLon
                     )
                 )
+                Log.i("setCenter", "지도 중심 좌표 재 설정")
                 mapView.invalidate()
             }
         }
