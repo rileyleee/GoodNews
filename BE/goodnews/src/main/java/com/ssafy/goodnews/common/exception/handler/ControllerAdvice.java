@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.format.DateTimeParseException;
+
 @RestControllerAdvice
 public class ControllerAdvice {
 
@@ -31,6 +33,17 @@ public class ControllerAdvice {
                 .body(ExceptionResponseDto.builder()
                         .code(-1)
                         .message("JSON 처리 중 문제가 생겼습니다")
+                        .build());
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    private ResponseEntity<ExceptionResponseDto> DateFormatException(DateTimeParseException e) {
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ExceptionResponseDto.builder()
+                        .code(-100)
+                        .message("날짜 형식을 yyyy-MM-dd HH:mm:ss로 해주세요")
                         .build());
     }
 

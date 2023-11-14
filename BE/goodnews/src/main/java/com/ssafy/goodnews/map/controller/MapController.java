@@ -71,7 +71,7 @@ public class MapController {
         return mapService.detailFacility(mapFacilityRequestDto.getId());
     }
 
-    @Operation(summary = "지도 시설 상태 등록", description = "지도시설(버튼타입,내용,경도,위도,수정시간(yyyy-mm-dd hh-mm-ss)등록")
+    @Operation(summary = "지도 시설 상태 등록", description = "지도시설(버튼타입,내용,경도,위도,수정시간(yyyy-mm-dd hh:mm:ss)등록")
     @PostMapping("/registfacility")
     private BaseResponseDto registMapFacility(@RequestBody MapRegistFacilityRequestDto mapRegistFacilityRequestDto) throws JsonProcessingException {
 
@@ -85,7 +85,7 @@ public class MapController {
         return mapService.getFacility();
     }
 
-    @Operation(summary = "지도 시설 상태 기간 이후 조회", description = "기간(yyyy-mm-dd hh-mm-ss)요청하면(버튼타입,내용,경도,위도)조회")
+    @Operation(summary = "지도 시설 상태 기간 이후 조회", description = "기간(yyyy-mm-dd hh:mm:ss)요청하면(버튼타입,내용,경도,위도)조회")
     @PostMapping("/afterfacility")
     private BaseResponseDto getDurationFacility(@RequestBody FacilityDurationReqeustDto facilityDurationReqeustDto) {
 

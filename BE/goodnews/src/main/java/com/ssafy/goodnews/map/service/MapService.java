@@ -24,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -117,7 +118,8 @@ public class MapService {
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter.parse(request.getDate());
         saveToRedis(request);
 
         return BaseResponseDto.builder()
@@ -171,6 +173,11 @@ public class MapService {
 
     @Transactional(readOnly = true)
     public BaseResponseDto getDurationFacility(String date) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter.parse(date);
+
+
         List<FacilityStateResponseDto> list = facilityStateRepository.findByLastModifiedDateAfter(date).stream()
                 .map(facilityState -> FacilityStateResponseDto.builder()
                         .id(facilityState.getId())
