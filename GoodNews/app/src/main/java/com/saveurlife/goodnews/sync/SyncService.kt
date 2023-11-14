@@ -34,4 +34,25 @@ class SyncService {
         val date = Date(millis)
         return sdf.format(date)
     }
+
+    // 시간 형태 변환
+    // Long -> "YYYY-MM-DD HH:mm:ss"
+    // ex) "2023-11-12 03:12:02"
+
+    fun convertDateLongToString(oldTime: Long): String {
+        val dateFormat = "yyyy-MM-dd HH:mm:ss"
+
+        return convertTimestampToString(oldTime, dateFormat)
+    }
+    private fun convertTimestampToString(timestamp: Long, dateFormat: String): String {
+        try {
+            val sdf = SimpleDateFormat(dateFormat, Locale.getDefault())
+            val date = Date(timestamp)
+            return sdf.format(date)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return ""
+    }
+
 }
