@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="120dp"
+    android:layout_height="132dp"
     android:paddingTop="20dp"
     android:paddingBottom="20dp">
 
@@ -51,6 +51,7 @@
         android:id="@+id/useTrueWrap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/safe_radius_wrap"
         android:gravity="center"
         android:paddingStart="6dp"
@@ -82,6 +83,7 @@
         android:id="@+id/useFalseWrap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/danger_radius_wrap"
         android:gravity="center"
         android:paddingStart="6dp"
@@ -113,11 +115,10 @@
         android:id="@+id/facilityDistanceTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="12M"
         android:textColor="@color/point"
         android:textSize="16sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/familyLastAccessTimeGroup"
         app:layout_constraintEnd_toEndOf="parent" />

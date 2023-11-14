@@ -3,6 +3,7 @@ package com.saveurlife.goodnews.map
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuff
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -65,7 +66,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
-    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location ?= null
+    private var latestLocationFromRealm: com.saveurlife.goodnews.models.Location? = null
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -121,7 +122,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             // 선택된 카테고리 처리 로직, 예를 들어 다른 RecyclerView를 업데이트하거나 지도에 마커를 표시하는 등
             handleSelectedCategory(category)
             Log.d("CategorySelected", "Selected category: ${category.displayName}")
-            Log.d("test", "바뀌면 안됨"+categoryAdapter.toString())
+            Log.d("test", "바뀌면 안됨" + categoryAdapter.toString())
 
 
         }
@@ -134,7 +135,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         listAdapter = FacilityListAdapter(facilities, preferencesUtil)
         listRecyclerView.adapter = listAdapter
 
-        val dividerItemDecoration = DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
+        val dividerItemDecoration =
+            DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
 
 
@@ -213,11 +215,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             mapView.overlayManager.tilesOverlay.loadingLineColor = Color.BLACK
 
 
-
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
             if (latestLocationFromRealm == null) { // 서울시청 // 나중에 백그라운드에서 현재위치 업데이트 하면 가져오기
-                Log.i("mapCenter","지도 중심좌표는 서울시청입니다.")
+                Log.i("mapCenter", "지도 중심좌표는 서울시청입니다.")
                 mapView.controller.setCenter(
                     GeoPoint(
                         37.566535,
@@ -256,6 +257,35 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 최근 위치 realm에서 가져오기
         findLatestLocation()
 
+        // 내 위치로 이동 버튼 클릭했을 때
+        binding.findMyLocationButton.setOnClickListener {
+
+            it.isSelected = true
+            val drawable = binding.findMyLocationButton.drawable
+
+            // 아이콘에 색상 필터 적용 (예: 흰색으로 변경)
+            drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+
+            // 첫 번째 깜빡임 후 원래 상태로 되돌림
+            it.postDelayed({
+                it.isSelected = false
+                drawable.clearColorFilter()
+
+                // 두 번째 깜빡임 시작
+                it.postDelayed({
+                    it.isSelected = true
+                    drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+
+                    // 두 번째 깜빡임 후 원래 상태로 되돌림
+                    it.postDelayed({
+                        it.isSelected = false
+                        drawable.clearColorFilter()
+                    }, 150)
+                }, 150)
+            }, 150)
+
+            findLatestLocation()
+        }
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
@@ -543,9 +573,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     realm.query<com.saveurlife.goodnews.models.Location>()
                         .sort("time", Sort.DESCENDING).first().find()
 
-                Log.v("LatestLocationFromRealm", "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}")
+                Log.v(
+                    "LatestLocationFromRealm",
+                    "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}"
+                )
 
-                if (latestLocationFromRealm!=null) {
+                if (latestLocationFromRealm != null) {
                     Log.v("LatestLocationFromRealm", "최근 위치 정보 찾았어요")
                 } else {
                     Log.i("LatestLocationFromRealm", "최근 위치 정보 못 찾아요")
