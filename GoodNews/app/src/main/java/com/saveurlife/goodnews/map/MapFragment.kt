@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.map
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint

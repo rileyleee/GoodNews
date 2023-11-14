@@ -11,18 +11,20 @@ import android.widget.Toast
 
 class MapDownloader {
 
+    private var onDownloadCompleteReceiver: BroadcastReceiver? = null
+
     fun downloadMapFile(context: Context, url:String, fileName: String){
         val downloadRequest = DownloadManager.Request(Uri.parse(url))
             .setTitle("지도 다운로드")
             .setDescription("상세한 지도를 저장하는 중입니다.")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+            .setDestinationInExternalFilesDir(context,Environment.DIRECTORY_DOWNLOADS, fileName)
 
         val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val downloadId = downloadManager.enqueue(downloadRequest)
 
         // 다운로드 완료 감지
-        val onDownloadComplete = object :BroadcastReceiver(){
+        onDownloadCompleteReceiver = object :BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
                 val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID,-1)
                 if(id==downloadId){
@@ -30,7 +32,12 @@ class MapDownloader {
                 }
             }
         }
-        context.registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        context.registerReceiver(onDownloadCompleteReceiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+    }
 
+    fun unregisterReceiver(context: Context) {
+        onDownloadCompleteReceiver?.let {
+            context.unregisterReceiver(it)
+        }
     }
 }
