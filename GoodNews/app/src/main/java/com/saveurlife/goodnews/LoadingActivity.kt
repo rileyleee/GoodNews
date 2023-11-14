@@ -8,7 +8,6 @@ import android.util.Log
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.Member
-import com.saveurlife.goodnews.sync.SyncService
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
