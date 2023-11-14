@@ -21,7 +21,7 @@ public class FamilyController {
 
     private final FamilyService familyService;
 
-    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 기기번호")
+    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 전화번호")
     @PostMapping("/registfamily")
     private BaseResponseDto registFamily(@RequestBody MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
 

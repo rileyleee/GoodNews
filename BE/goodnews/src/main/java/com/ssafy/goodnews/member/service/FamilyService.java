@@ -45,9 +45,11 @@ public class FamilyService {
 
     @Transactional
     public BaseResponseDto registFamily(MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
+        Optional<Member> findMemberPhone = memberRepository.findByPhoneNumber(memberRegistFamilyRequestDto.getFamilyId());
+        memberValidator.checkMember(findMemberPhone,memberRegistFamilyRequestDto.getFamilyId());
 
-        Optional<FamilyMember> findFamilyMember = familyMemberRepository.findByMemberIdAndFamilyFamilyId(memberRegistFamilyRequestDto.getFamilyId(), memberRegistFamilyRequestDto.getMemberId());
-        familyValidator.checkRegistFamily(findFamilyMember, memberRegistFamilyRequestDto.getFamilyId());
+        Optional<FamilyMember> findFamilyMember = familyMemberRepository.findByMemberIdAndFamilyFamilyId(findMemberPhone.get().getId(), memberRegistFamilyRequestDto.getMemberId());
+        familyValidator.checkRegistFamily(findFamilyMember, findMemberPhone.get().getId());
 
         Optional<Family> findFamilyInfo = familyRepository.findById(memberRegistFamilyRequestDto.getMemberId());
 
@@ -59,8 +61,8 @@ public class FamilyService {
 
         Optional<Family> findFamily = familyRepository.findById(findMember.get().getId());
 
-        Optional<Member> findOther = memberRepository.findById(memberRegistFamilyRequestDto.getFamilyId());
-        memberValidator.checkMember(findOther, memberRegistFamilyRequestDto.getFamilyId());
+        Optional<Member> findOther = memberRepository.findById(findMemberPhone.get().getId());
+        memberValidator.checkMember(findOther, findMemberPhone.get().getId());
         if (findFamily.isEmpty()) {
             Family saveFamily = familyRepository.save(Family.builder()
                     .member(findMember.get())
@@ -140,7 +142,6 @@ public class FamilyService {
     public BaseResponseDto registFamilyPlace(FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
 
         Optional<FamilyMember> familyId = memberQueryDslRepository.findFamilyId(familyRegistPlaceRequestDto.getMemberId());
-        System.out.println("familyId.get().getFamilyId() = " + familyId.get().getFamily().getFamilyId());
         familyValidator.checkFamily(familyId,familyRegistPlaceRequestDto.getMemberId());
         List<FamilyPlace> findFamilyPlace = familyPlaceRepository.findByFamilyFamilyId(familyId.get().getFamily().getFamilyId());
 
