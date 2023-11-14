@@ -4,11 +4,15 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -19,6 +23,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.content.ContextCompat
@@ -53,6 +58,9 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
+    companion object{
+        var checkFlash : Boolean = false
+    }
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
 //    private val realm: Realm = Realm.open(config)
 
@@ -144,6 +152,23 @@ class MainActivity : AppCompatActivity() {
         binding.mainCircleAddButton.setOnClickListener {
             showDialog()
         }
+
+        // 사용자에게 배터리 최적화 무시 요청 (단, 조건에 따라 요청)
+        if (!isBatteryOptimizationIgnored(this)) {
+            AlertDialog.Builder(this).apply {
+                setTitle("배터리 최적화 일시 중지")
+                setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
+                setPositiveButton("확인") { _, _ ->
+                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:com.saveurlife.goodnews")
+                    }
+                    startActivity(intent)
+                }
+                setNegativeButton("취소", null)
+                show()
+            }
+        }
+
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
 
@@ -156,6 +181,12 @@ class MainActivity : AppCompatActivity() {
             // 기본적인 뒤로 가기 동작 수행 (옵션)
             finish()
         }
+    }
+
+    // 배터리 최적화 여부 확인 -> boolean 반환
+    private fun isBatteryOptimizationIgnored(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
     }
 
 

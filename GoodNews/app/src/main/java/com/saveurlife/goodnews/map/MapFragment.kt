@@ -33,6 +33,8 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.osmdroid.bonuspack.location.GeocoderGraphHopper
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -63,7 +65,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
-    private var latestLocationFromRealm = GeoPoint(37.566535, 126.9779692) // 서울 시청으로 초기화
 
     // 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -89,6 +90,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     val max = GeoPoint(38.6111, 131.8696)
     val min = GeoPoint(33.1120, 124.6100)
     val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
+
+    val sharedPref = GoodNewsApplication.preferences
+    var lastLat = sharedPref.getDouble("lastLat", 37.566535)
+    var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
 
 
     override fun onCreateView(
@@ -146,6 +151,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dividerItemDecoration =
             DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
+
+        // 처음에 "전체" 카테고리가 선택되도록 합니다.
+        handleSelectedCategory(FacilityUIType.ALL)
 
         return binding.root
     }
@@ -216,21 +224,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(12.0)
-
-            if (latestLocationFromRealm.latitude != 0.0 && latestLocationFromRealm.longitude != 0.0) {
-
-                // Realm에서 가져온 사용자의 마지막 위치로 중심 설정
-                mapView.controller.setCenter(
-                    GeoPoint(
-                        latestLocationFromRealm.latitude,
-                        latestLocationFromRealm.longitude
-                    )
-                )
-            } else { // 서울시청
-                mapView.controller.setCenter( // realm에 등록된 나의 마지막 위치로!
-                    GeoPoint(37.566535, 126.9779692)
-                )
-            }
+            mapView.controller.setCenter(
+                GeoPoint(lastLat, lastLon)
+            )
 
             // 타일 반복 방지
             mapView.isHorizontalMapRepetitionEnabled = false
@@ -394,6 +390,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
+
+        // sharedPreference에 저장
+        GoodNewsApplication.preferences.setDouble("lastLat", location.latitude)
+        GoodNewsApplication.preferences.setDouble("lastLon", location.longitude)
+        Log.d("마지막 위치 저장완료", "위도: $lastLat, 경도: $lastLon")
 
         currGeoPoint?.let {
             updateCurrentLocation(it)
@@ -630,50 +631,20 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // listAdapter.updateData(filteredFacilities)
     }
 
+   
     private fun findLatestLocation() { // GPS 버튼 클릭하면 본인 위치로 찾아가게
-        val userDeviceInfoService = UserDeviceInfoService(context)
-        val memberId = userDeviceInfoService.deviceId
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
-        CoroutineScope(Dispatchers.IO).launch {
-
-            // Realm 인스턴스 열기
-            val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
-            try {
-                Log.i("LatestLocation", "DB 작업합니다.")
-
-                // 데이터베이스 작업 수행
-                var currentUser = realm.query<Member>("memberId ==$0", memberId).first().find()
-
-                // Realm에서 최근 위치 가져와서 화면 중심좌표 재설정
-                if (currentUser?.latitude == 0.0 && currentUser?.longitude == 0.0) {
-                    Log.v("렘에서 가져온 최근 위치", "0.0 , 0.0")
-                    Log.i("렘에서 가져온 최근 위치", "서울로 변경합니다.")
-                    latestLocationFromRealm.latitude = 37.566535
-                    latestLocationFromRealm.longitude = 126.9779692
-                } else { // 사용자의 위치 정보가 있으면 해당 위치로 다시 중심 조정
-                    latestLocationFromRealm.latitude = currentUser!!.latitude
-                    latestLocationFromRealm.longitude = currentUser!!.longitude
-                }
+       CoroutineScope(Dispatchers.IO).launch {
+           withContext(Dispatchers.Main) {
 
                 mapView.controller.setCenter(
-                    GeoPoint(latestLocationFromRealm.latitude, latestLocationFromRealm.longitude)
+                    GeoPoint(
+                        lastLat, lastLon
+                    )
                 )
-
                 mapView.invalidate()
-
-                Log.v(
-                    "LatestLocationFromRealm",
-                    "위도: ${latestLocationFromRealm?.latitude} 경도: ${latestLocationFromRealm?.longitude}"
-                )
-
-
-            } catch (e: Exception) {
-                Log.e("LocationProvider", "최신 위치 정보 검색 중 오류 발생", e)
-            } finally {
-                realm.close()
-            }
-        }
+           }
+       }
     }
 }
