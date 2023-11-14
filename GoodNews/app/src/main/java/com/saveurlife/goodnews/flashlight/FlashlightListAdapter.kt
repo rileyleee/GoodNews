@@ -67,6 +67,7 @@ class FlashlightListAdapter() :
 
     fun addSelfList(text: String){
         saveData.add(FlashlightData(FlashType.SELF,text))
+        saveData = saveData.distinct().toMutableList()
         notifyItemInserted(saveData.size)
     }
 

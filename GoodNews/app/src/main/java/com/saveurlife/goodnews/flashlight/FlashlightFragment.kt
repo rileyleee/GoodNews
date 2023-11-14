@@ -1,11 +1,13 @@
 package com.saveurlife.goodnews.flashlight
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +15,20 @@ import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.common.SharedViewModel
+import com.saveurlife.goodnews.main.MainActivity
+import com.saveurlife.goodnews.models.MorseCode
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -53,6 +62,10 @@ class FlashlightFragment : Fragment() {
     private var cameraId: String? = null
     private var isFlashOn = false
 
+
+    private lateinit var callback: OnBackPressedCallback
+    lateinit var realm: Realm
+
     companion object{
         var flashListAdapter = FlashlightListAdapter()
         var flashRecordListAdapter = FlashlightRecordAdapter()
@@ -79,6 +92,8 @@ class FlashlightFragment : Fragment() {
         morseOutputTextView = view.findViewById(R.id.morseOutputTextView)
         clearButton = view.findViewById(R.id.clearButton)
         morseRecordButton = view.findViewById(R.id.morseRecordButton)
+
+        realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         cameraManager = activity?.getSystemService(Context.CAMERA_SERVICE) as CameraManager?
         try {
@@ -107,6 +122,13 @@ class FlashlightFragment : Fragment() {
         }
 
         // 첫 값 realm 에서 가져옴
+        val result = realm.query<MorseCode>().distinct("text").find()
+
+        if(result != null){
+            result.forEach {
+                flashListAdapter.addSelfList(it.text)
+            }
+        }
 
         // 모스 부호 매핑 초기화
         initializeMorseCodeMap()
@@ -159,11 +181,7 @@ class FlashlightFragment : Fragment() {
         morseRecordButton!!.setOnClickListener {
             if (morseOutputTextView?.text?.length == 0) return@setOnClickListener
             // 여기에서 저장 리스트에 추가해주면 됨 @
-//            recordData.add(FlashlightData(FlashType.SELF, morseOutputTextView!!.text))
-//            saveData.add(FlashlightData(FlashType.SELF, morseOutputTextView!!.text))
-
             flashRecordListAdapter.addOtherList(morseOutputTextView!!.text.toString())
-//            flashRecordListAdapter
             
             Toast.makeText(activity, "${morseOutputTextView?.text} 의 내용입니다", Toast.LENGTH_SHORT)
                 .show()
@@ -216,6 +234,22 @@ class FlashlightFragment : Fragment() {
         })
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d("test", "back")
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                startActivity(intent)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
 
     private fun initializeMorseCodeMap() {
         // 숫자
