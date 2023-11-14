@@ -6,11 +6,9 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
@@ -22,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.common.SharedViewModel
-import com.saveurlife.goodnews.databinding.FragmentFlashlightBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -56,6 +53,12 @@ class FlashlightFragment : Fragment() {
     private var cameraId: String? = null
     private var isFlashOn = false
 
+    companion object{
+        var flashListAdapter = FlashlightListAdapter()
+        var flashRecordListAdapter = FlashlightRecordAdapter()
+
+    }
+
     // 문자에 대한 모스 부호 매핑
     private val morseCodeMap: MutableMap<Char, String> = HashMap()
     override fun onCreateView(
@@ -84,6 +87,27 @@ class FlashlightFragment : Fragment() {
             e.printStackTrace()
         }
 
+        // 저장된 것
+        var flashListManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+
+        // 기록된 것
+        var flashRecordListManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        val flashListRecyclerView = view.findViewById<RecyclerView>(R.id.flashList)
+        flashListRecyclerView.apply {
+            adapter = flashListAdapter
+            layoutManager = flashListManager
+        }
+
+        view.findViewById<RecyclerView>(R.id.flashRecordList).apply {
+            adapter = flashRecordListAdapter
+            layoutManager = flashRecordListManager
+        }
+
+        // 첫 값 realm 에서 가져옴
+
         // 모스 부호 매핑 초기화
         initializeMorseCodeMap()
         flashStartButton!!.setOnClickListener {
@@ -95,6 +119,7 @@ class FlashlightFragment : Fragment() {
             val morseCode = convertToMorse(input)
             flashMorseCode(morseCode) {
                 // 여기에 record_list로 저장하는 동작을 추가해줘야됨 @@
+                flashRecordListAdapter.addSelfList(input)
                 // 근데 이미 있는 아이템의 경우에는 추가하지 않아야됨
             }
         }
@@ -123,6 +148,7 @@ class FlashlightFragment : Fragment() {
             morseInputHandler.postDelayed(morseInputRunnable, 1200)
             true
         }
+
         clearButton!!.setOnClickListener {
             morseOutputTextView!!.text = ""
             convertedCharactersEng.setLength(0)
@@ -132,9 +158,16 @@ class FlashlightFragment : Fragment() {
         // 기록 등록 버튼 눌렀을 때
         morseRecordButton!!.setOnClickListener {
             if (morseOutputTextView?.text?.length == 0) return@setOnClickListener
-            // 여기에서 기록 리스트에 추가해주면 됨 @@
+            // 여기에서 저장 리스트에 추가해주면 됨 @
+//            recordData.add(FlashlightData(FlashType.SELF, morseOutputTextView!!.text))
+//            saveData.add(FlashlightData(FlashType.SELF, morseOutputTextView!!.text))
+
+            flashRecordListAdapter.addOtherList(morseOutputTextView!!.text.toString())
+//            flashRecordListAdapter
+            
             Toast.makeText(activity, "${morseOutputTextView?.text} 의 내용입니다", Toast.LENGTH_SHORT)
                 .show()
+            // 알림 보내고
 
             morseOutputTextView!!.text = ""
             convertedCharactersEng.setLength(0)
@@ -151,29 +184,12 @@ class FlashlightFragment : Fragment() {
             }
         }
         // RecyclerView 손전등 테스트 데이터
-        var recordTestData = arrayListOf(
-            FlashlightData(FlashType.SELF, "살려주세요", "... --- ..."),
-            FlashlightData(FlashType.OTHER, "나의 위치", "-- .- .. -."),
-            FlashlightData(FlashType.SELF, "Record 3", ".- .-. .")
-        )
-        var flashListManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        var flashListAdapter = FlashlightListAdapter(recordTestData)
+//        var recordTestData = arrayListOf(
+//            FlashlightData(FlashType.SELF, "살려주세요", "... --- ..."),
+//            FlashlightData(FlashType.OTHER, "나의 위치", "-- .- .. -."),
+//            FlashlightData(FlashType.SELF, "Record 3", ".- .-. .")
+//        )
 
-
-        var flashRecordListManager =
-            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        var flashRecordListAdapter = FlashlightRecordAdapter(recordTestData)
-
-        val flashListRecyclerView = view.findViewById<RecyclerView>(R.id.flashList)
-        flashListRecyclerView.apply {
-            adapter = flashListAdapter
-            layoutManager = flashListManager
-        }
-
-        view.findViewById<RecyclerView>(R.id.flashRecordList).apply {
-            adapter = flashRecordListAdapter
-            layoutManager = flashRecordListManager
-        }
 
         // ListItem 클릭 이벤트
         flashListAdapter.setOnItemClickListener(object : FlashlightListAdapter.OnItemClickListener {
@@ -186,7 +202,7 @@ class FlashlightFragment : Fragment() {
                     flashListRecyclerView.findViewHolderForAdapterPosition(position) as? FlashlightListAdapter.ListAdapter
                 viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.active_rounded_background_with_shadow)
                 // 모스 부호 플래시 이벤트
-                flashMorseCode(data.morseCode) {
+                flashMorseCode(convertToMorse(data.content)){
                     flashListAdapter.isFlashing = false
                     viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
                 }
