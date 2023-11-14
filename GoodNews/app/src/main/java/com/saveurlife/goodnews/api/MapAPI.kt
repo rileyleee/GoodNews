@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,6 +58,22 @@ class MapAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseFacilityRegist>, t: Throwable) {
@@ -95,6 +113,22 @@ class MapAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseAllFacilityState>, t: Throwable) {
@@ -138,6 +172,22 @@ class MapAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseDurationFacilityState>, t: Throwable) {
