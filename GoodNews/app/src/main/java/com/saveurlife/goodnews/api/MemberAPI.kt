@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONException
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,6 +57,22 @@ class MemberAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseModifyMember>, t: Throwable) {
@@ -94,6 +112,22 @@ class MemberAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseState>, t: Throwable) {
@@ -135,6 +169,22 @@ class MemberAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseLocation>, t: Throwable) {
@@ -174,6 +224,22 @@ class MemberAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseMember>, t: Throwable) {
@@ -216,6 +282,22 @@ class MemberAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseRegistMember>, t: Throwable) {
@@ -258,6 +340,22 @@ class MemberAPI {
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+                    }
                 }
             }
             override fun onFailure(call: Call<ResponseLogin>, t: Throwable) {

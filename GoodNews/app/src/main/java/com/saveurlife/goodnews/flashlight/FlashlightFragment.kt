@@ -1,28 +1,34 @@
 package com.saveurlife.goodnews.flashlight
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.common.SharedViewModel
-import com.saveurlife.goodnews.databinding.FragmentFlashlightBinding
+import com.saveurlife.goodnews.main.MainActivity
+import com.saveurlife.goodnews.models.MorseCode
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -56,6 +62,16 @@ class FlashlightFragment : Fragment() {
     private var cameraId: String? = null
     private var isFlashOn = false
 
+
+    private lateinit var callback: OnBackPressedCallback
+    lateinit var realm: Realm
+
+    companion object{
+        var flashListAdapter = FlashlightListAdapter()
+        var flashRecordListAdapter = FlashlightRecordAdapter()
+
+    }
+
     // 문자에 대한 모스 부호 매핑
     private val morseCodeMap: MutableMap<Char, String> = HashMap()
     override fun onCreateView(
@@ -77,6 +93,8 @@ class FlashlightFragment : Fragment() {
         clearButton = view.findViewById(R.id.clearButton)
         morseRecordButton = view.findViewById(R.id.morseRecordButton)
 
+        realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
         cameraManager = activity?.getSystemService(Context.CAMERA_SERVICE) as CameraManager?
         try {
             cameraId = cameraManager!!.cameraIdList[0]
@@ -84,10 +102,38 @@ class FlashlightFragment : Fragment() {
             e.printStackTrace()
         }
 
+        // 저장된 것
+        var flashListManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+
+        // 기록된 것
+        var flashRecordListManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        val flashListRecyclerView = view.findViewById<RecyclerView>(R.id.flashList)
+        flashListRecyclerView.apply {
+            adapter = flashListAdapter
+            layoutManager = flashListManager
+        }
+
+        view.findViewById<RecyclerView>(R.id.flashRecordList).apply {
+            adapter = flashRecordListAdapter
+            layoutManager = flashRecordListManager
+        }
+
+        // 첫 값 realm 에서 가져옴
+        val result = realm.query<MorseCode>().distinct("text").find()
+
+        if(result != null){
+            result.forEach {
+                flashListAdapter.addSelfList(it.text)
+            }
+        }
+
         // 모스 부호 매핑 초기화
         initializeMorseCodeMap()
         flashStartButton!!.setOnClickListener {
-            if (sharedViewModel.isOnFlash.value == true) { // 플래시가 켜져 있으면 return
+            if (MainActivity.checkFlash == true) { // 플래시가 켜져 있으면 return
                 Toast.makeText(activity, "플래시가 이미 켜져 있습니다.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -95,6 +141,7 @@ class FlashlightFragment : Fragment() {
             val morseCode = convertToMorse(input)
             flashMorseCode(morseCode) {
                 // 여기에 record_list로 저장하는 동작을 추가해줘야됨 @@
+                flashRecordListAdapter.addSelfList(input)
                 // 근데 이미 있는 아이템의 경우에는 추가하지 않아야됨
             }
         }
@@ -123,6 +170,7 @@ class FlashlightFragment : Fragment() {
             morseInputHandler.postDelayed(morseInputRunnable, 1200)
             true
         }
+
         clearButton!!.setOnClickListener {
             morseOutputTextView!!.text = ""
             convertedCharactersEng.setLength(0)
@@ -132,9 +180,12 @@ class FlashlightFragment : Fragment() {
         // 기록 등록 버튼 눌렀을 때
         morseRecordButton!!.setOnClickListener {
             if (morseOutputTextView?.text?.length == 0) return@setOnClickListener
-            // 여기에서 기록 리스트에 추가해주면 됨 @@
+            // 여기에서 저장 리스트에 추가해주면 됨 @
+            flashRecordListAdapter.addOtherList(morseOutputTextView!!.text.toString())
+            
             Toast.makeText(activity, "${morseOutputTextView?.text} 의 내용입니다", Toast.LENGTH_SHORT)
                 .show()
+            // 알림 보내고
 
             morseOutputTextView!!.text = ""
             convertedCharactersEng.setLength(0)
@@ -150,56 +201,45 @@ class FlashlightFragment : Fragment() {
                 morseOutputTextView!!.text = convertedCharactersKor
             }
         }
-        // RecyclerView 손전등 테스트 데이터
-        var recordTestData = arrayListOf(
-            FlashlightData(FlashType.SELF, "살려주세요", "... --- ..."),
-            FlashlightData(FlashType.OTHER, "나의 위치", "-- .- .. -."),
-            FlashlightData(FlashType.SELF, "Record 3", ".- .-. .")
-        )
-        var flashListManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        var flashListAdapter = FlashlightListAdapter(recordTestData)
-
-
-        var flashRecordListManager =
-            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        var flashRecordListAdapter = FlashlightRecordAdapter(recordTestData)
-
-        val flashListRecyclerView = view.findViewById<RecyclerView>(R.id.flashList)
-        flashListRecyclerView.apply {
-            adapter = flashListAdapter
-            layoutManager = flashListManager
-        }
-
-        view.findViewById<RecyclerView>(R.id.flashRecordList).apply {
-            adapter = flashRecordListAdapter
-            layoutManager = flashRecordListManager
-        }
 
         // ListItem 클릭 이벤트
         flashListAdapter.setOnItemClickListener(object : FlashlightListAdapter.OnItemClickListener {
             override fun onItemClick(data: FlashlightData, position: Int) {
                 if (flashListAdapter.isFlashing) return
-
+                if (MainActivity.checkFlash == true) { // 플래시가 켜져 있으면 return
+                    Toast.makeText(activity, "플래시가 이미 켜져 있습니다.", Toast.LENGTH_SHORT).show()
+                    return
+                }
                 flashListAdapter.isFlashing = true
                 // 아이템 눌린 모양으로 변경
                 val viewHolder =
                     flashListRecyclerView.findViewHolderForAdapterPosition(position) as? FlashlightListAdapter.ListAdapter
                 viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.active_rounded_background_with_shadow)
                 // 모스 부호 플래시 이벤트
-                flashMorseCode(data.morseCode) {
+                flashMorseCode(convertToMorse(data.content)){
                     flashListAdapter.isFlashing = false
                     viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
                 }
-
-                // 테스트 이벤트 @@
-//                testMorseCode(data.morseCode) {
-//                    flashListAdapter.isFlashing = false
-//                    viewHolder?.flashLightTextBox?.setBackgroundResource(R.drawable.rounded_background_with_shadow)
-//                }
             }
         })
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Log.d("test", "back")
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                startActivity(intent)
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
 
     private fun initializeMorseCodeMap() {
         // 숫자
@@ -488,6 +528,7 @@ class FlashlightFragment : Fragment() {
             return
         }
         sharedViewModel.isOnFlash.value = true
+        MainActivity.checkFlash = true
         CoroutineScope(Dispatchers.Main).launch {
             for (c in morseCode) {
                 when (c) {
@@ -511,6 +552,7 @@ class FlashlightFragment : Fragment() {
                 }
             }
             sharedViewModel.isOnFlash.value = false
+            MainActivity.checkFlash = false
             onCompletion?.invoke()
         }
 //        for (i in 0 until morseCode.length) {

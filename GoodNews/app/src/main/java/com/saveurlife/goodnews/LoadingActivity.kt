@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.Member

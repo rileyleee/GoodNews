@@ -6,6 +6,5 @@ enum class FlashType {
 
 data class FlashlightData(
     val type: FlashType? = null,
-    val content: String,
-    val morseCode: String
+    val content: String
 )
