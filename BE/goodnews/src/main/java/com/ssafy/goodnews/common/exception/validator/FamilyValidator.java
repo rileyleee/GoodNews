@@ -39,6 +39,17 @@ public class FamilyValidator {
 
     }
 
+    public void checkApproveFamily(Optional<FamilyMember> findMember, String familyId) {
+        if(!findMember.get().isApprove()) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_APPROVE.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_APPROVE.getMessage() + familyId)
+                    .build();
+        }
+
+    }
+
 
     public void checkRegistOtherFamily(Optional<Family> findFamily, Optional<FamilyMember> findMember, String familyId) {
 
@@ -52,7 +63,7 @@ public class FamilyValidator {
 
     }
 
-    public void checkFamily(Optional<Family> findMember, String familyId) {
+    public void checkFamily(Optional<FamilyMember> findMember, String familyId) {
         if (findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
@@ -76,6 +87,16 @@ public class FamilyValidator {
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_PLACE.getCode())
                     .message(FamilyErrorEnum.INVALID_FAMILY_PLACE.getMessage())
+                    .build();
+        }
+
+    }
+    public void checkFamilyPlace(List<FamilyPlace> aLlFamilyPlace) {
+        if (aLlFamilyPlace.size() >= 3) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_PLACE_SIZE.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_PLACE_SIZE.getMessage())
                     .build();
         }
     }

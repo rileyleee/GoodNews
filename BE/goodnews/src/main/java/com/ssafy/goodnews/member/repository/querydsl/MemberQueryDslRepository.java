@@ -42,11 +42,10 @@ public class MemberQueryDslRepository {
 
     }
 
-    public Optional<Family> findFamilyId(String memberId){
+    public Optional<FamilyMember> findFamilyId(String memberId){
         return Optional.ofNullable(queryFactory
-                .selectFrom(family)
-                .innerJoin(familyMember)
-                .on(familyMember.member.id.eq(memberId))
+                .selectFrom(familyMember)
+                .where(familyMember.member.id.eq(memberId))
                 .fetchOne());
     }
 

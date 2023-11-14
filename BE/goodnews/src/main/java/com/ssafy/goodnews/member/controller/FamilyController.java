@@ -36,7 +36,7 @@ public class FamilyController {
         return familyService.updateFamilyMember(memberFirstLoginRequestDto);
     }
 
-    @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태,상태,마지막 연결 시각) 조회")
+    @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태,상태,마지막 연결 시각), familyId 조회")
     @PostMapping("/familyinfo")
     private BaseResponseDto getFamilyMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         return familyService.getFamilyMemberInfo(memberFirstLoginRequestDto.getMemberId());
@@ -48,7 +48,7 @@ public class FamilyController {
         return familyService.registFamilyPlace(familyRegistPlaceRequestDto);
     }
 
-    @Operation(summary = "가족 모임장소 조회", description = "가족 모임장소 정보(장소id,명칭,사용가능여부) 조회")
+    @Operation(summary = "가족 모임장소 조회", description = "가족 모임장소 정보(장소id,명칭,사용가능여부,순서(1,2,3)) 조회")
     @PostMapping("/allplaceinfo")
     private BaseResponseDto getFamilyPlaceInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         return familyService.getFamilyPlaceInfo(memberFirstLoginRequestDto.getMemberId());

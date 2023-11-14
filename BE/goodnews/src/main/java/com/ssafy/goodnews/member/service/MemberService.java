@@ -120,7 +120,7 @@ public class MemberService {
     public BaseResponseDto getMemberInfo(String memberId) {
         Optional<Member> findMember = memberRepository.findById(memberId);
         memberValidator.checkMember(findMember, memberId);
-        Optional<Family> findFamily = memberQueryDslRepository.findFamilyId(memberId);
+        Optional<FamilyMember> findFamily = memberQueryDslRepository.findFamilyId(memberId);
         if (findFamily.isEmpty()) {
             return BaseResponseDto.builder()
                     .success(true)
@@ -136,7 +136,7 @@ public class MemberService {
                 .message("회원 정보 조회를 성공했습니다")
                 .data(MemberInfoResponseDto.builder()
                         .member(findMember.get())
-                        .familyId(findFamily.get().getFamilyId())
+                        .familyId(findFamily.get().getFamily().getFamilyId())
                         .build()
                 ).build();
     }

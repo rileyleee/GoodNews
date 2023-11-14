@@ -110,7 +110,9 @@ public class FamilyService {
     public BaseResponseDto getFamilyMemberInfo(String memberId) {
 
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberId);
+
         familyValidator.checkUpdateFamily(familyMember, memberId);
+        familyValidator.checkApproveFamily(familyMember,memberId);
         List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
         if (familyMemberList.isEmpty()) {
             return BaseResponseDto.builder()
@@ -129,7 +131,7 @@ public class FamilyService {
                                         .phoneNumber(member.getPhoneNumber())
                                         .lastConnection(member.getLastConnection().toString())
                                         .state(member.getState())
-                                        .familyId(Integer.toString(familyMember.get().getId()))
+                                        .familyId(familyMember.get().getFamily().getFamilyId())
                                         .build())
                         .collect(Collectors.toList()))
                 .build();
@@ -137,24 +139,43 @@ public class FamilyService {
     @Transactional
     public BaseResponseDto registFamilyPlace(FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
 
-        Optional<Family> familyId = memberQueryDslRepository.findFamilyId(familyRegistPlaceRequestDto.getMemberId());
+        Optional<FamilyMember> familyId = memberQueryDslRepository.findFamilyId(familyRegistPlaceRequestDto.getMemberId());
+        System.out.println("familyId.get().getFamilyId() = " + familyId.get().getFamily().getFamilyId());
         familyValidator.checkFamily(familyId,familyRegistPlaceRequestDto.getMemberId());
-        FamilyPlace newFamilyPlace = familyPlaceRepository.save(FamilyPlace.builder()
-                .name(familyRegistPlaceRequestDto.getName())
-                .lat(familyRegistPlaceRequestDto.getLat())
-                .lon(familyRegistPlaceRequestDto.getLon())
-                .canuse(true)
-                .family(familyId.get())
-                .build());
+        List<FamilyPlace> findFamilyPlace = familyPlaceRepository.findByFamilyFamilyId(familyId.get().getFamily().getFamilyId());
 
-
+        if (findFamilyPlace.isEmpty()) {
+            return BaseResponseDto.builder()
+                    .success(true)
+                    .message("가족 모임 장소 동록했습니다")
+                    .data(FamilyRegistPlaceResponseDto.builder()
+                            .familyPlace(familyPlaceRepository.save(FamilyPlace.builder()
+                                    .name(familyRegistPlaceRequestDto.getName())
+                                    .lat(familyRegistPlaceRequestDto.getLat())
+                                    .lon(familyRegistPlaceRequestDto.getLon())
+                                    .canuse(true)
+                                    .family(familyId.get().getFamily())
+                                    .build()))
+                            .build())
+                    .build();
+        }
+        familyValidator.checkFamilyPlace(findFamilyPlace);
         return BaseResponseDto.builder()
                 .success(true)
                 .message("가족 모임 장소 동록했습니다")
                 .data(FamilyRegistPlaceResponseDto.builder()
-                        .familyPlace(newFamilyPlace)
+                        .familyPlace(familyPlaceRepository.save(FamilyPlace.builder()
+                                .name(familyRegistPlaceRequestDto.getName())
+                                .lat(familyRegistPlaceRequestDto.getLat())
+                                .lon(familyRegistPlaceRequestDto.getLon())
+                                .canuse(true)
+                                .family(familyId.get().getFamily())
+                                .seq(findFamilyPlace.get(findFamilyPlace.size()-1).getSeq())
+                                .build()))
                         .build())
                 .build();
+
+//        return null;
     }
 
     @Transactional(readOnly = true)
@@ -165,6 +186,7 @@ public class FamilyService {
         familyValidator.checkFamilyPlaceList(aLlFamilyPlace);
 
         return BaseResponseDto.builder()
+                .success(true)
                 .message("가족 모임 장소 리스트 조회 성공했습니다")
                 .data(aLlFamilyPlace.stream()
                         .map(familyPlace ->
@@ -172,6 +194,7 @@ public class FamilyService {
                                         .placeId(familyPlace.getId())
                                         .name(familyPlace.getName())
                                         .canuse(familyPlace.isCanuse())
+                                        .seq(familyPlace.getSeq())
                                         .build())
                         .collect(Collectors.toList())).build();
     }

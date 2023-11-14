@@ -29,13 +29,15 @@ public class FamilyPlace extends BaseEntity {
     @JoinColumn(name = "family_id")
     private Family family;
 
+    private int seq;
     @Builder
-    public FamilyPlace(String name, double lat, double lon, boolean canuse, Family family) {
+    public FamilyPlace(String name, double lat, double lon, boolean canuse, Family family,int seq) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
         this.canuse = canuse;
         this.family = family;
+        this.seq = seq+1;
     }
 
     public void updatePlaceInfo(FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
