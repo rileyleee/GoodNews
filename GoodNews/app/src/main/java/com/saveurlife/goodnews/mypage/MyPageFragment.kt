@@ -86,6 +86,13 @@ class MyPageFragment : Fragment() {
             }
             preferencesUtil.setBoolean("darkMode", isChecked)
         }
+        
+        // 지도 다운로드 버튼 클릭 했을 때
+        binding.mapDownloadButton.setOnClickListener {
+            // 여기에서 다운로드~!!
+        }
+
+
         //객체 만들기
 //        realm.writeBlocking {
 //            copyToRealm(Member().apply {

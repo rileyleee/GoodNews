@@ -54,7 +54,11 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         Log.v("정보 공유 창에 보낼 현재 위도", "$currLatitude")
         Log.v("정보 공유 창에 보낼 현재 경도", "$currLongitude")
-
+        if (currLatitude == 0.0 && currLongitude == 0.0) {
+            binding.myLocationTextView.text = "위치 정보가 없습니다."
+        } else {
+            binding.myLocationTextView.text = "위도 : $currLatitude / 경도 : $currLongitude"
+        }
         // 토글 상태 변경 시 색상 업데이트
         binding.emergencyStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) { // 스위치가 안전 상태

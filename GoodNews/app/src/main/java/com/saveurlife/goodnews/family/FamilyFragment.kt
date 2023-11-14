@@ -16,6 +16,7 @@ import com.saveurlife.goodnews.flashlight.FlashType
 import com.saveurlife.goodnews.flashlight.FlashlightData
 
 class FamilyFragment : Fragment() {
+    enum class Mode { ADD, READ, EDIT }
 
     private lateinit var familyListRecyclerView: RecyclerView
     private lateinit var binding: FragmentFamilyBinding
@@ -32,7 +33,8 @@ class FamilyFragment : Fragment() {
 
         // 첫 번째 모임 장소 layout 클릭 했을 때
         binding.meetingPlaceFirst.setOnClickListener {
-            showMeetingDialog()
+            val placeId = 1 // 장소 id
+            showMeetingDialog(placeId)
         }
 
         // 가족 신청 버튼을 클릭 했을 때
@@ -55,8 +57,15 @@ class FamilyFragment : Fragment() {
     }
 
     // 모달 창 띄워주는 것
-    private fun showMeetingDialog() {
-        Toast.makeText(activity, "모임장소 모달창 띄워줄거예요", Toast.LENGTH_SHORT).show()
+    private fun showMeetingDialog(placeId: Int? = null) {
+        val dialogFragment = FamilyPlaceAddEditFragment().apply {
+//            arguments = Bundle().apply {
+//                //데이터가 있으면 읽기 모드, 없으면 추가 모드
+//                putSerializable("mode", if (placeId == null) Mode.ADD else Mode.READ)
+//                putInt("placeId", placeId ?: -1)
+//            }
+        }
+        dialogFragment.show(childFragmentManager, "FamilyPlaceAddEditFragment")
     }
 
     private fun showAddDialog() {
