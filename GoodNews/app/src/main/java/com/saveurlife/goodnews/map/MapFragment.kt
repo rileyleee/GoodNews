@@ -20,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
+import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.models.Member
@@ -95,6 +96,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentMapBinding.inflate(inflater, container, false)
+        val preferencesUtil = GoodNewsApplication.preferences
 
         // BottomSheetBehavior 초기화 및 설정
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
@@ -129,7 +131,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         listRecyclerView = binding.facilityListWrap
         listRecyclerView.layoutManager = LinearLayoutManager(context)
         val facilities = getFacilityListData()
-        listAdapter = FacilityListAdapter(facilities)
+        listAdapter = FacilityListAdapter(facilities, preferencesUtil)
         listRecyclerView.adapter = listAdapter
 
         val dividerItemDecoration = DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
@@ -448,7 +450,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 첫 번째 RecyclerView의 데이터를 가져오는 메서드 (추가)
     private fun getCategories(): List<FacilityUIType> {
-        // 실제 데이터를 반환
         return FacilityUIType.values().toList()
     }
 
@@ -515,6 +516,17 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun handleSelectedCategory(category: FacilityUIType) {
         // TODO: 여기에서 선택된 카테고리에 따라 다른 UI 요소를 업데이트합니다.
         // 예: 하단 시트의 RecyclerView를 업데이트하거나 지도상의 마커를 업데이트하는 등
+        // 선택된 카테고리에 해당하는 시설 데이터를 가져옴 (리사이클러뷰에 표시될 것)
+        /* 임시 코드
+        * val filteredFacilities = facilityProvider.getFilteredFacilities(category)
+        */
+
+        // 새로운 데이터를 가진 어댑터 생성 -> 새로운 카테고리 데이터로 교체
+        // listAdapter = FacilityListAdapter(filteredFacilities)
+
+        // 리사이클러뷰에 새 어댑터 설정 -> 새로운 데이터로 화면 갱신
+        // listRecyclerView.adapter = listAdapter
+
     }
 
     private fun findLatestLocation() {
