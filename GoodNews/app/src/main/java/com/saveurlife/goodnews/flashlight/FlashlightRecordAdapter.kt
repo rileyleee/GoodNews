@@ -8,7 +8,15 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.models.FamilyMemInfo
+import com.saveurlife.goodnews.models.MorseCode
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.Sort
+import kotlinx.coroutines.flow.first
+import okhttp3.internal.wait
 
 class FlashlightRecordAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -17,10 +25,9 @@ class FlashlightRecordAdapter() :
     companion object {
         const val TYPE_SELF = 1
         const val TYPE_OTHER = 2
-        private var recordData:MutableList<FlashlightData> = mutableListOf()
+        var recordData:MutableList<FlashlightData> = mutableListOf()
+        lateinit var realm:Realm
     }
-
-
     // 뷰홀더
     // SELF 아이템 뷰 홀더
     class SelfViewHolder(val layout: View) : RecyclerView.ViewHolder(layout) {
@@ -33,12 +40,34 @@ class FlashlightRecordAdapter() :
             btnSave.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
+                    realm = Realm.open(GoodNewsApplication.realmConfiguration)
                     val item = recordData[position]
 
                     FlashlightFragment.flashListAdapter.addSelfList(item.content)
                     // 원하는 동작 수행
                     Log.d("Flashlight", "버튼 클릭: ${item.content}")
+                    val result = realm.query<MorseCode>().sort("id", Sort.DESCENDING).first().find()
+                    // realm 등록
+                    if(result == null){
+                        realm.writeBlocking {
+                            copyToRealm(
+                                MorseCode().apply {
+                                    id = 1
+                                    text = item.content
+                                }
+                            )
+                        }
+                    }else{
+                        realm.writeBlocking {
+                            copyToRealm(
+                                MorseCode().apply {
+                                    this.id = result.id + 1
+                                    this.text = item.content
+                                }
+                            )
+                        }
 
+                    }
                 }
             }
         }
