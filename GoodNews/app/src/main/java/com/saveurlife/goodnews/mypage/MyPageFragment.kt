@@ -40,12 +40,13 @@ class MyPageFragment : Fragment() {
     private var selectedBlood: String? = null
     private var myAge: Int? = null
 
+
+
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
 //    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
-
 
     //Realm에서 정보 가져오기
     private var realmName: String? = null
@@ -131,7 +132,6 @@ class MyPageFragment : Fragment() {
 //            val writeTransactionItems = query<Member>().find()
 //            delete(writeTransactionItems.first())
 //        }
-
         return binding.root
     }
 
