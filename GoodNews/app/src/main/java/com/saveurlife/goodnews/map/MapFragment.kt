@@ -487,6 +487,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
             .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
 
+        // 지도 하단 시트에 표시될 리스트 갱신
+        listAdapter.updateData(facilitiesOverlayItems)
+
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
             mapView.overlays.remove(
@@ -513,6 +516,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val facilitiesOverlayItems =
             facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
                 .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 지도 하단 시트에 표시될 리스트 갱신
+        listAdapter.updateData(facilitiesOverlayItems)
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -575,7 +581,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun getFacilityListData(): List<OffMapFacility> {
-        // 실제 데이터를 반환 (임시 데이터...)
+        // 초기화를 위한 더미 데이터
         return listOf(
             OffMapFacility().apply {
                 id = 1
@@ -585,51 +591,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 latitude = 37.564
                 canUse = true
                 addInfo = "24시간 운영"
-            },
-            OffMapFacility().apply {
-                id = 2
-                type = "소방서"
-                name = "안전한 소방서"
-                longitude = 127.002
-                latitude = 37.565
-                canUse = true
-                addInfo = "긴급 구조 전문"
-            },
-            OffMapFacility().apply {
-                id = 3
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
-            },
-            OffMapFacility().apply {
-                id = 4
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
-            },
-            OffMapFacility().apply {
-                id = 5
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
-            },
-            OffMapFacility().apply {
-                id = 6
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
             })
     }
 
@@ -646,34 +607,20 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
-
         updateFacilitiesByCategory(category)
     }
 
     // 업데이트 코드
     private fun updateFacilitiesByCategory(category: FacilityUIType) {
-        // 해당 데이터 가져오기 => facilityProvider에서 처리
-        val filteredFacilities = facilityProvider.getFilteredFacilities(category)
-
-        // 지도 마커?
+        // 지도 마커 및 하단 리스트
         addFacilitiesToMap(category)
-
-        // 리스트 어댑터에 넣어주기
-        listAdapter.updateData(filteredFacilities)
     }
 
     // 서브 카테고리 업데이트 코드
     private fun updateFacilitiesBySubCategory(subCategory: String) {
-        // 해당 데이터 가져오기 => facilityProvider에서 처리
-        val filteredFacilities = facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
-
-        // 지도 마커?
+        // 지도 마커 및 하단 리스트
         addSubFacilitiesToMap(subCategory)
-
-        // 리스트 어댑터에 넣어주기
-        listAdapter.updateData(filteredFacilities)
     }
-
 
     private fun findLatestLocation() { // GPS 버튼 클릭하면 본인 위치로 찾아가게
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
