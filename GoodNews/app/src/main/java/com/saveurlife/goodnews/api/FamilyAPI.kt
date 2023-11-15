@@ -249,11 +249,12 @@ class FamilyAPI {
 
     // 가족 신청 요청
     // familyid 전화번호임!!!!
-    fun registFamily(memberId:String, familyId:String){
+    fun registFamily(memberId:String, familyId:String, callback: FamilyRegistrationCallback){
         // request
         val data = RequestFamilyRegist(memberId, familyId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
+
 
         val call = familyService.registFamily(requestBody)
         call.enqueue(object : Callback<ResponseFamilyRegist> {
@@ -273,9 +274,10 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data.familyId)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
+                        callback.onFailure("No data received")
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
@@ -289,12 +291,14 @@ class FamilyAPI {
                             val message = errorJson.getString("message")
 
                             Log.d("API ERROR", "Error Code: $code, Message: $message")
-
+                            callback.onFailure(message)
                         } catch (e: JSONException) {
                             Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                            callback.onFailure("Error parsing JSON")
                         }
                     } else {
                         Log.d("API ERROR", "Error body is null")
+                        callback.onFailure("Error body is null")
                     }
                 }
             }
@@ -483,6 +487,10 @@ class FamilyAPI {
             }
         })
         return resp
+    }
+    interface FamilyRegistrationCallback {
+        fun onSuccess(result: String)
+        fun onFailure(error: String)
     }
 
 }

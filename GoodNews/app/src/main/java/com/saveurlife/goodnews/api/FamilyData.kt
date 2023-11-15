@@ -21,7 +21,7 @@ data class PlaceDetailInfo(val placeId:Int, val name:String, val lat:Double, val
 data class PlaceInfo(val placeId: Int, val name: String, val canuse: Boolean, val seq:Int)
 data class FamilyId(val familyId: String)
 data class FamilyInfo(val memberId: String, val phoneNumber: String, val name: String, val lastConnection:String, val state:String, val familyId: String)
-
+data class ErrorCheckResponse(var success: Boolean, var text:String)
 
 
 
