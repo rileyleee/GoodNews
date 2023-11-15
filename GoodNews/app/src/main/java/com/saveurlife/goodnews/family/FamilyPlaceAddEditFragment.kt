@@ -6,12 +6,10 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
-import android.view.Display.Mode
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -19,7 +17,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.saveurlife.goodnews.MapsFragment
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
-import java.io.IOException
+import com.saveurlife.goodnews.family.FamilyFragment.Mode
 
 class FamilyPlaceAddEditFragment : DialogFragment() {
 
@@ -32,7 +30,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             val mode = it.getSerializable("mode") as Mode
-            val placeId = it.getInt("placeId")
+            val seqNumber = it.getInt("seq")
 
 //            updateUIForMode(mode, placeId)
         }
@@ -68,7 +66,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         autocompleteFragment.view?.setBackgroundResource(R.drawable.input_stroke_none)
         autocompleteFragment.view?.findViewById<EditText>(com.google.android.libraries.places.R.id.places_autocomplete_search_input)
             ?.apply {
-                hint = "주소를 입력해 주세요."
+                hint = "주소를 검색해 주세요."
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             }
 
@@ -121,26 +119,4 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         })
     }
 
-    private fun searchAddress(address: String) {
-        if (address.isEmpty()) {
-            Toast.makeText(activity, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        try {
-            val addressList = geocoder.getFromLocationName(address, 10)
-            if (addressList != null) {
-                if (addressList.isNotEmpty()) {
-                    val location = addressList[0]
-                    Log.i("resultText", addressList.toString())
-                    mapsFragment.setLocation(location.latitude, location.longitude)  // 지도 업데이트
-                } else {
-                    Toast.makeText(activity, "해당 주소를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(activity, "주소 변환 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-        }
-    }
 }

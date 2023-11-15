@@ -21,6 +21,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.saveurlife.goodnews.models.Member
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
     lateinit var locationPermission: ActivityResultLauncher<Array<String>>
@@ -29,6 +33,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var locationCallback: LocationCallback
+
+    // Realm에서 사용자 위치를 기본 마커 (정보 가져오기)
+    val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+    private val items: RealmResults<Member> = realm.query<Member>().find()
+
+    private var realmLatitude: Double? = null
+    private var realmLongitude: Double? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,12 +72,25 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
+
+        // Realm에서 정보 가져오기
+        items.forEach { member ->
+            realmLatitude = member.latitude
+            realmLongitude = member.longitude
+        }
+        
+        // Realm 닫기
+        realm.close()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         //   updateLocation() 현재 필요없다.
+
+        if (realmLatitude != null && realmLongitude != null) {
+            setLocation(realmLatitude!!, realmLongitude!!)
+        }
     }
 
     fun setLocation(latitude: Double, longitude: Double) {
