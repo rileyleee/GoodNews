@@ -18,6 +18,7 @@ class AlarmActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityAlarmBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

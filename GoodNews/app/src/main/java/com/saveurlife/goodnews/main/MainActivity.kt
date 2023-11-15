@@ -4,13 +4,16 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.Gravity
@@ -20,12 +23,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
+import androidx.lifecycle.LiveData
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
@@ -39,6 +45,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
+import com.saveurlife.goodnews.ble.service.BleService
+import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.models.Member
@@ -73,11 +81,73 @@ class MainActivity : AppCompatActivity() {
     // flash on 여부
     private val sharedViewModel: SharedViewModel by viewModels()
 
+    //ble
+    lateinit var bleService: BleService
+    //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
+    private var isBound = false
+
+    private val connection = object : ServiceConnection {
+        //Service가 연결되었을 때 호출
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as BleService.LocalBinder
+            bleService = binder.service
+            sharedViewModel.bleService.value = binder.service
+            isBound = true
+
+            // BleService의 LiveData를 관찰하고 SharedViewModel을 통해 업데이트합니다.
+            // 데이터가 변경될 때마다 SharedViewModel의 bleDeviceNames 라이브 데이터를 새로운 값으로 업데이트
+            if (::bleService.isInitialized) {
+            bleService.getDeviceArrayListNameLiveData().observe(this@MainActivity, Observer { deviceNames ->
+                val deviceMap = mutableMapOf<String, String>()
+                deviceNames.forEach { deviceName ->
+                    val parts = deviceName.split("/")
+
+                    // parts 리스트에서 필요한 데이터를 추출합니다.
+                    if (parts.size >= 2) {
+                        val deviceId = parts[0]
+                        val deviceName = parts[1]
+                        println("아이디는 이거에요 $deviceId")
+                        println("이름은 이거에요 $deviceName")
+
+                        deviceMap[deviceId] = deviceName
+//                        sharedViewModel.bleDeviceNames.value = deviceNames
+                    }
+                }
+                sharedViewModel.bleDeviceMap.value = deviceMap
+            })
+
+            bleService.getBleMeshConnectedDevicesArrayListLiveData().observe(this@MainActivity) { connectedDevicesMap ->
+
+                sharedViewModel.updateBleMeshConnectedDevicesMap(connectedDevicesMap)
+
+                connectedDevicesMap.forEach { (deviceId, connectedUsersMap) ->
+                    println("BLE 장치 ID: $deviceId")
+
+                    connectedUsersMap.forEach { (userId, user) ->
+                        println("사용자 ID: $userId, 이름: ${user.userName}, 상태: ${user.healthStatus}, 업데이트시간:${user.updateTime}, 위도: ${user.lat}, 경도: ${user.lon}")
+                    }
+
+                }
+            }
+            }
+        }
+
+        //서비스 연결이 끊어졌을 때 호출
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            isBound = false
+        }
+    }
+
     @SuppressLint("ResourceType")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+
+            //ble - 서비스 바인딩
+            Intent(this, BleService::class.java).also { intent ->
+                bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            }
 //
 //        realm.writeBlocking {
 //            copyToRealm(Member().apply {
@@ -187,7 +257,23 @@ class MainActivity : AppCompatActivity() {
     private fun isBatteryOptimizationIgnored(context: Context): Boolean {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+
     }
+
+    private fun startAdvertiseAndScan() {
+        if (isBound && ::bleService.isInitialized) {
+            bleService.startAdvertiseAndScanAndAuto()
+            Toast.makeText(this, "광고 및 스캔 시작", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "서비스가 바인딩되지 않음", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    // LiveData 객체를 프래그먼트에서 관찰할 수 있도록 공개 메서드로 제공
+//    fun getDeviceArrayListNameLiveData(): LiveData<List<String>>? {
+//        return if (isBound) bleService.deviceArrayListNameLiveData else null
+//    }
 
 
     //Dialog fragment 모달창
@@ -239,6 +325,15 @@ class MainActivity : AppCompatActivity() {
             showChattingDialog()
 //            binding.navigationView.menu.getItem(2).isChecked = true
 //            navController.navigate(R.id.chattingFragment)
+            dialog.dismiss()
+        }
+
+        //ble
+        val centerWifi = dialog.findViewById<ImageView>(R.id.centerWifi)
+        //광고, 스캔하기 버튼
+        centerWifi.setOnClickListener {
+            sharedViewModel.isMainAroundVisible.value = false
+            startAdvertiseAndScan()
             dialog.dismiss()
         }
 
@@ -393,6 +488,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        if (isBound) {
+            unbindService(connection)
+        }
 
         //위치 정보 저장 중지
         val serviceIntent = Intent(this, LocationTrackingService::class.java)
@@ -410,5 +508,4 @@ private fun NavController.navigateSingleTop(id: Int) {
         val options = builder.build()
         navigate(id, null, options)
     }
-
 }

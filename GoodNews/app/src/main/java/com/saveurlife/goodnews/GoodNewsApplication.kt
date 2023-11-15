@@ -1,6 +1,8 @@
 package com.saveurlife.goodnews
 
+import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import android.util.Log
 import com.opencsv.CSVReader
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -23,19 +25,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.InputStreamReader
 
-class GoodNewsApplication : Application() {
+class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks {
 
     companion object {
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
     }
 
+    var isInBackground = true
+
     override fun onCreate() {
+
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
 
         super.onCreate()
+
+        registerActivityLifecycleCallbacks(this)
 
         //Realm 초기화
         realmConfiguration = RealmConfiguration.create(
@@ -54,7 +61,12 @@ class GoodNewsApplication : Application() {
             )
         )
 
+//        Realm.deleteRealm(realmConfiguration)
+
         val realm: Realm = Realm.open(realmConfiguration)
+
+
+
 
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
@@ -98,5 +110,33 @@ class GoodNewsApplication : Application() {
         } else {
             Log.d("데이터 존재 여부", "시설 정보 있어요")
         }
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+
+    }
+
+    override fun onActivityStarted(activity: Activity) {
+
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        isInBackground = false
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        isInBackground = true
+    }
+
+    override fun onActivityStopped(activity: Activity) {
+
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
+
     }
 }

@@ -78,6 +78,14 @@
             android:enabled="true"
             android:exported="true"></service>
 
+        
+        <service android:name=".ble.service.BleService" />
+
+        <activity
+            android:name=".chatting.ChattingDetailActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />           
+
         <activity
             android:name=".alarm.AlarmActivity"
             android:exported="false" />
@@ -108,5 +116,4 @@
             <!-- </intent-filter> -->
         </activity>
     </application>
-
 </manifest>
