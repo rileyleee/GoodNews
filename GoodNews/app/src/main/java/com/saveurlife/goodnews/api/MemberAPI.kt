@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MemberAPI {
 
+
     // Retrofit 인스턴스 생성
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://www.saveurlife.kr/api/")
@@ -197,7 +198,7 @@ class MemberAPI {
     fun findMemberInfo(memberId : String): MemberInfo? {
 
         // request
-        val data = RequestMemberId(memberId,false)
+        val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -310,7 +311,7 @@ class MemberAPI {
 
     // 최초 로그인 유무 조회
     fun firstLoginInfo(memberId:String){
-        val data = RequestMemberId(memberId,false)
+        val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 

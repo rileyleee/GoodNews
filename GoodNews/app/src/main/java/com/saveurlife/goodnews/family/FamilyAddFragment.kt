@@ -10,16 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.databinding.FragmentFamilyAddBinding
-import com.saveurlife.goodnews.flashlight.FlashlightFragment
-import com.saveurlife.goodnews.flashlight.FlashlightRecordAdapter
-import com.saveurlife.goodnews.models.MorseCode
-import com.saveurlife.goodnews.models.WaitFamily
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 
@@ -29,7 +22,6 @@ class FamilyAddFragment : DialogFragment() {
     private val familyAPI = FamilyAPI()
     private lateinit var userDeviceInfoService:UserDeviceInfoService
     private lateinit var memberId:String
-    private lateinit var realm: Realm
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,21 +49,6 @@ class FamilyAddFragment : DialogFragment() {
                     Log.d("Family", result)
                     // 리스트에 추가
 //                    FamilyFragment.familyListAdapter.addFamilyWait(result.name, result.phoneNumber, "승인 요청 중 입니다.")
-                    // realm에 추가
-                    realm = Realm.open(GoodNewsApplication.realmConfiguration)
-                    realm.writeBlocking {
-                        copyToRealm(
-                            WaitFamily().apply {
-                            //
-                            // 서버 추가 후 변경!!!!!
-                            //
-//                                name = result.name
-//                                phoneNumber = result.phoneNumber
-                            }
-                        )
-                    }
-                    realm.close()
-
                     // 닫기
                     dismiss()
                 }
