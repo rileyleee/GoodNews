@@ -11,7 +11,7 @@ import com.saveurlife.goodnews.R
 class FlashlightListAdapter() :
     RecyclerView.Adapter<FlashlightListAdapter.ListAdapter>() {
 
-    var saveData:MutableList<FlashlightData> = mutableListOf()
+    private var saveData:MutableList<FlashlightData> = mutableListOf()
 
     // isFlashing boolean
     var isFlashing = false

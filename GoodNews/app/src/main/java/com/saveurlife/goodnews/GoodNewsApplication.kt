@@ -17,6 +17,7 @@ import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
 import com.saveurlife.goodnews.models.OffMapFacility
+import com.saveurlife.goodnews.models.WaitFamily
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
@@ -57,7 +58,8 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 MapInstantInfo::class,
                 Member::class,
                 MorseCode::class,
-                OffMapFacility::class
+                OffMapFacility::class,
+                WaitFamily::class
             )
         )
 
