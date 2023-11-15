@@ -1,10 +1,7 @@
 package com.ssafy.goodnews.member.controller;
 
 import com.ssafy.goodnews.common.dto.BaseResponseDto;
-import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceCanuseDto;
-import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceRequestDto;
-import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
-import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.*;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
 import com.ssafy.goodnews.member.service.FamilyService;
@@ -31,9 +28,9 @@ public class FamilyController {
 
     @Operation(summary = "가족 신청 수락 및 거절", description = "가족 신청 수락 approve 수정 거절 시 삭제 refuse: false or true")
     @PutMapping("/acceptfamily")
-    private BaseResponseDto updateRegistFamily(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+    private BaseResponseDto updateRegistFamily(@RequestBody FamilyRegistRequestDto familyRegistRequestDto) {
 
-        return familyService.updateFamilyMember(memberFirstLoginRequestDto);
+        return familyService.updateFamilyMember(familyRegistRequestDto);
     }
 
     @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태,상태,마지막 연결 시각), familyId 조회")
@@ -42,7 +39,7 @@ public class FamilyController {
         return familyService.getFamilyMemberInfo(memberFirstLoginRequestDto.getMemberId());
     }
 
-    @Operation(summary = "가족 모임 장소 등록", description = "=가족 모임 장소(장소명,경도,위도) 등록")
+    @Operation(summary = "가족 모임 장소 등록", description = "가족 모임 장소(장소명,경도,위도) 등록")
     @PostMapping("/registplace")
     private BaseResponseDto registFamilyPlace(@RequestBody FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
         return familyService.registFamilyPlace(familyRegistPlaceRequestDto);
@@ -69,5 +66,12 @@ public class FamilyController {
     @PutMapping("/placeuse/{placeId}")
     private BaseResponseDto getFamilyUpdatePlaceCanUse(@PathVariable int placeId,@RequestBody FamilyPlaceCanuseDto familyPlaceCanuseDto) {
         return familyService.getFamilyPlaceInfoCanUseUpdate(placeId,familyPlaceCanuseDto);
+    }
+
+    @Operation(summary = "가족 신청 요청 조회", description = "가족 신청 요청 조회하기(상대방 이름, 전화번호)")
+    @PostMapping("/getregistfamily")
+    private BaseResponseDto getRegistFamily(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+
+        return familyService.getRegistFamily(memberFirstLoginRequestDto);
     }
 }

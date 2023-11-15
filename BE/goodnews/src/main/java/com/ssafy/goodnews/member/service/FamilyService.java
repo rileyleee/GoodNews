@@ -10,6 +10,7 @@ import com.ssafy.goodnews.member.domain.Member;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceCanuseDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyRegistRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
 import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceDetailResponseDto;
@@ -98,11 +99,11 @@ public class FamilyService {
     }
 
     @Transactional
-    public BaseResponseDto updateFamilyMember(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
-        Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberFirstLoginRequestDto.getMemberId());
-        familyValidator.checkUpdateFamily(familyMember, memberFirstLoginRequestDto.getMemberId());
+    public BaseResponseDto updateFamilyMember(FamilyRegistRequestDto familyRegistRequestDto) {
+        Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(familyRegistRequestDto.getMemberId());
+        familyValidator.checkUpdateFamily(familyMember, familyRegistRequestDto.getMemberId());
 
-        if (!memberFirstLoginRequestDto.getRefuse()) {
+        if (!familyRegistRequestDto.getRefuse()) {
             familyMember.get().updateApprove(true);
             return BaseResponseDto.builder()
                     .success(true)
@@ -248,5 +249,13 @@ public class FamilyService {
                 .success(true)
                 .message("가족 모임 장소 사용 가능 여부를 수정했습니다")
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto getRegistFamily(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+
+
+
+        return null;
     }
 }

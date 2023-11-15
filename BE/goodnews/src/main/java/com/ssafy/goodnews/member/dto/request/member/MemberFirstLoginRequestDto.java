@@ -6,5 +6,4 @@ import lombok.Getter;
 public class MemberFirstLoginRequestDto {
 
     private String memberId;
-    private Boolean refuse;
 }
