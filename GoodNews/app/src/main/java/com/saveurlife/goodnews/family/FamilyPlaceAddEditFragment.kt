@@ -4,18 +4,20 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Geocoder
 import android.os.Bundle
-import android.support.annotation.RequiresApi
 import android.util.Log
-import android.view.Display.Mode
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.EditText
 import androidx.fragment.app.DialogFragment
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.saveurlife.goodnews.MapsFragment
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
-import java.io.IOException
+import com.saveurlife.goodnews.family.FamilyFragment.Mode
 
 class FamilyPlaceAddEditFragment : DialogFragment() {
 
@@ -24,15 +26,11 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
     private lateinit var mapsFragment: MapsFragment
 
-    //위도 경도 초기화 임시@@
-    var latitude: Double = -34.0
-    var longitude: Double = 151.0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             val mode = it.getSerializable("mode") as Mode
-            val placeId = it.getInt("placeId")
+            val seqNumber = it.getInt("seq")
 
 //            updateUIForMode(mode, placeId)
         }
@@ -62,6 +60,16 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         binding = FragmentFamilyPlaceAddEditBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        // 구글 서치 박스 ui 변경
+        val autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.meetingPlaceAutocompleteFragment) as AutocompleteSupportFragment
+        autocompleteFragment.view?.setBackgroundResource(R.drawable.input_stroke_none)
+        autocompleteFragment.view?.findViewById<EditText>(com.google.android.libraries.places.R.id.places_autocomplete_search_input)
+            ?.apply {
+                hint = "주소를 검색해 주세요."
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            }
+
         // 등록 버튼 눌렀을 때
         binding.meetingPlaceAddSubmit.setOnClickListener {
             // 추가 @@
@@ -87,51 +95,28 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
         geocoder = Geocoder(requireActivity())
 
-        binding.meetingPlaceSearch.setOnClickListener {
-            val address = binding.meetingPlaceEditText.text.toString()
-            searchAddress(address)
-        }
-    }
-
-    private fun searchAddress(address: String) {
-        if (address.isEmpty()) {
-            Toast.makeText(activity, "주소를 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        try {
-//            val geocodeListener = Geocoder.GeocodeListener { addresses ->
-//                Log.i("resultText", addresses.toString())
-//            }
-//
-            val addressList = geocoder.getFromLocationName(address, 10)
-            if (addressList != null) {
-                if (addressList.isNotEmpty()) {
-                    val location = addressList[0]
-//                    binding.familyPlaceResultList.text = location.toString()
-                    Log.i("resultText", addressList.toString())
-                    mapsFragment.setLocation(location.latitude, location.longitude)  // 지도 업데이트
-                } else {
-                    Toast.makeText(activity, "해당 주소를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+        // AutocompleteSupportFragment 설정
+        val autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.meetingPlaceAutocompleteFragment) as AutocompleteSupportFragment
+        autocompleteFragment.setPlaceFields(
+            listOf(
+                Place.Field.ID,
+                Place.Field.NAME,
+                Place.Field.LAT_LNG
+            )
+        )
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                // 사용자가 선택한 장소로 지도 이동
+                place.latLng?.let {
+                    mapsFragment.setLocation(it.latitude, it.longitude)
                 }
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Toast.makeText(activity, "주소 변환 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-        }
+
+            override fun onError(status: com.google.android.gms.common.api.Status) {
+                Log.i("AutocompleteError", "An error occurred: $status")
+            }
+        })
     }
 
-//        try {
-//            val addressList = geocoder.getFromLocationName(address, 1)
-//            if (addressList.isNotEmpty()) {
-//                val location = addressList[0]
-//                binding.latitudeEditText.setText(location.latitude.toString())
-//                binding.longitudeEditText.setText(location.longitude.toString())
-//            } else {
-//                Toast.makeText(activity, "해당 주소를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-//            }
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//            Toast.makeText(activity, "주소 변환 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
-//        }
 }
