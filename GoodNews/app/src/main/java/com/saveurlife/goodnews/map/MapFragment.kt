@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.location.Location
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -71,7 +72,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
-    // private val mapTileArchivePath = "7_15_korea-001.sqlite"
+
+    //private val mapTileArchivePath = "7_15_korea-001.sqlite"
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     // 타일 provider, 최소 줌 및 해상도 설정
@@ -79,7 +81,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
     val maxZoom: Int = 13
-//    val maxZoom: Int = 15
+
+    //    val maxZoom: Int = 15
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -134,7 +137,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             Log.d("CategorySelected", "Selected category: ${category.displayName}")
             Log.d("test", "바뀌면 안됨" + categoryAdapter.toString())
 
-
         }
         categoryRecyclerView.adapter = categoryAdapter
 
@@ -148,9 +150,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dividerItemDecoration =
             DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
-
-        // 처음에 "전체" 카테고리가 선택되도록 합니다.
-        handleSelectedCategory(FacilityUIType.ALL)
 
         return binding.root
     }
@@ -238,6 +237,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             mapView.invalidate()
         }
 
+
         // 지도 초기화 후 화면 경계 초기 값 설정
         mapView.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
@@ -247,9 +247,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
                 Log.v("screenRect", "$screenRect")
 
-                // 지도 위에 시설 정보 그리기
-                addFacilitiesToMap()
-
+                handleSelectedCategory(selectedCategory)
             }
         })
 
@@ -261,12 +259,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
                 Log.v("screenRect", "$screenRect")
 
-                // 지도 위에 시설 정보 그리기
-                addFacilitiesToMap()
+                handleSelectedCategory(selectedCategory)
             }
             false
         }
-
 
         // 내 위치로 이동 버튼 클릭했을 때
         binding.findMyLocationButton.setOnClickListener {
@@ -358,7 +354,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 bottomSheet.layoutParams = layoutParams
             }
         })
-
     }
 
     @Throws(IOException::class)
@@ -391,6 +386,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 //        // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
 //        if (!file.exists()) {
 //            throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+//
 ////            val resourceInputStream =
 ////                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
 ////              //파일 경로
@@ -408,6 +404,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 ////                    }
 ////                }
 ////            }
+//
 //        }
 //        return file
     }
@@ -484,11 +481,38 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private val previousFacilityOverlayItems = mutableListOf<SimpleFastPointOverlay>()
 
     // 시설 위치 마커로 찍는 함수 내부에서 사용
-    private fun addFacilitiesToMap() {
+    private fun addFacilitiesToMap(category: FacilityUIType) {
 
         // 마커로 찍을 시설 목록 필터링
-        val facilitiesOverlayItems = facilityProvider.getFacilityData()
+        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
             .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 기존에 표시된 마커 제거
+        previousFacilityOverlayItems.forEach { previousOverlay ->
+            mapView.overlays.remove(
+                previousOverlay
+            )
+        }
+        // 리스트 초기화
+        previousFacilityOverlayItems.clear()
+
+        // 새 오버레이 생성
+        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+
+        // 오버레이를 지도에 추가
+        mapView.overlays.add(overlay)
+        mapView.invalidate()
+
+        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+        previousFacilityOverlayItems.add(overlay)
+    }
+
+    private fun addSubFacilitiesToMap(subCategory: String) {
+
+        // 마커로 찍을 시설 목록 필터링
+        val facilitiesOverlayItems =
+            facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+                .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -629,28 +653,28 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 업데이트 코드
     private fun updateFacilitiesByCategory(category: FacilityUIType) {
         // 해당 데이터 가져오기 => facilityProvider에서 처리
-        // val filteredFacilities = facilityProvider.getFilteredFacilities(category)
+        val filteredFacilities = facilityProvider.getFilteredFacilities(category)
 
         // 지도 마커?
-        // addFacilitiesToMap(filteredFacilities)
+        addFacilitiesToMap(category)
 
         // 리스트 어댑터에 넣어주기
-        // listAdapter.updateData(filteredFacilities)
+        listAdapter.updateData(filteredFacilities)
     }
 
     // 서브 카테고리 업데이트 코드
     private fun updateFacilitiesBySubCategory(subCategory: String) {
         // 해당 데이터 가져오기 => facilityProvider에서 처리
-        // val filteredFacilities = facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+        val filteredFacilities = facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
 
         // 지도 마커?
-        // addFacilitiesToMap(filteredFacilities)
+        addSubFacilitiesToMap(subCategory)
 
         // 리스트 어댑터에 넣어주기
-        // listAdapter.updateData(filteredFacilities)
+        listAdapter.updateData(filteredFacilities)
     }
 
-   
+
     private fun findLatestLocation() { // GPS 버튼 클릭하면 본인 위치로 찾아가게
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
