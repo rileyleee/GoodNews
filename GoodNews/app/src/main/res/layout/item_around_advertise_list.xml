@@ -90,7 +90,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="5dp"
         android:text="연결 끊기"
-        android:textColor="@color/font_color"
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@id/bleCut"
         app:layout_constraintEnd_toEndOf="@+id/bleCut"
@@ -103,14 +103,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.1" />
+        app:layout_constraintGuide_percent="0" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.9" />
+        app:layout_constraintGuide_percent="1" />
 
     <androidx.constraintlayout.helper.widget.Layer
         android:id="@+id/requestBleButton"

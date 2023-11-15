@@ -8,6 +8,8 @@ import static com.saveurlife.goodnews.ble.Common.DEVICEINFO_UUID;
 import static com.saveurlife.goodnews.ble.Common.SERVICE_UUID;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -32,32 +34,59 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 
+import com.saveurlife.goodnews.GoodNewsApplication;
+import com.saveurlife.goodnews.R;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
-import com.saveurlife.goodnews.ble.message.AutoSendMessageService;
+//import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
+import com.saveurlife.goodnews.ble.ChatRepository;
+import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
+import com.saveurlife.goodnews.main.PreferencesUtil;
+import com.saveurlife.goodnews.models.ChatMessage;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class BleService extends Service {
+    private int alter=1;
     private final IBinder binder = new LocalBinder();
 
     public class LocalBinder extends Binder {
@@ -79,7 +108,12 @@ public class BleService extends Service {
     private LocationService locationService;
     private UserDeviceInfoService userDeviceInfoService;
     private static String myId;
-    private static String myName = "김예진";
+    //private static String myName = "김예진";
+    private static String myName = "김나연";
+
+    private static String myFamilyId = "";
+    private static List<String> myGroupIds = new ArrayList<>();
+
     private BleServiceScanCallback mBleScanCallback;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;
@@ -106,7 +140,9 @@ public class BleService extends Service {
 
     private HandlerThread handlerThread;
     private Handler handler;
-    private static final int INTERVAL = 30000; // 30 seconds
+    private static final int INTERVAL = 5000; // 30 seconds
+
+//        private String myStatus;
 
 
     @Override
@@ -114,9 +150,8 @@ public class BleService extends Service {
         if (intent != null) {
             final String action = intent.getAction();
             if ("ACTION_START_ADVERTISE_AND_SCAN".equals(action)) {
-
                 Log.i(TAG, "onStartCommand: ");
-                startAdvertiseAndScan();
+                startAdvertiseAndScanAndAuto();
             }
         }
         return START_STICKY;
@@ -133,6 +168,11 @@ public class BleService extends Service {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+
+        // PreferencesUtil 인스턴스 생성
+        PreferencesUtil preferencesUtil = new PreferencesUtil(this);
+        // PreferencesUtil을 사용하여 status 값을 읽기
+//            myStatus = preferencesUtil.getString("status", "4");
 
         if (!mBluetoothAdapter.isLeCodedPhySupported()) {
             return;
@@ -156,14 +196,14 @@ public class BleService extends Service {
         bleGattCallback = new BleGattCallback();
 
 
-        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService);
+        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil);
 
-        Intent AutoSendServiceIntent = new Intent(this, AutoSendMessageService.class);
-        startService(AutoSendServiceIntent);
+        //        Intent AutoSendServiceIntent = new Intent(this, AutoSendMessageService.class);
+        //        startService(AutoSendServiceIntent);
     }
 
     // 블루투스 시작 버튼
-    public void startAdvertiseAndScan() {
+    public void startAdvertiseAndScanAndAuto() {
         startAdvertising();
         startScanning();
         startAutoSendMessage();
@@ -197,7 +237,7 @@ public class BleService extends Service {
 
                     .build();
 
-//            AdvertisingSetCallback bleAdvertisingSetCallback = new BleAdvertisingSetCallback();
+            //            AdvertisingSetCallback bleAdvertisingSetCallback = new BleAdvertisingSetCallback();
             AdvertiseData scanResponse = new AdvertiseData.Builder().build();
 
             AdvertisingSetCallback bleAdvertisingSetCallback = new AdvertisingSetCallback() {
@@ -266,7 +306,6 @@ public class BleService extends Service {
         isAdvertising = false; // 광고 상태를 '광고 중지'로 변경
     }
 
-
     private void startScanning() {
         // 현재 실행 중인 스캔이 있는지 확인하고 중지
         if (mBluetoothLeScanner != null && mBleScanCallback != null) {
@@ -296,11 +335,27 @@ public class BleService extends Service {
         filters.add(scanFilter);
 
         mBluetoothLeScanner.startScan(filters, settings, mBleScanCallback);
+
+        scanHandler.post(removeExpiredDevicesRunnable);
     }
 
-    //deviceList.setOnItemClickListener
-    public void connectOrDisconnect(int position) {
-        BluetoothDevice selectedDevice = bluetoothDevices.get(position);
+    private void stopScanning() {
+        // BLE 스캐너가 있다면, 스캐닝 중지
+        if (mBluetoothLeScanner != null && mBleScanCallback != null) {
+            mBluetoothLeScanner.stopScan(mBleScanCallback);
+            // 콜백을 null로 설정하여 재사용을 방지
+            mBleScanCallback = null;
+        }
+
+        // Handler를 사용하여 반복 작업을 취소
+        scanHandler.removeCallbacks(removeExpiredDevicesRunnable);
+
+        // 필요한 경우, 여기에 다른 자원 정리 로직을 추가
+    }
+
+
+    public void connectOrDisconnect(String deviceId) {
+        BluetoothDevice selectedDevice = bluetoothDevices.get(deviceArrayList.indexOf(deviceId));
 
         if (bleConnectedDevicesArrayList.contains(selectedDevice.getAddress())) {
             BluetoothGatt gatt = deviceGattMap.remove(selectedDevice.getAddress());
@@ -316,10 +371,30 @@ public class BleService extends Service {
                 sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
             }
         } else {
-            Log.i("connectOrDisconnect", "연결시도");
             connectToDevice(selectedDevice);
         }
     }
+
+    public BluetoothDevice getBluetoothDeviceById(String deviceId) {
+        for (BluetoothDevice device : bluetoothDevices) {
+            if (device.getAddress().equals(deviceId)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    public void disconnect(BluetoothDevice device) {
+        if (device != null) {
+            BluetoothGatt gatt = deviceGattMap.get(device.getAddress());
+            if (gatt != null) {
+                gatt.disconnect();
+                deviceGattMap.remove(device.getAddress());
+                // 필요한 경우 추가적인 연결 해제 로직
+            }
+        }
+    }
+
 
     public void disconnect(int position) {
         String address = bleConnectedDevicesArrayList.get(position);
@@ -338,12 +413,9 @@ public class BleService extends Service {
             sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
 
         }
-
-        Log.i("position", "zz");
     }
 
     public void connectToDevice(BluetoothDevice device) {
-        Log.i("연결실행", "연결실행");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -375,24 +447,73 @@ public class BleService extends Service {
         }, INTERVAL);
     }
 
-    private void sendMessageBase() {
-        // Fetch the deviceGattMap from the MainActivity or pass it via the Intent
-        if (sendMessageManager == null) {
-            // sendMessageManager 초기화가 여기서 이루어집니다.
-            sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService);
-        }
-        // 여기에 메시지 전송 로직을 구현합니다.
+    public static void sendMessageBase() {
         sendMessageManager.sendMessageBase(deviceGattMap);
     }
 
+    public void sendMessageHelp(){
 
+        // 여기에 메시지 전송 로직을 구현합니다.
+        sendMessageManager.sendMessageHelp(deviceGattMap);
+    }
 
+    public void sendMessageChat(String receiverId, String content){
+        // 여기에 메시지 전송 로직을 구현합니다.
+        sendMessageManager.sendMessageChat(deviceGattMap, receiverId, content);
+    }
+
+    public void sendMessageGroupInvite(List<String> receiverIds, String groupId, String groupName){
+        sendMessageManager.sendMessageGroupInvite(deviceGattMap, receiverIds, groupId, groupName);
+    }
 
     private void spreadMessage(String address, String content){
         Map<String, BluetoothGatt> spreadDeviceGattMap = new HashMap<>();
         spreadDeviceGattMap.putAll(deviceGattMap);
         spreadDeviceGattMap.remove(address);
         sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
+    }
+
+    public void createChatRoom(String chatRoomId, String chatRoomName){
+
+    }
+
+
+
+    private Map<String, Long> lastSeenMap = new HashMap<>();
+    private static final long EXPIRATION_TIME_MS = 4000;
+    private final Handler scanHandler = new Handler(Looper.getMainLooper());
+    private final Runnable removeExpiredDevicesRunnable = new Runnable() {
+        @Override
+        public void run() {
+            removeExpiredDevices();
+            // 예: 10초마다 한 번씩 removeExpiredDevices를 호출합니다.
+            scanHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private void removeExpiredDevices() {
+        long currentTime = System.currentTimeMillis();
+        List<String> devicesToRemove = new ArrayList<>();
+
+        for (Map.Entry<String, Long> entry : lastSeenMap.entrySet()) {
+            if (currentTime - entry.getValue() > EXPIRATION_TIME_MS) {
+                devicesToRemove.add(entry.getKey());
+            }
+        }
+
+        for (String deviceId : devicesToRemove) {
+            int index = deviceArrayList.indexOf(deviceId);
+            if (index != -1) {
+                bluetoothDevices.remove(index);
+                deviceArrayList.remove(index);
+                deviceArrayListName.remove(index);
+            }
+            lastSeenMap.remove(deviceId);
+        }
+
+        if (!devicesToRemove.isEmpty()) {
+            deviceArrayListNameLiveData.postValue(deviceArrayListName);
+        }
     }
 
 
@@ -422,25 +543,30 @@ public class BleService extends Service {
 
             int existingDeviceIndex = -1;
             for (int i = 0; i < bluetoothDevices.size(); i++) {
-                if (bluetoothDevices.get(i).getAddress().equals(deviceAddress)) {
+                if (bluetoothDevices.get(i).getAddress().equals(deviceAddress)||deviceArrayList.get(i).equals(deviceId)) {
                     existingDeviceIndex = i;
                     break;
                 }
             }
 
+            // 마지막 감지 시간 업데이트
+            lastSeenMap.put(deviceId, System.currentTimeMillis());
+
             if (existingDeviceIndex != -1) {
                 bluetoothDevices.set(existingDeviceIndex, device);
                 deviceArrayList.set(existingDeviceIndex, deviceId);
-                deviceArrayListName.set(existingDeviceIndex, deviceName);
-                deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
+                deviceArrayListName.set(existingDeviceIndex, deviceId+"/"+deviceName);
+                //                deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
             } else {
                 bluetoothDevices.add(device);
                 deviceArrayList.add(deviceId);
-                deviceArrayListName.add(deviceName); // your existing code where you add devices
+                deviceArrayListName.add(deviceId+"/"+deviceName); // your existing code where you add devices
                 deviceArrayListNameLiveData.postValue(deviceArrayListName); // new code to update LiveData
             }
         }
     }
+
+
     public LiveData<List<String>> getDeviceArrayListNameLiveData() {
         return deviceArrayListNameLiveData;
     }
@@ -452,7 +578,6 @@ public class BleService extends Service {
     public LiveData<Map<String, Map<String, BleMeshConnectedUser>>> getBleMeshConnectedDevicesArrayListLiveData() {
         return bleMeshConnectedDevicesMapLiveData;
     }
-
 
     private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
         @Override
@@ -470,16 +595,12 @@ public class BleService extends Service {
             Log.i("onConnectionStateChange", "onConnectionStateChange");
             super.onConnectionStateChange(device, status, newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i("연결됨", "연결됨");
                 String deviceAddress = device.getAddress();
                 if (!bleConnectedDevicesArrayList.contains(deviceAddress)) {
                     bleConnectedDevicesArrayList.add(deviceAddress);
                     bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
 
-
-                    // 여기다
                     if (!deviceGattMap.containsKey(deviceAddress)) {
-                        Log.i("여기서 또 연결?", "여기서 또 연결?");
                         connectToDevice(device);
                     } else {
                         // 기존 BluetoothGatt 객체 재사용
@@ -488,7 +609,6 @@ public class BleService extends Service {
                     }
                 }
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("close", "close");
                 String disconnectedDevice = device.getAddress();
                 if(!bleConnectedDevicesArrayList.contains(disconnectedDevice)){
                     return;
@@ -513,7 +633,7 @@ public class BleService extends Service {
 
             if (SERVICE_UUID.equals(characteristic.getService().getUuid()) && CHARACTERISTIC_UUID.equals(characteristic.getUuid())) {
                 String message = new String(value);
-                Log.i("message", message);
+                Log.i("수신 메시지", message);
 
                 String[] parts = message.split("/");
                 String messageType = parts[0];
@@ -565,7 +685,7 @@ public class BleService extends Service {
 
                 // 지속적 위치, 상태 정보 뿌리기
                 else if(messageType.equals("base")){
-
+//                    chatDatabaseManager.createChatMessage(senderId, senderId, parts[2], "parts[8]", parts[3]);
                     spreadMessage(device.getAddress(), message);
                     BleMeshConnectedUser bleMeshConnectedUser=new BleMeshConnectedUser(senderId, parts[2], parts[3], parts[4], Double.parseDouble(parts[5]), Double.parseDouble(parts[6]));
 
@@ -577,25 +697,99 @@ public class BleService extends Service {
 
                 // 모두에게 구조요청
                 else if (messageType.equals("help")) {
+                    GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
+                    if (!goodNewsApplication.isInBackground()) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                                View layout = inflater.inflate(R.layout.custom_toast, null);
+
+                                // 커스텀 레이아웃의 파라미터 설정
+                                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                layout.setLayoutParams(layoutParams);
+
+                                // 커스텀 레이아웃의 뷰에 접근하여 설정
+                                TextView text = layout.findViewById(R.id.toast_text); // 이 ID는 커스텀 레이아웃에 있는 TextView의 ID입니다.
+                                TextView time = layout.findViewById(R.id.toast_time);
+
+                                // message를 "/" 기준으로 분할하고, 이름 부분만 추출
+                                String[] parts = message.split("/");
+                                String name = parts.length > 2 ? parts[2] : "이름 없음";
+
+                                text.setText(name + "님이 구조를 요청했습니다.");
+
+                                String currentTime = new SimpleDateFormat("a hh:mm", Locale.KOREA).format(Calendar.getInstance().getTime());
+                                time.setText(currentTime);
+
+                                // 시스템 알림 사운드 재생
+                                try {
+//                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+//                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+//                                    r.play();
+                                    MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.toast_alarm);
+                                    mediaPlayer.start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                Toast toast = new Toast(getApplicationContext());
+                                toast.setDuration(Toast.LENGTH_SHORT);
+                                toast.setView(layout);
+                                toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+                                toast.show();
+
+//                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    } else {
+                        // 앱이 백그라운드에 있을 때 푸시 알림 보내기
+                        String[] parts2 = message.split("/");
+                        String name = parts2.length > 2 ? parts[2] : "이름 없음";
+                        sendNotification(name);
+                    }
+//                        sendNotification(message);
                     spreadMessage(device.getAddress(), message);
                 }
 
                 // 특정 대상에게 채팅
                 else if (messageType.equals("chat")) {
-
                     String targetId = parts[7];
                     String senderName = parts[2];
                     String content = parts[8];
+                    String time = parts[3];
 
                     if(myId.equals(targetId)){
-
+                        chatRepository.addMessageToChatRoom(senderId, senderId, senderName, content, time);
+                    }
+                    else if(myFamilyId.equals(targetId)){
+                        chatRepository.addMessageToChatRoom(targetId, senderId, senderName, content, time);
+                        spreadMessage(device.getAddress(), message);
+                    }
+                    else if(myGroupIds.contains(targetId)){
+                        chatRepository.addMessageToChatRoom(targetId, senderId, senderName, content, time);
+                        spreadMessage(device.getAddress(), message);
                     }
                     else{
                         spreadMessage(device.getAddress(), message);
                     }
                 }
 
-                // ble 연결 종료 요청
+                else if (messageType.equals("invite")) {
+                    ArrayList<String> groupMembers = new ArrayList<>(Arrays.asList(parts[2].split("@")));
+
+                    if(groupMembers.contains(myId)){
+                        // 여기서 그룹에 참여
+                        String groupId = parts[3];
+                        String groupName = parts[4];
+                    }
+
+                    spreadMessage(device.getAddress(), message);
+
+                }
+
                 else if (messageType.equals("disconnect")) {
                     BluetoothGatt gatt = deviceGattMap.remove(device.getAddress());
                     gatt.close();
@@ -658,6 +852,37 @@ public class BleService extends Service {
         // ... 필요한 경우 다른 콜백 메서드 추가 ...
     };
 
+    private void sendNotification(String messageContent) {
+        // Notification Channel 생성 (Android O 이상)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "My Notification Channel";
+            String description = "Channel for My App";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID", name, importance);
+            channel.setDescription(description);
+            // 채널을 시스템에 등록
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
+                .setSmallIcon(R.drawable.good_news_logo) // 알림 아이콘 설정
+                .setContentTitle("구조 요청") // 알림 제목
+                .setContentText(messageContent + "님이 구조를 요청했습니다.") // 'message'는 받은 메시지의 내용
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        // 알림 표시
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
+
+    }
+
+
+
+
+
+
+
     public class BleGattCallback extends BluetoothGattCallback {
         @Override
         public void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
@@ -674,18 +899,21 @@ public class BleService extends Service {
             super.onCharacteristicWrite(gatt, characteristic, status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                if ("disconnect".equals(new String(characteristic.getValue()).split("/")[0])) {
+                String[] parts = new String(characteristic.getValue()).split("/");
+                String type = parts[0];
+                if ("disconnect".equals(type)) {
                     // 여기서 보내주고 끊어?
                     gatt.close();
                 }
-                else{
-                    Log.i("전송완료", new String(characteristic.getValue()));
+                else if("chat".equals(type)){
+                    Log.i("TAG", "chatchatchat");
+                    chatRepository.addMessageToChatRoom(parts[7], myId, myName, parts[8], parts[3]);
                 }
-                Log.i("BLE", "Message sent successfully to " + gatt.getDevice().getAddress());
+
+                Log.i("송신 메시지", new String(characteristic.getValue()));
             }
             else {
                 Log.e("BLE", "Failed to send message to " + gatt.getDevice().getAddress() + ". Error code: " + status);
-
             }
         }
 
@@ -730,15 +958,42 @@ public class BleService extends Service {
     }
 
 
-
-
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         // 광고 중지 로직
         stopAdvertising();
-        handlerThread.quitSafely();
+        stopScanning();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+
+        // HandlerThread 종료
+        if (handlerThread != null) {
+            handlerThread.quitSafely();
+            handlerThread = null;
+        }
+
+        // BluetoothGattServer 연결 닫기
+        if (mGattServer != null) {
+            mGattServer.close();
+            mGattServer = null;
+        }
+
+        // 모든 BluetoothGatt 연결 닫기
+        for (BluetoothGatt gatt : deviceGattMap.values()) {
+            if (gatt != null) {
+                gatt.close();
+            }
+        }
+        deviceGattMap.clear();
+    }
+
+    //채팅
+    private ChatDatabaseManager chatDatabaseManager = new ChatDatabaseManager();
+    private ChatRepository chatRepository = new ChatRepository(chatDatabaseManager);
+
+    public MutableLiveData<List<ChatMessage>> getChatRoomMessages(String chatRoomId) {
+        return chatRepository.getChatRoomMessages(chatRoomId);
     }
 }

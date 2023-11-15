@@ -40,7 +40,6 @@ class ChattingFragment : Fragment(R.layout.fragment_chatting) {
         }.attach()
 
         val selectedTab = arguments?.getInt("selectedTab") ?: 0
-        println("$selectedTab 뭘로 나올까요?")
 
         //TabLayoutMediator의 attach 호출 후에 currentItem을 설정
         viewPager.post {

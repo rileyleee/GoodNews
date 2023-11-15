@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="2dp"
+    android:paddingStart="5dp"
+    android:paddingBottom="15dp">
+
+    <TextView
+        android:id="@+id/chatDetailName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="이름"
+        android:textColor="@color/font_color"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/chatDetailGuide"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/chatDetailContext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/btn_white"
+        android:maxWidth="300dp"
+        android:text="채팅 내용"
+        android:textColor="@color/font_color"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/chatDetailName"
+        app:layout_constraintTop_toBottomOf="@id/chatDetailName" />
+
+    <TextView
+        android:id="@+id/chatDetailTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="오전 9:32"
+        android:textColor="@color/gray"
+        android:textSize="10sp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/chatDetailContext"
+        app:layout_constraintStart_toEndOf="@id/chatDetailContext" />
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/chatDetailGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/chatDetailGuideEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

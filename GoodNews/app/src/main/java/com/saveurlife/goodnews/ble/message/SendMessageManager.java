@@ -7,12 +7,15 @@ import android.util.Log;
 
 
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
+import com.saveurlife.goodnews.main.PreferencesUtil;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 public class SendMessageManager {
@@ -21,17 +24,21 @@ public class SendMessageManager {
     private UserDeviceInfoService userDeviceInfoService;
     private LocationService locationService;
     private String myId;
-    private String myName = "김예진";
+    private String myName = "김나연";
 
     private int sendSize = 5;
 
+    private PreferencesUtil preferencesUtil;
+
     public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
-                              UserDeviceInfoService userDeviceInfoService, LocationService locationService) {
+                              UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil) {
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;
         this.userDeviceInfoService = userDeviceInfoService;
         this.locationService = locationService;
         this.myId = userDeviceInfoService.getDeviceId();
+        this.preferencesUtil = preferencesUtil; // preferencesUtil 값 설정
+
     }
 
 
@@ -44,7 +51,7 @@ public class SendMessageManager {
 
         String[] location = locationService.getLastKnownLocation().split("/");
 
-        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, "1", Double.parseDouble(location[0]), Double.parseDouble(location[1]));
+        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
 
         newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
         for (Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()) {
@@ -69,7 +76,6 @@ public class SendMessageManager {
                     if (count != 0 && (count % sendSize == 0 || count == newBleMeshConnectedDevicesMap.size())) {
                         characteristic.setValue(result);
                         deviceGatt.writeCharacteristic(characteristic);
-                        Log.i("sendMessageInit", result);
 
                         // 여기에서 writeCharacteristic()가 완료될 때까지 대기하거나 콜백을 사용해야 합니다.
                         // 쓰기 작업이 완료되면 다음 쓰기 작업을 시작해야 합니다.
@@ -95,14 +101,13 @@ public class SendMessageManager {
                 if (characteristic != null) {
                     characteristic.setValue(content);
                     gatt.writeCharacteristic(characteristic);
-
-                    Log.i("spreadmessage", content);
                 }
             }
         }
     }
 
     public String sendMessageBase(Map<String, BluetoothGatt> deviceGattMap) {
+        Log.i("연결 기기 수 : ", Integer.toString(deviceGattMap.size()));
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
         String formattedDate = sdf.format(now);
@@ -112,7 +117,7 @@ public class SendMessageManager {
         messageBase.setSenderId(myId);
         messageBase.setSenderName(myName);
         messageBase.setSendTime(formattedDate);
-        messageBase.setHealthStatus("1");
+        messageBase.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageBase.setLocation(locationService.getLastKnownLocation());
 
         String message = messageBase.toString();
@@ -131,7 +136,7 @@ public class SendMessageManager {
         return message;
     }
 
-    public void sendMessageHelp(Map<String, BluetoothGatt> deviceGattMap, String content) {
+    public void sendMessageHelp(Map<String, BluetoothGatt> deviceGattMap) {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
         String formattedDate = sdf.format(now);
@@ -141,9 +146,8 @@ public class SendMessageManager {
         messageHelp.setSenderId(myId);
         messageHelp.setSenderName(myName);
         messageHelp.setSendTime(formattedDate);
-        messageHelp.setHealthStatus("1");
+        messageHelp.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageHelp.setLocation(locationService.getLastKnownLocation());
-        messageHelp.setContent(content);
 
         String message = messageHelp.toString();
 
@@ -161,7 +165,8 @@ public class SendMessageManager {
 
     public String sendMessageChat(Map<String, BluetoothGatt> deviceGattMap, String receiverId, String content) {
         Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+//        SimpleDateFormat sdf = new SimpleDateFormat("a hh:mm", Locale.getDefault());
 
         String formattedDate = sdf.format(now);
 
@@ -170,7 +175,7 @@ public class SendMessageManager {
         messageChat.setSenderId(myId);
         messageChat.setSenderName(myName);
         messageChat.setSendTime(formattedDate);
-        messageChat.setHealthStatus("1");
+        messageChat.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageChat.setLocation(locationService.getLastKnownLocation());
         messageChat.setReceiverId(receiverId);
         messageChat.setContent(content);
@@ -190,12 +195,38 @@ public class SendMessageManager {
         return message;
     }
 
+    public void sendMessageGroupInvite(Map<String, BluetoothGatt> deviceGattMap, List<String> receiverIds, String groupId, String groupName){
+        String message = "invite/"+myId+"/";
+        for(int i=0; i<receiverIds.size(); i++){
+            message = message.concat(receiverIds.get(i));
+            if(i<receiverIds.size()-1){
+                message = message.concat("@");
+            }
+        }
+
+        message = message.concat("/" + groupId);
+        message = message.concat("/" + groupName);
+
+        Log.i("invite", message);
+
+        for (BluetoothGatt gatt : deviceGattMap.values()) {
+            BluetoothGattService service = gatt.getService(serviceUUID);
+            if (service != null) {
+                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
+                if (characteristic != null) {
+                    characteristic.setValue(message);
+                    gatt.writeCharacteristic(characteristic);
+                }
+            }
+        }
+    }
+
+
     public void sendMessageDisconnect(BluetoothGatt gatt) {
         BluetoothGattService service = gatt.getService(serviceUUID);
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
             if (characteristic != null) {
-                Log.i("sendMessageRemove", "sendMessageRemove");
                 characteristic.setValue("disconnect/"+myId);
                 gatt.writeCharacteristic(characteristic);
             }
@@ -213,7 +244,7 @@ public class SendMessageManager {
         for (BluetoothGatt gatt : deviceGattMap.values()) {
             // 여기서 자기 꺼 빼고 보내게
             Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap=new HashMap<>();
-            BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, "1", Double.parseDouble(location[0]), Double.parseDouble(location[1]));
+            BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
             newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
 
             for(Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()){
@@ -237,7 +268,6 @@ public class SendMessageManager {
 
                         if(count!=0&&(count%sendSize==0||count==newBleMeshConnectedDevicesMap.size())){
                             characteristic.setValue(message);
-                            Log.i("sendMessageChange", message);
                             gatt.writeCharacteristic(characteristic);
                             nowSize++;
                             message="change/"+myId+"/"+maxSize+"/"+nowSize+"/";

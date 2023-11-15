@@ -1,7 +1,9 @@
 package com.saveurlife.goodnews.ble;
 
 
-public class BleMeshConnectedUser {
+import java.io.Serializable;
+
+public class BleMeshConnectedUser implements Serializable {
     private String userId;
     private String userName;
     private String updateTime;

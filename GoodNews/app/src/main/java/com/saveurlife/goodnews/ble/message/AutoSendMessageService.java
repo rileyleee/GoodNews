@@ -7,12 +7,14 @@ import static com.saveurlife.goodnews.ble.Common.SERVICE_UUID;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
+import com.saveurlife.goodnews.main.PreferencesUtil;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 
@@ -28,9 +30,15 @@ public class AutoSendMessageService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        // SharedPreferences에서 status 값을 읽기
+        // PreferencesUtil 인스턴스 생성
+        PreferencesUtil preferencesUtil = new PreferencesUtil(this);
+        // PreferencesUtil을 사용하여 status 값을 읽기
+        String myStatus = preferencesUtil.getString("status", "4");
+
         locationService = new LocationService(this);
         userDeviceInfoService = new UserDeviceInfoService(this);
-        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService);
+        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil);
 
         handlerThread = new HandlerThread("MessageServiceHandlerThread");
         handlerThread.start();

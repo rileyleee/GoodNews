@@ -78,7 +78,8 @@
         android:textColor="@color/font_color"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/myStatus"
-        app:layout_constraintTop_toBottomOf="@id/myStatus" />
+        app:layout_constraintTop_toBottomOf="@id/myStatus"
+        app:layout_constraintBottom_toTopOf="@id/myUpdateTime"/>
 
     <TextView
         android:id="@+id/myUpdateTime"
@@ -86,8 +87,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="XXXX년 XX월 XX일 XX시 XX분 XX초"
-        android:textSize="16sp"
         android:textColor="@color/font_color"
+        android:textSize="16sp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/myStatus"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
