@@ -30,7 +30,6 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 class FamilyFragment : Fragment() {
     enum class Mode { ADD, READ, EDIT }
 
-
     private lateinit var familyListRecyclerView: RecyclerView
     private lateinit var binding: FragmentFamilyBinding
     private lateinit var realm: Realm
@@ -155,7 +154,6 @@ class FamilyFragment : Fragment() {
 
         showMeetingDialog(seq, mode)
     }
-
 
     // 모달 창 띄워주는 것
     private fun showMeetingDialog(seq: Int, mode: Mode) {
