@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public class FamilyRegistRequestDto {
 
-    private String memberId;
+    private int familyMemberId;
     private Boolean refuse;
 }

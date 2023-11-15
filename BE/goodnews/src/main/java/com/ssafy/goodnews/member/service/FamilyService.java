@@ -13,6 +13,7 @@ import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
 import com.ssafy.goodnews.member.dto.request.family.FamilyRegistRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyInviteResponseDto;
 import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceDetailResponseDto;
 import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceInfoResponseDto;
 import com.ssafy.goodnews.member.dto.response.family.FamilyRegistPlaceResponseDto;
@@ -28,9 +29,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ssafy.goodnews.member.domain.QFamilyMember.familyMember;
 
 @Service
 @RequiredArgsConstructor
@@ -46,8 +50,8 @@ public class FamilyService {
 
     @Transactional
     public BaseResponseDto registFamily(MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
-        Optional<Member> findMemberPhone = memberRepository.findByPhoneNumber(memberRegistFamilyRequestDto.getFamilyId());
-        memberValidator.checkMember(findMemberPhone,memberRegistFamilyRequestDto.getFamilyId());
+        Optional<Member> findMemberPhone = memberRepository.findByPhoneNumber(memberRegistFamilyRequestDto.getOtherPhone());
+        memberValidator.checkMember(findMemberPhone,memberRegistFamilyRequestDto.getOtherPhone());
 
         Optional<FamilyMember> findFamilyMember = familyMemberRepository.findByMemberIdAndFamilyFamilyId(findMemberPhone.get().getId(), memberRegistFamilyRequestDto.getMemberId());
         familyValidator.checkRegistFamily(findFamilyMember, findMemberPhone.get().getId());
@@ -100,8 +104,9 @@ public class FamilyService {
 
     @Transactional
     public BaseResponseDto updateFamilyMember(FamilyRegistRequestDto familyRegistRequestDto) {
-        Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(familyRegistRequestDto.getMemberId());
-        familyValidator.checkUpdateFamily(familyMember, familyRegistRequestDto.getMemberId());
+//        Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(familyRegistRequestDto.getMemberId());
+        Optional<FamilyMember> familyMember = familyMemberRepository.findById(familyRegistRequestDto.getFamilyMemberId());
+        familyValidator.checkUpdateFamily(familyMember);
 
         if (!familyRegistRequestDto.getRefuse()) {
             familyMember.get().updateApprove(true);
@@ -122,7 +127,7 @@ public class FamilyService {
 
         Optional<FamilyMember> familyMember = memberQueryDslRepository.findFamilyMember(memberId);
 
-        familyValidator.checkUpdateFamily(familyMember, memberId);
+        familyValidator.checkUpdateFamily(familyMember);
         familyValidator.checkApproveFamily(familyMember,memberId);
         List<Member> familyMemberList = memberQueryDslRepository.findFamilyMemberList(familyMember.get().getFamily().getFamilyId(),memberId);
         if (familyMemberList.isEmpty()) {
@@ -255,7 +260,30 @@ public class FamilyService {
     public BaseResponseDto getRegistFamily(MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
 
 
+        List<FamilyInviteResponseDto> responseDtoList = new ArrayList<>();
 
-        return null;
+        List<FamilyMember> findFamilyMember = familyMemberRepository.findByMemberIdAndApproveIsFalse(memberFirstLoginRequestDto.getMemberId());
+
+        for (FamilyMember familyMember : findFamilyMember) {
+            Optional<Member> findMember = memberRepository.findById(familyMember.getFamily().getFamilyId());
+
+            findMember.ifPresent(member -> {
+                // 여기서 FamilyInviteResponseDto를 생성하고 필요한 정보를 설정한다.
+                FamilyInviteResponseDto responseDto = FamilyInviteResponseDto.builder()
+                        .id(familyMember.getId())
+                        .name(member.getName())
+                        .phoneNumber(member.getPhoneNumber())
+                        .build();
+
+                // 리스트에 추가한다.
+                responseDtoList.add(responseDto);
+            });
+        }
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 수락 요청 리스트를 조회했습니다")
+                .data(responseDtoList)
+                .build();
     }
 }

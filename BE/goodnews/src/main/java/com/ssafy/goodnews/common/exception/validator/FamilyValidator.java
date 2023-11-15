@@ -28,12 +28,12 @@ public class FamilyValidator {
 
     }
 
-    public void checkUpdateFamily(Optional<FamilyMember> findMember, String familyId) {
+    public void checkUpdateFamily(Optional<FamilyMember> findMember) {
          if(findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
-                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage())
                     .build();
         }
 

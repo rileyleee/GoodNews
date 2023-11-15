@@ -9,7 +9,8 @@ public enum FamilyErrorEnum {
     INVALID_FAMILY(3000, "이미 가족신청을 요청하셨습니다. memberId: "),
     INVALID_FAMILY_OTHER(3001,"이미 가족요청을 받았습니다: memberId: "),
     INVALID_FAMILY_PLACE(3003,"가족 모임 장소가 없습니다"),
-    INVALID_FAMILY_PLACE_SIZE(3004,"가족 모임 장소 개수는 최대 3개입니다");
+    INVALID_FAMILY_PLACE_SIZE(3004,"가족 모임 장소 개수는 최대 3개입니다"),
+    INVALID_FAMILY_MEMBER_IN(3004,"이미 가족 구성원이 있습니다");
     private final int code;
     private final String message;
 

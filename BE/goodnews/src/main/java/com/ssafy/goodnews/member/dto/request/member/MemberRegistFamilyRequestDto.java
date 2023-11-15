@@ -6,5 +6,5 @@ import lombok.Getter;
 public class MemberRegistFamilyRequestDto {
 
     private String memberId;
-    private String familyId;
+    private String otherPhone;
 }

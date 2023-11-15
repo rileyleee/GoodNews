@@ -3,6 +3,7 @@ package com.ssafy.goodnews.member.repository;
 import com.ssafy.goodnews.member.domain.FamilyMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Integer> {
@@ -11,4 +12,5 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember,Integ
     Optional<FamilyMember> findByMemberId(String memberId);
 
 
+    List<FamilyMember> findByMemberIdAndApproveIsFalse(String memberId);
 }
