@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -41,6 +42,7 @@ import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
@@ -71,18 +73,19 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var listAdapter: FacilityListAdapter
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
-    private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
-
-    //private val mapTileArchivePath = "7_15_korea-001.sqlite"
+    private val localMapTileArchivePath = "korea_7_13.sqlite"
+    private val ServerMapTileArchivePath = "7_15_korea-001.sqlite"
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+
+    // 오프라인 파일 위치
+    private lateinit var file: File
 
     // 타일 provider, 최소 줌 및 해상도 설정
     val provider: String =
         "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
-    val maxZoom: Int = 13
-
-    //    val maxZoom: Int = 15
+    val localMaxZoom = 15
+    val serverMaxZoom: Int = 18
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -94,6 +97,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     val sharedPref = GoodNewsApplication.preferences
     var lastLat = sharedPref.getDouble("lastLat", 37.566535)
     var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
+
+    // 오프라인 지도 다운로드 확인 여부
+    var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
 
 
     override fun onCreateView(
@@ -175,11 +181,35 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val context = requireContext()
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
 
-        val tileSource = XYTileSource(
-            provider,
-            minZoom, maxZoom, pixel, ".png",
-            arrayOf("http://127.0.0.1")
-        )
+        // 오프라인 지도 존재 여부 확인 후 sharedPref에 담기
+        file =
+            File(
+                context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+                ServerMapTileArchivePath
+            )
+
+        if (file.exists()) {
+            sharedPref.setBoolean("downloadedMap", true)
+        } else {
+            sharedPref.setBoolean("downloadedMap", false)
+        }
+
+        var tileSource: XYTileSource
+
+        if (downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
+            tileSource = XYTileSource(
+                provider,
+                minZoom, serverMaxZoom, pixel, ".png",
+                arrayOf("http://127.0.0.1")
+            )
+        } else {
+            tileSource = XYTileSource(
+                provider,
+                minZoom, localMaxZoom, pixel, ".png",
+                arrayOf("http://127.0.0.1")
+            )
+        }
+
         val simpleReceiver = SimpleRegisterReceiver(context)
 
         try {
@@ -198,7 +228,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
 
         val tilesOverlay = TilesOverlay(mapProvider, context)
-
 
         mapView.apply {
 
@@ -358,55 +387,44 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     @Throws(IOException::class)
     private fun getMapsFile(context: Context): File {
-        val resourceInputStream =
-            context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
 
-        // 파일 경로
-        val file = File(context.filesDir, mapTileArchivePath)
+        // 서버에서 저장한 지도 파일
+        if (downloadedMap) {
+//            file =
+//                File(
+//                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+//                    ServerMapTileArchivePath
+//                )
+            Log.d("지도 출처", "서버에서 다운로드 받은 지도요")
 
-        // 파일이 이미 존재하지 않는 경우에만 복사 진행
-        if (!file.exists()) {
-            resourceInputStream.use { input ->
-                FileOutputStream(file).use { output ->
-                    val buffer = ByteArray(1024)
-                    var length: Int
-                    while (input.read(buffer).also { length = it } != -1) {
-                        output.write(buffer, 0, length)
+            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+            if (!file.exists()) {
+                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+
+            }
+            return file
+        } else { // 로컬에 존재하는 지도 파일
+            Log.d("지도 출처", "로컬에 있는 지도요")
+            val resourceInputStream =
+                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+
+            // 파일 경로
+            val file = File(context.filesDir, localMapTileArchivePath)
+
+            // 파일이 이미 존재하지 않는 경우에만 복사 진행
+            if (!file.exists()) {
+                resourceInputStream.use { input ->
+                    FileOutputStream(file).use { output ->
+                        val buffer = ByteArray(1024)
+                        var length: Int
+                        while (input.read(buffer).also { length = it } != -1) {
+                            output.write(buffer, 0, length)
+                        }
                     }
                 }
             }
+            return file
         }
-        return file
-
-
-        // 서버에서 저장한 파일 경로
-//        val file =
-//            File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), mapTileArchivePath)
-//
-//        // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
-//        if (!file.exists()) {
-//            throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
-//
-////            val resourceInputStream =
-////                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
-////              //파일 경로
-////            val file = File(context.filesDir, mapTileArchivePath)
-////
-////            // 파일이 이미 존재하지 않는 경우에만 복사 진행
-////            if (!file.exists()) {
-////                resourceInputStream.use { input ->
-////                    FileOutputStream(file).use { output ->
-////                        val buffer = ByteArray(1024)
-////                        var length: Int
-////                        while (input.read(buffer).also { length = it } != -1) {
-////                            output.write(buffer, 0, length)
-////                        }
-////                    }
-////                }
-////            }
-//
-//        }
-//        return file
     }
 
     // 위치 변경 시 위경도 받아옴
@@ -482,6 +500,36 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 시설 위치 마커로 찍는 함수 내부에서 사용
     private fun addFacilitiesToMap(category: FacilityUIType) {
+
+        // 클러스터링 마커 작성 -> 렌더링에 시간이 더 많이 소요됨
+
+//        val poiMarkers = RadiusMarkerClusterer(requireContext())
+//
+//        val clusterIconD = ContextCompat.getDrawable(requireContext(), R.drawable.ic_grocery)
+//        val clusterIcon = (clusterIconD as BitmapDrawable).bitmap
+//        poiMarkers.setIcon(clusterIcon)
+//
+//        // 마커로 찍을 시설 목록 필터링
+//        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
+//            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+//
+//        // 지도 하단 시트에 표시될 리스트 갱신
+//        listAdapter.updateData(facilitiesOverlayItems)
+//
+//        // Create markers and add them to the cluster manager
+//        facilitiesOverlayItems.forEach { facility ->
+//            val marker = Marker(mapView)
+//            marker.position = GeoPoint(facility.latitude, facility.longitude)
+//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+//            marker.title = facility.name
+//            poiMarkers.add(marker)
+//        }
+//
+//        // Add the cluster manager to the map overlays
+//        mapView.overlays.add(poiMarkers)
+//
+//        // Refresh the map
+//        mapView.invalidate()
 
         // 마커로 찍을 시설 목록 필터링
         val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
