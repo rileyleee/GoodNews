@@ -16,6 +16,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.api.FamilyAPI
+import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -30,6 +32,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEnterInfoBinding
     private lateinit var realm: Realm
     private lateinit var permissionsUtil: PermissionsUtil
+    private lateinit var memberAPI: MemberAPI
 
     val userDeviceInfoService = UserDeviceInfoService(this);
     val sharedPreferences = GoodNewsApplication.preferences
@@ -42,7 +45,7 @@ class EnterInfoActivity : AppCompatActivity() {
 
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        memberAPI = MemberAPI()
         // 위험 권한 요청
         permissionsUtil = PermissionsUtil(this)
         permissionsUtil.requestAllPermissions()
@@ -343,6 +346,7 @@ class EnterInfoActivity : AppCompatActivity() {
             preferencesUtil.setString("name", setName)
 
             // 인터넷이 있을 때 Spring => @@ 수정 필요
+            memberAPI.registMemberInfo(setMemberId,setPhone,setName,setBirthDate,setGender,setBloodType, setAddInfo)
 
             Log.i("저장", "저장완료")
             // 메인으로 이동

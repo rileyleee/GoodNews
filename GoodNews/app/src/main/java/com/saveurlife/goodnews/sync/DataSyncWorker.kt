@@ -1,6 +1,5 @@
 package com.saveurlife.goodnews.sync
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.work.Worker
