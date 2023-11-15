@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -41,6 +42,7 @@ import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
@@ -81,8 +83,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
     //val maxZoom: Int = 13
-
-    val maxZoom: Int = 16
+    val maxZoom: Int = 18
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -483,6 +484,36 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 시설 위치 마커로 찍는 함수 내부에서 사용
     private fun addFacilitiesToMap(category: FacilityUIType) {
+        
+        // 클러스터링 마커 작성 -> 렌더링에 시간이 더 많이 소요됨
+
+//        val poiMarkers = RadiusMarkerClusterer(requireContext())
+//
+//        val clusterIconD = ContextCompat.getDrawable(requireContext(), R.drawable.ic_grocery)
+//        val clusterIcon = (clusterIconD as BitmapDrawable).bitmap
+//        poiMarkers.setIcon(clusterIcon)
+//
+//        // 마커로 찍을 시설 목록 필터링
+//        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
+//            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+//
+//        // 지도 하단 시트에 표시될 리스트 갱신
+//        listAdapter.updateData(facilitiesOverlayItems)
+//
+//        // Create markers and add them to the cluster manager
+//        facilitiesOverlayItems.forEach { facility ->
+//            val marker = Marker(mapView)
+//            marker.position = GeoPoint(facility.latitude, facility.longitude)
+//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+//            marker.title = facility.name
+//            poiMarkers.add(marker)
+//        }
+//
+//        // Add the cluster manager to the map overlays
+//        mapView.overlays.add(poiMarkers)
+//
+//        // Refresh the map
+//        mapView.invalidate()
 
         // 마커로 찍을 시설 목록 필터링
         val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
