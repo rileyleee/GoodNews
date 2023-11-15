@@ -15,16 +15,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.DialogBloodSettingBinding
 import com.saveurlife.goodnews.databinding.DialogCalendarSettingBinding
 import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
-import com.saveurlife.goodnews.map.ConnectedUserProvider
 import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
@@ -50,10 +47,6 @@ class MyPageFragment : Fragment() {
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
-
-    var sharedViewModel = SharedViewModel()
-
-
 
     //Realm에서 정보 가져오기
     private var realmName: String? = null
@@ -139,13 +132,6 @@ class MyPageFragment : Fragment() {
 //            val writeTransactionItems = query<Member>().find()
 //            delete(writeTransactionItems.first())
 //        }
-
-
-
-        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-        val connectedUserProvider = ConnectedUserProvider(sharedViewModel, viewLifecycleOwner)
-        connectedUserProvider.showConnectedUsers()
-
         return binding.root
     }
 
