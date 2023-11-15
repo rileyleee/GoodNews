@@ -71,18 +71,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var listAdapter: FacilityListAdapter
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
-    private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
+    //private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
 
-    //private val mapTileArchivePath = "7_15_korea-001.sqlite"
+    private val mapTileArchivePath = "7_15_korea-001.sqlite"
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     // 타일 provider, 최소 줌 및 해상도 설정
     val provider: String =
         "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
-    val maxZoom: Int = 13
+    //val maxZoom: Int = 13
 
-    //    val maxZoom: Int = 15
+    val maxZoom: Int = 16
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -358,55 +358,56 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     @Throws(IOException::class)
     private fun getMapsFile(context: Context): File {
-        val resourceInputStream =
-            context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
-
-        // 파일 경로
-        val file = File(context.filesDir, mapTileArchivePath)
-
-        // 파일이 이미 존재하지 않는 경우에만 복사 진행
-        if (!file.exists()) {
-            resourceInputStream.use { input ->
-                FileOutputStream(file).use { output ->
-                    val buffer = ByteArray(1024)
-                    var length: Int
-                    while (input.read(buffer).also { length = it } != -1) {
-                        output.write(buffer, 0, length)
-                    }
-                }
-            }
-        }
-        return file
+//        val resourceInputStream =
+//            context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+//
+//        // 파일 경로
+//        val file = File(context.filesDir, mapTileArchivePath)
+//
+//        // 파일이 이미 존재하지 않는 경우에만 복사 진행
+//        if (!file.exists()) {
+//            resourceInputStream.use { input ->
+//                FileOutputStream(file).use { output ->
+//                    val buffer = ByteArray(1024)
+//                    var length: Int
+//                    while (input.read(buffer).also { length = it } != -1) {
+//                        output.write(buffer, 0, length)
+//                    }
+//                }
+//            }
+//        }
+//        return file
 
 
         // 서버에서 저장한 파일 경로
-//        val file =
-//            File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), mapTileArchivePath)
+        val file =
+            File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), mapTileArchivePath)
+        Log.d("지도 출처","서버에서 다운로드 받은 지도요")
+
+        // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+        if (!file.exists()) {
+            throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+
+//            val resourceInputStream =
+//                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+//              //파일 경로
+//            val file = File(context.filesDir, mapTileArchivePath)
 //
-//        // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
-//        if (!file.exists()) {
-//            throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
-//
-////            val resourceInputStream =
-////                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
-////              //파일 경로
-////            val file = File(context.filesDir, mapTileArchivePath)
-////
-////            // 파일이 이미 존재하지 않는 경우에만 복사 진행
-////            if (!file.exists()) {
-////                resourceInputStream.use { input ->
-////                    FileOutputStream(file).use { output ->
-////                        val buffer = ByteArray(1024)
-////                        var length: Int
-////                        while (input.read(buffer).also { length = it } != -1) {
-////                            output.write(buffer, 0, length)
-////                        }
-////                    }
-////                }
-////            }
-//
-//        }
-//        return file
+//            // 파일이 이미 존재하지 않는 경우에만 복사 진행
+//            if (!file.exists()) {
+//                resourceInputStream.use { input ->
+//                    FileOutputStream(file).use { output ->
+//                        val buffer = ByteArray(1024)
+//                        var length: Int
+//                        while (input.read(buffer).also { length = it } != -1) {
+//                            output.write(buffer, 0, length)
+//                        }
+//                    }
+//                }
+//            }
+
+        }
+        return file
     }
 
     // 위치 변경 시 위경도 받아옴
