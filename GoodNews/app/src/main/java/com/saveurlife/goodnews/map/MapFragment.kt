@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.location.Location
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -23,18 +24,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
-import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
-import com.saveurlife.goodnews.models.Member
-import com.saveurlife.goodnews.service.UserDeviceInfoService
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.osmdroid.bonuspack.location.GeocoderGraphHopper
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -77,6 +72,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
     private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
+
+    //private val mapTileArchivePath = "7_15_korea-001.sqlite"
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     // 타일 provider, 최소 줌 및 해상도 설정
@@ -84,6 +81,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
     val maxZoom: Int = 13
+
+    //    val maxZoom: Int = 15
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -91,6 +90,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     val min = GeoPoint(33.1120, 124.6100)
     val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
+    // 마지막 위치 초기 설정 => 서울 시청
     val sharedPref = GoodNewsApplication.preferences
     var lastLat = sharedPref.getDouble("lastLat", 37.566535)
     var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
@@ -137,7 +137,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             Log.d("CategorySelected", "Selected category: ${category.displayName}")
             Log.d("test", "바뀌면 안됨" + categoryAdapter.toString())
 
-
         }
         categoryRecyclerView.adapter = categoryAdapter
 
@@ -151,9 +150,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dividerItemDecoration =
             DividerItemDecoration(listRecyclerView.context, LinearLayoutManager.VERTICAL)
         listRecyclerView.addItemDecoration(dividerItemDecoration)
-
-        // 처음에 "전체" 카테고리가 선택되도록 합니다.
-        handleSelectedCategory(FacilityUIType.ALL)
 
         return binding.root
     }
@@ -241,6 +237,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             mapView.invalidate()
         }
 
+
         // 지도 초기화 후 화면 경계 초기 값 설정
         mapView.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
@@ -250,9 +247,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
                 Log.v("screenRect", "$screenRect")
 
-                // 지도 위에 시설 정보 그리기
-                addFacilitiesToMap()
-
+                handleSelectedCategory(selectedCategory)
             }
         })
 
@@ -264,12 +259,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
                 Log.v("screenRect", "$screenRect")
 
-                // 지도 위에 시설 정보 그리기
-                addFacilitiesToMap()
+                handleSelectedCategory(selectedCategory)
             }
             false
         }
-
 
         // 내 위치로 이동 버튼 클릭했을 때
         binding.findMyLocationButton.setOnClickListener {
@@ -361,7 +354,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 bottomSheet.layoutParams = layoutParams
             }
         })
-
     }
 
     @Throws(IOException::class)
@@ -385,17 +377,41 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
         }
         return file
+
+
+        // 서버에서 저장한 파일 경로
+//        val file =
+//            File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), mapTileArchivePath)
+//
+//        // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+//        if (!file.exists()) {
+//            throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+//
+////            val resourceInputStream =
+////                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+////              //파일 경로
+////            val file = File(context.filesDir, mapTileArchivePath)
+////
+////            // 파일이 이미 존재하지 않는 경우에만 복사 진행
+////            if (!file.exists()) {
+////                resourceInputStream.use { input ->
+////                    FileOutputStream(file).use { output ->
+////                        val buffer = ByteArray(1024)
+////                        var length: Int
+////                        while (input.read(buffer).also { length = it } != -1) {
+////                            output.write(buffer, 0, length)
+////                        }
+////                    }
+////                }
+////            }
+//
+//        }
+//        return file
     }
 
     // 위치 변경 시 위경도 받아옴
     override fun onLocationChanged(location: Location) {
         currGeoPoint = GeoPoint(location.latitude, location.longitude)
-
-        // sharedPreference에 저장
-        GoodNewsApplication.preferences.setDouble("lastLat", location.latitude)
-        GoodNewsApplication.preferences.setDouble("lastLon", location.longitude)
-        Log.d("마지막 위치 저장완료", "위도: $lastLat, 경도: $lastLon")
-
         currGeoPoint?.let {
             updateCurrentLocation(it)
         }
@@ -465,11 +481,44 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private val previousFacilityOverlayItems = mutableListOf<SimpleFastPointOverlay>()
 
     // 시설 위치 마커로 찍는 함수 내부에서 사용
-    private fun addFacilitiesToMap() {
+    private fun addFacilitiesToMap(category: FacilityUIType) {
 
         // 마커로 찍을 시설 목록 필터링
-        val facilitiesOverlayItems = facilityProvider.getFacilityData()
+        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
             .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 지도 하단 시트에 표시될 리스트 갱신
+        listAdapter.updateData(facilitiesOverlayItems)
+
+        // 기존에 표시된 마커 제거
+        previousFacilityOverlayItems.forEach { previousOverlay ->
+            mapView.overlays.remove(
+                previousOverlay
+            )
+        }
+        // 리스트 초기화
+        previousFacilityOverlayItems.clear()
+
+        // 새 오버레이 생성
+        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+
+        // 오버레이를 지도에 추가
+        mapView.overlays.add(overlay)
+        mapView.invalidate()
+
+        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+        previousFacilityOverlayItems.add(overlay)
+    }
+
+    private fun addSubFacilitiesToMap(subCategory: String) {
+
+        // 마커로 찍을 시설 목록 필터링
+        val facilitiesOverlayItems =
+            facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+                .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 지도 하단 시트에 표시될 리스트 갱신
+        listAdapter.updateData(facilitiesOverlayItems)
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -532,7 +581,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun getFacilityListData(): List<OffMapFacility> {
-        // 실제 데이터를 반환 (임시 데이터...)
+        // 초기화를 위한 더미 데이터
         return listOf(
             OffMapFacility().apply {
                 id = 1
@@ -542,51 +591,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 latitude = 37.564
                 canUse = true
                 addInfo = "24시간 운영"
-            },
-            OffMapFacility().apply {
-                id = 2
-                type = "소방서"
-                name = "안전한 소방서"
-                longitude = 127.002
-                latitude = 37.565
-                canUse = true
-                addInfo = "긴급 구조 전문"
-            },
-            OffMapFacility().apply {
-                id = 3
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
-            },
-            OffMapFacility().apply {
-                id = 4
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
-            },
-            OffMapFacility().apply {
-                id = 5
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
-            },
-            OffMapFacility().apply {
-                id = 6
-                type = "경찰서"
-                name = "믿음직한 경찰서"
-                longitude = 127.003
-                latitude = 37.566
-                canUse = false
-                addInfo = "24시간 순찰"
             })
     }
 
@@ -603,48 +607,39 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
-
         updateFacilitiesByCategory(category)
     }
 
     // 업데이트 코드
     private fun updateFacilitiesByCategory(category: FacilityUIType) {
-        // 해당 데이터 가져오기 => facilityProvider에서 처리
-        // val filteredFacilities = facilityProvider.getFilteredFacilities(category)
-
-        // 지도 마커?
-        // addFacilitiesToMap(filteredFacilities)
-
-        // 리스트 어댑터에 넣어주기
-        // listAdapter.updateData(filteredFacilities)
+        // 지도 마커 및 하단 리스트
+        addFacilitiesToMap(category)
     }
 
     // 서브 카테고리 업데이트 코드
     private fun updateFacilitiesBySubCategory(subCategory: String) {
-        // 해당 데이터 가져오기 => facilityProvider에서 처리
-        // val filteredFacilities = facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
-
-        // 지도 마커?
-        // addFacilitiesToMap(filteredFacilities)
-
-        // 리스트 어댑터에 넣어주기
-        // listAdapter.updateData(filteredFacilities)
+        // 지도 마커 및 하단 리스트
+        addSubFacilitiesToMap(subCategory)
     }
 
-   
     private fun findLatestLocation() { // GPS 버튼 클릭하면 본인 위치로 찾아가게
         Log.i("LatestLocation", "최근 위치 찾으러 들어왔어요")
 
-       CoroutineScope(Dispatchers.IO).launch {
-           withContext(Dispatchers.Main) {
+        CoroutineScope(Dispatchers.IO).launch {
+
+            val newLastLat = sharedPref.getDouble("lastLat", 37.566535)
+            val newLastLon = sharedPref.getDouble("lastLon", 126.9779692)
+
+            withContext(Dispatchers.Main) {
 
                 mapView.controller.setCenter(
                     GeoPoint(
-                        lastLat, lastLon
+                        newLastLat, newLastLon
                     )
                 )
+                Log.i("setCenter", "지도 중심 좌표 재 설정")
                 mapView.invalidate()
-           }
-       }
+            }
+        }
     }
 }

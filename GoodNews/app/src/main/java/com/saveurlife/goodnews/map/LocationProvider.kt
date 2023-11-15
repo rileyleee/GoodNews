@@ -17,6 +17,10 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.saveurlife.goodnews.GoodNewsApplication
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class LocationProvider(private val context: Context) {
@@ -103,8 +107,12 @@ class LocationProvider(private val context: Context) {
 
         // 위치 정보를 mapfragment에 전달하여 위치 표시 되도록
         location?.let { location ->
-            var lastLat = location.latitude
-            var lastLon = location.longitude
+            CoroutineScope(Dispatchers.IO).launch {
+                // sharedPreference에 업데이트된 위치 저장 갱신
+                GoodNewsApplication.preferences.setDouble("lastLat", location.latitude)
+                GoodNewsApplication.preferences.setDouble("lastLon", location.longitude)
+                Log.d("마지막 위치 저장완료", "위도: ${location.latitude}, 경도: ${location.longitude}")
+            }
         }
         locationUpdateListener?.onLocationChanged(location)
     }

@@ -3,6 +3,7 @@ package com.saveurlife.goodnews.map
 import android.content.Context
 import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -12,16 +13,29 @@ import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 
 class FacilityProvider(private val context: Context) {
 
+    // 오프라인 시설 정보 반환(대분류)
+    fun getFilteredFacilities(category: FacilityUIType): List<OffMapFacility> {
 
-    fun getFacilityData(): List<OffMapFacility>{
 
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        val facsData: RealmResults<OffMapFacility> =
-            realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "민방위 대피소").find()
+        val facsData: RealmResults<OffMapFacility>
+
+        if (category == FacilityUIType.HOSPITAL) {
+            facsData = realm.query<OffMapFacility>("type=$0 OR type = $1", "병원", "약국").find()
+            Log.d("facilityProvider", "병원이랑 약국 찾아요")
+        } else if (category == FacilityUIType.GROCERY) {
+            facsData = realm.query<OffMapFacility>("type=$0 OR type = $1", "편의점", "마트").find()
+            Log.d("facilityProvider", "편의점이랑 마트 찾아요")
+        } else {
+            facsData = realm.query<OffMapFacility>().find()
+            Log.d("facilityProvider", "전체 찾아요")
+        }
+
+        Log.v("facilityProvider의 카테고리", "$category")
 
 
         // 결과를 새로운 리스트로 복사합니다.
-        val sheltersT1 = facsData.map { fac ->
+        val facList = facsData.map { fac ->
             OffMapFacility().apply {
                 id = fac.id
                 type = fac.type
@@ -34,79 +48,47 @@ class FacilityProvider(private val context: Context) {
         }
         realm.close()
 
-        return sheltersT1
+        return facList
     }
-
-
-
-    // 이후에 대피소, 병원, 식료품점으로 구분하여 함수 생성
-    fun getFacilityGeoData(): List<LabelledGeoPoint> {
+    
+    // 오프라인 시설 정보 반환(소분류)
+    fun getFilteredFacilitiesBySubCategory(subCategory: String): List<OffMapFacility> {
 
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
-        // 시설 전체
-//        val facilities: RealmResults<OffMapFacility> = realm.query<OffMapFacility>().find()
-//        // 데이터 확인
-//        facilities.forEach { fac ->
-//            Log.v("FacDataFromRealm",
-//                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
-//            )
-//        }
-//        // 변수에 담기
-//        val points = facilities.map { fac ->
-//            LabelledGeoPoint(fac.latitude.toDouble(), fac.longitude.toDouble(), fac.name)
-//        }
+        val facsData: RealmResults<OffMapFacility> =
+            realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "$subCategory").find()
 
-        // 식료품
+        Log.d("facilityProvider", "$subCategory 찾아요")
 
-//        val FNBs: RealmResults<OffMapFacility> = realm.query<OffMapFacility>("type=$0 OR type = $1","편의점","마트").find()
-//
-//        // 데이터 확인
-//        FNBs.forEach { fac ->
-//            Log.v("FacDataFromRealm",
-//                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
-//            )
-//        }
-//        // 변수에 담기
-//        val points = FNBs.map { fac ->
-//            LabelledGeoPoint(fac.latitude.toDouble(), fac.longitude.toDouble(), fac.name)
-//        }
 
-        // 의료시설
+        // 결과를 새로운 리스트로 복사합니다.
+        val facList = facsData.map { fac ->
+            OffMapFacility().apply {
+                id = fac.id
+                type = fac.type
+                name = fac.name
+                longitude = fac.longitude
+                latitude = fac.latitude
+                canUse = fac.canUse
+                addInfo = fac.addInfo
+            }
+        }
+        realm.close()
 
-//        val medicals: RealmResults<OffMapFacility> = realm.query<OffMapFacility>("type=$0 OR type = $1","병원","약국").find()
-//
-//        // 데이터 확인
-//        medicals.forEach { fac ->
-//            Log.v("FacDataFromRealm",
-//                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
-//            )
-//        }
-//        // 변수에 담기
-//        val points = medicals.map { fac ->
-//            LabelledGeoPoint(fac.latitude, fac.longitude, fac.name)
-//        }
+        return facList
+    }
 
-        // 대피소 전체
-//        val shelters: RealmResults<OffMapFacility> =
-//            realm.query<OffMapFacility>("type=$0", "대피소").find()
-//
-//        // 데이터 확인
-//        shelters.forEach { fac ->
-//            Log.v(
-//                "FacDataFromRealm",
-//                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
-//            )
-//        }
-//        // 변수에 담기
-//        val points = shelters.map { fac ->
-//            LabelledGeoPoint(fac.latitude, fac.longitude, fac.name)
-//        }
 
-//        // 민방위 대피소
+    // 오프라인 시설 오버레이 위한 좌표 반환
+    fun getFacilityGeoData(category: FacilityUIType): List<LabelledGeoPoint> {
+
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+        // 민방위 대피소
 
         val sheltersT1: RealmResults<OffMapFacility> =
-            realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "민방위 대피소").find()
+            realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "$category").find()
 
         // 데이터 확인
 //        SheltersT1.forEach { fac ->
@@ -115,28 +97,11 @@ class FacilityProvider(private val context: Context) {
 //                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
 //            )
 //        }
+
         // 변수에 담기
         val points = sheltersT1.map { fac ->
             LabelledGeoPoint(fac.latitude, fac.longitude, fac.name)
         }
-
-        // 지진해일대피소
-
-//        val sheltersT2: RealmResults<OffMapFacility> =
-//            realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "지진해일대피소").find()
-//
-//        // 데이터 확인
-//        sheltersT2.forEach { fac ->
-//            Log.v(
-//                "FacDataFromRealm",
-//                "facility: ${fac.name}, latitude: ${fac.latitude}, longitude: ${fac.longitude}"
-//            )
-//        }
-//        // 변수에 담기
-//        val points = sheltersT2.map { fac ->
-//            LabelledGeoPoint(fac.latitude, fac.longitude, fac.name)
-//        }
-
 
         realm.close()
 

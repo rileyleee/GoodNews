@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import com.saveurlife.goodnews.databinding.DialogCalendarSettingBinding
 import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
+import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -29,9 +31,8 @@ import java.util.Calendar
 
 class MyPageFragment : Fragment() {
     private lateinit var binding: FragmentMyPageBinding
-
     private lateinit var preferencesUtil: PreferencesUtil
-
+    private lateinit var mapDownloader: MapDownloader
     private var selectedYear: String? = null
     private var selectedMonth: String? = null
     private var selectedDay: String? = null
@@ -85,12 +86,12 @@ class MyPageFragment : Fragment() {
             }
             preferencesUtil.setBoolean("darkMode", isChecked)
         }
-        
+
         // 지도 다운로드 버튼 클릭 했을 때
         binding.mapDownloadButton.setOnClickListener {
-            // 여기에서 다운로드~!!
+            Log.d("com.saveurlife.goodnews.map.MapDownloader","지도 다운로드 하러가야지")
+            startMapFileDownload()
         }
-
 
         //객체 만들기
 //        realm.writeBlocking {
@@ -137,6 +138,8 @@ class MyPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        mapDownloader = MapDownloader(requireContext())
+
         //데이터 불러오기
         initData()
 
@@ -148,6 +151,7 @@ class MyPageFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        mapDownloader.registerReceiver()
     }
 
     //myPageFragment에 정보 불러오기
@@ -155,34 +159,34 @@ class MyPageFragment : Fragment() {
         binding.name.text = realmName
         binding.phoneNumber.text = realmPhone.toString()
 
-        if(realmBirth == "입력하지 않음"){
+        if (realmBirth == "입력하지 않음") {
             binding.birthday.text = "생년월일 미입력"
-        }else{
+        } else {
             binding.birthday.text = realmBirth
         }
 
-        if(realmBloodType == "입력하지 않음"){
+        if (realmBloodType == "입력하지 않음") {
             binding.rh.text = "혈액형"
             binding.blood.text = "미입력"
-        }else{
+        } else {
             val parts = realmBloodType!!.split(" ")
             binding.rh.text = parts[0]
             binding.blood.text = parts[1]
         }
 
-        if(realmaddInfo == "입력하지 않음"){
+        if (realmaddInfo == "입력하지 않음") {
             binding.significant.isVisible = false
-        }else{
+        } else {
             binding.significant.isVisible = true
             binding.significant.text = realmaddInfo
         }
-        if(realmBirth == "입력하지 않음"){
+        if (realmBirth == "입력하지 않음") {
             binding.age.isVisible = false
-        }else{
-            binding.age.text = preferencesUtil.getString("age","0")
+        } else {
+            binding.age.text = preferencesUtil.getString("age", "0")
             binding.age.isVisible = true
         }
-        binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode",false)
+        binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode", false)
     }
 
     //dialog 모달창에 정보 불러오기
@@ -191,11 +195,12 @@ class MyPageFragment : Fragment() {
         dialogBinding.dialogMypagePhoneEdit.text = realmPhone.toString()
         dialogBinding.dialogMypagebirthday.text = realmBirth
         dialogBinding.dialogMypageBloodEdit.text = realmBloodType
-        if(realmGender == "입력하지 않음"){
+        if (realmGender == "입력하지 않음") {
             noGenderSelection(dialogBinding)
         }
-        if(realmaddInfo != "입력하지 않음"){
-            dialogBinding.textInputEditText.text = Editable.Factory.getInstance().newEditable(realmaddInfo)
+        if (realmaddInfo != "입력하지 않음") {
+            dialogBinding.textInputEditText.text =
+                Editable.Factory.getInstance().newEditable(realmaddInfo)
         }
 
     }
@@ -207,11 +212,11 @@ class MyPageFragment : Fragment() {
         initDataDialog(binding)
 
         var gender = realmGender
-        if(gender == "남자"){
+        if (gender == "남자") {
             updateGenderSelection("남자", binding)
-        }else if(gender == "여자"){
+        } else if (gender == "여자") {
             updateGenderSelection("여자", binding)
-        }else{
+        } else {
             noGenderSelection(binding)
         }
 
@@ -229,11 +234,11 @@ class MyPageFragment : Fragment() {
         }
 
         //성별 수정 - 남자 선택
-        binding.dialogMypageMan.setOnClickListener{
+        binding.dialogMypageMan.setOnClickListener {
             updateGenderSelection("남자", binding)
         }
         //성별 수정 - 여자 선택
-        binding.dialogMypageWoman.setOnClickListener{
+        binding.dialogMypageWoman.setOnClickListener {
             updateGenderSelection("여자", binding)
         }
 
@@ -262,7 +267,7 @@ class MyPageFragment : Fragment() {
     }
 
     //성별 미입력
-    private fun noGenderSelection(binding: DialogMypageLayoutBinding){
+    private fun noGenderSelection(binding: DialogMypageLayoutBinding) {
         val colorValue = ContextCompat.getColor(requireContext(), R.color.white)
         val colorStateList = ColorStateList.valueOf(colorValue)
 
@@ -293,7 +298,8 @@ class MyPageFragment : Fragment() {
 
     //생년월일 변경하기
     private fun showBirthSettingDialog(dialog: DialogMypageLayoutBinding) {
-        val year = arrayOf("1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927",
+        val year = arrayOf(
+            "1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927",
             "1928", "1929", "1930", "1931", "1932", "1933", "1934", "1935", "1936", "1937",
             "1938", "1939", "1940", "1941", "1942", "1943", "1944", "1945", "1946", "1947",
             "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957",
@@ -303,10 +309,42 @@ class MyPageFragment : Fragment() {
             "1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997",
             "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007",
             "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017",
-            "2018", "2019", "2020", "2021", "2022", "2023")
+            "2018", "2019", "2020", "2021", "2022", "2023"
+        )
         val month = arrayOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
-        val day = arrayOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12","13", "14", "15",
-            "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31")
+        val day = arrayOf(
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29",
+            "30",
+            "31"
+        )
 
         //dialog로 띄울 xml파일
         val birthDialogBinding = DialogCalendarSettingBinding.inflate(LayoutInflater.from(context))
@@ -316,12 +354,13 @@ class MyPageFragment : Fragment() {
         val dayPicker = birthDialogBinding.dayPicker //일 picker
         val requestBirth = birthDialogBinding.requestBirth //수정 버튼
 
-        if(realmBirth == "입력하지 않음"){
+        if (realmBirth == "입력하지 않음") {
             selectedYear = "2000"
             selectedMonth = "01"
             selectedDay = "01"
-        }else{
-            val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일").map { it.trim() }
+        } else {
+            val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일")
+                .map { it.trim() }
             //기존 생년월일 불러오기
             selectedYear = savedYear
             selectedMonth = savedMonth
@@ -329,7 +368,7 @@ class MyPageFragment : Fragment() {
         }
 
         //년도 선택
-        yearPicker?.apply{
+        yearPicker?.apply {
             minValue = 0 //최소값
             maxValue = year.size - 1 //최대값
             displayedValues = year //년도 배열에 대한 값
@@ -345,7 +384,7 @@ class MyPageFragment : Fragment() {
         }
 
         //월 선택
-        monthPicker?.apply{
+        monthPicker?.apply {
             minValue = 0
             maxValue = month.size - 1
             displayedValues = month
@@ -357,7 +396,7 @@ class MyPageFragment : Fragment() {
         }
 
         //일 선택
-        dayPicker?.apply{
+        dayPicker?.apply {
             minValue = 0
             maxValue = day.size - 1
             displayedValues = day
@@ -379,7 +418,7 @@ class MyPageFragment : Fragment() {
         birthDialog.setCancelable(false)
         birthDialog.show()
         //완료버튼 누르면 birthDialog 창 닫기
-        requestBirth.setOnClickListener{
+        requestBirth.setOnClickListener {
             val newBirthday = "${selectedYear}년 ${selectedMonth}월 ${selectedDay}일"
             dialog.dialogMypagebirthday.text = newBirthday
             realm.writeBlocking {
@@ -401,10 +440,10 @@ class MyPageFragment : Fragment() {
         val bloodPicker = bloodDialogBinding.bloodPicker
         val requestBlood = bloodDialogBinding.requestBlood
 
-        if(realmBloodType == "입력하지 않음"){
+        if (realmBloodType == "입력하지 않음") {
             selectedRh = "모름"
             selectedBlood = "A형"
-        }else{
+        } else {
             val parts = realmBloodType!!.split(" ")
             val savedRh = parts[0] // "Rh+"
             val savedBlood = parts[1] // "0형"
@@ -413,7 +452,7 @@ class MyPageFragment : Fragment() {
             selectedBlood = savedBlood
         }
 
-        rhPicker?.apply{
+        rhPicker?.apply {
             minValue = 0
             maxValue = rhs.size - 1
             displayedValues = rhs
@@ -425,7 +464,7 @@ class MyPageFragment : Fragment() {
             }
         }
 
-        bloodPicker?.apply{
+        bloodPicker?.apply {
             minValue = 0
             maxValue = blood.size - 1
             displayedValues = blood
@@ -445,7 +484,7 @@ class MyPageFragment : Fragment() {
         bloodDialog.setCancelable(false)
         bloodDialog.show()
 
-        requestBlood.setOnClickListener{
+        requestBlood.setOnClickListener {
             binding.rh.text = selectedRh
             binding.blood.text = selectedBlood
 
@@ -459,4 +498,18 @@ class MyPageFragment : Fragment() {
             bloodDialog.dismiss()
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        mapDownloader.unregisterReceiver()
+    }
+
+    private fun startMapFileDownload() {
+        Log.v("mypagefragment","지도 다운로드 함수 호출")
+        val url = "https://saveurlife.kr/images/7_15_korea-001.sqlite"
+        val fileName = "7_15_korea-001.sqlite"
+
+        mapDownloader.downloadFile(url, fileName)
+    }
+
 }
