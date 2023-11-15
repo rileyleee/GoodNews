@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- 인터넷, 네트워크, 와이파이 관련 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -42,6 +43,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
+    <!--배터리 최적화 끄기-->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+
     <application
         android:name=".GoodNewsApplication"
         android:allowBackup="true"
@@ -53,10 +57,35 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodNews"
         tools:targetApi="31">
+
+        <!--
+             TODO: Before you run your application, you need a Google Maps API key.
+
+             To get one, follow the directions here:
+
+                https://developers.google.com/maps/documentation/android-sdk/get-api-key
+
+             Once you have your API key (it starts with "AIza"), define a new property in your
+             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
+             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
+        -->
+<!--        <meta-data-->
+<!--            android:name="com.google.android.geo.API_KEY"-->
+<!--            android:value="${MAPS_API_KEY}" />-->
+
+        <service
+            android:name=".service.LocationTrackingService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        
+        <service android:name=".ble.service.BleService" />
+
         <activity
             android:name=".chatting.ChattingDetailActivity"
             android:windowSoftInputMode="adjustResize"
-            android:exported="false" />
+            android:exported="false" />           
+
         <activity
             android:name=".alarm.AlarmActivity"
             android:exported="false" />
@@ -86,13 +115,5 @@
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             <!-- </intent-filter> -->
         </activity>
-
-        <service
-            android:name=".ble.message.AutoSendMessageService"
-            android:enabled="true"
-            android:exported="false"/>
-        <service android:name=".ble.service.BleService" />
-
     </application>
-
 </manifest>

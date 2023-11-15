@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.databinding.FragmentHomeBinding
 import com.saveurlife.goodnews.databinding.FragmentMyStatusBinding
 
 class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener {

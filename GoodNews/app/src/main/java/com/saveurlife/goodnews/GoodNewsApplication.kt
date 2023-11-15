@@ -13,7 +13,6 @@ import com.saveurlife.goodnews.models.ChatMessage
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.GroupMemInfo
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
@@ -24,11 +23,7 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStreamReader
-import java.util.zip.ZipInputStream
 
 class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks {
 
@@ -59,7 +54,6 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 FamilyMemInfo::class,
                 FamilyPlace::class,
                 GroupMemInfo::class,
-                Location::class,
                 MapInstantInfo::class,
                 Member::class,
                 MorseCode::class,
@@ -77,6 +71,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
             CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
+//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.testfacilitydata)))
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 

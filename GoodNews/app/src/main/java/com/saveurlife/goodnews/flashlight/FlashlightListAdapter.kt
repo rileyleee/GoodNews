@@ -8,8 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 
-class FlashlightListAdapter(private var list: ArrayList<FlashlightData>) :
+class FlashlightListAdapter() :
     RecyclerView.Adapter<FlashlightListAdapter.ListAdapter>() {
+
+    var saveData:MutableList<FlashlightData> = mutableListOf()
 
     // isFlashing boolean
     var isFlashing = false
@@ -37,8 +39,8 @@ class FlashlightListAdapter(private var list: ArrayList<FlashlightData>) :
     }
 
     override fun onBindViewHolder(holder: ListAdapter, position: Int) {
-        val data = list[position]
-        holder.flashLightTextBox.text = list[position].content
+        val data = saveData[position]
+        holder.flashLightTextBox.text = saveData[position].content
 
         // 아이템 클릭 시 리스너 onItemClick 메서드 호출
         holder.itemView.setOnClickListener {
@@ -60,7 +62,18 @@ class FlashlightListAdapter(private var list: ArrayList<FlashlightData>) :
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return saveData.size
+    }
+
+    fun addSelfList(text: String){
+        saveData.add(FlashlightData(FlashType.SELF,text))
+        saveData = saveData.distinct().toMutableList()
+        notifyItemInserted(saveData.size)
+    }
+
+    fun addOtherList(text: String){
+        saveData.add(FlashlightData(FlashType.OTHER, text))
+        notifyItemInserted(saveData.size)
     }
 
 }

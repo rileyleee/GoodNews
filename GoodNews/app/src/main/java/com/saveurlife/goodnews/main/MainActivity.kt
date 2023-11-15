@@ -11,8 +11,11 @@ import android.content.ServiceConnection
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -23,10 +26,13 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.lifecycle.LiveData
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -36,29 +42,37 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.models.Location
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.LocationTrackingService
 import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    val sharedPreferences = GoodNewsApplication.preferences
+
     private val navController by lazy {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navHostFragment.navController
     }
 
-    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-    private val realm: Realm = Realm.open(config)
+    companion object{
+        var checkFlash : Boolean = false
+    }
+//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
+//    private val realm: Realm = Realm.open(config)
+
+    val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
@@ -147,16 +161,16 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         //Member 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
+        if (items.isEmpty()) {
+            val dialog = FamilyAlarmFragment()
+            dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+        }
 
-
-//        realm.writeBlocking {
-//            val writeTransactionItems = query<Member>().find()
-//            delete(writeTransactionItems.first())
-//        }
-
-        val dialog = FamilyAlarmFragment()
-        dialog.show(supportFragmentManager, "FamilyAlarmFragment")
-
+        // 다시 보지 않기 여부에 따라 다이얼로그 띄워주기
+        if (sharedPreferences.getBoolean("mapDownloadIgnore", false) == false) {
+            val dialog = MapAlarmFragment()
+            dialog.show(supportFragmentManager, "MapAlarmFragment")
+        }
 
         // viewmodel 설정
         sharedViewModel.isOnFlash.observe(this, Observer { isOn ->
@@ -182,7 +196,6 @@ class MainActivity : AppCompatActivity() {
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
-        // 왜 안 되지... @@ 수정
         binding.navigationView.setupWithNavController(navController)
         binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -209,6 +222,41 @@ class MainActivity : AppCompatActivity() {
         binding.mainCircleAddButton.setOnClickListener {
             showDialog()
         }
+
+        // 사용자에게 배터리 최적화 무시 요청 (단, 조건에 따라 요청)
+        if (!isBatteryOptimizationIgnored(this)) {
+            AlertDialog.Builder(this).apply {
+                setTitle("배터리 최적화 일시 중지")
+                setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
+                setPositiveButton("확인") { _, _ ->
+                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:com.saveurlife.goodnews")
+                    }
+                    startActivity(intent)
+                }
+                setNegativeButton("취소", null)
+                show()
+            }
+        }
+
+        // 위치 정보 사용 함수 호출
+        callLocationTrackingService()
+
+        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+        onBackPressedDispatcher.addCallback(this) {
+            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
+            stopService(intent)
+
+            // 기본적인 뒤로 가기 동작 수행 (옵션)
+            finish()
+        }
+    }
+
+    // 배터리 최적화 여부 확인 -> boolean 반환
+    private fun isBatteryOptimizationIgnored(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
 
     }
 
@@ -419,6 +467,7 @@ class MainActivity : AppCompatActivity() {
             sirenStopTextView.visibility = View.GONE
         }
     }
+
     fun switchToChattingFragment(selectedTab: Int) {
         println("$selectedTab 뭘 받아올까요 ??")
         binding.navigationView.menu.getItem(2).isChecked = true
@@ -435,6 +484,20 @@ class MainActivity : AppCompatActivity() {
 //        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
 //        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
 //        transaction.commit()
+    }
+
+    // 위치 정보 사용
+    fun callLocationTrackingService() {
+        val intent = Intent(this, LocationTrackingService::class.java)
+        ContextCompat.startForegroundService(this, intent)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        //위치 정보 저장 중지
+        val serviceIntent = Intent(this, LocationTrackingService::class.java)
+        stopService(serviceIntent)
     }
 }
 

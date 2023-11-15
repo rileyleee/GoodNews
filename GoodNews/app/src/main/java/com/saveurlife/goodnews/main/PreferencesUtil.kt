@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class PreferencesUtil(context: Context) {
-    private val preferences: SharedPreferences =
+    val preferences: SharedPreferences =
         context.getSharedPreferences("gn_sharedpref", Context.MODE_PRIVATE)
 
     fun getString(key: String, defValue: String): String {
