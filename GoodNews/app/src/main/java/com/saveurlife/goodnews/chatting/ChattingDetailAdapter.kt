@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.chatting
 
 import android.content.res.Resources
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,44 +9,52 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.databinding.ItemChattingBinding
 import com.saveurlife.goodnews.databinding.ItemDetailChattingBinding
-import org.apache.commons.lang3.mutable.Mutable
+import com.saveurlife.goodnews.models.ChatMessage
+import io.realm.kotlin.ext.isValid
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-class ChattingDetailAdapter(private val chatting: MutableList<ChattingDetailData>) : RecyclerView.Adapter<ChattingDetailAdapter.ViewHolder>(){
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewHolder {
-        var binding = ItemDetailChattingBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+class ChattingDetailAdapter(private var messages: List<ChatMessage>) : RecyclerView.Adapter<ChattingDetailAdapter.MessageViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = ItemDetailChattingBinding.inflate(inflater, parent, false)
+        return MessageViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var chatting = chatting[position]
-        holder.bind(chatting)
+    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
+        val message = messages[position]
+        holder.bind(message)
     }
 
-    override fun getItemCount() = chatting.size
-    fun addMessage(newMessage: ChattingDetailData) {
-        chatting.add(newMessage)
-        notifyItemInserted(chatting.size - 1)
-    }
+    override fun getItemCount() = messages.size
 
-    class ViewHolder(private val binding: ItemDetailChattingBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(chatting: ChattingDetailData){
-            binding.chatDetailName.text = chatting.userId
-            binding.chatDetailContext.text = chatting.message
-            binding.chatDetailTime.text = chatting.time
+    class MessageViewHolder(private val binding: ItemDetailChattingBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(chatMessage: ChatMessage) {
+            binding.chatDetailName.text = chatMessage.senderName
+            binding.chatDetailContext.text = chatMessage.content
+
+            val currentFormatter = DateTimeFormatter.ofPattern("yyMMddHHmmssSSS")
+            // 새로운 포맷
+            val newFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.KOREA)
+
+            try {
+                val parsedDateTime = LocalDateTime.parse(chatMessage.time, currentFormatter)
+                val formattedTime = parsedDateTime.format(newFormatter)
+                binding.chatDetailTime.text = formattedTime
+            } catch (e: Exception) {
+                binding.chatDetailTime.text = "오류"
+            }
 
             val dpToPx = { dp: Int ->
                 (dp * Resources.getSystem().displayMetrics.density).toInt()
             }
-
             val layoutParams = binding.chatDetailContext.layoutParams as ConstraintLayout.LayoutParams
             val timeLayoutParams = binding.chatDetailTime.layoutParams as ConstraintLayout.LayoutParams
 
-            if (chatting.isUserMessage) {
+            if (chatMessage.senderId != chatMessage.chatRoomId) {
                 // 사용자 메시지의 경우, TextView의 배경색 변경
                 binding.chatDetailContext.backgroundTintList =
                     ContextCompat.getColorStateList(binding.chatDetailContext.context, R.color.chatting)
@@ -58,9 +67,7 @@ class ChattingDetailAdapter(private val chatting: MutableList<ChattingDetailData
                 timeLayoutParams.marginEnd = dpToPx(5)
 
                 binding.chatDetailName.visibility = View.GONE
-
-
-            } else {
+            }else {
                 // 다른 사람 메시지의 경우, 다른 배경색 설정
                 binding.chatDetailContext.backgroundTintList =
                     ContextCompat.getColorStateList(binding.chatDetailContext.context, R.color.white)
@@ -74,4 +81,10 @@ class ChattingDetailAdapter(private val chatting: MutableList<ChattingDetailData
             }
         }
     }
+
+    fun updateMessages(newMessages: List<ChatMessage>) {
+        messages = newMessages
+        notifyDataSetChanged()
+    }
 }
+

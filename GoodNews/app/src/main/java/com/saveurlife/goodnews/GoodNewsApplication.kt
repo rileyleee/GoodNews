@@ -1,6 +1,8 @@
 package com.saveurlife.goodnews
 
+import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import android.util.Log
 import com.opencsv.CSVReader
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -28,12 +30,14 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.util.zip.ZipInputStream
 
-class GoodNewsApplication : Application() {
+class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks {
 
     companion object {
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
     }
+
+    var isInBackground = true
 
     override fun onCreate() {
 
@@ -42,6 +46,8 @@ class GoodNewsApplication : Application() {
         preferences = PreferencesUtil(applicationContext)
 
         super.onCreate()
+
+        registerActivityLifecycleCallbacks(this)
 
         //Realm 초기화
         realmConfiguration = RealmConfiguration.create(
@@ -109,5 +115,33 @@ class GoodNewsApplication : Application() {
         } else {
             Log.d("데이터 존재 여부", "시설 정보 있어요")
         }
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+
+    }
+
+    override fun onActivityStarted(activity: Activity) {
+
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        isInBackground = false
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        isInBackground = true
+    }
+
+    override fun onActivityStopped(activity: Activity) {
+
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
+
     }
 }

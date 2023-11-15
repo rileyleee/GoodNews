@@ -89,5 +89,4 @@ dependencies {
     implementation ("com.airbnb.android:lottie:6.1.0")
 
     implementation("org.modelmapper:modelmapper:3.1.1")
-
 }

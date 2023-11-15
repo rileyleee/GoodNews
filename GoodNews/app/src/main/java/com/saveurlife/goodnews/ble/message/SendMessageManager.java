@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 public class SendMessageManager {
@@ -135,7 +136,7 @@ public class SendMessageManager {
         return message;
     }
 
-    public void sendMessageHelp(Map<String, BluetoothGatt> deviceGattMap, String content) {
+    public void sendMessageHelp(Map<String, BluetoothGatt> deviceGattMap) {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
         String formattedDate = sdf.format(now);
@@ -147,7 +148,6 @@ public class SendMessageManager {
         messageHelp.setSendTime(formattedDate);
         messageHelp.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageHelp.setLocation(locationService.getLastKnownLocation());
-        messageHelp.setContent(content);
 
         String message = messageHelp.toString();
 
@@ -166,6 +166,7 @@ public class SendMessageManager {
     public String sendMessageChat(Map<String, BluetoothGatt> deviceGattMap, String receiverId, String content) {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+//        SimpleDateFormat sdf = new SimpleDateFormat("a hh:mm", Locale.getDefault());
 
         String formattedDate = sdf.format(now);
 
