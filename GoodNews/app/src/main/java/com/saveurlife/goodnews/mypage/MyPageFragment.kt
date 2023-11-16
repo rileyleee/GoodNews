@@ -198,7 +198,7 @@ class MyPageFragment : Fragment() {
             realmaddInfo = member.addInfo
         }
         sendName = realmName.toString()
-        sendGender =realmGender.toString()
+        sendGender = realmGender.toString()
         sendBirthdate = realmBirth.toString()
         sendBloodType = realmBloodType.toString()
         sendAddInfo = realmaddInfo.toString()
@@ -243,7 +243,7 @@ class MyPageFragment : Fragment() {
         dialogBinding.dialogMypagePhoneEdit.text = realmPhone.toString()
         dialogBinding.dialogMypagebirthday.text = realmBirth
         dialogBinding.dialogMypageBloodEdit.text = realmBloodType
-        if (realmGender == "null") {
+        if (realmGender == "모름") {
             noGenderSelection(dialogBinding)
         }
         if (realmaddInfo != "null") {
@@ -350,7 +350,7 @@ class MyPageFragment : Fragment() {
 
         binding.dialogMypageWoman.backgroundTintList = colorStateList
         binding.dialogMypageMan.backgroundTintList = colorStateList
-        sendGender = "null"
+        sendGender = "모름"
     }
 
     // 성별 선택

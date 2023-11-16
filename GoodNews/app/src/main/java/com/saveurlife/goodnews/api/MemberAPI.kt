@@ -30,7 +30,15 @@ class MemberAPI {
     // 멤버 정보 수정
     fun updateMemberInfo(memberId : String, name:String, gender: String?, birthDate:String?, bloodType:String?, addInfo:String?, lat:Double?, lon: Double?){
         // request
-        val data = RequestMemberInfo(name, gender, birthDate, bloodType, addInfo, lat, lon)
+        var temp= ""
+        if (addInfo != null) {
+            if(addInfo.isEmpty()){
+                temp = "null"
+            }else{
+                temp = addInfo
+            }
+        }
+        val data = RequestMemberInfo(name, gender, birthDate, bloodType, temp, lat, lon)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
