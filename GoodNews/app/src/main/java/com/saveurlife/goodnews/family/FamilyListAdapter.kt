@@ -140,14 +140,9 @@ class FamilyListAdapter() :
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
         notifyItemInserted(familyList.size)
     }
-    fun resetFamilyList(){
-        familyList = mutableListOf()
-
-    }
-
     fun addList(){
         // 서버에서 리스트 가져와서 추가 -> 인터넷 연결 시
-
+        familyList = mutableListOf()
         if(deviceStateService.isNetworkAvailable(FamilyFragment.context1)){
             familyAPI.getRegistFamily(FamilyFragment.memberId, object : FamilyAPI.WaitListCallback {
                 override fun onSuccess(result: ArrayList<WaitInfo>) {
