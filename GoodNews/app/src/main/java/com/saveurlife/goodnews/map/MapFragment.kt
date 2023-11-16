@@ -495,11 +495,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
             setOnClickListener { _, index ->
                 val facility = facilities[index]
-//                Toast.makeText(
-//                    context,
-//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
+                Toast.makeText(
+                    context,
+                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+                    Toast.LENGTH_SHORT
+                ).show()
                 val facName = facility.name
                 val facType = facility.type
                 val facCanUse = facility.canUse
@@ -636,7 +636,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         if (category == FacilityUIType.SHELTER) {
             val subCategory = binding.subCategoryWrap
             subCategory.visibility = View.VISIBLE
-            subCategory.check(R.id.radioAll)
+//            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
@@ -671,6 +671,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     )
                 )
                 Log.i("setCenter", "지도 중심 좌표 재 설정")
+                mapView.controller.setZoom(13.0)
                 mapView.invalidate()
             }
         }
