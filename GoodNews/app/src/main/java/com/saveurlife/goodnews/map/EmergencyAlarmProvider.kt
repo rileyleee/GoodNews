@@ -4,14 +4,14 @@ import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
-import com.saveurlife.goodnews.models.OffMapFacility
 import io.realm.kotlin.Realm
+import io.realm.kotlin.exceptions.RealmException
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.osmdroid.util.GeoPoint
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sqrt
@@ -23,38 +23,68 @@ class EmergencyAlarmProvider {
     private lateinit var targetInfo: RealmResults<MapInstantInfo>
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
+//    // 다른 곳에서 아래와 같이 가져다가 쓰시면 됩니다.
+//    val emergencyAlarmProvider = EmergencyAlarmProvider()
+//    emergencyAlarmProvider.getAlarmInfo()
+
     fun getAlarmInfo(): MapInstantInfo? {
 
+        var mostRecentInfo: MapInstantInfo? = null
+
         CoroutineScope(Dispatchers.IO).launch {
-            realm = Realm.open(GoodNewsApplication.realmConfiguration)
+            try {
+                realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
-            // 나의 위치 조회
-            userInfo = realm.query<Member>().find().first()
+                // 나의 위치 조회
+                userInfo = realm.query<Member>().find().first()
 
-            // 모든 위험 정보 조회
-            targetInfo = realm.query<MapInstantInfo>("state=$0", "1").find()
+                if (userInfo != null) {
 
-            // 50m 이내에 있는 정보라면! 다시 가까운 정보 리스트에 담고
-            targetInfo.forEach { info ->
-                if (getRoughDistance(
-                        info.latitude,
-                        info.longitude,
-                        userInfo.latitude,
-                        userInfo.longitude
-                    ) <= 50
-                ) {
-                    closeInfo.add(info)
+                    // 모든 위험 정보 조회
+                    targetInfo = realm.query<MapInstantInfo>("state=$0", "1").find()
                 }
+
+                // 20m 이내에 있는 정보라면! 다시 가까운 정보 리스트에 담고
+                targetInfo.forEach { info ->
+                    if (getRoughDistance(
+                            info.latitude,
+                            info.longitude,
+                            userInfo.latitude,
+                            userInfo.longitude
+                        ) <= 20
+                    ) {
+                        closeInfo.add(
+                            copyMapInstantInfo(
+                                info
+                            )
+                        )
+                    }
+                }
+                mostRecentInfo = closeInfo.maxByOrNull { it.time.epochSeconds }
+
+            } catch (e: RealmException) {
+                Log.e("EmergencyAlarmProvider", "Realm 작업 중 에러 발생", e)
+            }finally {
+                realm.close()
             }
-            realm.close()
-        }
-        
-        // 가장 최근 정보 담기
-        val mostRecentInfo:MapInstantInfo ? = closeInfo.maxByOrNull { it.time.epochSeconds }
-        mostRecentInfo?.let {
-            Log.v("mostRecentInfo", "가장 최근 정보: ${it.content}")
+
+            mostRecentInfo?.let {
+                Log.v("mostRecentInfo", "가장 최근 정보: ${it.content}")
+            }
+
         }
         return mostRecentInfo
+    }
+
+    // realm 객체에서 직접 작업 불가 -> 복사
+    fun copyMapInstantInfo(info: MapInstantInfo): MapInstantInfo {
+        return MapInstantInfo().apply {
+            this.state = info.state
+            this.latitude = info.latitude
+            this.longitude = info.longitude
+            this.content = info.content
+            this.time = info.time
+        }
     }
 
 
@@ -71,6 +101,4 @@ class EmergencyAlarmProvider {
         // 사각형 대각선 거리 계산
         return sqrt(latDistance * latDistance + lonDistance * lonDistance)
     }
-
-
 }

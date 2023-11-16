@@ -260,7 +260,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
 
             // 중심좌표 및 배율 설정
-            mapView.controller.setZoom(15.0)
+            mapView.controller.setZoom(13.0)
             mapView.controller.setCenter(
                 GeoPoint(lastLat, lastLon)
             )
