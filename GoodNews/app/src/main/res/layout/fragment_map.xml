@@ -90,7 +90,8 @@
             app:layout_constraintBottom_toTopOf="@id/findMyLocationButton"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="6dp"
+            android:visibility="gone"
             android:padding="20dp">
 
             <FrameLayout

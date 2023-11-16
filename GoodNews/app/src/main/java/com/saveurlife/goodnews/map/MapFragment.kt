@@ -353,6 +353,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
+                        binding.itemMapFacilityWrap.visibility = View.GONE
                         // 하단 시트가 확장된 경우 mapMainContents의 자식들을 비활성화
                         binding.mapMainContents.isEnabled = false
                         bottomSheet.setOnTouchListener { _, _ -> true }
@@ -494,16 +495,33 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
             setOnClickListener { _, index ->
+                binding.itemMapFacilityWrap.visibility = View.VISIBLE
                 val facility = facilities[index]
                 Toast.makeText(
                     context,
                     "시설이름: ${facility.name} 시설타입: ${facility.type}",
                     Toast.LENGTH_SHORT
                 ).show()
-                val facName = facility.name
-                val facType = facility.type
-                val facCanUse = facility.canUse
+                binding.facilityNameTextView.text = facility.name
+                binding.facilityTypeTextView.text = facility.type
+                when (facility.type) {
+                    "대피소" -> R.drawable.ic_shelter
+                    "병원" -> R.drawable.ic_hospital
+                    "편의점", "마트" -> R.drawable.ic_grocery
+                    "가족" -> R.drawable.ic_family
+                    "약속장소" -> R.drawable.ic_meeting_place
+                    else -> R.drawable.ic_pin
+                }
+                if (facility.canUse) {
+                    binding.useTrueWrap.visibility = View.VISIBLE
+                    binding.useFalseWrap.visibility = View.GONE
+                } else {
+                    binding.useTrueWrap.visibility = View.GONE
+                    binding.useFalseWrap.visibility = View.VISIBLE
+                }
                 val lastConnection = sharedPref.getLong("SyncTime", 0L)
+                binding.facilityLastUpdateTime.text = lastConnection.toString()
+
             }
         }
 
@@ -741,7 +759,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dLon = Math.toRadians(lon2 - lon1)
         println("위도 경도 차이 : $dLat , $dLon")
 
-        val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
+        val a =
+            sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(
+                2
+            )
         println("a의 값은 ?? $a")
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         println("c의 값은 ?? $c")
