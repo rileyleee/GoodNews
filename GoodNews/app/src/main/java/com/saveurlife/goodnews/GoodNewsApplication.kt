@@ -18,7 +18,6 @@ import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
 import com.saveurlife.goodnews.models.OffMapFacility
-import com.saveurlife.goodnews.models.WaitFamily
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
@@ -64,8 +63,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 MapInstantInfo::class,
                 Member::class,
                 MorseCode::class,
-                OffMapFacility::class,
-                WaitFamily::class
+                OffMapFacility::class
             )
         )
 
@@ -74,12 +72,10 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         val realm: Realm = Realm.open(realmConfiguration)
 
 
-
-
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
-            CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
-//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.testfacilitydata)))
+//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
+            CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacility_wo_phar)))
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 

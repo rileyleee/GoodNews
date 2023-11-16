@@ -17,12 +17,16 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.ble.BleConnectedAdapter
+import com.saveurlife.goodnews.ble.BleMeshConnectedUser
+import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
@@ -30,7 +34,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.MapTileProviderArray
 import org.osmdroid.tileprovider.modules.ArchiveFileFactory
@@ -42,7 +45,6 @@ import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
@@ -51,6 +53,11 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
@@ -63,8 +70,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
 
-    // 이전 마커에 대한 참조를 저장할 변수
+    // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
+
+    // 연결된 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
+    private var previousConnectedUsersLocationOverlay = mutableListOf<ConnectedUserMarkerOverlay>()
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -74,18 +84,20 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
     private val localMapTileArchivePath = "korea_7_13.sqlite"
-    private val ServerMapTileArchivePath = "7_15_korea-001.sqlite"
+    private val serverMapTileArchivePath = "7_15_korea-001.sqlite"
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private lateinit var sharedViewModel: SharedViewModel
 
     // 오프라인 파일 위치
     private lateinit var file: File
 
     // 타일 provider, 최소 줌 및 해상도 설정
-    val provider: String =
-        "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
+    val provider: String = "Mapnik"
+
+    // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
     val localMaxZoom = 15
-    val serverMaxZoom: Int = 18
+    val serverMaxZoom = 18
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -185,7 +197,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         file =
             File(
                 context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                ServerMapTileArchivePath
+                serverMapTileArchivePath
             )
 
         if (file.exists()) {
@@ -248,7 +260,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
 
             // 중심좌표 및 배율 설정
-            mapView.controller.setZoom(12.0)
+            mapView.controller.setZoom(13.0)
             mapView.controller.setCenter(
                 GeoPoint(lastLat, lastLon)
             )
@@ -292,6 +304,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
             false
         }
+        // 연결된 사용자 정보 확인 위함
+        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+        updateConnectedUsersLocation()
 
         // 내 위치로 이동 버튼 클릭했을 때
         binding.findMyLocationButton.setOnClickListener {
@@ -322,6 +337,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
             findLatestLocation()
         }
+
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
@@ -390,11 +406,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         // 서버에서 저장한 지도 파일
         if (downloadedMap) {
-//            file =
-//                File(
-//                    context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-//                    ServerMapTileArchivePath
-//                )
             Log.d("지도 출처", "서버에서 다운로드 받은 지도요")
 
             // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
@@ -500,36 +511,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 시설 위치 마커로 찍는 함수 내부에서 사용
     private fun addFacilitiesToMap(category: FacilityUIType) {
-
-        // 클러스터링 마커 작성 -> 렌더링에 시간이 더 많이 소요됨
-
-//        val poiMarkers = RadiusMarkerClusterer(requireContext())
-//
-//        val clusterIconD = ContextCompat.getDrawable(requireContext(), R.drawable.ic_grocery)
-//        val clusterIcon = (clusterIconD as BitmapDrawable).bitmap
-//        poiMarkers.setIcon(clusterIcon)
-//
-//        // 마커로 찍을 시설 목록 필터링
-//        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
-//            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
-//
-//        // 지도 하단 시트에 표시될 리스트 갱신
-//        listAdapter.updateData(facilitiesOverlayItems)
-//
-//        // Create markers and add them to the cluster manager
-//        facilitiesOverlayItems.forEach { facility ->
-//            val marker = Marker(mapView)
-//            marker.position = GeoPoint(facility.latitude, facility.longitude)
-//            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-//            marker.title = facility.name
-//            poiMarkers.add(marker)
-//        }
-//
-//        // Add the cluster manager to the map overlays
-//        mapView.overlays.add(poiMarkers)
-//
-//        // Refresh the map
-//        mapView.invalidate()
 
         // 마커로 찍을 시설 목록 필터링
         val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
@@ -690,4 +671,78 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
         }
     }
+
+
+    private fun updateConnectedUsersLocation() {
+
+        Log.d("updateConnectedUsersLocation", "연결된 이용자 위치 마커 그리기 함수 호출")
+        previousConnectedUsersLocationOverlay.forEach { overlay ->
+            mapView.overlays.remove(overlay)
+        }
+        previousConnectedUsersLocationOverlay.clear()
+        Log.d("updateConnectedUsersLocation", "연결된 이용자의 이전 위치 마커를 삭제했습니다.")
+
+        val userProvider = ConnectedUserProvider(sharedViewModel, viewLifecycleOwner)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.Main) {
+                userProvider.provideConnectedUsers { userList ->
+                    Log.v("livedata 유저 수", "${userList.size}")
+                    // 연결된 사용자의 위치를 지도에 마커로 표시
+                    userList.forEach { user ->
+                        val geoPoint = GeoPoint(user.lat, user.lon)
+                        Log.v("livedata 유저 geoPoint", "$geoPoint")
+                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint){
+                            showOtherUserInfoDialog(user)
+                        }
+                        mapView.overlays.add(connectedUserMarkerOverlay)
+//                        Log.v("livedata 유저 오버레이", "$connectedUserMarkerOverlay")
+                        // 새 위치를 다시 이전 위치 마커 리스트에 반영
+                        previousConnectedUsersLocationOverlay.add(connectedUserMarkerOverlay)
+//                        Log.v("livedata 유저를 이전 리스트에 담기", "${previousConnectedUsersLocationOverlay.size}")
+                    }
+                    mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
+                    Log.d("livedata 유저 오버레이 반영", "실행했습니다.")
+                }
+            }
+        }
+    }
+
+    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser) {
+        Log.d("otherUserClicked","다른 유저가 클릭되었습니다.")
+        val dialogFragment = OtherUserInfoFragment()
+
+        // 클릭한 연결된 사용자의 정보를 프래그 먼트로 전달
+        val userInfo = Bundle()
+
+        val distance = calculateDistance(lastLat,lastLon, user.lat, user.lon)
+
+        userInfo.putString("userName",user.userName)
+        userInfo.putString("userStatus", user.healthStatus)
+        userInfo.putString("userUpdateTime", user.updateTime)
+        userInfo.putDouble("distance", distance)
+
+        dialogFragment.arguments = userInfo
+
+        dialogFragment.show(childFragmentManager, "OtherUserInfoFragment")
+
+    }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        println("두 좌표의 값은 ???? $lat1, $lon1, $lat2, $lon2")
+        val earthRadius = 6371000.0 // 지구 반지름 (미터 단위)
+
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        println("위도 경도 차이 : $dLat , $dLon")
+
+        val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
+        println("a의 값은 ?? $a")
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        println("c의 값은 ?? $c")
+        println("리턴 값은 ? ${earthRadius*c}")
+
+        return earthRadius * c
+    }
 }
+

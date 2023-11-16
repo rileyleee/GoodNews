@@ -24,10 +24,12 @@ import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 import java.util.Calendar
+import kotlin.properties.Delegates
 
 class MyPageFragment : Fragment() {
     private lateinit var binding: FragmentMyPageBinding
@@ -40,12 +42,13 @@ class MyPageFragment : Fragment() {
     private var selectedBlood: String? = null
     private var myAge: Int? = null
 
+
+
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
 //    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val items: RealmResults<Member> = realm.query<Member>().find()
-
 
     //Realm에서 정보 가져오기
     private var realmName: String? = null
@@ -54,6 +57,21 @@ class MyPageFragment : Fragment() {
     private var realmGender: String? = null
     private var realmBloodType: String? = null
     private var realmaddInfo: String? = null
+    
+    
+    // 저장 시킬 변수
+    private lateinit var newName:String
+    private lateinit var newGender:String
+    private lateinit var newBirthdate:String
+    private lateinit var newBloodType:String
+    private lateinit var newAddInfo:String
+    private var newLat by Delegates.notNull<Double>()
+    private var newLon by Delegates.notNull<Double>()
+    private lateinit var newState:String
+
+    private val userDeviceInfoService = UserDeviceInfoService(requireContext())
+    private val memberId = userDeviceInfoService.deviceId
+    
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -131,7 +149,6 @@ class MyPageFragment : Fragment() {
 //            val writeTransactionItems = query<Member>().find()
 //            delete(writeTransactionItems.first())
 //        }
-
         return binding.root
     }
 
@@ -253,10 +270,10 @@ class MyPageFragment : Fragment() {
             //특이사항 수정
             var textInputEditText = binding.textInputEditText.text.toString()
             if (textInputEditText.length <= 50) {
-                realm.writeBlocking {
-                    findLatest(items[0])?.addInfo = textInputEditText
-                    realmaddInfo = textInputEditText
-                }
+//                realm.writeBlocking {
+//                    findLatest(items[0])?.addInfo = textInputEditText
+//                    realmaddInfo = textInputEditText
+//                }
                 initData()
                 dialog.dismiss()
             } else {
@@ -290,10 +307,10 @@ class MyPageFragment : Fragment() {
             binding.dialogMypageWoman.backgroundTintList = colorStateList
             binding.dialogMypageMan.backgroundTintList = colorStateListClick
         }
-        realm.writeBlocking {
-            findLatest(items[0])?.gender = selectedGender
-            realmGender = selectedGender
-        }
+//        realm.writeBlocking {
+//            findLatest(items[0])?.gender = selectedGender
+//            realmGender = selectedGender
+//        }
     }
 
     //생년월일 변경하기
@@ -421,10 +438,10 @@ class MyPageFragment : Fragment() {
         requestBirth.setOnClickListener {
             val newBirthday = "${selectedYear}년 ${selectedMonth}월 ${selectedDay}일"
             dialog.dialogMypagebirthday.text = newBirthday
-            realm.writeBlocking {
-                findLatest(items[0])?.birthDate = newBirthday
-                realmBirth = newBirthday
-            }
+//            realm.writeBlocking {
+//                findLatest(items[0])?.birthDate = newBirthday
+//                realmBirth = newBirthday
+//            }
             birthDialog.dismiss()
         }
     }
@@ -491,10 +508,10 @@ class MyPageFragment : Fragment() {
 //            dialog.dialogMypageRhEdit.text = selectedRh
             dialog.dialogMypageBloodEdit.text = "$selectedRh $selectedBlood"
 
-            realm.writeBlocking {
-                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
-                realmBloodType = "$selectedRh $selectedBlood"
-            }
+//            realm.writeBlocking {
+//                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
+//                realmBloodType = "$selectedRh $selectedBlood"
+//            }
             bloodDialog.dismiss()
         }
     }
