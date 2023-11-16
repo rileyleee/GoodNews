@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.api
 
 import android.util.Log
 import com.google.gson.Gson
+import com.saveurlife.goodnews.sync.SyncService
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
@@ -30,15 +31,9 @@ class MemberAPI {
     // 멤버 정보 수정
     fun updateMemberInfo(memberId : String, name:String, gender: String?, birthDate:String?, bloodType:String?, addInfo:String?, lat:Double?, lon: Double?){
         // request
-        var temp= ""
-        if (addInfo != null) {
-            if(addInfo.isEmpty()){
-                temp = "null"
-            }else{
-                temp = addInfo
-            }
-        }
-        val data = RequestMemberInfo(name, gender, birthDate, bloodType, temp, lat, lon)
+        val syncService = SyncService()
+        val data = RequestMemberInfo(name, gender,
+            birthDate?.let { syncService.convertDateStringToNumStr(it) }, bloodType, addInfo, lat, lon)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -205,7 +200,7 @@ class MemberAPI {
     }
 
     // 멤버 정보 조회
-    fun findMemberInfo(memberId : String): MemberInfo? {
+    fun findMemberInfo(memberId : String, callback: MemberCallback) {
 
         // request
         val data = RequestMemberId(memberId)
@@ -215,7 +210,7 @@ class MemberAPI {
         val call = memberService.findMemberInfo(requestBody)
 
         // response
-        var resp: MemberInfo ?= null
+
         call.enqueue(object : Callback<ResponseMember> {
             override fun onResponse(call: Call<ResponseMember>, response: Response<ResponseMember>) {
                 if(response.isSuccessful){
@@ -227,9 +222,9 @@ class MemberAPI {
                     if(responseBody!=null){
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요
-                        resp = data
 
 
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -257,7 +252,11 @@ class MemberAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
+    }
+
+    interface MemberCallback {
+        fun onSuccess(result: MemberInfo)
+        fun onFailure(error:String)
     }
 
     // 추가 정보 등록

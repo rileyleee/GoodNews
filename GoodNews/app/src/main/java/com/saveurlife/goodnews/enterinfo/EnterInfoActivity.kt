@@ -304,7 +304,7 @@ class EnterInfoActivity : AppCompatActivity() {
         val birthDay = binding.dialogEnterDay.text.toString()
 
         val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
-            "1920년 01월 01일"
+            "2000년 01월 01일"
         } else {
             "$birthYear $birthMonth $birthDay"
         }
@@ -319,7 +319,7 @@ class EnterInfoActivity : AppCompatActivity() {
         val bloodText = binding.dialogBloodText.text.toString()
 
         val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
-            null
+            "모름 A형"
         } else {
             "$rhText $bloodText"
         }
