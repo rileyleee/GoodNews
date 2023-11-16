@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.family
 
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,15 +15,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.api.FamilyAPI
+import com.saveurlife.goodnews.api.MemberAPI
+import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyBinding
-import com.saveurlife.goodnews.flashlight.FlashType
-import com.saveurlife.goodnews.flashlight.FlashlightData
-import com.saveurlife.goodnews.main.MainActivity
+import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.models.FamilyPlace
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
+import com.saveurlife.goodnews.service.UserDeviceInfoService
 
 class FamilyFragment : Fragment() {
     enum class Mode { ADD, READ, EDIT }
@@ -35,9 +38,15 @@ class FamilyFragment : Fragment() {
     private var familyPlaces: List<FamilyPlace> = listOf()
 
     private lateinit var deviceStateService: DeviceStateService
+    private lateinit var userDeviceInfoService: UserDeviceInfoService
     companion object{
         lateinit var familyEditText:TextView
         lateinit var familyListAdapter: FamilyListAdapter
+        lateinit var numToStatus:Map<Int, Status>
+        lateinit var realm: Realm
+        lateinit var familyAPI: FamilyAPI
+        lateinit var memberAPI: MemberAPI
+        lateinit var memberId:String
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +55,18 @@ class FamilyFragment : Fragment() {
         binding = FragmentFamilyBinding.inflate(inflater, container, false)
         deviceStateService = DeviceStateService()
         familyListAdapter = FamilyListAdapter()
+        userDeviceInfoService = UserDeviceInfoService(requireContext())
+        memberId = userDeviceInfoService.deviceId
+        realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        familyAPI = FamilyAPI()
+        memberAPI = MemberAPI()
+        numToStatus = mapOf(
+                0 to Status.HEALTHY,
+        1 to Status.INJURED,
+        2 to Status.DECEASED,
+        3 to Status.NOT_SHOWN
+        )
+
         return binding.root
     }
 
@@ -70,8 +91,7 @@ class FamilyFragment : Fragment() {
         familyListAdapter = FamilyListAdapter()
         familyListRecyclerView.adapter = familyListAdapter
 
-        familyListAdapter.addFamilyWait("test", "test", "가능가능")
-        familyListAdapter.addFamilyInfo("testInfo", Status.HEALTHY, "2023-11-15 10:11:12")
+        familyListAdapter.addList()
 
     }
 
@@ -134,7 +154,6 @@ class FamilyFragment : Fragment() {
 
         showMeetingDialog(seq, mode)
     }
-
 
     // 모달 창 띄워주는 것
     private fun showMeetingDialog(seq: Int, mode: Mode) {

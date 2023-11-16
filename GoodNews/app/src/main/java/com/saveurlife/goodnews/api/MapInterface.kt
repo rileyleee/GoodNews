@@ -8,14 +8,14 @@ import retrofit2.http.POST
 interface MapInterface {
 
     // 지도 시설 상태 등록
-    @POST("map/registfacility")
+    @POST("facility/app/registfacility")
     fun registMapFacility(@Body placeStateInfo: RequestBody): Call<ResponseFacilityRegist>
 
     // 지도 시설 상태 조회
-    @POST("map/getfacility")
+    @POST("facility/app/getfacility")
     fun getAllMapFacility():Call<ResponseAllFacilityState>
 
     // 기간 이후 시설 상태 조회
-    @POST("map/afterfacility")
+    @POST("facility/app/afterfacility")
     fun getDurationFacility(@Body placeDate:RequestBody):Call<ResponseDurationFacilityState>
 }
