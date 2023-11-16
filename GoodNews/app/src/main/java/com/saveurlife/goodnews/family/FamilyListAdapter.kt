@@ -146,6 +146,7 @@ class FamilyListAdapter() :
         if(deviceStateService.isNetworkAvailable(FamilyFragment.context1)){
             familyAPI.getRegistFamily(FamilyFragment.memberId, object : FamilyAPI.WaitListCallback {
                 override fun onSuccess(result: ArrayList<WaitInfo>) {
+                    Log.i("familyList", result.toString())
                     result.forEach{
                         var str = it.name
                         var cov = ""

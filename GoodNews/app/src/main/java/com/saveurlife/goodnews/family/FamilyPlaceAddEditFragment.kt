@@ -183,6 +183,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                     place.longitude,
                     object : FamilyServiceCallback {
                         override fun onSuccess(placeId: String) {
+                            Log.i("placeId", placeId)
                             saveFamilyPlaceToRealm(
                                 placeId,
                                 place.name,
