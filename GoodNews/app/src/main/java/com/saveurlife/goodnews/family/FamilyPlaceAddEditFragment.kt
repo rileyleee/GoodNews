@@ -76,6 +76,8 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
     private fun displayData(data: FamilyPlace?) {
         data?.let {
             // 데이터 UI에 적용
+            binding.readModeNickname.text = it.name
+            binding.readModeAddress.text = it.address
         }
     }
 
@@ -158,9 +160,22 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
         // 모드에 따라 meetingPlaceAddSubmit의 텍스트 변경
         when (mode) {
-            Mode.ADD -> binding.meetingPlaceAddSubmit.text = "장소 등록"
-            Mode.EDIT -> binding.meetingPlaceAddSubmit.text = "장소 수정"
-            else -> binding.meetingPlaceAddSubmit.text = "수정하기"
+            Mode.ADD -> {
+                binding.meetingPlaceAddSubmit.text = "장소 등록"
+                binding.addEditContentWrap.visibility = View.VISIBLE
+                binding.readContentWrap.visibility = View.GONE
+
+            }
+            Mode.EDIT -> {
+                binding.meetingPlaceAddSubmit.text = "장소 수정"
+                binding.addEditContentWrap.visibility = View.VISIBLE
+                binding.readContentWrap.visibility = View.GONE
+            }
+            else -> { // READ 모드
+                binding.meetingPlaceAddSubmit.text = "수정하기"
+                binding.addEditContentWrap.visibility = View.GONE
+                binding.readContentWrap.visibility = View.VISIBLE
+            }
         }
 
         // AutocompleteSupportFragment 설정
