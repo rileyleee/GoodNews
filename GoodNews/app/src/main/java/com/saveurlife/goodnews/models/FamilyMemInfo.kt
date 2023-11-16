@@ -10,12 +10,12 @@ class FamilyMemInfo(): RealmObject {
     var name: String = ""
     var phone: String = ""
     var lastConnection: RealmInstant = RealmInstant.from(0,0)
-    var state: String = ""
+    var state: String? = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
-    var familyId: Int = 0
+    var familyId: String = ""
 
-    constructor(id: String, name:String, phone: String, lastConnection:RealmInstant, state:String, latitude: Double, longitude: Double, familyId: Int): this(){
+    constructor(id: String, name:String, phone: String, lastConnection:RealmInstant, state:String, latitude: Double, longitude: Double, familyId: String): this(){
         this.id = id
         this.name = name
         this.phone = phone

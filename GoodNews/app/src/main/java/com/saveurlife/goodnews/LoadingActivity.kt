@@ -68,7 +68,7 @@ class LoadingActivity : AppCompatActivity() {
                     .build()
 
                 // 실행
-//                workManager.enqueue(updateRequest)
+                workManager.enqueue(updateRequest)
 
                 startActivity(i)
                 finish()

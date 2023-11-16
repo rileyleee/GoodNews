@@ -213,7 +213,7 @@ class MyPageFragment : Fragment() {
             binding.birthday.text = realmBirth
         }
 
-        if (realmBloodType == "null") {
+        if (realmBloodType == null) {
             binding.rh.text = "혈액형"
             binding.blood.text = "미입력"
         } else {
@@ -222,13 +222,13 @@ class MyPageFragment : Fragment() {
             binding.blood.text = parts[1]
         }
 
-        if (realmaddInfo == "null") {
+        if (realmaddInfo == null) {
             binding.significant.isVisible = false
         } else {
             binding.significant.isVisible = true
             binding.significant.text = realmaddInfo
         }
-        if (realmBirth == "null") {
+        if (realmBirth == null) {
             binding.age.isVisible = false
         } else {
             binding.age.text = "만 "+ preferencesUtil.getInt("age", 0).toString()+ "세"
@@ -246,7 +246,7 @@ class MyPageFragment : Fragment() {
         if (realmGender == "모름") {
             noGenderSelection(dialogBinding)
         }
-        if (realmaddInfo != "null") {
+        if (realmaddInfo != null) {
             dialogBinding.textInputEditText.text =
                 Editable.Factory.getInstance().newEditable(realmaddInfo)
         }
@@ -330,11 +330,11 @@ class MyPageFragment : Fragment() {
             preferencesUtil.setInt("age", myAge)
             if(deviceStateService.isNetworkAvailable(requireContext())){
                 val memberAPI = MemberAPI()
-                if(sendBirthdate!="null"){
-                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, syncService.convertDateStringToNumStr(sendBirthdate),
+                if(sendBirthdate!=null){
+                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, sendBirthdate,
                         sendBloodType, sendAddInfo, sendLat, sendLon)
                 }else{
-                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, null,
+                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, "20000101",
                         sendBloodType, sendAddInfo, sendLat, sendLon)
                 }
             }
@@ -434,12 +434,12 @@ class MyPageFragment : Fragment() {
         val dayPicker = birthDialogBinding.dayPicker //일 picker
         val requestBirth = birthDialogBinding.requestBirth //수정 버튼
 
-        if (realmBirth == "null") {
-            selectedYear = "1920"
+        if (realmBirth == null) {
+            selectedYear = "2000"
             selectedMonth = "01"
             selectedDay = "01"
             myAge = 0
-            sendBirthdate = "null"
+            sendBirthdate = "2000년 01월 01일"
         } else {
             val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일")
                 .map { it.trim() }
@@ -523,7 +523,7 @@ class MyPageFragment : Fragment() {
         val bloodPicker = bloodDialogBinding.bloodPicker
         val requestBlood = bloodDialogBinding.requestBlood
 
-        if (realmBloodType == "null") {
+        if (realmBloodType == null) {
             selectedRh = "모름"
             selectedBlood = "A형"
         } else {
