@@ -84,7 +84,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="20dp"
-        android:text="블루투스는 연결됐지만 \n 주변에 사용자가 없습니다. \n '연결하기' 탭을 확인하시기 바랍니다."
+        android:text="주변에 사용자가 없습니다. \n '연결하기' 탭을 확인해 주세요."
         android:textSize="16sp"
         android:lineSpacingExtra="3dp"
         android:background="@drawable/card_component"

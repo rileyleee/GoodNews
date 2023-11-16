@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginTop="20dp"
-        android:text="블루투스가 연결되었으나 \n 연결할 장치가 없습니다."
+        android:text="연결 가능한 장치가 없습니다."
         android:textSize="16sp"
         android:lineSpacingExtra="3dp"
         android:background="@drawable/card_component"
