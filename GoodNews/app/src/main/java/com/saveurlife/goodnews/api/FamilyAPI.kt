@@ -309,12 +309,11 @@ class FamilyAPI {
     }
 
     // 가족 모임장소 상세 조회
-    fun getFamilyPlaceInfoDetail(placeId: Int): PlaceDetailInfo? {
+    fun getFamilyPlaceInfoDetail(placeId: Int, callback: FamilyPlaceDetailCallback){
         // request
         val data = RequestPlaceId(placeId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
-        var resp:PlaceDetailInfo? = null
 
         val call = familyService.getFamilyPlaceInfoDetail(requestBody)
         call.enqueue(object : Callback<ResponsePlaceDetail> {
@@ -327,7 +326,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        resp = data
+
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -335,7 +334,7 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -364,9 +363,13 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
     }
-    
+
+    interface FamilyPlaceDetailCallback {
+        fun onSuccess(result: PlaceDetailInfo)
+        fun onFailure(error:String)
+    }
+
     // 가족 신청 요청 조회
     fun getRegistFamily(memberId: String, callback: WaitListCallback) {
         // request
@@ -431,14 +434,12 @@ class FamilyAPI {
     }
 
     // 가족 구성원 조회
-    fun getFamilyMemberInfo(memberId: String): ArrayList<FamilyInfo>? {
+    fun getFamilyMemberInfo(memberId: String, callback:FamilyCallback ) {
         // request
         // refuse는 필요없어서 아무값
         val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
-
-        var resp: ArrayList<FamilyInfo>? = null
 
         val call = familyService.getFamilyMemberInfo(requestBody)
         call.enqueue(object : Callback<ResponseMemberInfo> {
@@ -451,7 +452,6 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        resp = data
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -459,7 +459,7 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -488,18 +488,15 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
     }
 
     //가족 모임장소 조회
-    fun getFamilyPlaceInfo(memberId:String): ArrayList<PlaceInfo>? {
+    fun getFamilyPlaceInfo(memberId:String, callback:FamilyPlaceCallback){
         // request
         // refuse는 쓸모 없어서 아무값
         val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
-
-        var resp:ArrayList<PlaceInfo>? = null
 
         val call = familyService.getFamilyPlaceInfo(requestBody)
         call.enqueue(object : Callback<ResponsePlaceInfo> {
@@ -512,7 +509,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        resp = data
+
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -520,7 +517,7 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -549,7 +546,6 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
     }
     interface FamilyRegistrationCallback {
         fun onSuccess(result: String)
@@ -561,4 +557,14 @@ class FamilyAPI {
         fun onFailure(error:String)
     }
 
+    interface FamilyCallback{
+        fun onSuccess(result: ArrayList<FamilyInfo>)
+        fun onFailure(error:String)
+    }
+    interface FamilyPlaceCallback {
+        fun onSuccess(result: ArrayList<PlaceInfo>)
+        fun onFailure(error:String)
+    }
+
 }
+

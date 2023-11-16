@@ -12,10 +12,8 @@ import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.DeviceStateService
+import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.types.RealmInstant
-import kotlinx.coroutines.currentCoroutineContext
-import kotlin.coroutines.coroutineContext
 
 class FamilyListAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -133,10 +131,10 @@ class FamilyListAdapter() :
     }
 
     fun addFamilyWait(name:String, acceptNumber:Int){
-        familyList.add(FamilyData(name,Status.NOT_SHOWN,null ,FamilyType.WAIT, acceptNumber))
+        familyList.add(FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
         notifyItemInserted(familyList.size)
     }
-    fun addFamilyInfo(name:String, status: Status, lastAccessTime: RealmInstant?){
+    private fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
         notifyItemInserted(familyList.size)
     }
@@ -172,17 +170,18 @@ class FamilyListAdapter() :
         }
 
         val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
-
+        val syncService = SyncService()
         // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
         if (resultRealm != null) {
             resultRealm.forEach {
-                FamilyFragment.numToStatus[it.state.toInt()]?.let { it1 ->
-                    addFamilyInfo(
-                        it.name,
-                        it1, it.lastConnection
-                    )
+                if(it.state == null){
+                    addFamilyInfo(it.name, Status.NOT_SHOWN, syncService.realmInstantToString(it.lastConnection))
+
+                }else{
+                    addFamilyInfo(it.name, FamilyFragment.numToStatus[it.state!!.toInt()]!!, syncService.realmInstantToString(it.lastConnection))
                 }
             }
+            Log.d("test", familyList.size.toString())
         }
     }
 }

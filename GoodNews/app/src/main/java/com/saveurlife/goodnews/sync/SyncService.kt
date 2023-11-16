@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.sync
 
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.main.PreferencesUtil
+import io.realm.kotlin.types.RealmInstant
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -66,4 +67,15 @@ class SyncService {
         return SimpleDateFormat("yyyyMMdd", Locale("ko")).format(date)
     }
 
+    fun realmInstantToString(realmInstant: RealmInstant): String {
+        // RealmInstant을 밀리초로 변환
+        val milliseconds = realmInstant.epochSeconds * 1000 + realmInstant.nanosecondsOfSecond
+
+        // 밀리초를 Date 객체로 변환
+        val date = Date(milliseconds)
+
+        // SimpleDateFormat을 사용하여 문자열로 포맷팅
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss", Locale.getDefault())
+        return dateFormat.format(date)
+    }
 }
