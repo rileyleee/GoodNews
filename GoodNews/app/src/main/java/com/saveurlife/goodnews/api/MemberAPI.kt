@@ -258,7 +258,7 @@ class MemberAPI {
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.registMemberInfo(requestBody)
-
+        Log.d("test", data.toString())
         // response
         call.enqueue(object : Callback<ResponseRegistMember> {
             override fun onResponse(call: Call<ResponseRegistMember>, response: Response<ResponseRegistMember>) {

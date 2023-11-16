@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.family
 
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -43,10 +44,11 @@ class FamilyFragment : Fragment() {
         lateinit var familyEditText:TextView
         lateinit var familyListAdapter: FamilyListAdapter
         lateinit var numToStatus:Map<Int, Status>
-        lateinit var realm: Realm
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         lateinit var familyAPI: FamilyAPI
         lateinit var memberAPI: MemberAPI
         lateinit var memberId:String
+        lateinit var context1: Context
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,9 +59,10 @@ class FamilyFragment : Fragment() {
         familyListAdapter = FamilyListAdapter()
         userDeviceInfoService = UserDeviceInfoService(requireContext())
         memberId = userDeviceInfoService.deviceId
-        realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        familyEditText = binding.familyEditText
         familyAPI = FamilyAPI()
         memberAPI = MemberAPI()
+        context1 = requireContext()
         numToStatus = mapOf(
                 0 to Status.HEALTHY,
         1 to Status.INJURED,

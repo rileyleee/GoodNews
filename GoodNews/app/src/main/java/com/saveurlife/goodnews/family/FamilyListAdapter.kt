@@ -11,12 +11,16 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.models.FamilyMemInfo
+import com.saveurlife.goodnews.service.DeviceStateService
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
+import kotlinx.coroutines.currentCoroutineContext
+import kotlin.coroutines.coroutineContext
 
 class FamilyListAdapter() :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val deviceStateService = DeviceStateService()
 
     companion object{
         const val TYPE_WAIT = 1
@@ -142,23 +146,39 @@ class FamilyListAdapter() :
     }
 
     fun addList(){
-        // 서버에서 리스트 가져와서 추가
-        familyAPI.getRegistFamily(FamilyFragment.memberId, object : FamilyAPI.WaitListCallback {
-            override fun onSuccess(result: ArrayList<WaitInfo>) {
-                result.forEach{
-                    addFamilyWait(it.name, it.id)
-                }
-            }
+        // 서버에서 리스트 가져와서 추가 -> 인터넷 연결 시
 
-            override fun onFailure(error: String) {
-                // 실패 시의 처리
-                Log.d("Family", "Registration failed: $error")
-            }
-        })
+        if(deviceStateService.isNetworkAvailable(FamilyFragment.context1)){
+            familyAPI.getRegistFamily(FamilyFragment.memberId, object : FamilyAPI.WaitListCallback {
+                override fun onSuccess(result: ArrayList<WaitInfo>) {
+                    result.forEach{
+                        var str = it.name
+                        var cov = ""
+                        if(str.length == 3){
+                            cov = it.name[0] + "*" + it.name[2]
+                        }else if(str.length == 2){
+                            cov = it.name[0] + "*"
+                        }else{
+                            cov = it.name[0]+""
+                            for (i in 2 .. str.length){
+                                cov += "*"
+                            }
+                        }
+
+                        addFamilyWait(it.name, it.id)
+                    }
+                }
+
+                override fun onFailure(error: String) {
+                    // 실패 시의 처리
+                    Log.d("Family", "Registration failed: $error")
+                }
+            })
+        }
 
         val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
 
-        // 페이지 오면 기존 realm에꺼 추가
+        // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
         if (resultRealm != null) {
             resultRealm.forEach {
                 FamilyFragment.numToStatus[it.state.toInt()]?.let { it1 ->

@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.databinding.DialogBloodSettingBinding
 import com.saveurlife.goodnews.databinding.DialogCalendarSettingBinding
 import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
@@ -24,6 +25,7 @@ import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -58,16 +60,17 @@ class MyPageFragment : Fragment() {
     private var realmBloodType: String? = null
     private var realmaddInfo: String? = null
     
-    
-    // 저장 시킬 변수
-    private lateinit var newName:String
-    private lateinit var newGender:String
-    private lateinit var newBirthdate:String
-    private lateinit var newBloodType:String
-    private lateinit var newAddInfo:String
-    private var newLat by Delegates.notNull<Double>()
-    private var newLon by Delegates.notNull<Double>()
-    private lateinit var newState:String
+
+    companion object{
+        // 저장 시킬 변수
+        private lateinit var sendName:String
+        private lateinit var sendGender:String
+        private lateinit var sendBirthdate:String
+        private lateinit var sendBloodType:String
+        private lateinit var sendAddInfo:String
+        private var sendLat by Delegates.notNull<Double>()
+        private var sendLon by Delegates.notNull<Double>()
+    }
 
     private val userDeviceInfoService = UserDeviceInfoService(requireContext())
     private val memberId = userDeviceInfoService.deviceId
@@ -89,6 +92,11 @@ class MyPageFragment : Fragment() {
             realmBloodType = member.bloodType
             realmaddInfo = member.addInfo
         }
+            sendName = realmName.toString()
+            sendGender =realmGender.toString()
+            sendBirthdate = realmName.toString()
+            sendBloodType = realmBloodType.toString()
+            sendAddInfo = realmaddInfo.toString()
 
 
         //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
@@ -270,15 +278,35 @@ class MyPageFragment : Fragment() {
             //특이사항 수정
             var textInputEditText = binding.textInputEditText.text.toString()
             if (textInputEditText.length <= 50) {
+                sendAddInfo = textInputEditText
+                initData()
+                dialog.dismiss()
+            } else {
 //                realm.writeBlocking {
 //                    findLatest(items[0])?.addInfo = textInputEditText
 //                    realmaddInfo = textInputEditText
 //                }
-                initData()
-                dialog.dismiss()
-            } else {
                 // 50자를 초과하는 경우 경고 메시지 표시 또는 다른 처리 수행
                 Toast.makeText(context, "특이사항은 50자 이내로 입력해주세요.", Toast.LENGTH_SHORT).show()
+            }
+
+
+            // realm 연결
+            realm.writeBlocking {
+                findLatest(items[0])?.name = sendName
+                findLatest(items[0])?.gender = sendGender
+                findLatest(items[0])?.birthDate = sendBirthdate
+                findLatest(items[0])?.bloodType = sendBloodType
+                findLatest(items[0])?.addInfo = textInputEditText
+                sendLat = findLatest(items[0])?.latitude!!
+                sendLon = findLatest(items[0])?.longitude!!
+            }
+            // 여기서 보내야 된다. 인터넷 연결 시..
+            val deviceStateService = DeviceStateService()
+            if(deviceStateService.isNetworkAvailable(requireContext())){
+                val memberAPI = MemberAPI()
+                memberAPI.updateMemberInfo(memberId, sendName, sendGender, sendBirthdate,
+                    sendBloodType, sendAddInfo, sendLat, sendLon)
             }
         }
     }
@@ -307,10 +335,12 @@ class MyPageFragment : Fragment() {
             binding.dialogMypageWoman.backgroundTintList = colorStateList
             binding.dialogMypageMan.backgroundTintList = colorStateListClick
         }
+
 //        realm.writeBlocking {
 //            findLatest(items[0])?.gender = selectedGender
 //            realmGender = selectedGender
 //        }
+        sendGender = selectedGender
     }
 
     //생년월일 변경하기
@@ -442,6 +472,7 @@ class MyPageFragment : Fragment() {
 //                findLatest(items[0])?.birthDate = newBirthday
 //                realmBirth = newBirthday
 //            }
+            sendBirthdate = newBirthday
             birthDialog.dismiss()
         }
     }
@@ -512,6 +543,7 @@ class MyPageFragment : Fragment() {
 //                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
 //                realmBloodType = "$selectedRh $selectedBlood"
 //            }
+            sendBloodType = "$selectedRh $selectedBlood"
             bloodDialog.dismiss()
         }
     }

@@ -47,9 +47,8 @@ class FamilyAddFragment : DialogFragment() {
             var result = familyAPI.registFamily(memberId, FamilyFragment.familyEditText.text.toString() , object : FamilyAPI.FamilyRegistrationCallback {
                 override fun onSuccess(result: String) {
                     Log.d("Family", result)
-                    // 리스트에 추가
-//                    FamilyFragment.familyListAdapter.addFamilyWait(result.name, result.phoneNumber, "승인 요청 중 입니다.")
-                    // 닫기
+                    // 리스트 다시 갱신
+                    FamilyFragment.familyListAdapter.addList()
                     dismiss()
                 }
 
