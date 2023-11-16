@@ -24,8 +24,8 @@ class FacilityProvider(private val context: Context) {
             facsData = realm.query<OffMapFacility>("type=$0", "병원").find()
             Log.d("facilityProvider", "병원 찾아요")
         } else if (category == FacilityUIType.GROCERY) {
-            facsData = realm.query<OffMapFacility>("type=$0 OR type = $1", "편의점", "마트").find()
-            Log.d("facilityProvider", "편의점이랑 마트 찾아요")
+            facsData = realm.query<OffMapFacility>("type=$0", "마트").find()
+            Log.d("facilityProvider", "마트 찾아요")
         } else {
             facsData = realm.query<OffMapFacility>().find()
             Log.d("facilityProvider", "전체 찾아요")

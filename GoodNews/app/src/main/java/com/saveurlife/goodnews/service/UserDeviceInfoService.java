@@ -24,9 +24,11 @@ public class UserDeviceInfoService {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             String phoneNumber = telephonyManager.getLine1Number();
             if (phoneNumber != null) {
+                if (phoneNumber.startsWith("+82"))
+                    phoneNumber = phoneNumber.replace("+82", "0");
                 return phoneNumber;
             } else {
-                return "TEST";
+                return "00000000000";
             }
         } else {
             return "권한이 없습니다.";

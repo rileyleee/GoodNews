@@ -44,8 +44,7 @@ class MyPageFragment : Fragment() {
     private var selectedDay: String? = null
     private var selectedRh: String? = null
     private var selectedBlood: String? = null
-    private var myAge: Int? = null
-
+    private var myAge by Delegates.notNull<Int>()
 
 
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
@@ -78,7 +77,7 @@ class MyPageFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // 여기서 userDeviceInfoService를 초기화
-        preferencesUtil = PreferencesUtil(requireContext())
+        preferencesUtil = PreferencesUtil(context)
         userDeviceInfoService = UserDeviceInfoService(context)
         memberId = userDeviceInfoService.deviceId
     }
@@ -104,6 +103,7 @@ class MyPageFragment : Fragment() {
             sendBloodType = realmBloodType.toString()
             sendAddInfo = realmaddInfo.toString()
 
+        myAge = preferencesUtil.getInt("age", 0)
 
         //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
         val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
@@ -198,7 +198,7 @@ class MyPageFragment : Fragment() {
             realmaddInfo = member.addInfo
         }
         sendName = realmName.toString()
-        sendGender =realmGender.toString()
+        sendGender = realmGender.toString()
         sendBirthdate = realmBirth.toString()
         sendBloodType = realmBloodType.toString()
         sendAddInfo = realmaddInfo.toString()
@@ -207,13 +207,13 @@ class MyPageFragment : Fragment() {
         binding.name.text = realmName
         binding.phoneNumber.text = realmPhone.toString()
 
-        if (realmBirth == "입력하지 않음") {
+        if (realmBirth == null) {
             binding.birthday.text = "생년월일 미입력"
         } else {
             binding.birthday.text = realmBirth
         }
 
-        if (realmBloodType == "입력하지 않음") {
+        if (realmBloodType == "null") {
             binding.rh.text = "혈액형"
             binding.blood.text = "미입력"
         } else {
@@ -222,16 +222,16 @@ class MyPageFragment : Fragment() {
             binding.blood.text = parts[1]
         }
 
-        if (realmaddInfo == "입력하지 않음") {
+        if (realmaddInfo == "null") {
             binding.significant.isVisible = false
         } else {
             binding.significant.isVisible = true
             binding.significant.text = realmaddInfo
         }
-        if (realmBirth == "입력하지 않음") {
+        if (realmBirth == "null") {
             binding.age.isVisible = false
         } else {
-            binding.age.text = preferencesUtil.getString("age", "0")
+            binding.age.text = "만 "+ preferencesUtil.getInt("age", 0).toString()+ "세"
             binding.age.isVisible = true
         }
         binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode", false)
@@ -243,10 +243,10 @@ class MyPageFragment : Fragment() {
         dialogBinding.dialogMypagePhoneEdit.text = realmPhone.toString()
         dialogBinding.dialogMypagebirthday.text = realmBirth
         dialogBinding.dialogMypageBloodEdit.text = realmBloodType
-        if (realmGender == "입력하지 않음") {
+        if (realmGender == "모름") {
             noGenderSelection(dialogBinding)
         }
-        if (realmaddInfo != "입력하지 않음") {
+        if (realmaddInfo != "null") {
             dialogBinding.textInputEditText.text =
                 Editable.Factory.getInstance().newEditable(realmaddInfo)
         }
@@ -302,7 +302,7 @@ class MyPageFragment : Fragment() {
             var textInputEditText = binding.textInputEditText.text.toString()
             if (textInputEditText.length <= 50) {
                 sendAddInfo = textInputEditText
-                initData()
+//                initData()
                 dialog.dismiss()
             } else {
 //                realm.writeBlocking {
@@ -327,11 +327,16 @@ class MyPageFragment : Fragment() {
             // 여기서 보내야 된다. 인터넷 연결 시..
             val deviceStateService = DeviceStateService()
             val syncService = SyncService()
-            preferencesUtil.setString("age", "만 ${myAge}세")
+            preferencesUtil.setInt("age", myAge)
             if(deviceStateService.isNetworkAvailable(requireContext())){
                 val memberAPI = MemberAPI()
-                memberAPI.updateMemberInfo(memberId+"save", sendName, sendGender, syncService.convertDateStringToNumStr(sendBirthdate),
-                    sendBloodType, sendAddInfo, sendLat, sendLon)
+                if(sendBirthdate!="null"){
+                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, syncService.convertDateStringToNumStr(sendBirthdate),
+                        sendBloodType, sendAddInfo, sendLat, sendLon)
+                }else{
+                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, null,
+                        sendBloodType, sendAddInfo, sendLat, sendLon)
+                }
             }
             // 새로 넣는다.
             initData()
@@ -345,6 +350,7 @@ class MyPageFragment : Fragment() {
 
         binding.dialogMypageWoman.backgroundTintList = colorStateList
         binding.dialogMypageMan.backgroundTintList = colorStateList
+        sendGender = "모름"
     }
 
     // 성별 선택
@@ -428,10 +434,12 @@ class MyPageFragment : Fragment() {
         val dayPicker = birthDialogBinding.dayPicker //일 picker
         val requestBirth = birthDialogBinding.requestBirth //수정 버튼
 
-        if (realmBirth == "입력하지 않음") {
-            selectedYear = "2000"
+        if (realmBirth == "null") {
+            selectedYear = "1920"
             selectedMonth = "01"
             selectedDay = "01"
+            myAge = 0
+            sendBirthdate = "null"
         } else {
             val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일")
                 .map { it.trim() }
@@ -515,16 +523,20 @@ class MyPageFragment : Fragment() {
         val bloodPicker = bloodDialogBinding.bloodPicker
         val requestBlood = bloodDialogBinding.requestBlood
 
-        if (realmBloodType == "입력하지 않음") {
+        if (realmBloodType == "null") {
             selectedRh = "모름"
             selectedBlood = "A형"
         } else {
             val parts = realmBloodType!!.split(" ")
-            val savedRh = parts[0] // "Rh+"
-            val savedBlood = parts[1] // "0형"
-
-            selectedRh = savedRh
-            selectedBlood = savedBlood
+            if(parts.size == 2){
+                val savedRh = parts[0] // "Rh+"
+                val savedBlood = parts[1] // "0형"
+                selectedRh = savedRh
+                selectedBlood = savedBlood
+            }else{
+                selectedRh = "모름"
+                selectedBlood = "A형"
+            }
         }
 
         rhPicker?.apply {

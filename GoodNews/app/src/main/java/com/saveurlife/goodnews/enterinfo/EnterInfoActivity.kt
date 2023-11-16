@@ -38,12 +38,12 @@ class EnterInfoActivity : AppCompatActivity() {
     val userDeviceInfoService = UserDeviceInfoService(this);
     val sharedPreferences = GoodNewsApplication.preferences
 
-
+    private lateinit var setPhone:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
+        setPhone = userDeviceInfoService.phoneNumber.toString()
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         memberAPI = MemberAPI()
@@ -66,6 +66,11 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // EditText 비활성화
         with(binding) {
+            phoneEditText1.hint = setPhone.substring(0,3)
+            phoneEditText2.hint = setPhone.substring(3,7)
+            phoneEditText3.hint = setPhone.substring(7)
+
+
             phoneEditText1.isEnabled = false
             phoneEditText2.isEnabled = false
             phoneEditText3.isEnabled = false
@@ -290,15 +295,15 @@ class EnterInfoActivity : AppCompatActivity() {
         // 사용자 입력 값 추출
         val setName = binding.nameEditText.text.toString()
 
-        val setMemberId = userDeviceInfoService.deviceId.toString()+"save"
-        val setPhone = userDeviceInfoService.phoneNumber.toString()
+        val setMemberId = userDeviceInfoService.deviceId.toString()
+
 
         val birthYear = binding.dialogEnterYear.text.toString()
         val birthMonth = binding.dialogEnterMonth.text.toString()
         val birthDay = binding.dialogEnterDay.text.toString()
 
         val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
-            "입력하지 않음"
+            "1920년 01월 01일"
         } else {
             "$birthYear $birthMonth $birthDay"
         }
@@ -306,19 +311,19 @@ class EnterInfoActivity : AppCompatActivity() {
         val setGender = when {
             binding.genderMale.isSelected -> "남자"
             binding.genderFemale.isSelected -> "여자"
-            else -> "입력하지 않음"
+            else -> "모름"
         }
 
         val rhText = binding.dialogRhText.text.toString()
         val bloodText = binding.dialogBloodText.text.toString()
 
         val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
-            "입력하지 않음"
+            null
         } else {
             "$rhText $bloodText"
         }
 
-        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { "입력하지 않음" }
+        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { null }
 
         // 입력 값 검증 (필수 입력 값 안 들어왔을 때)
         if (setName.isBlank()) {
@@ -334,12 +339,12 @@ class EnterInfoActivity : AppCompatActivity() {
             realm.writeBlocking {
                 copyToRealm(Member().apply {
                     memberId = setMemberId
-                    birthDate = setBirthDate
+                    birthDate = setBirthDate.toString()
                     phone = setPhone // 기기에 맞게 수정 필요@@
                     name = setName
-                    gender = setGender
-                    bloodType = setBloodType
-                    addInfo = setAddInfo
+                    gender = setGender.toString()
+                    bloodType = setBloodType.toString()
+                    addInfo = setAddInfo.toString()
                 })
             }
 
@@ -348,7 +353,8 @@ class EnterInfoActivity : AppCompatActivity() {
             preferencesUtil.setString("name", setName)
 
             // 인터넷이 있을 때 Spring => @@ 수정 필요
-            memberAPI.registMemberInfo(setMemberId,setPhone,setName,syncService.convertDateStringToNumStr(setBirthDate),setGender,setBloodType, setAddInfo)
+            memberAPI.registMemberInfo(setMemberId,setPhone, setName,
+                setBirthDate?.let { syncService.convertDateStringToNumStr(it) },setGender,setBloodType, setAddInfo)
 
             Log.i("저장", "저장완료")
             // 메인으로 이동
