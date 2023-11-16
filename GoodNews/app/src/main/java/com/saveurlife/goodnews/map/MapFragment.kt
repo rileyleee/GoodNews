@@ -30,6 +30,7 @@ import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
+import com.saveurlife.goodnews.sync.SyncService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -497,14 +498,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             setOnClickListener { _, index ->
                 binding.itemMapFacilityWrap.visibility = View.VISIBLE
                 val facility = facilities[index]
-                Toast.makeText(
-                    context,
-                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-                    Toast.LENGTH_SHORT
-                ).show()
+//                Toast.makeText(
+//                    context,
+//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+//                    Toast.LENGTH_SHORT
+//                ).show()
                 binding.facilityNameTextView.text = facility.name
                 binding.facilityTypeTextView.text = facility.type
-                when (facility.type) {
+                val iconRes = when (facility.type) {
                     "대피소" -> R.drawable.ic_shelter
                     "병원" -> R.drawable.ic_hospital
                     "편의점", "마트" -> R.drawable.ic_grocery
@@ -512,6 +513,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     "약속장소" -> R.drawable.ic_meeting_place
                     else -> R.drawable.ic_pin
                 }
+                binding.facilityIconType.setBackgroundResource(iconRes)
+
                 if (facility.canUse) {
                     binding.useTrueWrap.visibility = View.VISIBLE
                     binding.useFalseWrap.visibility = View.GONE
@@ -520,7 +523,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     binding.useFalseWrap.visibility = View.VISIBLE
                 }
                 val lastConnection = sharedPref.getLong("SyncTime", 0L)
-                binding.facilityLastUpdateTime.text = lastConnection.toString()
+                val syncService = SyncService()
+                binding.facilityLastUpdateTime.text =
+                    syncService.convertDateLongToString(lastConnection)
 
             }
         }
