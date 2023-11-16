@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         //FamilyMemInfo 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
-        if (items.isEmpty()) {
+        if (items.isEmpty() && sharedPreferences.getBoolean("familyAlarmIgnore", false) == false) {
             val dialog = FamilyAlarmFragment()
             dialog.show(supportFragmentManager, "FamilyAlarmFragment")
         }
