@@ -11,7 +11,6 @@ import io.realm.kotlin.query.RealmResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sqrt
@@ -19,7 +18,8 @@ import kotlin.math.sqrt
 class EmergencyAlarmProvider {
 
     private lateinit var realm: Realm
-    private lateinit var userInfo: Member
+    private lateinit var userInfo:RealmResults<Member>
+    private lateinit var userSpecificInfo:Member
     private lateinit var targetInfo: RealmResults<MapInstantInfo>
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
@@ -32,32 +32,29 @@ class EmergencyAlarmProvider {
                 realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
                 // 나의 위치 조회
-                userInfo = realm.query<Member>().find().first()
+                userInfo = realm.query<Member>().find()
 
-                if (userInfo != null) {
-
+                val user = userInfo.firstOrNull() // 강제 언래핑 대신 안전한 접근 방식 사용
+                user?.let {
                     // 모든 위험 정보 조회
-                    targetInfo = realm.query<MapInstantInfo>("state=$0", "1").find()
-                }
+                    targetInfo = realm.query<MapInstantInfo>("state = $0", "1").find()
 
-                // 20m 이내에 있는 정보라면! 다시 가까운 정보 리스트에 담고
-                targetInfo.forEach { info ->
-                    if (getRoughDistance(
-                            info.latitude,
-                            info.longitude,
-                            userInfo.latitude,
-                            userInfo.longitude
-                        ) <= 20
-                    ) {
-                        closeInfo.add(
-                            copyMapInstantInfo(
-                                info
+                    // 20m 이내에 있는 정보라면! 다시 가까운 정보 리스트에 담고
+                    targetInfo.forEach { info ->
+                        if (getRoughDistance(
+                                info.latitude,
+                                info.longitude,
+                                it.latitude,
+                                it.longitude
+                            ) <= 20
+                        ) {
+                            closeInfo.add(
+                                copyMapInstantInfo(info)
                             )
-                        )
+                        }
                     }
+                    mostRecentInfo = closeInfo.maxByOrNull { it.time.epochSeconds }
                 }
-                mostRecentInfo = closeInfo.maxByOrNull { it.time.epochSeconds }
-
             } catch (e: RealmException) {
                 Log.e("EmergencyAlarmProvider", "Realm 작업 중 에러 발생", e)
             }finally {
