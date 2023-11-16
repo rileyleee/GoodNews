@@ -5,7 +5,7 @@
     android:layout_height="120dp"
     android:background="@drawable/rounded_background_with_shadow"
     android:padding="20dp">
-    <!-- 수정 필요 @@ -->
+
     <FrameLayout
         android:id="@+id/facilityIconWrap"
         android:layout_width="36dp"
@@ -26,11 +26,12 @@
         android:id="@+id/facilityNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:text="ㅇㅇ대피소"
         android:textColor="@color/black"
         android:textSize="21sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/facilityIconWrap"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -108,17 +109,6 @@
             android:textSize="12sp"
             android:textStyle="bold" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/facilityDistanceTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="12M"
-        android:textColor="@color/point"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/familyLastAccessTimeGroup"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/familyLastAccessTimeGroup"
