@@ -464,7 +464,7 @@ class MyPageFragment : Fragment() {
 //                preferencesUtil.setString("age", "만 ${myAge}세")
             }
         }
-ㄱ
+
         //월 선택
         monthPicker?.apply {
             minValue = 0
