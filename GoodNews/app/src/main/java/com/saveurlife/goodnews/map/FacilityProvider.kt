@@ -13,70 +13,81 @@ import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 
 class FacilityProvider(private val context: Context) {
 
+    private lateinit var selectedFacsData: MutableList<OffMapFacility>
+    private val copiedAll = mutableListOf<OffMapFacility>()
+    private val copiedHospital = mutableListOf<OffMapFacility>()
+    private val copiedGrocery = mutableListOf<OffMapFacility>()
+    private val copiedMinbangwi = mutableListOf<OffMapFacility>()
+    private val copiedEarthquake = mutableListOf<OffMapFacility>()
+    init {
+        loadDataFromRealm()
+    }
+
+    private fun loadDataFromRealm() {
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        val facsDataAll = realm.query<OffMapFacility>().find()
+        val hospital = realm.query<OffMapFacility>("type=$0", "병원").find()
+        val grocery = realm.query<OffMapFacility>("type=$0", "마트").find()
+        val minbangwi = realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "민방위").find()
+        val earthquake = realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "지진해일").find()
+
+        facsDataAll.forEach { fac ->
+            copiedAll.add(copyFacsData(fac))
+        }
+        hospital.forEach { fac ->
+            copiedHospital.add(copyFacsData(fac))
+        }
+        grocery.forEach { fac ->
+            copiedGrocery.add(copyFacsData(fac))
+        }
+        minbangwi.forEach { fac ->
+            copiedMinbangwi.add(copyFacsData(fac))
+        }
+        earthquake.forEach { fac ->
+            copiedEarthquake.add(copyFacsData(fac))
+        }
+
+        realm.close()
+    }
+
     // 오프라인 시설 정보 반환(대분류)
     fun getFilteredFacilities(category: FacilityUIType): List<OffMapFacility> {
 
 
-        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        val facsData: RealmResults<OffMapFacility>
-
         if (category == FacilityUIType.HOSPITAL) {
-            facsData = realm.query<OffMapFacility>("type=$0", "병원").find()
-            Log.d("facilityProvider", "병원 찾아요")
+            selectedFacsData = copiedHospital
+            Log.d("facilityProvider", "병원 찾았어요")
         } else if (category == FacilityUIType.GROCERY) {
-            facsData = realm.query<OffMapFacility>("type=$0", "마트").find()
-            Log.d("facilityProvider", "마트 찾아요")
+            selectedFacsData = copiedGrocery
+            Log.d("facilityProvider", "마트 찾았어요")
         } else {
-            facsData = realm.query<OffMapFacility>().find()
-            Log.d("facilityProvider", "전체 찾아요")
+            selectedFacsData =copiedAll
+            Log.d("facilityProvider", "기본 값은 전체")
         }
 
         Log.v("facilityProvider의 카테고리", "$category")
 
-
-        // 결과를 새로운 리스트로 복사합니다.
-        val facList = facsData.map { fac ->
-            OffMapFacility().apply {
-                id = fac.id
-                type = fac.type
-                name = fac.name
-                longitude = fac.longitude
-                latitude = fac.latitude
-                canUse = fac.canUse
-                addInfo = fac.addInfo
-            }
-        }
-        realm.close()
-
-        return facList
+        return selectedFacsData
     }
-    
+
+    private fun getFamilyLocation() {
+        TODO("Not yet implemented")
+    }
+
     // 오프라인 시설 정보 반환(소분류)
     fun getFilteredFacilitiesBySubCategory(subCategory: String): List<OffMapFacility> {
 
-        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
-        val facsData: RealmResults<OffMapFacility> =
-            realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "$subCategory").find()
-
-        Log.d("facilityProvider", "$subCategory 찾아요")
-
-
-        // 결과를 새로운 리스트로 복사합니다.
-        val facList = facsData.map { fac ->
-            OffMapFacility().apply {
-                id = fac.id
-                type = fac.type
-                name = fac.name
-                longitude = fac.longitude
-                latitude = fac.latitude
-                canUse = fac.canUse
-                addInfo = fac.addInfo
-            }
+        if (subCategory.equals("민방위")) {
+            selectedFacsData = copiedMinbangwi
+            Log.d("facilityProvider", "민방위 찾았어요")
+        } else if (subCategory.equals("지진해일")) {
+            selectedFacsData = copiedEarthquake
+            Log.d("facilityProvider", "지진해일 찾았어요")
+        } else {
+            selectedFacsData =copiedAll
+            Log.d("facilityProvider", "기본 값은 전체")
         }
-        realm.close()
-
-        return facList
+        return selectedFacsData
     }
 
 
@@ -106,5 +117,16 @@ class FacilityProvider(private val context: Context) {
         realm.close()
 
         return points
+    }
+
+    fun copyFacsData(data: OffMapFacility): OffMapFacility {
+        return OffMapFacility().apply {
+            this.id = data.id
+            this.type = data.type
+            this.latitude = data.latitude
+            this.longitude = data.longitude
+            this.canUse = data.canUse
+            this.addInfo = data.addInfo
+        }
     }
 }
