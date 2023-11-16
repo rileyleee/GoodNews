@@ -23,10 +23,6 @@ class EmergencyAlarmProvider {
     private lateinit var targetInfo: RealmResults<MapInstantInfo>
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
-//    // 다른 곳에서 아래와 같이 가져다가 쓰시면 됩니다.
-//    val emergencyAlarmProvider = EmergencyAlarmProvider()
-//    emergencyAlarmProvider.getAlarmInfo()
-
     fun getAlarmInfo(): MapInstantInfo? {
 
         var mostRecentInfo: MapInstantInfo? = null
