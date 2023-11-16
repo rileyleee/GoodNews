@@ -77,14 +77,14 @@ class FacilityProvider(private val context: Context) {
     // 오프라인 시설 정보 반환(소분류)
     fun getFilteredFacilitiesBySubCategory(subCategory: String): List<OffMapFacility> {
 
-        if (subCategory.equals("민방위")) {
+        if (subCategory == "민방위") {
             selectedFacsData = copiedMinbangwi
             Log.d("facilityProvider", "민방위 찾았어요")
-        } else if (subCategory.equals("지진해일")) {
+        } else if (subCategory == "지진해일") {
             selectedFacsData = copiedEarthquake
             Log.d("facilityProvider", "지진해일 찾았어요")
         } else {
-            selectedFacsData =copiedAll
+            selectedFacsData = copiedAll
             Log.d("facilityProvider", "기본 값은 전체")
         }
         return selectedFacsData
