@@ -55,4 +55,15 @@ class SyncService {
         return ""
     }
 
+    fun convertDateStringToNumStr(oldText: String): String {
+        // 날짜 형식 지정
+        val dateFormat = SimpleDateFormat("yyyy년 MM월 dd일", Locale("ko"))
+
+        // 날짜로 변환
+        val date = dateFormat.parse(oldText)
+
+        // 원하는 형식으로 포맷팅
+        return SimpleDateFormat("yyyyMMdd", Locale("ko")).format(date)
+    }
+
 }
