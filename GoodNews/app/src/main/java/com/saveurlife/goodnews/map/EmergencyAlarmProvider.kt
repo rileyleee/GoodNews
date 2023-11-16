@@ -23,7 +23,7 @@ class EmergencyAlarmProvider {
     private lateinit var targetInfo: RealmResults<MapInstantInfo>
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
-    fun getAlarmInfo() {
+    fun getAlarmInfo(): MapInstantInfo? {
 
         CoroutineScope(Dispatchers.IO).launch {
             realm = Realm.open(GoodNewsApplication.realmConfiguration)
@@ -41,18 +41,20 @@ class EmergencyAlarmProvider {
                         info.longitude,
                         userInfo.latitude,
                         userInfo.longitude
-                    ) >= 50
+                    ) <= 50
                 ) {
                     closeInfo.add(info)
                 }
             }
             realm.close()
         }
-
-        val mostRecentInfo = closeInfo.maxOfOrNull { it.time.nanosecondsOfSecond }
+        
+        // 가장 최근 정보 담기
+        val mostRecentInfo:MapInstantInfo ? = closeInfo.maxByOrNull { it.time.epochSeconds }
         mostRecentInfo?.let {
-            Log.v("EmergencyInfo", "가장 최근 정보: ${it.}")
+            Log.v("mostRecentInfo", "가장 최근 정보: ${it.content}")
         }
+        return mostRecentInfo
     }
 
 
