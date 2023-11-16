@@ -19,16 +19,14 @@ class FacilityListAdapter(
         fun bind(facility: OffMapFacility, preferencesUtil: PreferencesUtil) {
             binding.facilityListName.text = facility.name
             binding.facilityListType.text = facility.type
-            // 여기에 거리 및 업데이트 시간 표시 로직 추가
-            // 거리 binding.facilityDistanceTextView =
 
             val iconRes = when (facility.type) {
                 "대피소" -> R.drawable.ic_shelter
                 "병원" -> R.drawable.ic_hospital
-                "식료품" -> R.drawable.ic_grocery
+                "편의점", "마트" -> R.drawable.ic_grocery
                 "가족" -> R.drawable.ic_family
                 "약속장소" -> R.drawable.ic_meeting_place
-                else -> 0
+                else -> R.drawable.ic_pin
             }
             binding.facilityIconType.setBackgroundResource(iconRes)
 

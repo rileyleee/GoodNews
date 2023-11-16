@@ -5,7 +5,7 @@
     android:layout_height="120dp"
     android:background="@drawable/rounded_background_with_shadow"
     android:padding="20dp">
-    <!-- 수정 필요 @@ -->
+
     <FrameLayout
         android:id="@+id/facilityIconWrap"
         android:layout_width="36dp"
@@ -24,13 +24,15 @@
 
     <TextView
         android:id="@+id/facilityNameTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:text="ㅇㅇ대피소"
         android:textColor="@color/black"
-        android:textSize="21sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/facilityTypeTextView"
+        app:layout_constraintStart_toEndOf="@id/facilityIconWrap"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -41,15 +43,14 @@
         android:text="대피소"
         android:textColor="@color/hint_gray"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@id/facilityNameTextView"
-        app:layout_constraintStart_toEndOf="@id/facilityNameTextView"
-        app:layout_constraintTop_toTopOf="@id/facilityNameTextView" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/useTrueWrap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="12dp"
         android:background="@drawable/safe_radius_wrap"
         android:gravity="center"
         android:paddingStart="6dp"
@@ -57,8 +58,8 @@
         android:paddingEnd="8dp"
         android:paddingBottom="4dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/facilityIconWrap">
 
         <ImageView
             android:id="@+id/safeIcon"
@@ -81,7 +82,7 @@
         android:id="@+id/useFalseWrap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="12dp"
         android:background="@drawable/danger_radius_wrap"
         android:gravity="center"
         android:paddingStart="6dp"
@@ -89,8 +90,8 @@
         android:paddingEnd="8dp"
         android:paddingBottom="4dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/facilityIconWrap">
 
         <ImageView
             android:id="@+id/dangerIcon"
@@ -108,17 +109,6 @@
             android:textSize="12sp"
             android:textStyle="bold" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/facilityDistanceTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="12M"
-        android:textColor="@color/point"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/familyLastAccessTimeGroup"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/familyLastAccessTimeGroup"
