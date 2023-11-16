@@ -35,6 +35,8 @@ class MemberAPI {
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.updateMemberInfo(memberId, requestBody)
+
+        Log.d("test", data.toString())
         call.enqueue(object : Callback<ResponseModifyMember> {
             override fun onResponse(call: Call<ResponseModifyMember>, response: Response<ResponseModifyMember>) {
                 if(response.isSuccessful){
@@ -258,7 +260,7 @@ class MemberAPI {
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.registMemberInfo(requestBody)
-
+        Log.d("test", data.toString())
         // response
         call.enqueue(object : Callback<ResponseRegistMember> {
             override fun onResponse(call: Call<ResponseRegistMember>, response: Response<ResponseRegistMember>) {

@@ -25,6 +25,7 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
+import com.saveurlife.goodnews.sync.SyncService
 
 
 class EnterInfoActivity : AppCompatActivity() {
@@ -33,7 +34,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var realm: Realm
     private lateinit var permissionsUtil: PermissionsUtil
     private lateinit var memberAPI: MemberAPI
-
+    private lateinit var syncService: SyncService
     val userDeviceInfoService = UserDeviceInfoService(this);
     val sharedPreferences = GoodNewsApplication.preferences
 
@@ -46,6 +47,7 @@ class EnterInfoActivity : AppCompatActivity() {
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         memberAPI = MemberAPI()
+        syncService = SyncService()
         // 위험 권한 요청
         permissionsUtil = PermissionsUtil(this)
         permissionsUtil.requestAllPermissions()
@@ -346,7 +348,7 @@ class EnterInfoActivity : AppCompatActivity() {
             preferencesUtil.setString("name", setName)
 
             // 인터넷이 있을 때 Spring => @@ 수정 필요
-            memberAPI.registMemberInfo(setMemberId,setPhone,setName,setBirthDate,setGender,setBloodType, setAddInfo)
+            memberAPI.registMemberInfo(setMemberId,setPhone,setName,syncService.convertDateStringToNumStr(setBirthDate),setGender,setBloodType, setAddInfo)
 
             Log.i("저장", "저장완료")
             // 메인으로 이동
