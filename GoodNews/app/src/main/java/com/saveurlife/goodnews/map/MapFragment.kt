@@ -495,11 +495,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
             setOnClickListener { _, index ->
                 val facility = facilities[index]
-                Toast.makeText(
-                    context,
-                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-                    Toast.LENGTH_SHORT
-                ).show()
+//                Toast.makeText(
+//                    context,
+//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+                val facName = facility.name
+                val facType = facility.type
+                val facCanUse = facility.canUse
+                val lastConnection = sharedPref.getLong("SyncTime", 0L)
             }
         }
 
