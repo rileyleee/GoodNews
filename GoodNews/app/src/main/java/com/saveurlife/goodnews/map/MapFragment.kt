@@ -495,11 +495,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
             setOnClickListener { _, index ->
                 val facility = facilities[index]
-                Toast.makeText(
-                    context,
-                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-                    Toast.LENGTH_SHORT
-                ).show()
+//                Toast.makeText(
+//                    context,
+//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+                val facName = facility.name
+                val facType = facility.type
+                val facCanUse = facility.canUse
+                val lastConnection = sharedPref.getLong("SyncTime", 0L)
             }
         }
 
@@ -692,7 +696,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     userList.forEach { user ->
                         val geoPoint = GeoPoint(user.lat, user.lon)
                         Log.v("livedata 유저 geoPoint", "$geoPoint")
-                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint){
+                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint) {
                             showOtherUserInfoDialog(user)
                         }
                         mapView.overlays.add(connectedUserMarkerOverlay)
@@ -708,16 +712,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
     }
 
-    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser) {
-        Log.d("otherUserClicked","다른 유저가 클릭되었습니다.")
+    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser): BleMeshConnectedUser {
+        Log.d("otherUserClicked", "다른 유저가 클릭되었습니다.")
         val dialogFragment = OtherUserInfoFragment()
 
         // 클릭한 연결된 사용자의 정보를 프래그 먼트로 전달
         val userInfo = Bundle()
 
-        val distance = calculateDistance(lastLat,lastLon, user.lat, user.lon)
+        val distance = calculateDistance(lastLat, lastLon, user.lat, user.lon)
 
-        userInfo.putString("userName",user.userName)
+        userInfo.putString("userName", user.userName)
         userInfo.putString("userStatus", user.healthStatus)
         userInfo.putString("userUpdateTime", user.updateTime)
         userInfo.putDouble("distance", distance)
@@ -725,7 +729,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         dialogFragment.arguments = userInfo
 
         dialogFragment.show(childFragmentManager, "OtherUserInfoFragment")
-
+        return user
     }
 
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
@@ -736,11 +740,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dLon = Math.toRadians(lon2 - lon1)
         println("위도 경도 차이 : $dLat , $dLon")
 
-        val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
+        val a =
+            sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(
+                2
+            )
         println("a의 값은 ?? $a")
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         println("c의 값은 ?? $c")
-        println("리턴 값은 ? ${earthRadius*c}")
+        println("리턴 값은 ? ${earthRadius * c}")
 
         return earthRadius * c
     }

@@ -194,7 +194,7 @@ class FamilyAPI {
     }
 
     // 가족 모임 장소 등록
-    fun registFamilyPlace(memberId:String, name:String, lat:Double, lon:Double){
+    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, param: Any){
         // request
         val data = RequestPlaceDetailInfo(memberId, name, lat, lon)
         val json = gson.toJson(data)

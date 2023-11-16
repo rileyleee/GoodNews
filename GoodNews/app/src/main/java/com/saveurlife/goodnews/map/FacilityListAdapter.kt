@@ -31,7 +31,7 @@ class FacilityListAdapter(
             binding.facilityIconType.setBackgroundResource(iconRes)
 
             // 임시 default 값 -> 마지막 업데이트 시각
-            val lastUpdateTime = preferencesUtil.getLong("SyncTime", 20231015230000)
+            val lastUpdateTime = preferencesUtil.getLong("SyncTime", 0L)
             binding.facilityLastUpdateTime.text = lastUpdateTime.toString()
 
             // 사용 가능 여부
