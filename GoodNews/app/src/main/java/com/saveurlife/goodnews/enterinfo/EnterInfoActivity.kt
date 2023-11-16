@@ -290,7 +290,7 @@ class EnterInfoActivity : AppCompatActivity() {
         // 사용자 입력 값 추출
         val setName = binding.nameEditText.text.toString()
 
-        val setMemberId = userDeviceInfoService.deviceId.toString()+"save"
+        val setMemberId = userDeviceInfoService.deviceId.toString()
         val setPhone = userDeviceInfoService.phoneNumber.toString()
 
         val birthYear = binding.dialogEnterYear.text.toString()

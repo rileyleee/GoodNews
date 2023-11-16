@@ -44,8 +44,7 @@ class MyPageFragment : Fragment() {
     private var selectedDay: String? = null
     private var selectedRh: String? = null
     private var selectedBlood: String? = null
-    private var myAge: Int? = null
-
+    private var myAge by Delegates.notNull<Int>()
 
 
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
@@ -78,7 +77,7 @@ class MyPageFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // 여기서 userDeviceInfoService를 초기화
-        preferencesUtil = PreferencesUtil(requireContext())
+        preferencesUtil = PreferencesUtil(context)
         userDeviceInfoService = UserDeviceInfoService(context)
         memberId = userDeviceInfoService.deviceId
     }
@@ -104,6 +103,7 @@ class MyPageFragment : Fragment() {
             sendBloodType = realmBloodType.toString()
             sendAddInfo = realmaddInfo.toString()
 
+        myAge = preferencesUtil.getInt("age", 0)
 
         //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
         val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
@@ -231,7 +231,7 @@ class MyPageFragment : Fragment() {
         if (realmBirth == "입력하지 않음") {
             binding.age.isVisible = false
         } else {
-            binding.age.text = preferencesUtil.getString("age", "0")
+            binding.age.text = "만 "+ preferencesUtil.getInt("age", 0).toString()+ "세"
             binding.age.isVisible = true
         }
         binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode", false)
@@ -302,7 +302,7 @@ class MyPageFragment : Fragment() {
             var textInputEditText = binding.textInputEditText.text.toString()
             if (textInputEditText.length <= 50) {
                 sendAddInfo = textInputEditText
-                initData()
+//                initData()
                 dialog.dismiss()
             } else {
 //                realm.writeBlocking {
@@ -327,10 +327,10 @@ class MyPageFragment : Fragment() {
             // 여기서 보내야 된다. 인터넷 연결 시..
             val deviceStateService = DeviceStateService()
             val syncService = SyncService()
-            preferencesUtil.setString("age", "만 ${myAge}세")
+            preferencesUtil.setInt("age", myAge)
             if(deviceStateService.isNetworkAvailable(requireContext())){
                 val memberAPI = MemberAPI()
-                memberAPI.updateMemberInfo(memberId+"save", sendName, sendGender, syncService.convertDateStringToNumStr(sendBirthdate),
+                memberAPI.updateMemberInfo(memberId, sendName, sendGender, syncService.convertDateStringToNumStr(sendBirthdate),
                     sendBloodType, sendAddInfo, sendLat, sendLon)
             }
             // 새로 넣는다.
