@@ -303,7 +303,7 @@ class EnterInfoActivity : AppCompatActivity() {
         val birthDay = binding.dialogEnterDay.text.toString()
 
         val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
-            null
+            "1920년 01월 01일"
         } else {
             "$birthYear $birthMonth $birthDay"
         }
@@ -311,7 +311,7 @@ class EnterInfoActivity : AppCompatActivity() {
         val setGender = when {
             binding.genderMale.isSelected -> "남자"
             binding.genderFemale.isSelected -> "여자"
-            else -> null
+            else -> "모름"
         }
 
         val rhText = binding.dialogRhText.text.toString()

@@ -34,4 +34,6 @@ interface MemberInterface {
     @POST("members/app/firstlogin")
     fun firstLoginInfo(@Body memberId: RequestBody): Call<ResponseLogin>
 
+    // 전화 번호 입력 시 해당 회원 이름 조회
+
 }

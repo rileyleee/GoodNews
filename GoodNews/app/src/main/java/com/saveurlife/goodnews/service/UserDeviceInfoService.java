@@ -28,7 +28,7 @@ public class UserDeviceInfoService {
                     phoneNumber = phoneNumber.replace("+82", "0");
                 return phoneNumber;
             } else {
-                return null;
+                return "00000000000";
             }
         } else {
             return "권한이 없습니다.";
