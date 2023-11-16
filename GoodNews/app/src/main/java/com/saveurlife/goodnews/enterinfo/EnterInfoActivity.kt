@@ -38,12 +38,12 @@ class EnterInfoActivity : AppCompatActivity() {
     val userDeviceInfoService = UserDeviceInfoService(this);
     val sharedPreferences = GoodNewsApplication.preferences
 
-
+    private lateinit var setPhone:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
+        setPhone = userDeviceInfoService.phoneNumber.toString()
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         memberAPI = MemberAPI()
@@ -66,6 +66,11 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // EditText 비활성화
         with(binding) {
+            phoneEditText1.hint = setPhone.substring(0,3)
+            phoneEditText2.hint = setPhone.substring(3,7)
+            phoneEditText3.hint = setPhone.substring(7,11)
+
+
             phoneEditText1.isEnabled = false
             phoneEditText2.isEnabled = false
             phoneEditText3.isEnabled = false
@@ -291,7 +296,7 @@ class EnterInfoActivity : AppCompatActivity() {
         val setName = binding.nameEditText.text.toString()
 
         val setMemberId = userDeviceInfoService.deviceId.toString()
-        val setPhone = userDeviceInfoService.phoneNumber.toString()
+
 
         val birthYear = binding.dialogEnterYear.text.toString()
         val birthMonth = binding.dialogEnterMonth.text.toString()
