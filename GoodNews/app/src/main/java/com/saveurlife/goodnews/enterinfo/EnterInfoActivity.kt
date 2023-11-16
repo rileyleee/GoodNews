@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
@@ -38,7 +39,7 @@ class EnterInfoActivity : AppCompatActivity() {
     val userDeviceInfoService = UserDeviceInfoService(this);
     val sharedPreferences = GoodNewsApplication.preferences
 
-    private lateinit var setPhone:String
+    private lateinit var setPhone: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,8 +67,8 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // EditText 비활성화
         with(binding) {
-            phoneEditText1.hint = setPhone.substring(0,3)
-            phoneEditText2.hint = setPhone.substring(3,7)
+            phoneEditText1.hint = setPhone.substring(0, 3)
+            phoneEditText2.hint = setPhone.substring(3, 7)
             phoneEditText3.hint = setPhone.substring(7)
 
 
@@ -353,8 +354,14 @@ class EnterInfoActivity : AppCompatActivity() {
             preferencesUtil.setString("name", setName)
 
             // 인터넷이 있을 때 Spring => @@ 수정 필요
-            memberAPI.registMemberInfo(setMemberId,setPhone, setName,
-                setBirthDate?.let { syncService.convertDateStringToNumStr(it) },setGender,setBloodType, setAddInfo)
+            memberAPI.registMemberInfo(setMemberId,
+                setPhone,
+                setName,
+                setBirthDate?.let { syncService.convertDateStringToNumStr(it) },
+                setGender,
+                setBloodType,
+                setAddInfo
+            )
 
             Log.i("저장", "저장완료")
             // 메인으로 이동
@@ -363,7 +370,11 @@ class EnterInfoActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionsUtil.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
