@@ -1,19 +1,14 @@
 package com.saveurlife.goodnews.sync
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.api.FacilityState
 import com.saveurlife.goodnews.api.FamilyAPI
-import com.saveurlife.goodnews.api.FamilyInfo
 import com.saveurlife.goodnews.api.MapAPI
 import com.saveurlife.goodnews.api.MemberAPI
-import com.saveurlife.goodnews.api.MemberInfo
-import com.saveurlife.goodnews.api.PlaceDetailInfo
-import com.saveurlife.goodnews.api.PlaceInfo
-import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
@@ -64,7 +59,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 실행 시 이전 동기화 이후 모든 데이터를 전송한다.
         val userDeviceInfoService = UserDeviceInfoService(applicationContext)
 
-
+        realm = Realm.open(GoodNewsApplication.realmConfiguration)
         preferences = GoodNewsApplication.preferences
         phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
@@ -72,7 +67,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         mapAPI = MapAPI()
         familyAPI = FamilyAPI()
         memberAPI = MemberAPI()
-        realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         newTime = System.currentTimeMillis()
         newTime += TimeUnit.HOURS.toMillis(9)
@@ -89,13 +83,13 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
             // 5. 시간 정보 갱신
             preferences.setLong("SyncTime", newTime)
-
+            
         } catch (e : Exception) {
-            Log.d("Data Sync", "데이터를 불러오지 못했습니다." +e.toString())
-            return Result.failure()
+            Log.d("Data Sync", "데이터를 불러오지 못했습니다.")
+             return Result.success()
         } finally {
             Log.d("Data Sync", "최신 정보로 업데이트 했습니다.")
-            return Result.success()
+            return Result.failure()
         }
     }
     // 내 정보
@@ -103,7 +97,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 현재의 정보를 서버로 보낸다
         val result = realm.query<Member>().first().find()
 
-        Log.d("ttest", result.toString())
         if(result!=null){
             var memberId = result.memberId
             var name = result.name
@@ -115,23 +108,18 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
             var lon = result.longitude
 
             memberAPI.updateMemberInfo(memberId, name, gender, birthDate, bloodType, addInfo, lat, lon)
-//            result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
+            result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
 
-            realm.writeBlocking {
-                findLatest(result)?.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
-            }
-//            realm.close()
         }
+
     }
 
     // 가족 구성원 정보
     private fun fetchDataFamilyMemInfo() {
-            Log.d("ttest","여기")
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
-//        realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
         // 우선 realm 비운다
         val oldData = realm.query<FamilyMemInfo>().find()
-
         oldData.forEach{
             realm.writeBlocking {
                 delete(it)
@@ -140,45 +128,25 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 가족 정보를 받아와 realm을 수정한다.
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
-        familyAPI.getFamilyMemberInfo(phoneId, object : FamilyAPI.FamilyCallback {
-            override fun onSuccess(result: ArrayList<FamilyInfo>) {
-                result.forEach{
-                    var tempTime = it.lastConnection
-                    val localDateTime = LocalDateTime.parse(tempTime, formatter)
-                    val milliseconds =
-                        localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    memberAPI.findMemberInfo(it.memberId, object :MemberAPI.MemberCallback{
-
-                        override fun onSuccess(result2: MemberInfo) {
-                            realm.writeBlocking {
-                                copyToRealm(
-                                    FamilyMemInfo().apply {
-                                        id = it.memberId
-                                        name = it.name
-                                        phone = it.phoneNumber
-                                        lastConnection = RealmInstant.from(milliseconds / 1000, (milliseconds % 1000).toInt())
-                                        state = it.state
-                                        latitude = result2!!.lat
-                                        longitude = result2!!.lon
-                                        familyId = it.familyId
-                                })
-                            }
-
-                        }
-
-                        override fun onFailure(error: String) {
-
-                        }
-
-                    })
-                }
+        familyAPI.getFamilyMemberInfo(phoneId)?.forEach {
+            var tempTime = it.lastConnection
+            val localDateTime = LocalDateTime.parse(tempTime, formatter)
+            val milliseconds =
+                localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val temp = memberAPI.findMemberInfo(it.memberId)
+            realm.writeBlocking {
+                    FamilyMemInfo().apply {
+                        id = it.memberId
+                        name = it.name
+                        phone = it.phoneNumber
+                        lastConnection = RealmInstant.from(milliseconds / 1000, (milliseconds % 1000).toInt())
+                        state = it.state
+                        latitude = temp!!.lat
+                        longitude = temp!!.lon
+                        familyId = it.familyId.toInt()
+                    }
             }
-            override fun onFailure(error: String) {
-                // 실패 시의 처리
-                Log.d("Family", "Registration failed: $error")
-            }
-        })
-//        realm.close()
+        }
     }
 
     // 가족 모임 장소
@@ -205,35 +173,22 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                 delete(it)
             }
         }
-
+        // 삽입
         // realm에 저장한다.
-        familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
-            override fun onSuccess(result: ArrayList<PlaceInfo>) {
-                result.forEach{
-                    familyAPI.getFamilyPlaceInfoDetail(it.placeId, object : FamilyAPI.FamilyPlaceDetailCallback{
-                        override fun onSuccess(result2: PlaceDetailInfo) {
-                            realm.writeBlocking {
-                                copyToRealm(
-                                    FamilyPlace().apply {
-                                        placeId = result2.placeId
-                                        name = result2.name
-                                        latitude = result2.lat
-                                        longitude = result2.lon
-                                        canUse = result2.canuse
-                                    }
-                                )
-                            }
-                        }
-                        override fun onFailure(error: String) {
-
-                        }
-                    })
+        familyAPI.getFamilyPlaceInfo(phoneId)?.forEach {
+            val temp = familyAPI.getFamilyPlaceInfoDetail(it.placeId)
+            if (temp != null) {
+                realm.writeBlocking {
+                    FamilyPlace().apply {
+                        placeId = temp.placeId
+                        name = temp.name
+                        latitude = temp.lat
+                        longitude = temp.lon
+                        canUse = it.canuse
+                    }
                 }
             }
-            override fun onFailure(error: String) {
-
-            }
-        })
+        }
     }
 
 
@@ -241,7 +196,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
     private fun fetchDataMapInstantInfo() {
         // 마지막 시간 보다 변경시간이 작을 경우
         // 모두 보내서 반영한다. -> 수정 필요
-
         val oldData = realm.query<MapInstantInfo>().find()
 
         if(oldData!=null){
@@ -257,33 +211,27 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // server 추가 이후 만들어야 함.
         // 위험정보를 모두 가져와서 저장한다.
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-        mapAPI.getAllMapFacility(object : MapAPI.FacilityStateCallback{
-            override fun onSuccess(result: ArrayList<FacilityState>) {
-                result.forEach {
-                    var tempState:String = ""
-                    if(it.buttonType){
-                        tempState = "1"
-                    }else{
-                        tempState = "0"
-                    }
-                    val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
-                    val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    realm.writeBlocking {
-                        copyToRealm(
-                            MapInstantInfo().apply {
-                                state = tempState
-                                content = it.text
-                                time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
-                                latitude = it.lat
-                                longitude = it.lon
-                            }
-                        )
-                    }
-                }
-            }
 
-            override fun onFailure(error: String) {
+        mapAPI.getAllMapFacility()?.forEach {
+            var tempState:String = ""
+            if(it.buttonType){
+                tempState = "1"
+            }else{
+                tempState = "0"
             }
-        })
+            val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
+            val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            realm.writeBlocking {
+                copyToRealm(
+                    MapInstantInfo().apply {
+                        state = tempState
+                        content = it.text
+                        time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
+                        latitude = it.lat
+                        longitude = it.lon
+                    }
+                )
+            }
+        }
     }
 }

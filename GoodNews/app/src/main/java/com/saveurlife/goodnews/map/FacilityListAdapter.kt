@@ -8,7 +8,6 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ItemListFacilityBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.OffMapFacility
-import com.saveurlife.goodnews.sync.SyncService
 
 class FacilityListAdapter(
     private var facilities: List<OffMapFacility>,
@@ -20,22 +19,22 @@ class FacilityListAdapter(
         fun bind(facility: OffMapFacility, preferencesUtil: PreferencesUtil) {
             binding.facilityListName.text = facility.name
             binding.facilityListType.text = facility.type
+            // 여기에 거리 및 업데이트 시간 표시 로직 추가
+            // 거리 binding.facilityDistanceTextView =
 
             val iconRes = when (facility.type) {
                 "대피소" -> R.drawable.ic_shelter
                 "병원" -> R.drawable.ic_hospital
-                "편의점", "마트" -> R.drawable.ic_grocery
+                "식료품" -> R.drawable.ic_grocery
                 "가족" -> R.drawable.ic_family
                 "약속장소" -> R.drawable.ic_meeting_place
-                else -> R.drawable.ic_pin
+                else -> 0
             }
             binding.facilityIconType.setBackgroundResource(iconRes)
 
             // 임시 default 값 -> 마지막 업데이트 시각
-            val lastUpdateTime = preferencesUtil.getLong("SyncTime", 0L)
-            val syncService = SyncService()
-            binding.facilityLastUpdateTime.text =
-                syncService.convertDateLongToString(lastUpdateTime)
+            val lastUpdateTime = preferencesUtil.getLong("SyncTime", 20231015230000)
+            binding.facilityLastUpdateTime.text = lastUpdateTime.toString()
 
             // 사용 가능 여부
             when (facility.canUse) {

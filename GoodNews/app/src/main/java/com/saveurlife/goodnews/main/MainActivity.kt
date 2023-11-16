@@ -49,7 +49,6 @@ import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.LocationTrackingService
 import io.realm.kotlin.Realm
@@ -74,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 //    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private val items: RealmResults<FamilyMemInfo> = realm.query<FamilyMemInfo>().find()
+    private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
@@ -161,7 +160,7 @@ class MainActivity : AppCompatActivity() {
 //            })
 //        }
 
-        //FamilyMemInfo 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
+        //Member 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
         if (items.isEmpty()) {
             val dialog = FamilyAlarmFragment()
             dialog.show(supportFragmentManager, "FamilyAlarmFragment")
@@ -270,6 +269,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isBound) {
+            unbindService(connection)
+        }
+    }
 
     // LiveData 객체를 프래그먼트에서 관찰할 수 있도록 공개 메서드로 제공
 //    fun getDeviceArrayListNameLiveData(): LiveData<List<String>>? {
@@ -489,9 +494,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isBound) {
-            unbindService(connection)
-        }
 
         //위치 정보 저장 중지
         val serviceIntent = Intent(this, LocationTrackingService::class.java)
@@ -509,4 +511,6 @@ private fun NavController.navigateSingleTop(id: Int) {
         val options = builder.build()
         navigate(id, null, options)
     }
+
 }
+

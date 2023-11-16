@@ -24,8 +24,8 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/rounded_background_with_shadow"
             android:padding="20dp"
-            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintTop_toBottomOf="@id/familyTextView">
 
             <TextView
@@ -48,7 +48,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/input_stroke"
-                    android:backgroundTint="@color/background"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -65,7 +64,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text=""
+                        android:text="상태"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@id/meetingNumberFirst"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -86,7 +85,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/input_stroke"
-                    android:backgroundTint="@color/background"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/meetingPlaceFirst">
 
@@ -103,7 +101,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text=""
+                        android:text="상태"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@id/meetingNumberSecond"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -112,7 +110,7 @@
                         android:id="@+id/meetingNameSecond"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="추가하기"
+                        android:text="장소이름"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -124,7 +122,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/input_stroke"
-                    android:backgroundTint="@color/background"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/meetingPlaceSecond">
 
@@ -141,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text=""
+                        android:text="상태"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@id/meetingNumberThird"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -150,7 +147,7 @@
                         android:id="@+id/meetingNameThird"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="추가하기"
+                        android:text="장소이름"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -165,8 +162,8 @@
             style="@style/FragmentSubTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:text="가족 추가"
+            android:layout_marginTop="12dp"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/meetingPlaceWrap" />
 
@@ -175,9 +172,9 @@
             android:layout_width="0dp"
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
+            android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/familyAddTextView">
 
             <EditText
@@ -208,8 +205,8 @@
             android:layout_height="0dp"
             android:layout_marginTop="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintTop_toBottomOf="@id/familyAddGroup" />
 
 
@@ -219,14 +216,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp" />
+            app:layout_constraintGuide_begin="20dp"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVerticalEnd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_end="20dp" />
+            app:layout_constraintGuide_end="20dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

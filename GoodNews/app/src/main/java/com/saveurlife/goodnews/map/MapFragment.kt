@@ -17,20 +17,15 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.ble.BleConnectedAdapter
-import com.saveurlife.goodnews.ble.BleMeshConnectedUser
-import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
-import com.saveurlife.goodnews.sync.SyncService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,11 +49,6 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
@@ -71,11 +61,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
 
-    // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
+    // 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
-
-    // 연결된 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
-    private var previousConnectedUsersLocationOverlay = mutableListOf<ConnectedUserMarkerOverlay>()
 
     // 추가 코드
     private lateinit var categoryRecyclerView: RecyclerView
@@ -84,21 +71,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var listAdapter: FacilityListAdapter
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
-    private val localMapTileArchivePath = "korea_7_13.sqlite"
-    private val serverMapTileArchivePath = "7_15_korea-001.sqlite"
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
-    private lateinit var sharedViewModel: SharedViewModel
+    private val mapTileArchivePath = "korea_7_13.sqlite" // 지도 파일 변경 시 수정1
 
-    // 오프라인 파일 위치
-    private lateinit var file: File
+    //private val mapTileArchivePath = "7_15_korea-001.sqlite"
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     // 타일 provider, 최소 줌 및 해상도 설정
-    val provider: String = "Mapnik"
-
-    // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
+    val provider: String =
+        "Mapnik" // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
     val minZoom: Int = 7
-    val localMaxZoom = 15
-    val serverMaxZoom = 18
+    val maxZoom: Int = 13
+
+    //    val maxZoom: Int = 15
     val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
@@ -110,9 +94,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     val sharedPref = GoodNewsApplication.preferences
     var lastLat = sharedPref.getDouble("lastLat", 37.566535)
     var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
-
-    // 오프라인 지도 다운로드 확인 여부
-    var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
 
 
     override fun onCreateView(
@@ -194,35 +175,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val context = requireContext()
         Configuration.getInstance().load(context, GoodNewsApplication.preferences.preferences)
 
-        // 오프라인 지도 존재 여부 확인 후 sharedPref에 담기
-        file =
-            File(
-                context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                serverMapTileArchivePath
-            )
-
-        if (file.exists()) {
-            sharedPref.setBoolean("downloadedMap", true)
-        } else {
-            sharedPref.setBoolean("downloadedMap", false)
-        }
-
-        var tileSource: XYTileSource
-
-        if (downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
-            tileSource = XYTileSource(
-                provider,
-                minZoom, serverMaxZoom, pixel, ".png",
-                arrayOf("http://127.0.0.1")
-            )
-        } else {
-            tileSource = XYTileSource(
-                provider,
-                minZoom, localMaxZoom, pixel, ".png",
-                arrayOf("http://127.0.0.1")
-            )
-        }
-
+        val tileSource = XYTileSource(
+            provider,
+            minZoom, maxZoom, pixel, ".png",
+            arrayOf("http://127.0.0.1")
+        )
         val simpleReceiver = SimpleRegisterReceiver(context)
 
         try {
@@ -241,6 +198,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
 
         val tilesOverlay = TilesOverlay(mapProvider, context)
+
 
         mapView.apply {
 
@@ -261,7 +219,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
 
             // 중심좌표 및 배율 설정
-            mapView.controller.setZoom(13.0)
+            mapView.controller.setZoom(12.0)
             mapView.controller.setCenter(
                 GeoPoint(lastLat, lastLon)
             )
@@ -305,9 +263,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
             false
         }
-        // 연결된 사용자 정보 확인 위함
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
-        updateConnectedUsersLocation()
 
         // 내 위치로 이동 버튼 클릭했을 때
         binding.findMyLocationButton.setOnClickListener {
@@ -339,7 +294,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             findLatestLocation()
         }
 
-
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
             showEmergencyDialog(currGeoPoint)
@@ -354,7 +308,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        binding.itemMapFacilityWrap.visibility = View.GONE
                         // 하단 시트가 확장된 경우 mapMainContents의 자식들을 비활성화
                         binding.mapMainContents.isEnabled = false
                         bottomSheet.setOnTouchListener { _, _ -> true }
@@ -405,39 +358,55 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     @Throws(IOException::class)
     private fun getMapsFile(context: Context): File {
+        val resourceInputStream =
+            context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
 
-        // 서버에서 저장한 지도 파일
-        if (downloadedMap) {
-            Log.d("지도 출처", "서버에서 다운로드 받은 지도요")
+        // 파일 경로
+        val file = File(context.filesDir, mapTileArchivePath)
 
-            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
-            if (!file.exists()) {
-                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
-
-            }
-            return file
-        } else { // 로컬에 존재하는 지도 파일
-            Log.d("지도 출처", "로컬에 있는 지도요")
-            val resourceInputStream =
-                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
-
-            // 파일 경로
-            val file = File(context.filesDir, localMapTileArchivePath)
-
-            // 파일이 이미 존재하지 않는 경우에만 복사 진행
-            if (!file.exists()) {
-                resourceInputStream.use { input ->
-                    FileOutputStream(file).use { output ->
-                        val buffer = ByteArray(1024)
-                        var length: Int
-                        while (input.read(buffer).also { length = it } != -1) {
-                            output.write(buffer, 0, length)
-                        }
+        // 파일이 이미 존재하지 않는 경우에만 복사 진행
+        if (!file.exists()) {
+            resourceInputStream.use { input ->
+                FileOutputStream(file).use { output ->
+                    val buffer = ByteArray(1024)
+                    var length: Int
+                    while (input.read(buffer).also { length = it } != -1) {
+                        output.write(buffer, 0, length)
                     }
                 }
             }
-            return file
         }
+        return file
+
+
+        // 서버에서 저장한 파일 경로
+//        val file =
+//            File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), mapTileArchivePath)
+//
+//        // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+//        if (!file.exists()) {
+//            throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+//
+////            val resourceInputStream =
+////                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+////              //파일 경로
+////            val file = File(context.filesDir, mapTileArchivePath)
+////
+////            // 파일이 이미 존재하지 않는 경우에만 복사 진행
+////            if (!file.exists()) {
+////                resourceInputStream.use { input ->
+////                    FileOutputStream(file).use { output ->
+////                        val buffer = ByteArray(1024)
+////                        var length: Int
+////                        while (input.read(buffer).also { length = it } != -1) {
+////                            output.write(buffer, 0, length)
+////                        }
+////                    }
+////                }
+////            }
+//
+//        }
+//        return file
     }
 
     // 위치 변경 시 위경도 받아옴
@@ -496,37 +465,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
             setOnClickListener { _, index ->
-                binding.itemMapFacilityWrap.visibility = View.VISIBLE
                 val facility = facilities[index]
-//                Toast.makeText(
-//                    context,
-//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-                binding.facilityNameTextView.text = facility.name
-                binding.facilityTypeTextView.text = facility.type
-                val iconRes = when (facility.type) {
-                    "대피소" -> R.drawable.ic_shelter
-                    "병원" -> R.drawable.ic_hospital
-                    "편의점", "마트" -> R.drawable.ic_grocery
-                    "가족" -> R.drawable.ic_family
-                    "약속장소" -> R.drawable.ic_meeting_place
-                    else -> R.drawable.ic_pin
-                }
-                binding.facilityIconType.setBackgroundResource(iconRes)
-
-                if (facility.canUse) {
-                    binding.useTrueWrap.visibility = View.VISIBLE
-                    binding.useFalseWrap.visibility = View.GONE
-                } else {
-                    binding.useTrueWrap.visibility = View.GONE
-                    binding.useFalseWrap.visibility = View.VISIBLE
-                }
-                val lastConnection = sharedPref.getLong("SyncTime", 0L)
-                val syncService = SyncService()
-                binding.facilityLastUpdateTime.text =
-                    syncService.convertDateLongToString(lastConnection)
-
+                Toast.makeText(
+                    context,
+                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -659,7 +603,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         if (category == FacilityUIType.SHELTER) {
             val subCategory = binding.subCategoryWrap
             subCategory.visibility = View.VISIBLE
-//            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
+            subCategory.check(R.id.radioAll)
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
@@ -694,86 +638,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     )
                 )
                 Log.i("setCenter", "지도 중심 좌표 재 설정")
-                mapView.controller.setZoom(13.0)
                 mapView.invalidate()
             }
         }
     }
-
-
-    private fun updateConnectedUsersLocation() {
-
-        Log.d("updateConnectedUsersLocation", "연결된 이용자 위치 마커 그리기 함수 호출")
-        previousConnectedUsersLocationOverlay.forEach { overlay ->
-            mapView.overlays.remove(overlay)
-        }
-        previousConnectedUsersLocationOverlay.clear()
-        Log.d("updateConnectedUsersLocation", "연결된 이용자의 이전 위치 마커를 삭제했습니다.")
-
-        val userProvider = ConnectedUserProvider(sharedViewModel, viewLifecycleOwner)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.Main) {
-                userProvider.provideConnectedUsers { userList ->
-                    Log.v("livedata 유저 수", "${userList.size}")
-                    // 연결된 사용자의 위치를 지도에 마커로 표시
-                    userList.forEach { user ->
-                        val geoPoint = GeoPoint(user.lat, user.lon)
-                        Log.v("livedata 유저 geoPoint", "$geoPoint")
-                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint) {
-                            showOtherUserInfoDialog(user)
-                        }
-                        mapView.overlays.add(connectedUserMarkerOverlay)
-//                        Log.v("livedata 유저 오버레이", "$connectedUserMarkerOverlay")
-                        // 새 위치를 다시 이전 위치 마커 리스트에 반영
-                        previousConnectedUsersLocationOverlay.add(connectedUserMarkerOverlay)
-//                        Log.v("livedata 유저를 이전 리스트에 담기", "${previousConnectedUsersLocationOverlay.size}")
-                    }
-                    mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
-                    Log.d("livedata 유저 오버레이 반영", "실행했습니다.")
-                }
-            }
-        }
-    }
-
-    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser): BleMeshConnectedUser {
-        Log.d("otherUserClicked", "다른 유저가 클릭되었습니다.")
-        val dialogFragment = OtherUserInfoFragment()
-
-        // 클릭한 연결된 사용자의 정보를 프래그 먼트로 전달
-        val userInfo = Bundle()
-
-        val distance = calculateDistance(lastLat, lastLon, user.lat, user.lon)
-
-        userInfo.putString("userName", user.userName)
-        userInfo.putString("userStatus", user.healthStatus)
-        userInfo.putString("userUpdateTime", user.updateTime)
-        userInfo.putDouble("distance", distance)
-
-        dialogFragment.arguments = userInfo
-
-        dialogFragment.show(childFragmentManager, "OtherUserInfoFragment")
-        return user
-    }
-
-    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        println("두 좌표의 값은 ???? $lat1, $lon1, $lat2, $lon2")
-        val earthRadius = 6371000.0 // 지구 반지름 (미터 단위)
-
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
-        println("위도 경도 차이 : $dLat , $dLon")
-
-        val a =
-            sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(
-                2
-            )
-        println("a의 값은 ?? $a")
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        println("c의 값은 ?? $c")
-        println("리턴 값은 ? ${earthRadius * c}")
-
-        return earthRadius * c
-    }
 }
-
