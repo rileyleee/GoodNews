@@ -30,6 +30,7 @@ import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
+import com.saveurlife.goodnews.sync.SyncService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -353,6 +354,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
                     BottomSheetBehavior.STATE_EXPANDED -> {
+                        binding.itemMapFacilityWrap.visibility = View.GONE
                         // 하단 시트가 확장된 경우 mapMainContents의 자식들을 비활성화
                         binding.mapMainContents.isEnabled = false
                         bottomSheet.setOnTouchListener { _, _ -> true }
@@ -494,16 +496,37 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
             setOnClickListener { _, index ->
+                binding.itemMapFacilityWrap.visibility = View.VISIBLE
                 val facility = facilities[index]
-                Toast.makeText(
-                    context,
-                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                val facName = facility.name
-                val facType = facility.type
-                val facCanUse = facility.canUse
+//                Toast.makeText(
+//                    context,
+//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+                binding.facilityNameTextView.text = facility.name
+                binding.facilityTypeTextView.text = facility.type
+                val iconRes = when (facility.type) {
+                    "대피소" -> R.drawable.ic_shelter
+                    "병원" -> R.drawable.ic_hospital
+                    "편의점", "마트" -> R.drawable.ic_grocery
+                    "가족" -> R.drawable.ic_family
+                    "약속장소" -> R.drawable.ic_meeting_place
+                    else -> R.drawable.ic_pin
+                }
+                binding.facilityIconType.setBackgroundResource(iconRes)
+
+                if (facility.canUse) {
+                    binding.useTrueWrap.visibility = View.VISIBLE
+                    binding.useFalseWrap.visibility = View.GONE
+                } else {
+                    binding.useTrueWrap.visibility = View.GONE
+                    binding.useFalseWrap.visibility = View.VISIBLE
+                }
                 val lastConnection = sharedPref.getLong("SyncTime", 0L)
+                val syncService = SyncService()
+                binding.facilityLastUpdateTime.text =
+                    syncService.convertDateLongToString(lastConnection)
+
             }
         }
 
@@ -697,7 +720,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     userList.forEach { user ->
                         val geoPoint = GeoPoint(user.lat, user.lon)
                         Log.v("livedata 유저 geoPoint", "$geoPoint")
-                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint){
+                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint) {
                             showOtherUserInfoDialog(user)
                         }
                         mapView.overlays.add(connectedUserMarkerOverlay)
@@ -713,16 +736,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
     }
 
-    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser) {
-        Log.d("otherUserClicked","다른 유저가 클릭되었습니다.")
+    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser): BleMeshConnectedUser {
+        Log.d("otherUserClicked", "다른 유저가 클릭되었습니다.")
         val dialogFragment = OtherUserInfoFragment()
 
         // 클릭한 연결된 사용자의 정보를 프래그 먼트로 전달
         val userInfo = Bundle()
 
-        val distance = calculateDistance(lastLat,lastLon, user.lat, user.lon)
+        val distance = calculateDistance(lastLat, lastLon, user.lat, user.lon)
 
-        userInfo.putString("userName",user.userName)
+        userInfo.putString("userName", user.userName)
         userInfo.putString("userStatus", user.healthStatus)
         userInfo.putString("userUpdateTime", user.updateTime)
         userInfo.putDouble("distance", distance)
@@ -730,7 +753,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         dialogFragment.arguments = userInfo
 
         dialogFragment.show(childFragmentManager, "OtherUserInfoFragment")
-
+        return user
     }
 
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
@@ -741,11 +764,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val dLon = Math.toRadians(lon2 - lon1)
         println("위도 경도 차이 : $dLat , $dLon")
 
-        val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
+        val a =
+            sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(
+                2
+            )
         println("a의 값은 ?? $a")
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         println("c의 값은 ?? $c")
-        println("리턴 값은 ? ${earthRadius*c}")
+        println("리턴 값은 ? ${earthRadius * c}")
 
         return earthRadius * c
     }
