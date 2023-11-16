@@ -34,6 +34,7 @@ class BackgroundLocationProvider(private val context: Context) {
     private val userDeviceInfoService = UserDeviceInfoService(context)
     private val memberId = userDeviceInfoService.deviceId
     private var currentTime by Delegates.notNull<Long>()
+    private val emergencyAlarmProvider = EmergencyAlarmProvider()
 
 
     interface LocationUpdateListener {
@@ -130,7 +131,8 @@ class BackgroundLocationProvider(private val context: Context) {
                     currentTime = System.currentTimeMillis()
                     currentTime += TimeUnit.HOURS.toMillis(9)
 
-                    val latestUpdate = RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
+                    val latestUpdate =
+                        RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
                     latestMember?.let { member ->
                         member.latitude = location.latitude
                         member.longitude = location.longitude
@@ -153,6 +155,9 @@ class BackgroundLocationProvider(private val context: Context) {
 
         // 로그에 위치 정보 기록
         Log.d("LocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
+
+        // 사용자의 위치에 따른 위험 정보 근접 알림
+        emergencyAlarmProvider.getAlarmInfo()
 
         // 위치 정보를 mapfragment에 전달하여 위치 표시 되도록
         location?.let { location ->

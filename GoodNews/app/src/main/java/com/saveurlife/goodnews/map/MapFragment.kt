@@ -24,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.ble.BleConnectedAdapter
+import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
@@ -51,6 +53,11 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
@@ -253,7 +260,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
 
             // 중심좌표 및 배율 설정
-            mapView.controller.setZoom(15.0)
+            mapView.controller.setZoom(13.0)
             mapView.controller.setCenter(
                 GeoPoint(lastLat, lastLon)
             )
@@ -685,18 +692,57 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     userList.forEach { user ->
                         val geoPoint = GeoPoint(user.lat, user.lon)
                         Log.v("livedata 유저 geoPoint", "$geoPoint")
-                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint)
+                        val connectedUserMarkerOverlay = ConnectedUserMarkerOverlay(geoPoint){
+                            showOtherUserInfoDialog(user)
+                        }
                         mapView.overlays.add(connectedUserMarkerOverlay)
-                        Log.v("livedata 유저 오버레이", "$connectedUserMarkerOverlay")
+//                        Log.v("livedata 유저 오버레이", "$connectedUserMarkerOverlay")
                         // 새 위치를 다시 이전 위치 마커 리스트에 반영
                         previousConnectedUsersLocationOverlay.add(connectedUserMarkerOverlay)
-                        Log.v("livedata 유저를 이전 리스트에 담기", "${previousConnectedUsersLocationOverlay.size}")
+//                        Log.v("livedata 유저를 이전 리스트에 담기", "${previousConnectedUsersLocationOverlay.size}")
                     }
                     mapView.invalidate() // 지도 다시 그려서 오버레이 보이게 함
                     Log.d("livedata 유저 오버레이 반영", "실행했습니다.")
                 }
             }
         }
+    }
+
+    private fun showOtherUserInfoDialog(user: BleMeshConnectedUser) {
+        Log.d("otherUserClicked","다른 유저가 클릭되었습니다.")
+        val dialogFragment = OtherUserInfoFragment()
+
+        // 클릭한 연결된 사용자의 정보를 프래그 먼트로 전달
+        val userInfo = Bundle()
+
+        val distance = calculateDistance(lastLat,lastLon, user.lat, user.lon)
+
+        userInfo.putString("userName",user.userName)
+        userInfo.putString("userStatus", user.healthStatus)
+        userInfo.putString("userUpdateTime", user.updateTime)
+        userInfo.putDouble("distance", distance)
+
+        dialogFragment.arguments = userInfo
+
+        dialogFragment.show(childFragmentManager, "OtherUserInfoFragment")
+
+    }
+
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        println("두 좌표의 값은 ???? $lat1, $lon1, $lat2, $lon2")
+        val earthRadius = 6371000.0 // 지구 반지름 (미터 단위)
+
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        println("위도 경도 차이 : $dLat , $dLon")
+
+        val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
+        println("a의 값은 ?? $a")
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        println("c의 값은 ?? $c")
+        println("리턴 값은 ? ${earthRadius*c}")
+
+        return earthRadius * c
     }
 }
 
