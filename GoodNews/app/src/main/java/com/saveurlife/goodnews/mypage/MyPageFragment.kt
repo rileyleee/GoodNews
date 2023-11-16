@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.mypage
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -27,6 +28,7 @@ import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
+import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
@@ -50,7 +52,7 @@ class MyPageFragment : Fragment() {
 //    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private val items: RealmResults<Member> = realm.query<Member>().find()
+    private var items: RealmResults<Member> = realm.query<Member>().find()
 
     //Realm에서 정보 가져오기
     private var realmName: String? = null
@@ -58,30 +60,34 @@ class MyPageFragment : Fragment() {
     private var realmBirth: String? = null
     private var realmGender: String? = null
     private var realmBloodType: String? = null
+    // 저장 시킬 변수
+    private lateinit var sendName:String
+    private lateinit var sendGender:String
+    private lateinit var sendBirthdate:String
+    private lateinit var sendBloodType:String
+    private lateinit var sendAddInfo:String
+    private var sendLat by Delegates.notNull<Double>()
+    private var sendLon by Delegates.notNull<Double>()
+
+
     private var realmaddInfo: String? = null
-    
 
-    companion object{
-        // 저장 시킬 변수
-        private lateinit var sendName:String
-        private lateinit var sendGender:String
-        private lateinit var sendBirthdate:String
-        private lateinit var sendBloodType:String
-        private lateinit var sendAddInfo:String
-        private var sendLat by Delegates.notNull<Double>()
-        private var sendLon by Delegates.notNull<Double>()
+    private lateinit var userDeviceInfoService : UserDeviceInfoService
+    private lateinit var memberId :String
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // 여기서 userDeviceInfoService를 초기화
+        preferencesUtil = PreferencesUtil(requireContext())
+        userDeviceInfoService = UserDeviceInfoService(context)
+        memberId = userDeviceInfoService.deviceId
     }
-
-    private val userDeviceInfoService = UserDeviceInfoService(requireContext())
-    private val memberId = userDeviceInfoService.deviceId
-    
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
-        preferencesUtil = PreferencesUtil(requireContext())
 
         //Realm에서 내 정보 가져오기
         items.forEach { member ->
@@ -94,7 +100,7 @@ class MyPageFragment : Fragment() {
         }
             sendName = realmName.toString()
             sendGender =realmGender.toString()
-            sendBirthdate = realmName.toString()
+            sendBirthdate = realmBirth.toString()
             sendBloodType = realmBloodType.toString()
             sendAddInfo = realmaddInfo.toString()
 
@@ -181,6 +187,23 @@ class MyPageFragment : Fragment() {
 
     //myPageFragment에 정보 불러오기
     private fun initData() {
+
+        items = realm.query<Member>().find()
+        items.forEach { member ->
+            realmName = member.name
+            realmPhone = member.phone
+            realmBirth = member.birthDate
+            realmGender = member.gender
+            realmBloodType = member.bloodType
+            realmaddInfo = member.addInfo
+        }
+        sendName = realmName.toString()
+        sendGender =realmGender.toString()
+        sendBirthdate = realmBirth.toString()
+        sendBloodType = realmBloodType.toString()
+        sendAddInfo = realmaddInfo.toString()
+
+
         binding.name.text = realmName
         binding.phoneNumber.text = realmPhone.toString()
 
@@ -303,11 +326,15 @@ class MyPageFragment : Fragment() {
             }
             // 여기서 보내야 된다. 인터넷 연결 시..
             val deviceStateService = DeviceStateService()
+            val syncService = SyncService()
+            preferencesUtil.setString("age", "만 ${myAge}세")
             if(deviceStateService.isNetworkAvailable(requireContext())){
                 val memberAPI = MemberAPI()
-                memberAPI.updateMemberInfo(memberId, sendName, sendGender, sendBirthdate,
+                memberAPI.updateMemberInfo(memberId+"save", sendName, sendGender, syncService.convertDateStringToNumStr(sendBirthdate),
                     sendBloodType, sendAddInfo, sendLat, sendLon)
             }
+            // 새로 넣는다.
+            initData()
         }
     }
 
@@ -426,7 +453,7 @@ class MyPageFragment : Fragment() {
                 //만 나이 계산
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                 myAge = currentYear - (selectedYear?.toInt() ?: 0)
-                preferencesUtil.setString("age", "만 ${myAge}세")
+//                preferencesUtil.setString("age", "만 ${myAge}세")
             }
         }
 
@@ -543,6 +570,7 @@ class MyPageFragment : Fragment() {
 //                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
 //                realmBloodType = "$selectedRh $selectedBlood"
 //            }
+            realmBloodType = "$selectedRh $selectedBlood"
             sendBloodType = "$selectedRh $selectedBlood"
             bloodDialog.dismiss()
         }
