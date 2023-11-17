@@ -83,11 +83,10 @@ class MapAPI {
     }
 
     // 지도 시설 상태 조회
-    fun getAllMapFacility(): ArrayList<FacilityState>? {
+    fun getAllMapFacility(callback: FacilityStateCallback) {
         // request
         val call = mapService.getAllMapFacility()
 
-        var resp : ArrayList<FacilityState>? = null
         // response
         call.enqueue(object : Callback<ResponseAllFacilityState> {
             override fun onResponse(call: Call<ResponseAllFacilityState>, response: Response<ResponseAllFacilityState>) {
@@ -99,7 +98,7 @@ class MapAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        resp = data
+
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -107,7 +106,7 @@ class MapAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -135,13 +134,12 @@ class MapAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
     }
 
     // 기간 이후 시설 상태 조회
     // 주의 사항!!!!!
     // "2023-11-12 03:12:02" 이런 형태로 보내셔야 합니다.
-    fun getDurationFacility(date: String){
+    fun getDurationFacility(date: String, callback: FacilityDurationCallback){
         val data = RequestPlaceDate(date)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
@@ -166,7 +164,7 @@ class MapAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -196,5 +194,16 @@ class MapAPI {
         })
     }
 
+    interface FacilityDurationCallback {
+        fun onSuccess(result: ArrayList<DurationFacilityState>)
+        fun onFailure(error:String)
+    }
+
+    interface FacilityStateCallback {
+        fun onSuccess(result: ArrayList<FacilityState>)
+        fun onFailure(error:String)
+    }
+
 
 }
+

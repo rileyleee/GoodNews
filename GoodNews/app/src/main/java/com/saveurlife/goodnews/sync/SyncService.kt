@@ -40,7 +40,7 @@ class SyncService {
     // ex) "2023-11-12 03:12:02"
 
     fun convertDateLongToString(oldTime: Long): String {
-        val dateFormat = "yyyy-MM-dd HH:mm:ss"
+        val dateFormat = "yyyy-MM-ddTHH:mm:ss"
 
         return convertTimestampToString(oldTime, dateFormat)
     }
