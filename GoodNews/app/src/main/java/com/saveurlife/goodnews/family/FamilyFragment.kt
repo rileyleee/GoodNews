@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,7 +18,9 @@ import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.MemberAPI
+import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyBinding
+import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.models.FamilyPlace
 import io.realm.kotlin.Realm
@@ -40,38 +43,12 @@ class FamilyFragment : Fragment() {
     companion object{
         lateinit var familyEditText:TextView
         lateinit var familyListAdapter: FamilyListAdapter
-        var numToStatus:Map<Int, Status> = mapOf(
-        0 to Status.HEALTHY,
-        1 to Status.INJURED,
-        2 to Status.DECEASED,
-        3 to Status.NOT_SHOWN
-        )
+        lateinit var numToStatus:Map<Int, Status>
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         lateinit var familyAPI: FamilyAPI
         lateinit var memberAPI: MemberAPI
         lateinit var memberId:String
 //        lateinit var context1: Context
-    }
-//    private lateinit var workManager:WorkManager
-
-    override fun onResume() {
-        super.onResume()
-//        workManager = WorkManager.getInstance(requireContext())
-//
-//        // 조건 설정 - 인터넷 연결 시에만 실행
-//        val constraints = Constraints.Builder()
-//            .setRequiredNetworkType(NetworkType.CONNECTED)
-//            .build()
-//
-//        // request 생성
-//        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
-//            .setConstraints(constraints)
-//            .build()
-//
-//        // 실행
-//        workManager.enqueue(updateRequest)
-//        familyListAdapter = FamilyListAdapter()
-//        familyListAdapter.addList()
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,15 +56,19 @@ class FamilyFragment : Fragment() {
     ): View? {
         binding = FragmentFamilyBinding.inflate(inflater, container, false)
         deviceStateService = DeviceStateService()
+        familyListAdapter = FamilyListAdapter(requireContext())
         userDeviceInfoService = UserDeviceInfoService(requireContext())
         memberId = userDeviceInfoService.deviceId
         familyEditText = binding.familyEditText
         familyAPI = FamilyAPI()
         memberAPI = MemberAPI()
 //        context1 = requireContext()
-
-
-
+        numToStatus = mapOf(
+            0 to Status.HEALTHY,
+            1 to Status.INJURED,
+            2 to Status.DECEASED,
+            3 to Status.NOT_SHOWN
+        )
 
         return binding.root
     }
@@ -114,6 +95,7 @@ class FamilyFragment : Fragment() {
         familyListRecyclerView.adapter = familyListAdapter
 
         familyListAdapter.addList()
+
     }
 
     // Realm에서 데이터 로드 및 UI 업데이트

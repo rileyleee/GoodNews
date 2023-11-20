@@ -138,12 +138,13 @@ class FamilyAPI {
     }
 
     // 가족 신청 수락
-    fun updateRegistFamily(memberId:String, refuse:Boolean){
+    fun updateRegistFamily(familyMemberId:Int, refuse:Boolean){
         // request
-        val data = RequestMemberId(memberId, refuse)
+        val data = RequestAccept(familyMemberId, refuse)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
+        Log.d("test", data.toString())
         val call = familyService.updateRegistFamily(requestBody)
         call.enqueue(object : Callback<ResponseFamilyUpdate> {
             override fun onResponse(call: Call<ResponseFamilyUpdate>, response: Response<ResponseFamilyUpdate>) {
@@ -193,7 +194,7 @@ class FamilyAPI {
     }
 
     // 가족 모임 장소 등록
-    fun registFamilyPlace(memberId:String, name:String, lat:Double, lon:Double){
+    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, param: Any){
         // request
         val data = RequestPlaceDetailInfo(memberId, name, lat, lon)
         val json = gson.toJson(data)
@@ -248,13 +249,13 @@ class FamilyAPI {
     }
 
     // 가족 신청 요청
-    // familyid 전화번호임!!!!
-    fun registFamily(memberId:String, familyId:String){
+    fun registFamily(memberId:String, otherPhone:String, callback: FamilyRegistrationCallback){
         // request
-        val data = RequestFamilyRegist(memberId, familyId)
+        val data = RequestFamilyRegist(memberId, otherPhone)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
+        Log.d("test", data.toString())
         val call = familyService.registFamily(requestBody)
         call.enqueue(object : Callback<ResponseFamilyRegist> {
             override fun onResponse(call: Call<ResponseFamilyRegist>, response: Response<ResponseFamilyRegist>) {
@@ -273,9 +274,10 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data.familyId)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
+                        callback.onFailure("No data received")
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
@@ -289,12 +291,14 @@ class FamilyAPI {
                             val message = errorJson.getString("message")
 
                             Log.d("API ERROR", "Error Code: $code, Message: $message")
-
+                            callback.onFailure(message)
                         } catch (e: JSONException) {
                             Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                            callback.onFailure("Error parsing JSON")
                         }
                     } else {
                         Log.d("API ERROR", "Error body is null")
+                        callback.onFailure("Error body is null")
                     }
                 }
             }
@@ -305,12 +309,11 @@ class FamilyAPI {
     }
 
     // 가족 모임장소 상세 조회
-    fun getFamilyPlaceInfoDetail(placeId: Int): PlaceDetailInfo? {
+    fun getFamilyPlaceInfoDetail(placeId: Int, callback: FamilyPlaceDetailCallback){
         // request
         val data = RequestPlaceId(placeId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
-        var resp:PlaceDetailInfo? = null
 
         val call = familyService.getFamilyPlaceInfoDetail(requestBody)
         call.enqueue(object : Callback<ResponsePlaceDetail> {
@@ -323,7 +326,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        resp = data
+
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -331,7 +334,7 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -360,22 +363,24 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
     }
 
-    // 가족 구성원 조회
-    fun getFamilyMemberInfo(memberId: String): ArrayList<FamilyInfo>? {
+    interface FamilyPlaceDetailCallback {
+        fun onSuccess(result: PlaceDetailInfo)
+        fun onFailure(error:String)
+    }
+
+    // 가족 신청 요청 조회
+    fun getRegistFamily(memberId: String, callback: WaitListCallback) {
         // request
-        // refuse는 필요없어서 아무값
-        val data = RequestMemberId(memberId, true)
+        val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
+        var resp: ArrayList<WaitInfo>? = null
 
-        var resp: ArrayList<FamilyInfo>? = null
-
-        val call = familyService.getFamilyMemberInfo(requestBody)
-        call.enqueue(object : Callback<ResponseMemberInfo> {
-            override fun onResponse(call: Call<ResponseMemberInfo>, response: Response<ResponseMemberInfo>) {
+        val call = familyService.getRegistFamily(requestBody)
+        call.enqueue(object : Callback<ResponseAccept> {
+            override fun onResponse(call: Call<ResponseAccept>, response: Response<ResponseAccept>) {
                 if(response.isSuccessful){
                     val responseBody = response.body()
 
@@ -392,7 +397,69 @@ class FamilyAPI {
 
 
 
+                        callback.onSuccess(data)
+                    }else{
+                        Log.d("API ERROR", "값이 안왔음.")
+                        callback.onFailure("값안옴")
+                    }
+                } else {
+                    Log.d("API ERROR", response.toString())
 
+                    val errorBodyString = response.errorBody()?.string()
+
+                    if (errorBodyString != null) {
+                        try {
+                            val errorJson = JSONObject(errorBodyString)
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
+
+                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+
+
+                        } catch (e: JSONException) {
+                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                            callback.onFailure(e.toString())
+                        }
+                    } else {
+                        Log.d("API ERROR", "Error body is null")
+
+                    }
+                }
+            }
+            override fun onFailure(call: Call<ResponseAccept>, t: Throwable) {
+                Log.d("API ERROR", t.toString())
+                callback.onFailure(t.toString())
+            }
+        })
+    }
+
+    // 가족 구성원 조회
+    fun getFamilyMemberInfo(memberId: String, callback:FamilyCallback ) {
+        // request
+        // refuse는 필요없어서 아무값
+        val data = RequestMemberId(memberId)
+        val json = gson.toJson(data)
+        val requestBody = json.toRequestBody(mediaType)
+
+        val call = familyService.getFamilyMemberInfo(requestBody)
+        call.enqueue(object : Callback<ResponseMemberInfo> {
+            override fun onResponse(call: Call<ResponseMemberInfo>, response: Response<ResponseMemberInfo>) {
+                if(response.isSuccessful){
+                    val responseBody = response.body()
+
+                    Log.d("API RESP", responseBody.toString())
+
+                    // 받아온 데이터에 대한 응답을 처리
+                    if(responseBody!=null){
+                        val data = responseBody.data
+                        // 원하는 작업을 여기에 추가해 주세요.
+
+
+
+
+
+
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -421,18 +488,15 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
     }
 
     //가족 모임장소 조회
-    fun getFamilyPlaceInfo(memberId:String): ArrayList<PlaceInfo>? {
+    fun getFamilyPlaceInfo(memberId:String, callback:FamilyPlaceCallback){
         // request
         // refuse는 쓸모 없어서 아무값
-        val data = RequestMemberId(memberId, true)
+        val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
-
-        var resp:ArrayList<PlaceInfo>? = null
 
         val call = familyService.getFamilyPlaceInfo(requestBody)
         call.enqueue(object : Callback<ResponsePlaceInfo> {
@@ -445,7 +509,7 @@ class FamilyAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        resp = data
+
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
@@ -453,7 +517,7 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -482,7 +546,24 @@ class FamilyAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-        return resp
+    }
+    interface FamilyRegistrationCallback {
+        fun onSuccess(result: String)
+        fun onFailure(error: String)
+    }
+
+    interface WaitListCallback{
+        fun onSuccess(result: ArrayList<WaitInfo>)
+        fun onFailure(error:String)
+    }
+
+    interface FamilyCallback{
+        fun onSuccess(result: ArrayList<FamilyInfo>)
+        fun onFailure(error:String)
+    }
+    interface FamilyPlaceCallback {
+        fun onSuccess(result: ArrayList<PlaceInfo>)
+        fun onFailure(error:String)
     }
 
 }

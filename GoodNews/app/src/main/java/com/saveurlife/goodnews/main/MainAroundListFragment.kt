@@ -1,10 +1,7 @@
 package com.saveurlife.goodnews.main
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,14 +11,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.ble.BleConnectedAdapter
+import com.saveurlife.goodnews.ble.adapter.BleConnectedAdapter
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.chatting.ChattingDetailActivity
 import com.saveurlife.goodnews.common.SharedViewModel
-import com.saveurlife.goodnews.databinding.FragmentFamilyAlarmBinding
 import com.saveurlife.goodnews.databinding.FragmentMainAroundListBinding
 
 

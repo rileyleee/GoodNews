@@ -8,15 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.viewModels
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.ble.BleConnectedAdapter
+import com.saveurlife.goodnews.ble.adapter.BleConnectedAdapter
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
-import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
 import com.saveurlife.goodnews.databinding.ActivityChooseGroupMemberBinding
 
 class ChooseGroupMemberActivity : AppCompatActivity() {
