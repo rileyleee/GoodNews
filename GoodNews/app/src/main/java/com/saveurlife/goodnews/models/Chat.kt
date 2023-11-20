@@ -6,9 +6,13 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 
 class Chat() : RealmObject {
     @PrimaryKey
-    var id: Long = 0
+    var id: String = ""
     var name: String = ""
-    var messageList: RealmList<ChatMessage>? = null
+
+    constructor(id: String, name: String) : this() {
+        this.id = id
+        this.name = name
+    }
 }
 
 // 객체의 초기화를 생성자에 의존하지 않고

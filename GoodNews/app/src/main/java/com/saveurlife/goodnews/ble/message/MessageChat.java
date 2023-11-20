@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.ble.message;
 
 public class MessageChat extends MessageBase{
     private String receiverId;
+    private String receiverName;
     private String content;
 
     public String getReceiverId() {
@@ -9,6 +10,12 @@ public class MessageChat extends MessageBase{
     }
     public void setReceiverId(String receiverId) {
         this.receiverId = receiverId;
+    }
+    public String getReceiverName() {
+        return receiverName;
+    }
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
     }
     public String getContent() {
         return content;
@@ -19,6 +26,6 @@ public class MessageChat extends MessageBase{
 
     @Override
     public String toString() {
-        return super.toString() + '/' + receiverId + '/' + content;
+        return super.toString() + '/' + receiverId + '/' + receiverName + '/' + content;
     }
 }

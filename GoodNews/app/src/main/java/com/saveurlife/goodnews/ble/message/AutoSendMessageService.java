@@ -7,7 +7,6 @@ import static com.saveurlife.goodnews.ble.Common.SERVICE_UUID;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -27,6 +26,8 @@ public class AutoSendMessageService extends Service {
     private HandlerThread handlerThread;
     private Handler handler;
 
+    private String myName;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -38,7 +39,7 @@ public class AutoSendMessageService extends Service {
 
         locationService = new LocationService(this);
         userDeviceInfoService = new UserDeviceInfoService(this);
-        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil);
+        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
         handlerThread = new HandlerThread("MessageServiceHandlerThread");
         handlerThread.start();

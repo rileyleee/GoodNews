@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/card_component"
+    android:backgroundTint="@color/sub">
+
+    <TextView
+        android:id="@+id/custom_map_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위험 정보 공유"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/custom_map_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위험 정보 공유 내용"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/custom_map_title"
+        app:layout_constraintBottom_toBottomOf="@id/custom_map_title"
+        />
+
+    <TextView
+        android:id="@+id/custom_map_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="content"
+        android:textSize="16sp"
+        android:textColor="@color/font_color"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="@id/custom_map_title"
+        app:layout_constraintTop_toBottomOf="@id/custom_map_content"
+        android:paddingBottom="40dp"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

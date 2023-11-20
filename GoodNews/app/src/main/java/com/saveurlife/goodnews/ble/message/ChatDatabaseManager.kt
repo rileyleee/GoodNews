@@ -4,17 +4,14 @@ import android.util.Log
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.types.RealmList
-import androidx.lifecycle.MutableLiveData
-import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.models.ChatMessage
-import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ChatDatabaseManager {
+
     fun createChatMessage(chatRoomId: String, chatMessage: ChatMessage, onSuccess: () -> Unit) {
         Log.i("createChatMessage", "createChatMessage: ")
         CoroutineScope(Dispatchers.IO).launch {
@@ -34,25 +31,28 @@ class ChatDatabaseManager {
         }
     }
 
-//    fun getChatMessagesForChatRoom(chatRoomId: String, onSuccess: (List<ChatMessage>) -> Unit) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val config = RealmConfiguration.Builder(schema = setOf(ChatMessage::class)).build()
-//            val realm = Realm.open(config)
-//
-//            try {
-//                // Query the database for messages belonging to the specified chat room.
-//                val messages = realm.query<ChatMessage>("chatRoomId = $0", chatRoomId)
-//                    .find()
-//                    .toList() // Convert results to a List.
-//
-//                withContext(Dispatchers.Main) {
-//                    onSuccess(messages)
-//                }
-//            } finally {
-//                realm.close()
-//            }
-//        }
-//    }
+    fun getAllChatRoomIds(onSuccess: (List<String>) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val config = RealmConfiguration.Builder(schema = setOf(ChatMessage::class)).build()
+            val realm = Realm.open(config)
+
+            try {
+                // 모든 메시지를 가져와서 chatRoomId를 추출
+                val chatRoomIds = realm.query<ChatMessage>()
+                    .distinct("chatRoomId")
+                    .find()
+                    .map { it.chatRoomId }
+                    .distinct()
+
+                withContext(Dispatchers.Main) {
+                    onSuccess(chatRoomIds)
+                }
+            } finally {
+                realm.close()
+            }
+        }
+    }
+
 
     fun getChatMessagesForChatRoom(chatRoomId: String, onSuccess: (List<ChatMessage>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -69,10 +69,12 @@ class ChatDatabaseManager {
                     ChatMessage(
                         id = chatMessage.id,
                         chatRoomId = chatMessage.chatRoomId,
+                        chatRoomName = chatMessage.chatRoomName,
                         senderId = chatMessage.senderId,
                         senderName = chatMessage.senderName,
                         content = chatMessage.content,
-                        time = chatMessage.time
+                        time = chatMessage.time,
+                        isRead = chatMessage.isRead
                     )
                 }
 
@@ -85,4 +87,31 @@ class ChatDatabaseManager {
         }
     }
 
+
+
+    fun updateIsReadStatus(chatRoomId: String, onSuccess: () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val config = RealmConfiguration.Builder(schema = setOf(ChatMessage::class)).build()
+            val realm = Realm.open(config)
+
+            try {
+                // 주어진 chatRoomId와 일치하는 모든 메시지의 isRead 값을 true로 업데이트
+                realm.write {
+                    val messagesToUpdate = realm.query<ChatMessage>("chatRoomId = $0", chatRoomId)
+                        .find()
+                        .toList()
+
+                    messagesToUpdate.forEach { message ->
+                        message.isRead = true
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            } finally {
+                realm.close()
+            }
+        }
+    }
 }
