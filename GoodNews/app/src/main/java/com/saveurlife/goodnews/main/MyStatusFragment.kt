@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMyStatusBinding
+import com.saveurlife.goodnews.sync.SyncService
 
 class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener {
     private lateinit var binding: FragmentMyStatusBinding
@@ -15,6 +16,8 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.userNameTextView.text = preferencesUtil.getString("name", "이름 없음")
 
         binding.layer.setOnClickListener {
             val dialogFragment = MyStatusDialogFragment()
@@ -44,6 +47,16 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
 
         val savedStatus = preferencesUtil.getString("status", "unknown")
         onStatusSelected(savedStatus)
+
+        // 마지막 업데이트 시각
+        val lastUpdateTime = preferencesUtil.getLong("SyncTime", 0L)
+        val syncService = SyncService()
+        binding.myUpdateTime.text =
+            syncService.convertDateLongToString(lastUpdateTime)
+
+        // 이름 가져오기
+        val userName = preferencesUtil.getString("name", "이름")
+        binding.userNameTextView.text = userName
 
         return binding.root
     }

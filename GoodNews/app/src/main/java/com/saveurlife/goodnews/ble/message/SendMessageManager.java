@@ -15,30 +15,29 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 public class SendMessageManager {
+    private PreferencesUtil preferencesUtil;
     private UUID serviceUUID;
     private UUID characteristicUUID;
     private UserDeviceInfoService userDeviceInfoService;
     private LocationService locationService;
     private String myId;
-    private String myName = "김나연";
+    private String myName;
 
     private int sendSize = 5;
 
-    private PreferencesUtil preferencesUtil;
 
     public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
-                              UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil) {
+                              UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;
         this.userDeviceInfoService = userDeviceInfoService;
         this.locationService = locationService;
         this.myId = userDeviceInfoService.getDeviceId();
         this.preferencesUtil = preferencesUtil; // preferencesUtil 값 설정
-
+        this.myName = myName;
     }
 
 
@@ -51,7 +50,7 @@ public class SendMessageManager {
 
         String[] location = locationService.getLastKnownLocation().split("/");
 
-        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
+        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]), false);
 
         newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
         for (Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()) {
@@ -163,7 +162,7 @@ public class SendMessageManager {
         }
     }
 
-    public String sendMessageChat(Map<String, BluetoothGatt> deviceGattMap, String receiverId, String content) {
+    public String sendMessageChat(Map<String, BluetoothGatt> deviceGattMap, String receiverId, String receiverName, String content) {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
 //        SimpleDateFormat sdf = new SimpleDateFormat("a hh:mm", Locale.getDefault());
@@ -178,6 +177,7 @@ public class SendMessageManager {
         messageChat.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageChat.setLocation(locationService.getLastKnownLocation());
         messageChat.setReceiverId(receiverId);
+        messageChat.setReceiverName(receiverName);
         messageChat.setContent(content);
 
         String message = messageChat.toString();
@@ -244,7 +244,7 @@ public class SendMessageManager {
         for (BluetoothGatt gatt : deviceGattMap.values()) {
             // 여기서 자기 꺼 빼고 보내게
             Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap=new HashMap<>();
-            BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
+            BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]), false);
             newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
 
             for(Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()){

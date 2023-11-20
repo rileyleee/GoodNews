@@ -69,19 +69,15 @@ class MainAroundListFragment : Fragment() {
         sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(viewLifecycleOwner, Observer { connectedDevicesMap ->
             // connectedDevicesMap에서 필요한 데이터 추출
             val users = connectedDevicesMap.flatMap { it.value.values }.toList()
+            println("$users 여기는 어떨까??")
             val adapter = BleConnectedAdapter(users)
             binding.recyclerViewMainAroundList.adapter = adapter
         })
 
-        //데이터 추가
-        val bleMeshConnectedUser = listOf(
-            BleMeshConnectedUser("1", "이름1", "2023", "1", 38.000, 127.00),
-            // ... 추가 객체들
-        )
 
         val recyclerView = binding.recyclerViewMainAroundList
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = BleConnectedAdapter(bleMeshConnectedUser)
+//        recyclerView.adapter = BleConnectedAdapter(bleMeshConnectedUser)
 
 
         //채팅으로 넘어가기
@@ -95,6 +91,8 @@ class MainAroundListFragment : Fragment() {
                         println("user가 뭔지 아닝 ????? $user")
                         val intent = Intent(context, ChattingDetailActivity::class.java).apply {
                             putExtra("chattingUser", user)
+                            println("$user user의 값음 무엇일까용?")
+                            putExtra("page",1)
                         }
                         // ChattingDetailActivity 시작
                         startActivity(intent)

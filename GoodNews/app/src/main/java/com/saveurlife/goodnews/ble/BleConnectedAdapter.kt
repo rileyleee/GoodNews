@@ -46,12 +46,8 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
             // itemView에서 뷰 요소에 접근하여 데이터 설정
             binding.aroundName.text = user.userName
             updateHealthStatusBackground(user.healthStatus)
-//            var currentLat = 0.0
-//            var currentLon = 0.0
             var currentLat = 36.355015 //연수원 입구
             var currentLon = 127.299853
-//            var currentLat = 36.36190327
-//            var currentLon = 127.34528927
             val distance = calculateDistance(currentLat, currentLon, user.lat, user.lon)
             binding.aroundBetween.text = "약 ${distance.toInt()}m"
         }
@@ -100,7 +96,5 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
 //            distance = 2 * radius * asin(squareRoot)
 //            return distance
 //        }
-
     }
-
 }

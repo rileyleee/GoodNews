@@ -9,52 +9,40 @@
     android:backgroundTint="@color/sub">
 
     <ImageView
-        android:id="@+id/toastLogo"
-        android:layout_width="50dp"
-        android:layout_height="30dp"
+        android:id="@+id/toast_help_img"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/good_news_logo"
+        android:layout_marginTop="15dp"
+        android:src="@drawable/help_alert"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
+        android:id="@+id/toast_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="희소식"
+        android:layout_marginStart="10dp"
+        android:text="내용이다 내용이다 내용이다"
         android:textColor="@color/font_color"
         android:textSize="16sp"
-        android:layout_marginStart="5dp"
-        app:layout_constraintStart_toEndOf="@id/toastLogo"
-        app:layout_constraintTop_toTopOf="@id/toastLogo"
-        app:layout_constraintBottom_toBottomOf="@id/toastLogo"
-        />
+        app:layout_constraintStart_toEndOf="@id/toast_help_img"
+        app:layout_constraintTop_toTopOf="@id/toast_help_img"
+        app:layout_constraintBottom_toBottomOf="@id/toast_help_img"/>
+
 
     <TextView
         android:id="@+id/toast_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
         android:text="현재 시간"
         android:textColor="@color/font_color"
-        android:textSize="16sp"
-        android:layout_marginEnd="10dp"
+        android:textSize="14sp"
+        android:layout_marginTop="5dp"
+        android:paddingBottom="40dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/toastLogo"
-        app:layout_constraintBottom_toBottomOf="@id/toastLogo"
-        />
-
-    <TextView
-        android:id="@+id/toast_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="알림 내용알림 내용알림 내용알림 내용알림 내용"
-        android:textSize="16sp"
-        android:textColor="@color/font_color"
-        android:layout_marginTop="15dp"
-        android:paddingBottom="20dp"
-        app:layout_constraintStart_toStartOf="@id/toastLogo"
-        app:layout_constraintTop_toBottomOf="@id/toastLogo"/>
-
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

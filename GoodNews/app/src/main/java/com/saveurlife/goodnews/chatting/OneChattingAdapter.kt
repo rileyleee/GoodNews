@@ -5,7 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.GONE
+import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ItemChattingBinding
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class OneChattingAdapter(private val chattingList: List<OnechattingData>) : RecyclerView.Adapter<OneChattingAdapter.ViewHolder>() {
 
@@ -13,10 +17,6 @@ class OneChattingAdapter(private val chattingList: List<OnechattingData>) : Recy
     interface OnItemClickListener {
         fun onItemClick(chatData: OnechattingData)
     }
-
-//    interface OnChattingItemClickListener {
-//        fun onItemClicked(data: OnechattingData)
-//    }
 
     var listener: OnItemClickListener? = null
 
@@ -44,8 +44,43 @@ class OneChattingAdapter(private val chattingList: List<OnechattingData>) : Recy
         fun bind(chatting: OnechattingData){
             binding.chattingName.text = chatting.otherName
             binding.chattingLast.text = chatting.lastChatting
-            binding.chattingTime.text = chatting.date
+
+            val formattedDate = formatChattingDate(chatting.date)
+            updateStatus(chatting.otherStatus)
+            binding.chattingTime.text = formattedDate
             updateReadChatting(chatting.isRead)
+        }
+
+        private fun updateStatus(otherStatus: String) {
+            when (otherStatus) {
+                "safe" -> binding.chattingStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
+                "injury" -> binding.chattingStatus.setBackgroundResource(R.drawable.my_status_injury_circle)
+                "death" -> binding.chattingStatus.setBackgroundResource(R.drawable.my_status_death_circle)
+                "unknown" -> binding.chattingStatus.setBackgroundResource(R.drawable.my_status_circle)
+            }
+        }
+
+        fun formatChattingDate(chattingDate: String): String {
+            // chatting.date 값에서 각 부분을 추출
+            val year = chattingDate.substring(0, 2).toInt() + 2000 // "23" -> 2023
+            val month = chattingDate.substring(2, 4).toInt() // "11" -> 11
+            val day = chattingDate.substring(4, 6).toInt() // "16" -> 16
+            val hour = chattingDate.substring(6, 8).toInt() // "11" -> 11
+            val minute = chattingDate.substring(8, 10).toInt() // "21" -> 21
+
+            // LocalDateTime 객체 생성
+            val dateTime = LocalDateTime.of(year, month, day, hour, minute)
+            val now = LocalDateTime.now()
+
+            return if (dateTime.year == now.year && dateTime.month == now.month && dateTime.dayOfMonth == now.dayOfMonth) {
+                // 오늘 날짜와 같은 경우 "오전/오후 시:분" 형식으로 포맷팅
+                val formatter = DateTimeFormatter.ofPattern("a K:mm", Locale.getDefault())
+                dateTime.format(formatter)
+            } else {
+                // 다른 경우 "월 일" 형식으로 포맷팅
+                val formatter = DateTimeFormatter.ofPattern("MM월 dd일", Locale.getDefault())
+                dateTime.format(formatter)
+            }
         }
 
         private fun updateReadChatting(isRead: Boolean) {

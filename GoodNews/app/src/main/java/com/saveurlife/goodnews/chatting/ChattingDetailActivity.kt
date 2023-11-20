@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -13,19 +12,20 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.ble.ChatRepository
+import com.saveurlife.goodnews.ble.CurrentActivityEvent
+import com.saveurlife.goodnews.ble.EventBusManager
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+
 
 class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var binding: ActivityChattingDetailBinding
@@ -56,15 +56,23 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     private lateinit var chatRepository: ChatRepository
     //상대방 Id
     private lateinit var userId: String
+    private lateinit var userName: String
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chattingDetailAdapter: ChattingDetailAdapter
 
+    private var page = 0
+
     private fun observeChatRoomMessages() {
-        bleService.getChatRoomMessages(userId).observe(this, Observer { messages ->
-            chattingDetailAdapter.updateMessages(messages)
-            recyclerView.scrollToPosition(chattingDetailAdapter.itemCount - 1)
-        })
+        if (::userId.isInitialized) {
+            bleService.getChatRoomMessages(userId).observe(this, Observer { messages ->
+                chattingDetailAdapter.updateMessages(messages)
+                recyclerView.scrollToPosition(chattingDetailAdapter.itemCount - 1)
+            })
+        } else {
+            // userId가 초기화되지 않았을 경우의 처리 로직
+            Log.e("ChattingDetailActivity", "userId is not initialized.")
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,59 +80,69 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         binding = ActivityChattingDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val extras = intent.extras
+        page = extras?.getInt("page", 0) ?: 0
+
+        recyclerView = binding.recyclerViewChatting
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+
+        //MainAroundListFragment
+        if(page == 1){
+            val user = intent.getSerializableExtra("chattingUser") as BleMeshConnectedUser
+            val userData = user.toString().split('/')
+            if (userData.size >= 6) {
+                println("$userData 이거 모게요?")
+                userId = userData[0]
+                println("$userId 이거 id 모게요?")
+                userName = userData[1]
+                val updateTime = userData[2]
+                val healthStatus = userData[3]
+                val lat = userData[4].toDouble()
+                val lon = userData[5].toDouble()
+
+                //상대방 이름
+                binding.chattingToolbar.chatDetailNameHeader.text = userName
+                //상대방 상태 업데이트
+                updateOtherStatus(healthStatus)
+            }
+        }
+        //OneChattingFragment
+        else if(page == 2){
+            userId = intent.getStringExtra("chatRoomId") ?: throw IllegalStateException("userId not found in Intent")
+            if (extras != null) {
+                userName = extras.getString("chatName", "")
+                val chatOtherStatus = extras.getString("chatOtherStatus", "")
+
+                binding.chattingToolbar.chatDetailNameHeader.text = userName
+                updateOtherStatus(chatOtherStatus)
+            }
+        }
+
         //ble - 서비스 바인딩
         Intent(this, BleService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
 
-        recyclerView = binding.recyclerViewChatting
-        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 어댑터 초기화
-        chattingDetailAdapter = ChattingDetailAdapter(emptyList())
+
+        chattingDetailAdapter = ChattingDetailAdapter(emptyList(), userId)
         recyclerView.adapter = chattingDetailAdapter
-
-
-        val user = intent.getSerializableExtra("chattingUser") as BleMeshConnectedUser
-        val userData = user.toString().split('/')
-        if (userData.size >= 6) {
-            userId = userData[0]
-            val userName = userData[1]
-            val updateTime = userData[2]
-            val healthStatus = userData[3]
-            val lat = userData[4].toDouble()
-            val lon = userData[5].toDouble()
-
-            //상대방 이름
-            binding.chattingToolbar.chatDetailNameHeader.text = userName
-            //상대방 상태 업데이트
-            updateOtherStatus(healthStatus)
-        }
 
         // ChatDatabaseManager 및 ChatRepository 인스턴스 생성
         chatDatabaseManager = ChatDatabaseManager()
         chatRepository = ChatRepository(chatDatabaseManager)
 
 
-//        val chatRoomMessagesLiveData = chatRepository.getChatRoomMessages(userId)
-
-
         //채팅 입력
         binding.chatDetailSpend.setOnClickListener {
             val inputMessage = binding.chatDetailInput.text.toString()
             if (inputMessage.isNotEmpty()) {
-                // 현재 시간을 가져오고 포맷팅
-                val currentDateTime = LocalDateTime.now()
-                // "오후 7:12" 형식으로 포맷팅
-                val formatter = DateTimeFormatter.ofPattern("a K:mm", Locale.getDefault())
-                val formattedDateTime = currentDateTime.format(formatter)
-
                 //상대방의 id, 입력 메세지를 넘기기
-                bleService.sendMessageChat(userId, inputMessage)
+                bleService.sendMessageChat(userId, userName, inputMessage)
 
                 // 입력 필드 초기화
                 binding.chatDetailInput.text.clear()
-
             }
         }
 
@@ -227,9 +245,20 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
     override fun onDestroy() {
         super.onDestroy()
-//        if (isBound) {
-//            unbindService(connection)
-//            isBound = false
-//        }
+        if (isBound) {
+            unbindService(connection)
+            isBound = false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        EventBusManager.post(CurrentActivityEvent(userId))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // 다른 액티비티로 전환될 때에도 이벤트를 보낼 수 있습니다.
+        EventBusManager.post(CurrentActivityEvent("none"))
     }
 }

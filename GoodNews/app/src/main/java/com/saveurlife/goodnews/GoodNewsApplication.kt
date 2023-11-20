@@ -12,7 +12,7 @@ import com.saveurlife.goodnews.models.Chat
 import com.saveurlife.goodnews.models.ChatMessage
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
-import com.saveurlife.goodnews.models.GroupMemInfo
+//import com.saveurlife.goodnews.models.GroupMemInfo
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
@@ -53,7 +53,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 ChatMessage::class,
                 FamilyMemInfo::class,
                 FamilyPlace::class,
-                GroupMemInfo::class,
+//                GroupMemInfo::class,
                 MapInstantInfo::class,
                 Member::class,
                 MorseCode::class,
