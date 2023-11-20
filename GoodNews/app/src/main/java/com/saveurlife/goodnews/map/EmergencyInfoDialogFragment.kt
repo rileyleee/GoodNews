@@ -87,7 +87,7 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         // 업데이트 시각 보정(+9시간 처리-> 한국 시각)
         currentTime = System.currentTimeMillis()
-        currentTime += TimeUnit.HOURS.toMillis(9)
+        // currentTime += TimeUnit.HOURS.toMillis(9) (API 작업 시 이중 처리 됨에 따라 일단 주석)
 
         val timeRealmInstant = RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
 
