@@ -1,6 +1,5 @@
     package com.saveurlife.goodnews.main
 
-    import android.content.Intent
     import android.os.Bundle
     import androidx.fragment.app.Fragment
     import android.view.LayoutInflater
@@ -9,9 +8,7 @@
     import androidx.fragment.app.activityViewModels
     import androidx.recyclerview.widget.DividerItemDecoration
     import androidx.recyclerview.widget.LinearLayoutManager
-    import androidx.recyclerview.widget.RecyclerView
-    import com.saveurlife.goodnews.R
-    import com.saveurlife.goodnews.ble.BleAdvertiseAdapter
+    import com.saveurlife.goodnews.ble.adapter.BleAdvertiseAdapter
     import com.saveurlife.goodnews.common.SharedViewModel
     import com.saveurlife.goodnews.databinding.FragmentMainAroundAdvertiseBinding
 

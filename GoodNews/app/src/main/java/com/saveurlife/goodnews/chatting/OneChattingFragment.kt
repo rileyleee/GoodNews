@@ -3,7 +3,6 @@ package com.saveurlife.goodnews.chatting
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.GestureDetector
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +10,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.saveurlife.goodnews.ble.BleConnectedAdapter
-import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentOneChattingBinding
 

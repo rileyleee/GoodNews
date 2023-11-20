@@ -10,21 +10,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 
-import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.ble.BleConnectedAdapter
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentChooseGroupMemberBinding
-import com.saveurlife.goodnews.databinding.FragmentGroupChattingBinding
-import com.saveurlife.goodnews.databinding.FragmentMainAroundListBinding
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import com.saveurlife.goodnews.ble.BleAdvertiseAdapter
 import com.saveurlife.goodnews.ble.service.BleService
-import com.saveurlife.goodnews.main.MainActivity
 
 class ChooseGroupMemberFragment : Fragment() {
     private lateinit var binding: FragmentChooseGroupMemberBinding
