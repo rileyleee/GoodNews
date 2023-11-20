@@ -316,6 +316,22 @@
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/lineAlarm" />
 
+        <!-- 지도 다운로드 버튼 -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/shareApp"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_match_parent"
+            android:text="앱 공유"
+            android:textColor="@color/white"
+            android:textSize="21sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/mapDownloadButton"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
+            app:layout_constraintTop_toBottomOf="@+id/mapDownloadButton" />
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVertical"
