@@ -67,6 +67,7 @@ import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 //import com.saveurlife.goodnews.ble.GroupRepository;
+import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
 //import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
@@ -93,6 +94,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private AdvertiseManager advertiseManager;
 
     private String nowChatRoomID = "";
     private PreferencesUtil preferencesUtil;
@@ -212,113 +214,18 @@ public class BleService extends Service {
 
         sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
-        //        Intent AutoSendServiceIntent = new Intent(this, AutoSendMessageService.class);
-        //        startService(AutoSendServiceIntent);
+        advertiseManager = new AdvertiseManager(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
     }
 
     // 블루투스 시작 버튼
     public void startAdvertiseAndScanAndAuto() {
-        startAdvertising();
+        advertiseManager.startAdvertising();
         startScanning();
         startAutoSendMessage();
     }
 
-    private void startAdvertising() {
-        if (isAdvertising) {
-            Log.i(TAG, "Already advertising, not starting new advertisement.");
-            return; // 이미 광고 중이면 여기서 리턴
-        }
 
-        byte[] userIdBytes = myId.getBytes(StandardCharsets.UTF_8);
-        byte[] userNameBytes = myName.getBytes(StandardCharsets.UTF_8);
 
-        AdvertiseData advertiseData = new AdvertiseData.Builder()
-                .addServiceUuid(new ParcelUuid(SERVICE_UUID))
-                .addServiceData(new ParcelUuid(SERVICE_UUID), userIdBytes)
-                .addServiceData(new ParcelUuid(DEVICEINFO_UUID), userNameBytes)
-                .setIncludeDeviceName(false)
-                .setIncludeTxPowerLevel(false)
-                .build();
-
-        if (mBluetoothAdapter.isLeExtendedAdvertisingSupported()) { // Check if extended advertising is supported (Bluetooth 5.1+)
-            AdvertisingSetParameters advertisingSetParameters = new AdvertisingSetParameters.Builder()
-                    .setLegacyMode(false)
-                    .setConnectable(true)
-                    .setInterval(AdvertisingSetParameters.INTERVAL_MIN)
-                    .setTxPowerLevel(AdvertisingSetParameters.TX_POWER_MAX)
-                    .setPrimaryPhy(BluetoothDevice.PHY_LE_CODED)
-                    .setSecondaryPhy(BluetoothDevice.PHY_LE_CODED)
-
-                    .build();
-
-            //            AdvertisingSetCallback bleAdvertisingSetCallback = new BleAdvertisingSetCallback();
-            AdvertiseData scanResponse = new AdvertiseData.Builder().build();
-
-            AdvertisingSetCallback bleAdvertisingSetCallback = new AdvertisingSetCallback() {
-                @Override
-                public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower, int status) {
-                    super.onAdvertisingSetStarted(advertisingSet, txPower, status);
-                    isAdvertising = true; // 광고 상태를 '광고 중'으로 변경
-                    Log.i(TAG, "Started extended advertising.");
-                }
-
-                @Override
-                public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
-                    super.onAdvertisingSetStopped(advertisingSet);
-                    isAdvertising = false; // 광고 상태를 '광고 중지'로 변경
-                    Log.i(TAG, "Stopped extended advertising.");
-                }
-
-                // ... 필요한 다른 콜백 메소드 ...
-            };
-
-            mBluetoothLeAdvertiser.startAdvertisingSet(
-                    advertisingSetParameters,
-                    advertiseData,
-                    scanResponse,
-                    null,
-                    null,
-                    0,
-                    0,
-                    bleAdvertisingSetCallback
-            );
-        } else { // For Bluetooth 5.0 and below
-            AdvertiseSettings settings = new AdvertiseSettings.Builder()
-                    .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-                    .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-                    .setConnectable(true)
-                    .build();
-
-            AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
-                @Override
-                public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-                    super.onStartSuccess(settingsInEffect);
-                    isAdvertising = true; // 광고 상태를 '광고 중'으로 변경
-                    Log.i("BLE", "Advertise success (Legacy)");
-                }
-
-                @Override
-                public void onStartFailure(int errorCode) {
-                    super.onStartFailure(errorCode);
-                    isAdvertising = false; // 광고 상태를 '광고 중지'로 변경
-                    Log.e("BLE", "Advertise failed (Legacy), error code: " + errorCode);
-                }
-            };
-            mBluetoothLeAdvertiser.startAdvertising(settings, advertiseData, advertiseCallback);
-        }
-    }
-
-    private void stopAdvertising() {
-        if (!isAdvertising) {
-            Log.i(TAG, "No advertising to stop, since it wasn't started.");
-            return; // 광고 중이 아니면 여기서 리턴
-        }
-        if (mBluetoothLeAdvertiser != null) {
-            mBluetoothLeAdvertiser.stopAdvertisingSet(null);
-            Log.i(TAG, "Bluetooth advertising stopped.");
-        }
-        isAdvertising = false; // 광고 상태를 '광고 중지'로 변경
-    }
 
     private void startScanning() {
         // 현재 실행 중인 스캔이 있는지 확인하고 중지
@@ -1050,7 +957,7 @@ public class BleService extends Service {
     public void onDestroy() {
         super.onDestroy();
         // 광고 중지 로직
-        stopAdvertising();
+        advertiseManager.stopAdvertising();
         stopScanning();
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
