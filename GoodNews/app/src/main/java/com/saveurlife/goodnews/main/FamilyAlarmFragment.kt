@@ -12,12 +12,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentFamilyAlarmBinding
 import com.saveurlife.goodnews.enterinfo.EnterInfoActivity
 
 class FamilyAlarmFragment : DialogFragment() {
     private lateinit var binding: FragmentFamilyAlarmBinding
+    val sharedPreferences = GoodNewsApplication.preferences
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,6 +45,8 @@ class FamilyAlarmFragment : DialogFragment() {
 
         // 다음에 하기 클릭시 다이얼로그 닫기
         binding.familyNext.setOnClickListener {
+            val preferencesUtil = PreferencesUtil(requireContext())
+            preferencesUtil.setBoolean("familyAlarmIgnore", true)
             dismiss()
         }
         return binding.root
