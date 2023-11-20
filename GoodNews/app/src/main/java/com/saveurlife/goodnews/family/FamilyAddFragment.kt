@@ -8,12 +8,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.databinding.FragmentFamilyAddBinding
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -41,13 +38,9 @@ class FamilyAddFragment : DialogFragment() {
         userDeviceInfoService = UserDeviceInfoService(requireContext())
         memberId = userDeviceInfoService.deviceId
 
-        // 이름 들어가야 됨.
-        val numberText:TextView = view.findViewById(R.id.addFamilyName)
-
 
         // 신청 버튼 클릭했을 때
         binding.familyAddSubmit.setOnClickListener {
-            binding.addFamilyName.text = numberText.toString()
             // 여기에 추가되어야 하는 것 : 신청을 눌렀을 때, 해당 신청 요청 box도 하나 띄워줘야 한다.
             Toast.makeText(activity, "가족 신청 버튼을 눌렀습니다.", Toast.LENGTH_SHORT).show()
             // 신청 요청

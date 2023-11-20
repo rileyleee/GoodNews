@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.util.Log
+import com.google.android.libraries.places.api.Places
 import com.opencsv.CSVReader
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.AidKit
@@ -42,6 +43,11 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 
         super.onCreate()
 
+        // Google Places API 초기화
+        if (!Places.isInitialized()) {
+            Places.initialize(applicationContext, BuildConfig.GOOGLE_MAPS_API_KEY)
+        }
+
         registerActivityLifecycleCallbacks(this)
 
         //Realm 초기화
@@ -61,7 +67,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
             )
         )
 
-//        Realm.deleteRealm(realmConfiguration)
+        Realm.deleteRealm(realmConfiguration)
 
         val realm: Realm = Realm.open(realmConfiguration)
 

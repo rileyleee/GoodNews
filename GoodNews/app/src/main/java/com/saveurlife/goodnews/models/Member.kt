@@ -19,7 +19,7 @@ class Member() : RealmObject {
     var lastUpdate: RealmInstant = RealmInstant.from(0, 0)
     var latitude: Double = 0.0
     var longitude: Double =0.0
-    var familyId: Int = 0
+    var familyId: String = ""
 
     constructor(
         memberId: String,
@@ -34,7 +34,7 @@ class Member() : RealmObject {
         lastUpdate: RealmInstant,
         latitude: Double,
         longitude: Double,
-        familyId: Int
+        familyId: String
     ) : this() {
         this.memberId = memberId
         this.phone = phone
