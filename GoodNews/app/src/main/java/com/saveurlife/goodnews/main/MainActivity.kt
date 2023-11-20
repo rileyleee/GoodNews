@@ -269,13 +269,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (isBound) {
-            unbindService(connection)
-        }
-    }
-
     // LiveData 객체를 프래그먼트에서 관찰할 수 있도록 공개 메서드로 제공
 //    fun getDeviceArrayListNameLiveData(): LiveData<List<String>>? {
 //        return if (isBound) bleService.deviceArrayListNameLiveData else null
@@ -498,6 +491,10 @@ class MainActivity : AppCompatActivity() {
         //위치 정보 저장 중지
         val serviceIntent = Intent(this, LocationTrackingService::class.java)
         stopService(serviceIntent)
+
+        if (isBound) {
+            unbindService(connection)
+        }
     }
 }
 
