@@ -1,5 +1,3 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -19,9 +17,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // api key 추가
-        buildConfigField("String", "GOOGLE_MAPS_API_KEY", getApiKey("GOOGLE_MAPS_API_KEY"))
     }
 
     buildTypes {
@@ -42,7 +37,6 @@ android {
     }
     buildFeatures {
         viewBinding = true
-        buildConfig = true
     }
     sourceSets {
         getByName("main") {
@@ -51,11 +45,6 @@ android {
             }
         }
     }
-}
-
-// local properties
-fun getApiKey(propertyKey: String): String {
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
 dependencies {
@@ -106,7 +95,7 @@ dependencies {
     // coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
 
-    implementation("com.airbnb.android:lottie:6.1.0")
+    implementation ("com.airbnb.android:lottie:6.1.0")
 
     implementation("org.modelmapper:modelmapper:3.1.1")
 
@@ -119,7 +108,4 @@ dependencies {
 
     // Worker를 사용하기 위해 추가
     implementation("androidx.work:work-runtime-ktx:2.8.1")
-
-    // 구글 place 추가 (map api)
-    implementation("com.google.android.libraries.places:places:3.2.0")
 }

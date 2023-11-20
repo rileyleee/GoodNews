@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.util.Log
-import com.google.android.libraries.places.api.Places
 import com.opencsv.CSVReader
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.AidKit
@@ -43,11 +42,6 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 
         super.onCreate()
 
-        // Google Places API 초기화
-        if (!Places.isInitialized()) {
-            Places.initialize(applicationContext, BuildConfig.GOOGLE_MAPS_API_KEY)
-        }
-
         registerActivityLifecycleCallbacks(this)
 
         //Realm 초기화
@@ -67,15 +61,17 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
             )
         )
 
-//        Realm.deleteRealm(realmConfiguration)
+        Realm.deleteRealm(realmConfiguration)
 
         val realm: Realm = Realm.open(realmConfiguration)
+
+
 
 
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
             CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
-//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacility_wo_phar)))
+//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.testfacilitydata)))
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 

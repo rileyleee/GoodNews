@@ -8,15 +8,8 @@ enum class Status {
     NOT_SHOWN
 }
 
-enum class FamilyType{
-    ACCEPT,
-    WAIT
-}
-
 data class FamilyData(
     val name: String,
-    val status: Status? = Status.NOT_SHOWN,
-    val lastAccessTime: String = "",
-    val type: FamilyType = FamilyType.WAIT,
-    val acceptNumber:Int = 0
+    val status: Status = Status.NOT_SHOWN,
+    val lastAccessTime: String
 )

@@ -489,13 +489,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isBound) {
-            unbindService(connection)
-        }
 
         //위치 정보 저장 중지
         val serviceIntent = Intent(this, LocationTrackingService::class.java)
         stopService(serviceIntent)
+
+        if (isBound) {
+            unbindService(connection)
+        }
     }
 }
 
@@ -509,4 +510,6 @@ private fun NavController.navigateSingleTop(id: Int) {
         val options = builder.build()
         navigate(id, null, options)
     }
+
 }
+

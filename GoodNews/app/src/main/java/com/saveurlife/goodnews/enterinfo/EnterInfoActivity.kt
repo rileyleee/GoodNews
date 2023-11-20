@@ -14,11 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.api.FamilyAPI
-import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -26,7 +23,6 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
-import com.saveurlife.goodnews.sync.SyncService
 
 
 class EnterInfoActivity : AppCompatActivity() {
@@ -34,21 +30,19 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEnterInfoBinding
     private lateinit var realm: Realm
     private lateinit var permissionsUtil: PermissionsUtil
-    private lateinit var memberAPI: MemberAPI
-    private lateinit var syncService: SyncService
+
     val userDeviceInfoService = UserDeviceInfoService(this);
     val sharedPreferences = GoodNewsApplication.preferences
 
-    private lateinit var setPhone: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        setPhone = userDeviceInfoService.phoneNumber.toString()
+
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        memberAPI = MemberAPI()
-        syncService = SyncService()
+
         // 위험 권한 요청
         permissionsUtil = PermissionsUtil(this)
         permissionsUtil.requestAllPermissions()
@@ -67,11 +61,6 @@ class EnterInfoActivity : AppCompatActivity() {
 
         // EditText 비활성화
         with(binding) {
-            phoneEditText1.hint = setPhone.substring(0, 3)
-            phoneEditText2.hint = setPhone.substring(3, 7)
-            phoneEditText3.hint = setPhone.substring(7)
-
-
             phoneEditText1.isEnabled = false
             phoneEditText2.isEnabled = false
             phoneEditText3.isEnabled = false
@@ -297,14 +286,14 @@ class EnterInfoActivity : AppCompatActivity() {
         val setName = binding.nameEditText.text.toString()
 
         val setMemberId = userDeviceInfoService.deviceId.toString()
-
+        val setPhone = userDeviceInfoService.phoneNumber.toString()
 
         val birthYear = binding.dialogEnterYear.text.toString()
         val birthMonth = binding.dialogEnterMonth.text.toString()
         val birthDay = binding.dialogEnterDay.text.toString()
 
         val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
-            "2000년 01월 01일"
+            "입력하지 않음"
         } else {
             "$birthYear $birthMonth $birthDay"
         }
@@ -312,19 +301,19 @@ class EnterInfoActivity : AppCompatActivity() {
         val setGender = when {
             binding.genderMale.isSelected -> "남자"
             binding.genderFemale.isSelected -> "여자"
-            else -> "모름"
+            else -> "입력하지 않음"
         }
 
         val rhText = binding.dialogRhText.text.toString()
         val bloodText = binding.dialogBloodText.text.toString()
 
         val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
-            "모름 A형"
+            "입력하지 않음"
         } else {
             "$rhText $bloodText"
         }
 
-        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { null }
+        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { "입력하지 않음" }
 
         // 입력 값 검증 (필수 입력 값 안 들어왔을 때)
         if (setName.isBlank()) {
@@ -340,12 +329,12 @@ class EnterInfoActivity : AppCompatActivity() {
             realm.writeBlocking {
                 copyToRealm(Member().apply {
                     memberId = setMemberId
-                    birthDate = setBirthDate.toString()
+                    birthDate = setBirthDate
                     phone = setPhone // 기기에 맞게 수정 필요@@
                     name = setName
-                    gender = setGender.toString()
-                    bloodType = setBloodType.toString()
-                    addInfo = setAddInfo.toString()
+                    gender = setGender
+                    bloodType = setBloodType
+                    addInfo = setAddInfo
                 })
             }
 
@@ -354,14 +343,6 @@ class EnterInfoActivity : AppCompatActivity() {
             preferencesUtil.setString("name", setName)
 
             // 인터넷이 있을 때 Spring => @@ 수정 필요
-            memberAPI.registMemberInfo(setMemberId,
-                setPhone,
-                setName,
-                setBirthDate?.let { syncService.convertDateStringToNumStr(it) },
-                setGender,
-                setBloodType,
-                setAddInfo
-            )
 
             Log.i("저장", "저장완료")
             // 메인으로 이동
@@ -370,11 +351,7 @@ class EnterInfoActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionsUtil.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

@@ -2,7 +2,6 @@ package com.saveurlife.goodnews.api
 
 import android.util.Log
 import com.google.gson.Gson
-import com.saveurlife.goodnews.sync.SyncService
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
@@ -16,7 +15,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MemberAPI {
 
-
     // Retrofit 인스턴스 생성
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://www.saveurlife.kr/api/")
@@ -29,17 +27,13 @@ class MemberAPI {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     // 멤버 정보 수정
-    fun updateMemberInfo(memberId : String, name:String, gender: String?, birthDate:String?, bloodType:String?, addInfo:String?, lat:Double?, lon: Double?){
+    fun updateMemberInfo(memberId : String, name:String, gender: String, birthDate:String, bloodType:String, addInfo:String, lat:Double, lon: Double){
         // request
-        val syncService = SyncService()
-        val data = RequestMemberInfo(name, gender,
-            birthDate?.let { syncService.convertDateStringToNumStr(it) }, bloodType, addInfo, lat, lon)
+        val data = RequestMemberInfo(name, gender, birthDate, bloodType, addInfo, lat, lon)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.updateMemberInfo(memberId, requestBody)
-
-        Log.d("test", data.toString())
         call.enqueue(object : Callback<ResponseModifyMember> {
             override fun onResponse(call: Call<ResponseModifyMember>, response: Response<ResponseModifyMember>) {
                 if(response.isSuccessful){
@@ -200,17 +194,17 @@ class MemberAPI {
     }
 
     // 멤버 정보 조회
-    fun findMemberInfo(memberId : String, callback: MemberCallback) {
+    fun findMemberInfo(memberId : String): MemberInfo? {
 
         // request
-        val data = RequestMemberId(memberId)
+        val data = RequestMemberId(memberId,false)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.findMemberInfo(requestBody)
 
         // response
-
+        var resp: MemberInfo ?= null
         call.enqueue(object : Callback<ResponseMember> {
             override fun onResponse(call: Call<ResponseMember>, response: Response<ResponseMember>) {
                 if(response.isSuccessful){
@@ -222,9 +216,9 @@ class MemberAPI {
                     if(responseBody!=null){
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요
+                        resp = data
 
 
-                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -252,22 +246,18 @@ class MemberAPI {
                 Log.d("API ERROR", t.toString())
             }
         })
-    }
-
-    interface MemberCallback {
-        fun onSuccess(result: MemberInfo)
-        fun onFailure(error:String)
+        return resp
     }
 
     // 추가 정보 등록
-    fun registMemberInfo(memberId:String, phoneNumber: String?, name:String, birthDate:String?, gender:String?, bloodType:String?, addInfo:String?){
+    fun registMemberInfo(memberId:String, phoneNumber: String, name:String, birthDate:String, gender:String, bloodType:String, addInfo:String){
         // request
         val data = RequestMemberAddInfo(memberId, phoneNumber, name, birthDate, gender, bloodType, addInfo)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.registMemberInfo(requestBody)
-        Log.d("test", data.toString())
+
         // response
         call.enqueue(object : Callback<ResponseRegistMember> {
             override fun onResponse(call: Call<ResponseRegistMember>, response: Response<ResponseRegistMember>) {
@@ -320,7 +310,7 @@ class MemberAPI {
 
     // 최초 로그인 유무 조회
     fun firstLoginInfo(memberId:String){
-        val data = RequestMemberId(memberId)
+        val data = RequestMemberId(memberId,false)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
