@@ -19,12 +19,12 @@ class MyStatusDialogFragment : DialogFragment() {
     private lateinit var memberAPI : MemberAPI
     private lateinit var preferencesUtil: PreferencesUtil
     private lateinit var memberId:String
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         memberAPI = MemberAPI()
         val userDeviceInfoService = UserDeviceInfoService(context)
         memberId = userDeviceInfoService.deviceId
+
         if (parentFragment is StatusSelectListener) {
             listener = parentFragment as StatusSelectListener
         } else {
@@ -51,18 +51,21 @@ class MyStatusDialogFragment : DialogFragment() {
         binding.safeLayer.setOnClickListener {
             listener?.onStatusSelected("safe")
             memberAPI.updateMemberInfo(memberId, "1")
+
             preferencesUtil.setString("status","safe")
             dismiss()
         }
         binding.injuryLayer.setOnClickListener {
             listener?.onStatusSelected("injury")
             memberAPI.updateMemberInfo(memberId, "2")
+
             preferencesUtil.setString("status","injury")
             dismiss()
         }
         binding.deathLayer.setOnClickListener {
             listener?.onStatusSelected("death")
             memberAPI.updateMemberInfo(memberId, "3")
+
             preferencesUtil.setString("status","death")
             dismiss()
         }

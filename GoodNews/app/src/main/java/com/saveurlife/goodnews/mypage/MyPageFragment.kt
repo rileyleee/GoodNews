@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.mypage
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -17,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.databinding.DialogBloodSettingBinding
 import com.saveurlife.goodnews.databinding.DialogCalendarSettingBinding
 import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
@@ -24,10 +26,14 @@ import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.service.DeviceStateService
+import com.saveurlife.goodnews.service.UserDeviceInfoService
+import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 import java.util.Calendar
+import kotlin.properties.Delegates
 
 class MyPageFragment : Fragment() {
     private lateinit var binding: FragmentMyPageBinding
@@ -38,14 +44,14 @@ class MyPageFragment : Fragment() {
     private var selectedDay: String? = null
     private var selectedRh: String? = null
     private var selectedBlood: String? = null
-    private var myAge: Int? = null
+    private var myAge by Delegates.notNull<Int>()
+
 
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
 //    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private val items: RealmResults<Member> = realm.query<Member>().find()
-
+    private var items: RealmResults<Member> = realm.query<Member>().find()
 
     //Realm에서 정보 가져오기
     private var realmName: String? = null
@@ -53,14 +59,34 @@ class MyPageFragment : Fragment() {
     private var realmBirth: String? = null
     private var realmGender: String? = null
     private var realmBloodType: String? = null
+    // 저장 시킬 변수
+    private lateinit var sendName:String
+    private lateinit var sendGender:String
+    private lateinit var sendBirthdate:String
+    private lateinit var sendBloodType:String
+    private lateinit var sendAddInfo:String
+    private var sendLat by Delegates.notNull<Double>()
+    private var sendLon by Delegates.notNull<Double>()
+
+
     private var realmaddInfo: String? = null
+
+    private lateinit var userDeviceInfoService : UserDeviceInfoService
+    private lateinit var memberId :String
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // 여기서 userDeviceInfoService를 초기화
+        preferencesUtil = PreferencesUtil(context)
+        userDeviceInfoService = UserDeviceInfoService(context)
+        memberId = userDeviceInfoService.deviceId
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
-        preferencesUtil = PreferencesUtil(requireContext())
 
         //Realm에서 내 정보 가져오기
         items.forEach { member ->
@@ -71,7 +97,13 @@ class MyPageFragment : Fragment() {
             realmBloodType = member.bloodType
             realmaddInfo = member.addInfo
         }
+        sendName = realmName.toString()
+        sendGender =realmGender.toString()
+        sendBirthdate = realmBirth.toString()
+        sendBloodType = realmBloodType.toString()
+        sendAddInfo = realmaddInfo.toString()
 
+        myAge = preferencesUtil.getInt("age", 0)
 
         //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
         val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
@@ -131,7 +163,6 @@ class MyPageFragment : Fragment() {
 //            val writeTransactionItems = query<Member>().find()
 //            delete(writeTransactionItems.first())
 //        }
-
         return binding.root
     }
 
@@ -156,16 +187,33 @@ class MyPageFragment : Fragment() {
 
     //myPageFragment에 정보 불러오기
     private fun initData() {
+
+        items = realm.query<Member>().find()
+        items.forEach { member ->
+            realmName = member.name
+            realmPhone = member.phone
+            realmBirth = member.birthDate
+            realmGender = member.gender
+            realmBloodType = member.bloodType
+            realmaddInfo = member.addInfo
+        }
+        sendName = realmName.toString()
+        sendGender = realmGender.toString()
+        sendBirthdate = realmBirth.toString()
+        sendBloodType = realmBloodType.toString()
+        sendAddInfo = realmaddInfo.toString()
+
+
         binding.name.text = realmName
         binding.phoneNumber.text = realmPhone.toString()
 
-        if (realmBirth == "입력하지 않음") {
+        if (realmBirth == null) {
             binding.birthday.text = "생년월일 미입력"
         } else {
             binding.birthday.text = realmBirth
         }
 
-        if (realmBloodType == "입력하지 않음") {
+        if (realmBloodType == null) {
             binding.rh.text = "혈액형"
             binding.blood.text = "미입력"
         } else {
@@ -174,16 +222,16 @@ class MyPageFragment : Fragment() {
             binding.blood.text = parts[1]
         }
 
-        if (realmaddInfo == "입력하지 않음") {
+        if (realmaddInfo == null) {
             binding.significant.isVisible = false
         } else {
             binding.significant.isVisible = true
             binding.significant.text = realmaddInfo
         }
-        if (realmBirth == "입력하지 않음") {
+        if (realmBirth == null) {
             binding.age.isVisible = false
         } else {
-            binding.age.text = preferencesUtil.getString("age", "0")
+            binding.age.text = "만 "+ preferencesUtil.getInt("age", 0).toString()+ "세"
             binding.age.isVisible = true
         }
         binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode", false)
@@ -195,10 +243,10 @@ class MyPageFragment : Fragment() {
         dialogBinding.dialogMypagePhoneEdit.text = realmPhone.toString()
         dialogBinding.dialogMypagebirthday.text = realmBirth
         dialogBinding.dialogMypageBloodEdit.text = realmBloodType
-        if (realmGender == "입력하지 않음") {
+        if (realmGender == "모름") {
             noGenderSelection(dialogBinding)
         }
-        if (realmaddInfo != "입력하지 않음") {
+        if (realmaddInfo != null) {
             dialogBinding.textInputEditText.text =
                 Editable.Factory.getInstance().newEditable(realmaddInfo)
         }
@@ -253,16 +301,45 @@ class MyPageFragment : Fragment() {
             //특이사항 수정
             var textInputEditText = binding.textInputEditText.text.toString()
             if (textInputEditText.length <= 50) {
-                realm.writeBlocking {
-                    findLatest(items[0])?.addInfo = textInputEditText
-                    realmaddInfo = textInputEditText
-                }
-                initData()
+                sendAddInfo = textInputEditText
+//                initData()
                 dialog.dismiss()
             } else {
+//                realm.writeBlocking {
+//                    findLatest(items[0])?.addInfo = textInputEditText
+//                    realmaddInfo = textInputEditText
+//                }
                 // 50자를 초과하는 경우 경고 메시지 표시 또는 다른 처리 수행
                 Toast.makeText(context, "특이사항은 50자 이내로 입력해주세요.", Toast.LENGTH_SHORT).show()
             }
+
+
+            // realm 연결
+            realm.writeBlocking {
+                findLatest(items[0])?.name = sendName
+                findLatest(items[0])?.gender = sendGender
+                findLatest(items[0])?.birthDate = sendBirthdate
+                findLatest(items[0])?.bloodType = sendBloodType
+                findLatest(items[0])?.addInfo = textInputEditText
+                sendLat = findLatest(items[0])?.latitude!!
+                sendLon = findLatest(items[0])?.longitude!!
+            }
+            // 여기서 보내야 된다. 인터넷 연결 시..
+            val deviceStateService = DeviceStateService()
+            val syncService = SyncService()
+            preferencesUtil.setInt("age", myAge)
+            if(deviceStateService.isNetworkAvailable(requireContext())){
+                val memberAPI = MemberAPI()
+                if(sendBirthdate!=null){
+                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, sendBirthdate,
+                        sendBloodType, sendAddInfo, sendLat, sendLon)
+                }else{
+                    memberAPI.updateMemberInfo(memberId, sendName, sendGender, "20000101",
+                        sendBloodType, sendAddInfo, sendLat, sendLon)
+                }
+            }
+            // 새로 넣는다.
+            initData()
         }
     }
 
@@ -273,6 +350,7 @@ class MyPageFragment : Fragment() {
 
         binding.dialogMypageWoman.backgroundTintList = colorStateList
         binding.dialogMypageMan.backgroundTintList = colorStateList
+        sendGender = "모름"
     }
 
     // 성별 선택
@@ -290,10 +368,12 @@ class MyPageFragment : Fragment() {
             binding.dialogMypageWoman.backgroundTintList = colorStateList
             binding.dialogMypageMan.backgroundTintList = colorStateListClick
         }
-        realm.writeBlocking {
-            findLatest(items[0])?.gender = selectedGender
-            realmGender = selectedGender
-        }
+
+//        realm.writeBlocking {
+//            findLatest(items[0])?.gender = selectedGender
+//            realmGender = selectedGender
+//        }
+        sendGender = selectedGender
     }
 
     //생년월일 변경하기
@@ -354,10 +434,12 @@ class MyPageFragment : Fragment() {
         val dayPicker = birthDialogBinding.dayPicker //일 picker
         val requestBirth = birthDialogBinding.requestBirth //수정 버튼
 
-        if (realmBirth == "입력하지 않음") {
+        if (realmBirth == null) {
             selectedYear = "2000"
             selectedMonth = "01"
             selectedDay = "01"
+            myAge = 0
+            sendBirthdate = "2000년 01월 01일"
         } else {
             val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일")
                 .map { it.trim() }
@@ -379,7 +461,7 @@ class MyPageFragment : Fragment() {
                 //만 나이 계산
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
                 myAge = currentYear - (selectedYear?.toInt() ?: 0)
-                preferencesUtil.setString("age", "만 ${myAge}세")
+//                preferencesUtil.setString("age", "만 ${myAge}세")
             }
         }
 
@@ -421,10 +503,11 @@ class MyPageFragment : Fragment() {
         requestBirth.setOnClickListener {
             val newBirthday = "${selectedYear}년 ${selectedMonth}월 ${selectedDay}일"
             dialog.dialogMypagebirthday.text = newBirthday
-            realm.writeBlocking {
-                findLatest(items[0])?.birthDate = newBirthday
-                realmBirth = newBirthday
-            }
+//            realm.writeBlocking {
+//                findLatest(items[0])?.birthDate = newBirthday
+//                realmBirth = newBirthday
+//            }
+            sendBirthdate = newBirthday
             birthDialog.dismiss()
         }
     }
@@ -440,16 +523,20 @@ class MyPageFragment : Fragment() {
         val bloodPicker = bloodDialogBinding.bloodPicker
         val requestBlood = bloodDialogBinding.requestBlood
 
-        if (realmBloodType == "입력하지 않음") {
+        if (realmBloodType == null) {
             selectedRh = "모름"
             selectedBlood = "A형"
         } else {
             val parts = realmBloodType!!.split(" ")
-            val savedRh = parts[0] // "Rh+"
-            val savedBlood = parts[1] // "0형"
-
-            selectedRh = savedRh
-            selectedBlood = savedBlood
+            if(parts.size == 2){
+                val savedRh = parts[0] // "Rh+"
+                val savedBlood = parts[1] // "0형"
+                selectedRh = savedRh
+                selectedBlood = savedBlood
+            }else{
+                selectedRh = "모름"
+                selectedBlood = "A형"
+            }
         }
 
         rhPicker?.apply {
@@ -491,10 +578,12 @@ class MyPageFragment : Fragment() {
 //            dialog.dialogMypageRhEdit.text = selectedRh
             dialog.dialogMypageBloodEdit.text = "$selectedRh $selectedBlood"
 
-            realm.writeBlocking {
-                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
-                realmBloodType = "$selectedRh $selectedBlood"
-            }
+//            realm.writeBlocking {
+//                findLatest(items[0])?.bloodType = "$selectedRh $selectedBlood"
+//                realmBloodType = "$selectedRh $selectedBlood"
+//            }
+            realmBloodType = "$selectedRh $selectedBlood"
+            sendBloodType = "$selectedRh $selectedBlood"
             bloodDialog.dismiss()
         }
     }

@@ -14,12 +14,8 @@
 
         <TextView
             android:id="@+id/myPageTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/spoqahansansneo_bold"
+            style="@style/FragmentTitle"
             android:text="내 정보"
-            android:textColor="@color/font_color"
-            android:textSize="27sp"
             app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -65,7 +61,7 @@
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="8dp"
                 android:layout_weight="1"
                 android:fontFamily="@font/spoqahansansneo_bold"
                 android:gravity="start"
@@ -93,6 +89,8 @@
                 android:id="@+id/bloodCircle"
                 android:layout_width="90dp"
                 android:layout_height="90dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/my_status_circle"
                 android:backgroundTint="@color/danger"
                 android:gravity="start|center"
@@ -167,6 +165,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
+                android:layout_marginBottom="16dp"
                 android:ellipsize="end"
                 android:gravity="right"
                 android:text="특이사항"
