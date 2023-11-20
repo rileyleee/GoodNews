@@ -41,6 +41,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
@@ -50,8 +54,11 @@ import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.models.FamilyMemInfo
+import com.saveurlife.goodnews.family.FamilyFragment
+import com.saveurlife.goodnews.family.FamilyListAdapter
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.LocationTrackingService
+import com.saveurlife.goodnews.sync.FamilySyncWorker
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
@@ -74,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 //    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private val items: RealmResults<FamilyMemInfo> = realm.query<FamilyMemInfo>().find()
+    private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
@@ -269,7 +276,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "서비스가 바인딩되지 않음", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     // LiveData 객체를 프래그먼트에서 관찰할 수 있도록 공개 메서드로 제공
 //    fun getDeviceArrayListNameLiveData(): LiveData<List<String>>? {
@@ -501,7 +507,28 @@ class MainActivity : AppCompatActivity() {
 }
 
 private fun NavController.navigateSingleTop(id: Int) {
+    if(id == R.id.familyFragment){
+        var workManager = WorkManager.getInstance(context)
+
+        // 조건 설정 - 인터넷 연결 시에만 실행
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        // request 생성
+        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
+            .setConstraints(constraints)
+            .build()
+
+        // 실행
+        workManager.enqueue(updateRequest)
+        FamilyFragment.familyListAdapter = FamilyListAdapter(context)
+        FamilyFragment.familyListAdapter.addList()
+    }
+
     if (currentDestination?.id != id) {
+
+
         navigate(id)
         val startDestination = this.graph.startDestinationId
         val builder = NavOptions.Builder()

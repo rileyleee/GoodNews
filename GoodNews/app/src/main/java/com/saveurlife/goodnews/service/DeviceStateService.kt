@@ -8,7 +8,7 @@ import android.os.Build
 class DeviceStateService{
 
     // 인터넷 연결 여부
-    fun isNetworkAvailable(context: Context): Boolean {
+    fun isNetworkAvailable(context:Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
