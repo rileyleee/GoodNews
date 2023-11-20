@@ -1,12 +1,10 @@
 package com.saveurlife.goodnews.sync
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.api.DurationFacilityState
 import com.saveurlife.goodnews.api.FacilityState
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.FamilyInfo
@@ -105,6 +103,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 현재의 정보를 서버로 보낸다
         val result = realm.query<Member>().first().find()
 
+        Log.d("ttest", result.toString())
         if(result!=null){
             var memberId = result.memberId
             var name = result.name
@@ -127,6 +126,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
     // 가족 구성원 정보
     private fun fetchDataFamilyMemInfo() {
+        Log.d("ttest","여기")
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
 //        realm = Realm.open(GoodNewsApplication.realmConfiguration)
         // 우선 realm 비운다
@@ -134,9 +134,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
         oldData.forEach{
             realm.writeBlocking {
-                findLatest(it)?.also {
-                    delete(it) }
-//                findLatest(it)?.let { it1 -> delete(it1) }
+                delete(it)
             }
         }
         // 가족 정보를 받아와 realm을 수정한다.
@@ -163,7 +161,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                                         latitude = result2!!.lat
                                         longitude = result2!!.lon
                                         familyId = it.familyId
-                                })
+                                    })
                             }
 
                         }
@@ -201,12 +199,12 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 어짜피 3개 밖에 없으므로 다 삭제후 넣는다.
 
         // 기존 정보 삭제
-//        val oldData = realm.query<FamilyPlace>().find()
-//        oldData.forEach {
-//            realm.writeBlocking {
-//                findLatest(it)?.also { delete(it) }
-//            }
-//        }
+        val oldData = realm.query<FamilyPlace>().find()
+        oldData.forEach {
+            realm.writeBlocking {
+                delete(it)
+            }
+        }
 
         // realm에 저장한다.
         familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
@@ -222,7 +220,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                                         latitude = result2.lat
                                         longitude = result2.lon
                                         canUse = result2.canuse
-                                        seq = it.seq
                                     }
                                 )
                             }
@@ -259,11 +256,9 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
         // server 추가 이후 만들어야 함.
         // 위험정보를 모두 가져와서 저장한다.
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd' 'HH:mm:ss")
-        val syncService = SyncService()
-
-        mapAPI.getDurationFacility(syncService.convertDateLongToString(syncTime), object : MapAPI.FacilityDurationCallback{
-            override fun onSuccess(result: ArrayList<DurationFacilityState>) {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        mapAPI.getAllMapFacility(object : MapAPI.FacilityStateCallback{
+            override fun onSuccess(result: ArrayList<FacilityState>) {
                 result.forEach {
                     var tempState:String = ""
                     if(it.buttonType){
