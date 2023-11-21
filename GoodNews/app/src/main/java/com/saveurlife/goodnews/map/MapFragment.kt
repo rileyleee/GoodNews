@@ -796,6 +796,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun addFamilyLocation() {
         Log.d("addFamilyLocation","가족 위치 렌더링 중이에요")
         familyList.map { fam ->
+            Log.d("addFamilyLocation","여기 들어왔나요?")
             val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
 
             val famMarker = Marker(mapView)
@@ -813,6 +814,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 ).show()
                 true
             }
+            Log.v("어떤 가족인가요","${fam.name}")
             mapView.overlays.add(famMarker)
             mapView.invalidate()
         }
