@@ -16,7 +16,6 @@ class ConnectedUserProvider(
 ) {
 
     private val familyList = mutableListOf<FamilyMemInfo>()
-    private var isFamilyMember = false
 
     fun getFamilyList(): MutableList<FamilyMemInfo> {
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
