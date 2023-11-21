@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import io.realm.kotlin.Realm
@@ -14,6 +15,7 @@ class FamilyMemProvider {
     private var familyMemInfo: MutableList<FamilyMemInfo> = mutableListOf() // 초기화
 
     fun getFamilyMemInfo(): MutableList<FamilyMemInfo> {
+        Log.d("FamilyMemProvider","가족 정보 찾으러 왔어요")
 
         CoroutineScope(Dispatchers.IO).launch {
 

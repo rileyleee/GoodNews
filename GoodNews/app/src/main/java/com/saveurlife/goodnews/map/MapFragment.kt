@@ -72,12 +72,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var mapProvider: MapTileProviderArray
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
-    private lateinit var familyMemProvider: FamilyMemProvider
-    private lateinit var familyPlaceProvider: FamilyPlaceProvider
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
-    private lateinit var familyList: MutableList<FamilyMemInfo>
-    private lateinit var familyPlaceList: MutableList<FamilyPlace>
+    private var familyMemProvider = FamilyMemProvider()
+    private var familyPlaceProvider = FamilyPlaceProvider()
+    private var familyList = mutableListOf <FamilyMemInfo>()
+    private var familyPlaceList = mutableListOf <FamilyPlace>()
 
     // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -794,6 +794,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun addFamilyLocation() {
+        Log.d("addFamilyLocation","가족 위치 렌더링 중이에요")
         familyList.map { fam ->
             val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
 
