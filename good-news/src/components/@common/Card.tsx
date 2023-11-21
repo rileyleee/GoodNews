@@ -8,6 +8,7 @@ interface CardProps {
   color: CardColor;
   children: ReactNode;
   className?: string;
+  height?: string;
 }
 
 type CardSize = "ExtraLarge" | "Large" | "Medium" | "Small";
