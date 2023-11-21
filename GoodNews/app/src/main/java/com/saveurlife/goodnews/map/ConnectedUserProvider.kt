@@ -76,7 +76,6 @@ class ConnectedUserProvider(
                                     healthStatus,
                                     lat,
                                     lon,
-                                    false
                                 )
                             )
                         } else {

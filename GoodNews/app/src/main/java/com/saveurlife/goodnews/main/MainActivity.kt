@@ -199,7 +199,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.familyFragment,
                 R.id.myPageFragment,
                 R.id.flashlightFragment,
-                R.id.chattingFragment
+                R.id.chattingFragment,
+                R.id.chooseGroupMemberFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)

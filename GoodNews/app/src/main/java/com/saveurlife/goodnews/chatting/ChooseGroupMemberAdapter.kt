@@ -31,7 +31,7 @@ class ChooseGroupMemberAdapter(private var userList: List<BleMeshConnectedUser>)
         holder.binding.radio.setOnClickListener {
             // 현재 모델의 선택 상태를 반전시킴
             val isChecked = holder.binding.radio.isChecked
-            user.isSelected = isChecked
+//            user.isSelected = isChecked
 
             if (isChecked) {
                 selectedUserIds.add(user.userId) // 사용자 ID 추가
@@ -43,7 +43,7 @@ class ChooseGroupMemberAdapter(private var userList: List<BleMeshConnectedUser>)
                 println("리스트 사라지는 사이즈 ${selectedUserIds.size}")
             }
             // UI에 바로 상태 반영
-            holder.binding.radio.isChecked = user.isSelected
+//            holder.binding.radio.isChecked = user.isSelected
         }
     }
 
@@ -52,7 +52,7 @@ class ChooseGroupMemberAdapter(private var userList: List<BleMeshConnectedUser>)
     class ViewHolder(val binding: ItemChooseGroupBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(user: BleMeshConnectedUser) {
             binding.aroundNameChoose.text = user.userName
-            binding.radio.isChecked = user.isSelected
+//            binding.radio.isChecked = user.isSelected
             println("${user.userName} 뭘 받아와?")
             updateHealthStatusBackground(user.healthStatus)
         }

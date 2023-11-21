@@ -40,4 +40,9 @@
         android:name="com.saveurlife.goodnews.chatting.ChattingFragment"
         tools:layout="@layout/fragment_alarm" />
 
+    <fragment
+        android:id="@+id/chooseGroupMemberFragment"
+        android:name="com.saveurlife.goodnews.chatting.ChooseGroupMemberFragment"
+        tools:layout="@layout/fragment_choose_group_member" />
+
 </navigation>

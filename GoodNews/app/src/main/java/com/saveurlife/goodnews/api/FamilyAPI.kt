@@ -458,8 +458,9 @@ class FamilyAPI {
 
 
 
-
-                        callback.onSuccess(data)
+                        if(data != null){
+                            callback.onSuccess(data)
+                        }
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
