@@ -45,8 +45,7 @@ class ConnectedUserProvider(
 
                 Log.v("connectedUser", "$users")
 
-                // BLE로 연결된 내역에서 가족인 경우에는 필터링해서 realm에 저장하는 방식으로
-                // 마커가 두 번 찍히지 않게 처리
+                // BLE로 연결된 내역에서 가족인 경우에는 필터링해서 realm에 저장하는 방식으로 마커가 두 번 찍히지 않게 처리
 
                 users.forEach { user ->
                     try {
@@ -81,6 +80,26 @@ class ConnectedUserProvider(
                                     false
                                 )
                             )
+                        } else {
+                            // 가족 리스트에 해당한다면 해당 값 업데이트
+                            val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+                            realm.writeBlocking {
+                                // 해당 가족 구성원의 정보를 찾음
+                                val thisFamMem =
+                                    query<FamilyMemInfo>("id == $0", userId).first().find()
+
+                                // 정보를 업데이트
+                                if (thisFamMem != null) {
+                                    thisFamMem.apply {
+                                        this.state = healthStatus
+                                        this.latitude = lat
+                                        this.longitude = lon
+                                    }
+                                    Log.d("ConnectedUserProvider", "가족 구성원 정보 업데이트 완료: $thisFamMem")
+                                }
+                            }
+                            realm.close()
                         }
                     } catch (e: Exception) {
                         Log.e("ConnectedUserProvider", "연결된 이용자 데이터를 객체로 복사 중 오류 발생", e)
