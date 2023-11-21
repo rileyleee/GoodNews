@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -28,8 +29,10 @@ import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
+import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.SyncService
+import io.realm.kotlin.query.RealmResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,6 +48,7 @@ import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
@@ -67,8 +71,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var mapProvider: MapTileProviderArray
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
+    private lateinit var familyMemProvider: FamilyMemProvider
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
+    private lateinit var familyList: MutableList<FamilyMemInfo>
 
     // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -400,6 +406,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 bottomSheet.layoutParams = layoutParams
             }
         })
+
+        // 가족 마커 추가
+        familyList = familyMemProvider.getFamilyMemInfo()
+        addFamilyLocation()
     }
 
     @Throws(IOException::class)
@@ -773,6 +783,30 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         println("리턴 값은 ? ${earthRadius * c}")
 
         return earthRadius * c
+    }
+
+    private fun addFamilyLocation() {
+        familyList.map { fam ->
+            val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
+
+            val famMarker = Marker(mapView)
+            famMarker.position = location
+            famMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            famMarker.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+            famMarker.title = "${fam.name}"
+            famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
+
+            famMarker.setOnMarkerClickListener { famMarker, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    "${famMarker.title}: ${famMarker.snippet}",
+                    Toast.LENGTH_LONG
+                ).show()
+                true
+            }
+            mapView.overlays.add(famMarker)
+            mapView.invalidate()
+        }
     }
 }
 

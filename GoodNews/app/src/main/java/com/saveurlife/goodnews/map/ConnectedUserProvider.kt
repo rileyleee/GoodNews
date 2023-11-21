@@ -24,6 +24,9 @@ class ConnectedUserProvider(
 
                 Log.v("connectedUser", "$users")
 
+                // BLE로 연결된 내역에서 가족인 경우에는 필터링해서 realm에 저장하는 방식으로
+                // 마커가 두 번 찍히지 않게 처리
+
                 users.forEach { user ->
                     try{
                     val userToString = user.toString()
