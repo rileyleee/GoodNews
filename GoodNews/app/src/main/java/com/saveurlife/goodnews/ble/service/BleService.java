@@ -68,6 +68,7 @@ import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 //import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
+import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
 //import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
@@ -97,6 +98,7 @@ import java.util.stream.Collectors;
 public class BleService extends Service {
     private AdvertiseManager advertiseManager;
     private ScanManager scanManager;
+    private BleGattCallback bleGattCallback;
 
     private String nowChatRoomID = "";
     private PreferencesUtil preferencesUtil;
@@ -119,13 +121,14 @@ public class BleService extends Service {
     public static SendMessageManager sendMessageManager;
     private LocationService locationService;
     private UserDeviceInfoService userDeviceInfoService;
+
+
     private static String myId;
     private static String myName;
 
     private static String myFamilyId = "";
     private static List<String> myGroupIds = new ArrayList<>();
 
-//    private BleServiceScanCallback mBleScanCallback;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
@@ -146,14 +149,11 @@ public class BleService extends Service {
 
     private BluetoothGattServer mGattServer;
 
-    private BleGattCallback bleGattCallback;
 
 
     private HandlerThread handlerThread;
     private Handler handler;
     private static final int INTERVAL = 5000; // 30 seconds
-
-//        private String myStatus;
 
 
     @Override
@@ -209,13 +209,12 @@ public class BleService extends Service {
         service.addCharacteristic(characteristic);
         mGattServer.addService(service);
 
-        bleGattCallback = new BleGattCallback();
-
 
         sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
         advertiseManager = new AdvertiseManager(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
         scanManager = new ScanManager(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
+        bleGattCallback = new BleGattCallback(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
     }
 
     // 블루투스 시작 버튼
@@ -310,6 +309,7 @@ public class BleService extends Service {
         }
 
         handler.postDelayed(new Runnable() {
+
             @Override
             public void run() {
                 sendMessageBase();
@@ -345,9 +345,6 @@ public class BleService extends Service {
         sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
     }
 
-    public void createChatRoom(String chatRoomId, String chatRoomName) {
-
-    }
 
 
     public LiveData<List<String>> getDeviceArrayListNameLiveData() {
@@ -744,76 +741,6 @@ public class BleService extends Service {
         });
     }
 
-
-    public class BleGattCallback extends BluetoothGattCallback {
-        @Override
-        public void onPhyUpdate(BluetoothGatt gatt, int txPhy, int rxPhy, int status) {
-            super.onPhyUpdate(gatt, txPhy, rxPhy, status);
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i("BLE", "PHY updated successfully.");
-            } else {
-                Log.e("BLE", "Failed to update PHY. Error code: " + status);
-            }
-        }
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            super.onCharacteristicWrite(gatt, characteristic, status);
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                String[] parts = new String(characteristic.getValue()).split("/");
-                String type = parts[0];
-                if ("disconnect".equals(type)) {
-                    gatt.close();
-                } else if ("chat".equals(type)) {
-                    chatRepository.addMessageToChatRoom(parts[7], parts[8], myId, myName, parts[9], parts[3], true);
-                }
-
-                Log.i("송신 메시지", new String(characteristic.getValue()));
-            } else {
-                Log.e("BLE", "Failed to send message to " + gatt.getDevice().getAddress() + ". Error code: " + status);
-            }
-        }
-
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            super.onConnectionStateChange(gatt, status, newState);
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                Log.i("BLE", "Connected to GATT server.");
-                Log.i("BLE", "Attempting to start service discovery:" + gatt.discoverServices());
-
-//                deviceGattMap.put(gatt.getDevice().getAddress(), gatt);
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i("BLE", "Disconnected from GATT server.");
-            }
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            boolean result = gatt.requestMtu(400);
-            Log.i("BLE", "MTU change request result: " + result);
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i("BLE", "Services discovered.");
-
-                if (gatt.getDevice().getBondState() == 12) {
-                    sendMessageManager.sendMessageInit(gatt, bleMeshConnectedDevicesMap);
-                }
-            } else {
-                Log.w("BLE", "onServicesDiscovered received: " + status);
-            }
-        }
-
-        @Override
-        public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-            super.onMtuChanged(gatt, mtu, status);
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.i("BLE", "MTU changed to: " + mtu);
-                sendMessageManager.sendMessageInit(gatt, bleMeshConnectedDevicesMap);
-            } else {
-                Log.w("BLE", "MTU change failed, status: " + status);
-            }
-        }
-    }
 
 
     @Override
