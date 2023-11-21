@@ -41,7 +41,7 @@ class ConnectedUserProvider(
                         Log.d("connectedUserProvider","BleMeshConnectedUser 객체로 복사 중")
                     // userList에 담기
                     userList.add(                        
-                        BleMeshConnectedUser( userData[0], userData[1], userData[2], userData[3], userData[4].toDouble(), userData[5].toDouble(),false)
+                        BleMeshConnectedUser( userData[0], userData[1], userData[2], userData[3], userData[4].toDouble(), userData[5].toDouble())
                     )}
                     catch(e: Exception){
                         Log.e("ConnectedUserProvider", "연결된 이용자 데이터를 객체로 복사 중 오류 발생", e)

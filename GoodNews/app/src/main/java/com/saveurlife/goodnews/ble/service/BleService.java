@@ -430,6 +430,7 @@ public class BleService extends Service {
 
                     String[] users = content.split("@");
                     Map<String, BleMeshConnectedUser> insert = new HashMap<>();
+
                     for (String user : users) {
                         String[] data = user.split("-");
                         String dataId = data[0];
@@ -437,6 +438,7 @@ public class BleService extends Service {
                             continue;
                         }
 
+                        // 스캔 목록에 있는 디바이스 정보가 넘어오면 스캔화면에서 삭제
                         if (deviceArrayList.contains(dataId)) {
                             int removeIndex = deviceArrayList.indexOf(dataId);
                             deviceArrayList.remove(removeIndex);
@@ -445,14 +447,7 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
                         }
 
-                        BleMeshConnectedUser existingUser = null;
-                        if (bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
-                            existingUser = bleMeshConnectedDevicesMap.get(device.getAddress()).get(senderId);
-                        }
-
-                        boolean isSelected = existingUser != null ? existingUser.getIsSelected() : false;
-
-                        BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]), isSelected);
+                        BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
                     if (!bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
@@ -473,14 +468,8 @@ public class BleService extends Service {
                 // 지속적 위치, 상태 정보 뿌리기
                 else if (messageType.equals("base")) {
                     BleMeshConnectedUser existingUser = null;
-                    if (bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
-                        existingUser = bleMeshConnectedDevicesMap.get(device.getAddress()).get(senderId);
-                    }
-
-                    boolean isSelected = existingUser != null ? existingUser.getIsSelected() : false;
-//                    chatDatabaseManager.createChatMessage(senderId, senderId, parts[2], "parts[8]", parts[3]);
                     spreadMessage(device.getAddress(), message);
-                    BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(senderId, parts[2], parts[3], parts[4], Double.parseDouble(parts[5]), Double.parseDouble(parts[6]), isSelected);
+                    BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(senderId, parts[2], parts[3], parts[4], Double.parseDouble(parts[5]), Double.parseDouble(parts[6]));
 
                     if (bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
                         bleMeshConnectedDevicesMap.get(device.getAddress()).put(senderId, bleMeshConnectedUser);
@@ -595,13 +584,7 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
 
                         }
-                        BleMeshConnectedUser existingUser = null;
-                        if (bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
-                            existingUser = bleMeshConnectedDevicesMap.get(device.getAddress()).get(senderId);
-                        }
-
-                        boolean isSelected = existingUser != null ? existingUser.getIsSelected() : false;
-                        BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]), isSelected);
+                        BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
                     if (nowSize.equals("1")) {
@@ -650,33 +633,6 @@ public class BleService extends Service {
         notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
 
     }
-
-    //채팅 알림(백그라운드)
-    private void sendChatting(String messageContent, String contentBack) {
-        // Notification Channel 생성 (Android O 이상)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "My Notification Channel";
-            String description = "Channel for My App";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID", name, importance);
-            channel.setDescription(description);
-            // 채널을 시스템에 등록
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
-                .setSmallIcon(R.drawable.good_news_logo) // 알림 아이콘 설정
-                .setContentTitle(messageContent) // 알림 제목
-                .setContentText(contentBack) // 'message'는 받은 메시지의 내용
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        // 알림 표시
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-        notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
-
-    }
-
     //포그라운드
     public void foresendNotification(String[] parts) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -740,6 +696,34 @@ public class BleService extends Service {
             }
         });
     }
+
+    //채팅 알림(백그라운드)
+    private void sendChatting(String messageContent, String contentBack) {
+        // Notification Channel 생성 (Android O 이상)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "My Notification Channel";
+            String description = "Channel for My App";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID", name, importance);
+            channel.setDescription(description);
+            // 채널을 시스템에 등록
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
+                .setSmallIcon(R.drawable.good_news_logo) // 알림 아이콘 설정
+                .setContentTitle(messageContent) // 알림 제목
+                .setContentText(contentBack) // 'message'는 받은 메시지의 내용
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        // 알림 표시
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
+
+    }
+
+
 
 
 
