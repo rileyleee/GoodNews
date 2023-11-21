@@ -8,11 +8,11 @@ import io.realm.kotlin.ext.query
 class FamilyMemProvider {
 
     // realm에서 가족 리스트 뽑아와서 지도에 띄우기
-
-    private var realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private var familyMemInfo: MutableList<FamilyMemInfo> = mutableListOf()
+    private var familyMemInfo: MutableList<FamilyMemInfo> = mutableListOf() // 초기화
 
     fun getFamilyMemInfo():MutableList<FamilyMemInfo> {
+
+        var realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         var familyList = realm.query<FamilyMemInfo>().find()
 
@@ -24,6 +24,8 @@ class FamilyMemProvider {
                 familyMemInfo.add(fam)
             }
         }
+
+        realm.close()
 
 
         return familyMemInfo
