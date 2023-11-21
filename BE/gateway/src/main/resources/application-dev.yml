@@ -6,6 +6,9 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 
+#  instance:
+#    hostname: saveurlife.kr
+#    instance-id: gateway-server-instance
 spring:
   cloud:
     gateway:
@@ -13,36 +16,26 @@ spring:
         - id: member-service
           uri: http://localhost:64000
           predicates:
-            - Path=/api/members/app/**, /api/family/**
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+            - Path=/api/members/app/**, /api/family/app/**, /api/facility/app/**
         - id: member-service
           uri: http://localhost:64000
           predicates:
             - Path=/api/members/web/reissue
           filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
             - AuthorizationHeaderFilter
         - id: member-service
           uri: http://localhost:64000
           predicates:
             - Path=/api/members/web/login
-#          filters:
-#            - RemoveRequestHeader=Cookie
-#            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
         - id: map-service
           uri: http://localhost:65000
           predicates:
             - Path=/api/map/**
           filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
-jwt:
-  secretKey: aWQgyiORSXixtGdZLzfh
-  access:
-    expiration: 3600000
-  refresh:
-    expiration: 18000000
+            - AuthorizationHeaderFilter
 
+
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: trace
+#    reactor.netty: trace

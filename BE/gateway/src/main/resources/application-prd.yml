@@ -5,41 +5,37 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://saveurlife.kr:8761/eureka
-  instance:
-    hostname: saveurlife.kr
 
+#  instance:
+#    hostname: saveurlife.kr
+#    instance-id: gateway-server-instance
+spring:
   cloud:
     gateway:
       routes:
         - id: member-service
           uri: http://saveurlife.kr:64000
           predicates:
-            - Path=/api/members/app/**, /api/family/**
-          filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+            - Path=/api/members/app/**, /api/family/app/**, /api/facility/app/**
         - id: member-service
           uri: http://saveurlife.kr:64000
           predicates:
             - Path=/api/members/web/reissue
           filters:
-            - RemoveRequestHeader=Cookie
-            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
             - AuthorizationHeaderFilter
         - id: member-service
           uri: http://saveurlife.kr:64000
           predicates:
             - Path=/api/members/web/login
+        - id: map-service
+          uri: http://k9b307a.p.ssafy.io:65000
+          predicates:
+            - Path=/api/map/**
           filters:
-#            - RemoveRequestHeader=Cookie
-#            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
-#        - id: map-service
-#          uri: http://k9b307a.p.ssafy.io:65000
-#          predicates:
-#            - Path=/api/map/**
-#          filters:
-#            - RemoveRequestHeader=Cookie
-#            - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+            - AuthorizationHeaderFilter
 
 
-
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: trace
+#    reactor.netty: trace

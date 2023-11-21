@@ -35,5 +35,14 @@ public class MemberValidator {
     }
 
 
+    public void checkPhoneMember(Optional<Member> findMember, String phoneNumber) {
 
+        if (findMember.isEmpty()) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(MemberErrorEnum.INVALID_PHONE.getCode())
+                    .message(MemberErrorEnum.INVALID_PHONE.getMessage() + phoneNumber)
+                    .build();
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.goodnews.member.map.dto.response;
+package com.goodnews.member.member.dto.response.facility;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -6,6 +6,7 @@ import lombok.Getter;
 public class MemberRegistRequestDto {
 
     private String memberId;
+    private String phoneNumber;
     private String name;
     private String birthDate;
     private String gender;

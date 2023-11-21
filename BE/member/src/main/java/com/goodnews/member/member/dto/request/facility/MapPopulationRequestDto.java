@@ -1,4 +1,4 @@
-package com.goodnews.member.map.dto.request;
+package com.goodnews.member.member.dto.request.facility;
 
 import lombok.Getter;
 

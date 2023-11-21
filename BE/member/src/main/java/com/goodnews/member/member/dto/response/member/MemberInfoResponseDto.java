@@ -8,6 +8,7 @@ import lombok.Getter;
 public class MemberInfoResponseDto {
 
     private String memberId;
+    private String phoneNumber;
     private String name;
     private String birthDate;
     private String gender;
@@ -16,10 +17,12 @@ public class MemberInfoResponseDto {
     private String state;
     private Double lat;
     private Double lon;
+    private String familyId;
 
     @Builder
-    public MemberInfoResponseDto(Member member) {
+    public MemberInfoResponseDto(Member member,String familyId) {
         this.memberId = member.getId();
+        this.phoneNumber = member.getPhoneNumber();
         this.name = member.getName();
         this.birthDate = member.getBirthdate();
         this.gender = member.getGender();
@@ -28,5 +31,6 @@ public class MemberInfoResponseDto {
         this.state = member.getState();
         this.lat = member.getLat();
         this.lon = member.getLon();
+        this.familyId = familyId;
     }
 }

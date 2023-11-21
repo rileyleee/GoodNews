@@ -1,6 +1,6 @@
-package com.goodnews.member.map.domain;
+package com.goodnews.member.member.domain;
 
-import com.goodnews.member.map.dto.request.MapRegistFacilityRequestDto;
+import com.goodnews.member.member.dto.request.facility.MapRegistFacilityRequestDto;
 import com.goodnews.member.common.domain.BaseEntity;
 import lombok.Builder;
 import lombok.Getter;

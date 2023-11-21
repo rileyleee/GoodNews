@@ -1,28 +1,27 @@
-package com.goodnews.member.map.service;
+package com.goodnews.member.member.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goodnews.member.common.dto.BaseResponseDto;
-import com.goodnews.member.map.domain.FacilityState;
-import com.goodnews.member.map.domain.LocalPopulation;
-import com.goodnews.member.map.dto.request.MapPopulationRequestDto;
-import com.goodnews.member.map.dto.request.MapRegistFacilityRequestDto;
-import com.goodnews.member.map.dto.response.MapPopulationResponseDto;
-import com.goodnews.member.map.dto.response.MapResponseDto;
-import com.goodnews.member.map.repository.FacilityStateRepository;
-import com.goodnews.member.map.repository.LocalPopulationRepository;
 import com.goodnews.member.common.exception.validator.BaseValidator;
-import com.goodnews.member.common.exception.validator.MapValidator;
-import com.goodnews.member.map.domain.OffMapInfo;
-import com.goodnews.member.map.repository.MapMongoRepository;
+import com.goodnews.member.common.exception.validator.FacilityValidator;
+import com.goodnews.member.member.domain.FacilityState;
+import com.goodnews.member.member.domain.LocalPopulation;
+import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
+import com.goodnews.member.member.dto.request.facility.MapRegistFacilityRequestDto;
+import com.goodnews.member.member.dto.response.facility.FacilityStateResponseDto;
+import com.goodnews.member.member.dto.response.facility.MapPopulationResponseDto;
+import com.goodnews.member.member.repository.FacilityStateRepository;
+import com.goodnews.member.member.repository.LocalPopulationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -31,36 +30,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MapService {
+public class FacilityService {
 
-    private final MapMongoRepository mongoRepository;
     private final BaseValidator baseValidator;
     private final LocalPopulationRepository localPopulationRepository;
-    private final MapValidator mapValidator;
+    private final FacilityValidator mapValidator;
     private final RedisTemplate<String,String> redisTemplate;
     private final FacilityStateRepository facilityStateRepository;
 
 
-    @Transactional(readOnly = true)
-    public BaseResponseDto test() {
-
-        Optional<OffMapInfo> findId = mongoRepository.findFirstByNameRegex("뉴코아아울렛");
-        return BaseResponseDto.builder()
-                .data(findId.get())
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    public BaseResponseDto findFacilityInfo(int page, int size) {
-        baseValidator.checkPageAndSize(page,size);
-        PageRequest pageable = PageRequest.of(page, size);
-
-        return BaseResponseDto.builder()
-                .success(true)
-                .message("전체 시설 정보 조회를 성공했습니다")
-                .data(mongoRepository.findAll())
-                .build();
-    }
 
     @Transactional(readOnly = true)
     public BaseResponseDto findPopulation() {
@@ -94,28 +72,11 @@ public class MapService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public BaseResponseDto detailFacility(String id) {
-
-        Optional<OffMapInfo> findFaciltiy = mongoRepository.findById(id);
-        mapValidator.checkFaciltiy(findFaciltiy,id);
-        return BaseResponseDto.builder()
-                .success(true)
-                .message("지도 상세 정보를 조회했습니다")
-                .data(MapResponseDto.builder()
-                        .type(findFaciltiy.get().getType())
-                        .name(findFaciltiy.get().getName())
-                        .lon(findFaciltiy.get().getLon())
-                        .lat(findFaciltiy.get().getLat())
-                        .canuse(findFaciltiy.get().getCanuse())
-                        .facility(findFaciltiy.get().getFacility())
-                        .build())
-                .build();
-    }
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter.parse(request.getDate());
         saveToRedis(request);
 
         return BaseResponseDto.builder()
@@ -158,12 +119,37 @@ public class MapService {
 
 
     @Transactional(readOnly = true)
-    public BaseResponseDto getFacilityState() {
+    public BaseResponseDto getFacility() {
 
         return BaseResponseDto.builder()
                 .success(true)
-                .message("시설 상태 정보를 전체 조회 성공했습니다")
+                .message("시설 상태 정보 전체 조회 성공했습니다")
                 .data(facilityStateRepository.findAll())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto getDurationFacility(String date) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter.parse(date);
+
+
+        List<FacilityStateResponseDto> list = facilityStateRepository.findByLastModifiedDateAfter(date).stream()
+                .map(facilityState -> FacilityStateResponseDto.builder()
+                        .id(facilityState.getId())
+                        .buttonType(facilityState.getButtonType())
+                        .text(facilityState.getText())
+                        .lon(facilityState.getLon())
+                        .lat(facilityState.getLat())
+                        .lastModifiedDate(facilityState.getLastModifiedDate())
+                        .build())
+                .collect(Collectors.toList());
+        mapValidator.checkFaciltiyState(list,date);
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("기간 이후 시설 상태 정보 조회를 성공했습니다")
+                .data(list)
                 .build();
     }
 }

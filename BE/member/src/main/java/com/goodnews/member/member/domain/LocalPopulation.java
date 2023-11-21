@@ -1,6 +1,6 @@
-package com.goodnews.member.map.domain;
+package com.goodnews.member.member.domain;
 
-import com.goodnews.member.map.dto.request.LocalPopulationDto;
+import com.goodnews.member.member.dto.request.facility.LocalPopulationDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

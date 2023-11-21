@@ -1,4 +1,4 @@
-package com.goodnews.member.map.dto.request;
+package com.goodnews.member.member.dto.request.facility;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -11,4 +11,5 @@ public class MapRegistFacilityRequestDto {
     private String text;
     private Double lat;
     private Double lon;
+    private String date;
 }

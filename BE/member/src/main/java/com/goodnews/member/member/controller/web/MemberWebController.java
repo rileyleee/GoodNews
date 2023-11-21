@@ -6,8 +6,8 @@ import com.goodnews.member.common.dto.RefreshTokenResponseDto;
 import com.goodnews.member.common.dto.TokenDto;
 import com.goodnews.member.common.exception.validator.TokenValidator;
 import com.goodnews.member.jwt.JwtTokenProvider;
-import com.goodnews.member.map.service.MapService;
 import com.goodnews.member.member.domain.Member;
+import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberLoginAdminRequestDto;
 import com.goodnews.member.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 public class MemberWebController {
     private final TokenValidator tokenValidator;
     private final MemberService memberService;
-    private final MapService mapService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "관리자 로그인", description = "관리자 로그인(아이디,비밀번호)")
@@ -70,7 +69,13 @@ public class MemberWebController {
         String token = httpServletRequest.getHeader("Authorization");
         tokenValidator.checkTokenIsNull(token);
         Member findMember = memberService.findMemberByJwtToken(token);
-        return mapService.findPopulation();
+        return memberService.findPopulation();
+    }
+
+    @Operation(summary = "앱 이용자 업데이트", description = "앱 이용자 정보 업데이트(인구수)")
+    @PutMapping("/getallmember")
+    private BaseResponseDto updatePopulation(@RequestBody MapPopulationRequestDto mapPopulationRequestDto) {
+        return memberService.updatePopulation(mapPopulationRequestDto);
     }
 
 }

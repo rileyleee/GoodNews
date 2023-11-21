@@ -11,8 +11,7 @@ spring:
   application:
     name: gateway-service
   profiles:
-    active: dev
-
+    active: prd
 jwt:
   secretKey: aWQgyiORSXixtGdZLzfh
   access:
