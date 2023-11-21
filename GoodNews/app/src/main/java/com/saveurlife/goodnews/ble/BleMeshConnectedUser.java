@@ -10,16 +10,14 @@ public class BleMeshConnectedUser implements Serializable {
     private String healthStatus;
     private double lat;
     private double lon;
-    private boolean isSelected;
 
-    public BleMeshConnectedUser(String userId, String userName, String updateTime, String healthStatus, double lat, double lon, boolean isSelected) {
+    public BleMeshConnectedUser(String userId, String userName, String updateTime, String healthStatus, double lat, double lon) {
         this.userId = userId;
         this.userName = userName;
         this.updateTime = updateTime;
         this.healthStatus = healthStatus;
         this.lat = lat;
         this.lon = lon;
-        this.isSelected = isSelected;
     }
 
     public String getUserId() {
@@ -70,13 +68,6 @@ public class BleMeshConnectedUser implements Serializable {
         this.lon = lon;
     }
 
-    public boolean getIsSelected() {
-        return isSelected;
-    }
-
-    public void setIsSelected(boolean isSelected) {
-        this.isSelected = isSelected;
-    }
 
     @Override
     public String toString() {

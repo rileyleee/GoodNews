@@ -9,7 +9,7 @@ class ChattingAdapter(fragment: Fragment) : FragmentStateAdapter(fragment){
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> OneChattingFragment()
-//            1 -> GroupChattingFragment()
+            1 -> GroupChattingFragment()
             else -> throw IllegalStateException("Invalid position $position")
         }
     }
