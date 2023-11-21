@@ -58,7 +58,7 @@
 
     <!--  메인페이지 TabLayout 제목  -->
     <style name="MyTabTextAppearance" parent="TextAppearance.Design.Tab">
-        <item name="android:textSize">21sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <!--  Dialog 스타일  -->

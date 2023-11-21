@@ -167,7 +167,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="16dp"
                 android:ellipsize="end"
-                android:gravity="right"
+                android:gravity="end"
                 android:text="특이사항"
                 android:textColor="@color/font_color"
                 android:textSize="16sp"
@@ -202,7 +202,7 @@
         <View
             android:id="@+id/contour"
             android:layout_width="0dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:background="@color/inactive_gray"
@@ -254,7 +254,7 @@
         <View
             android:id="@+id/lineDarkMode"
             android:layout_width="0dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:background="@color/inactive_gray"
@@ -292,7 +292,7 @@
         <View
             android:id="@+id/lineAlarm"
             android:layout_width="0dp"
-            android:layout_height="2px"
+            android:layout_height="1dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:background="@color/inactive_gray"

@@ -27,13 +27,13 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 
-// FamilyServiceCallback 인터페이스 정의
-interface FamilyServiceCallback {
-    fun onSuccess(placeId: String)
-    fun onFailure(error: String)
-}
-
 class FamilyPlaceAddEditFragment : DialogFragment() {
+
+    // FamilyServiceCallback 인터페이스 정의
+    interface FamilyServiceCallback {
+        fun onSuccess(placeId: String)
+        fun onFailure(error: String)
+    }
 
     private lateinit var binding: FragmentFamilyPlaceAddEditBinding
     private lateinit var geocoder: Geocoder
