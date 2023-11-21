@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import AdminContentWrap from "../components/admin/AdminContentWrap";
 
 // 관리자 관리 페이지
@@ -17,8 +18,8 @@ export default AdminPage;
 
 const StyledAdminPageWrapper = styled.div`
   width: 100%;
-  height: calc(100vh - 60px);
-  background-color: lavender;
+  height: calc(100vh - 30px);
+  margin-top: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,5 +31,6 @@ const StyledAdminCard = styled.div`
   height: 90%;
   background-color: #fff;
   border-radius: 30px;
-  padding: 50px;
+  padding: 28px 40px;
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.25);
 `;
