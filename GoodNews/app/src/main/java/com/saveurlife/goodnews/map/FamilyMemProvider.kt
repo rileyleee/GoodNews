@@ -10,15 +10,21 @@ class FamilyMemProvider {
     // realm에서 가족 리스트 뽑아와서 지도에 띄우기
 
     private var realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private lateinit var familyMemInfo: MutableList<FamilyMemInfo>
+    private var familyMemInfo: MutableList<FamilyMemInfo> = mutableListOf()
 
     fun getFamilyMemInfo():MutableList<FamilyMemInfo> {
 
         var familyList = realm.query<FamilyMemInfo>().find()
 
-        familyList.forEach { fam ->
-            familyMemInfo.add(fam)
+        // 이전 데이터를 지우기
+        familyMemInfo.clear()
+
+        if (familyList.isNotEmpty()) {
+            familyList.forEach { fam ->
+                familyMemInfo.add(fam)
+            }
         }
+
 
         return familyMemInfo
     }
