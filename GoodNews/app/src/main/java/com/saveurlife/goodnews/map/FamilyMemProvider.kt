@@ -4,29 +4,33 @@ import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FamilyMemProvider {
 
     // realm에서 가족 리스트 뽑아와서 지도에 띄우기
     private var familyMemInfo: MutableList<FamilyMemInfo> = mutableListOf() // 초기화
 
-    fun getFamilyMemInfo():MutableList<FamilyMemInfo> {
+    fun getFamilyMemInfo(): MutableList<FamilyMemInfo> {
 
-        var realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        CoroutineScope(Dispatchers.IO).launch {
 
-        var familyList = realm.query<FamilyMemInfo>().find()
+            var realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
-        // 이전 데이터를 지우기
-        familyMemInfo.clear()
+            var familyList = realm.query<FamilyMemInfo>().find()
 
-        if (familyList.isNotEmpty()) {
-            familyList.forEach { fam ->
-                familyMemInfo.add(fam)
+            // 이전 데이터를 지우기
+            familyMemInfo.clear()
+
+            if (familyList.isNotEmpty()) {
+                familyList.forEach { fam ->
+                    familyMemInfo.add(fam)
+                }
             }
+            realm.close()
         }
-
-        realm.close()
-
 
         return familyMemInfo
     }

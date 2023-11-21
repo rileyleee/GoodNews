@@ -30,6 +30,7 @@ import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
+import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.query.RealmResults
@@ -72,9 +73,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var locationProvider: LocationProvider
     private lateinit var facilityProvider: FacilityProvider
     private lateinit var familyMemProvider: FamilyMemProvider
+    private lateinit var familyPlaceProvider: FamilyPlaceProvider
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
     private lateinit var familyList: MutableList<FamilyMemInfo>
+    private lateinit var familyPlaceList: MutableList<FamilyPlace>
 
     // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -410,6 +413,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 가족 마커 추가
         familyList = familyMemProvider.getFamilyMemInfo()
         addFamilyLocation()
+
+        // 가족 약속 장소 추가
+        familyPlaceList = familyPlaceProvider.getFamilyPlace()
+        addFamilyPlaceLocation()
+
     }
 
     @Throws(IOException::class)
@@ -805,6 +813,30 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 true
             }
             mapView.overlays.add(famMarker)
+            mapView.invalidate()
+        }
+    }
+
+    private fun addFamilyPlaceLocation() {
+        familyPlaceList.map { famPlace ->
+            val location = GeoPoint("${famPlace.latitude}".toDouble(), "${famPlace.longitude}".toDouble())
+
+            val famPlaceMarker = Marker(mapView)
+            famPlaceMarker.position = location
+            famPlaceMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            famPlaceMarker.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+            famPlaceMarker.title = "${famPlace.name}"
+            famPlaceMarker.snippet = "주소: ${famPlace.address}, 현재 상태: ${famPlace.canUse}"
+
+            famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
+                    Toast.LENGTH_LONG
+                ).show()
+                true
+            }
+            mapView.overlays.add(famPlaceMarker)
             mapView.invalidate()
         }
     }
