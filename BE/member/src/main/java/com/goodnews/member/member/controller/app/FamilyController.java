@@ -1,10 +1,10 @@
-package com.goodnews.member.member.controller.app;
+package com.ssafy.goodnews.member.controller;
 
-import com.goodnews.member.member.dto.request.family.*;
-import com.goodnews.member.common.dto.BaseResponseDto;
-import com.goodnews.member.member.dto.request.member.MemberFirstLoginRequestDto;
-import com.goodnews.member.member.dto.request.member.MemberRegistFamilyRequestDto;
-import com.goodnews.member.member.service.FamilyService;
+import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.member.dto.request.family.*;
+import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.service.FamilyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Family", description = "멤버(가족) 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/family/app")
+@RequestMapping("/api/family")
 public class FamilyController {
 
     private final FamilyService familyService;

@@ -1,4 +1,4 @@
-package com.goodnews.member.member.dto.response.family;
+package com.ssafy.goodnews.member.dto.response.family;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +12,7 @@ public class FamilyInviteResponseDto {
 
 
     @Builder
-    public FamilyInviteResponseDto(int id, String name, String phoneNumber) {
+    public FamilyInviteResponseDto(int id,String name, String phoneNumber) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;

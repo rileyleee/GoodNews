@@ -12,6 +12,7 @@ public class FamilyRegistPlaceResponseDto {
     private Double lat;
     private Double lon;
     private boolean canuse;
+    private int seq;
 
     @Builder
     public FamilyRegistPlaceResponseDto(FamilyPlace familyPlace) {
@@ -20,5 +21,6 @@ public class FamilyRegistPlaceResponseDto {
         this.lat = familyPlace.getLat();
         this.lon = familyPlace.getLon();
         this.canuse = familyPlace.isCanuse();
+        this.seq = familyPlace.getSeq();
     }
 }

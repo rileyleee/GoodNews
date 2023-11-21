@@ -1,10 +1,10 @@
-package com.goodnews.member.common.exception.validator;
+package com.ssafy.goodnews.common.exception.validator;
 
-import com.goodnews.member.common.exception.CustomException;
-import com.goodnews.member.common.exception.message.FamilyErrorEnum;
-import com.goodnews.member.member.domain.Family;
-import com.goodnews.member.member.domain.FamilyMember;
-import com.goodnews.member.member.domain.FamilyPlace;
+import com.ssafy.goodnews.common.exception.CustomException;
+import com.ssafy.goodnews.common.exception.message.FamilyErrorEnum;
+import com.ssafy.goodnews.member.domain.Family;
+import com.ssafy.goodnews.member.domain.FamilyMember;
+import com.ssafy.goodnews.member.domain.FamilyPlace;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ public class FamilyValidator {
     }
 
     public void checkUpdateFamily(Optional<FamilyMember> findMember) {
-        if(findMember.isEmpty()) {
+         if(findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())

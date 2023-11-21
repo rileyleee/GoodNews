@@ -1,29 +1,29 @@
-package com.goodnews.member.member.service;
+package com.ssafy.goodnews.member.service;
 
-import com.goodnews.member.common.dto.BaseResponseDto;
-import com.goodnews.member.common.exception.validator.FamilyValidator;
-import com.goodnews.member.member.dto.request.family.FamilyPlaceCanuseDto;
-import com.goodnews.member.member.dto.request.family.FamilyPlaceUpdateRequestDto;
-import com.goodnews.member.member.dto.request.family.FamilyRegistRequestDto;
-import com.goodnews.member.member.dto.response.family.FamilyInviteResponseDto;
-import com.goodnews.member.member.dto.response.family.FamilyPlaceDetailResponseDto;
-import com.goodnews.member.member.dto.response.family.FamilyPlaceInfoResponseDto;
-import com.goodnews.member.member.dto.response.family.FamilyRegistPlaceResponseDto;
-import com.goodnews.member.member.dto.response.member.MemberResponseDto;
-import com.goodnews.member.common.exception.validator.MemberValidator;
-import com.goodnews.member.member.domain.Family;
-import com.goodnews.member.member.domain.FamilyMember;
-import com.goodnews.member.member.domain.FamilyPlace;
-import com.goodnews.member.member.domain.Member;
-import com.goodnews.member.member.dto.request.family.FamilyRegistPlaceRequestDto;
-import com.goodnews.member.member.dto.request.member.MemberFirstLoginRequestDto;
-import com.goodnews.member.member.dto.request.member.MemberRegistFamilyRequestDto;
-import com.goodnews.member.member.dto.response.member.MemberRegistFamilyResposneDto;
-import com.goodnews.member.member.repository.FamilyMemberRepository;
-import com.goodnews.member.member.repository.FamilyPlaceRepository;
-import com.goodnews.member.member.repository.FamilyRepository;
-import com.goodnews.member.member.repository.MemberRepository;
-import com.goodnews.member.member.repository.querydsl.MemberQueryDslRepository;
+import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.common.exception.validator.FamilyValidator;
+import com.ssafy.goodnews.common.exception.validator.MemberValidator;
+import com.ssafy.goodnews.member.domain.Family;
+import com.ssafy.goodnews.member.domain.FamilyMember;
+import com.ssafy.goodnews.member.domain.FamilyPlace;
+import com.ssafy.goodnews.member.domain.Member;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceCanuseDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyPlaceUpdateRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyRegistPlaceRequestDto;
+import com.ssafy.goodnews.member.dto.request.family.FamilyRegistRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberFirstLoginRequestDto;
+import com.ssafy.goodnews.member.dto.request.member.MemberRegistFamilyRequestDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyInviteResponseDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceDetailResponseDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyPlaceInfoResponseDto;
+import com.ssafy.goodnews.member.dto.response.family.FamilyRegistPlaceResponseDto;
+import com.ssafy.goodnews.member.dto.response.member.MemberRegistFamilyResposneDto;
+import com.ssafy.goodnews.member.dto.response.member.MemberResponseDto;
+import com.ssafy.goodnews.member.repository.FamilyMemberRepository;
+import com.ssafy.goodnews.member.repository.FamilyPlaceRepository;
+import com.ssafy.goodnews.member.repository.FamilyRepository;
+import com.ssafy.goodnews.member.repository.MemberRepository;
+import com.ssafy.goodnews.member.repository.querydsl.MemberQueryDslRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.ssafy.goodnews.member.domain.QFamilyMember.familyMember;
 
 @Service
 @RequiredArgsConstructor

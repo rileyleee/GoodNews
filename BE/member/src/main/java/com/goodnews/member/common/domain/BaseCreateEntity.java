@@ -1,6 +1,7 @@
-package com.goodnews.member.common.domain;
+package com.ssafy.goodnews.common.domain;
 
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -11,13 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class BaseConnectEntity {
-//    @LastModifiedDate
-//    private LocalDateTime locationTime;
-
-    @LastModifiedDate
-    private LocalDateTime lastUpdate;
-
-
+public class BaseCreateEntity {
+    @CreatedDate
+    private LocalDateTime createdDate;
 
 }

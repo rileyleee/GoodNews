@@ -1,20 +1,24 @@
-package com.goodnews.member.member.service;
+package com.ssafy.goodnews.map.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.goodnews.member.common.dto.BaseResponseDto;
-import com.goodnews.member.common.exception.validator.BaseValidator;
-import com.goodnews.member.common.exception.validator.FacilityValidator;
-import com.goodnews.member.member.domain.FacilityState;
-import com.goodnews.member.member.domain.LocalPopulation;
-import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
-import com.goodnews.member.member.dto.request.facility.MapRegistFacilityRequestDto;
-import com.goodnews.member.member.dto.response.facility.FacilityStateResponseDto;
-import com.goodnews.member.member.dto.response.facility.MapPopulationResponseDto;
-import com.goodnews.member.member.repository.FacilityStateRepository;
-import com.goodnews.member.member.repository.LocalPopulationRepository;
+import com.ssafy.goodnews.common.dto.BaseResponseDto;
+import com.ssafy.goodnews.common.exception.validator.BaseValidator;
+import com.ssafy.goodnews.common.exception.validator.MapValidator;
+import com.ssafy.goodnews.map.domain.FacilityState;
+import com.ssafy.goodnews.map.domain.LocalPopulation;
+import com.ssafy.goodnews.map.domain.OffMapInfo;
+import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
+import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
+import com.ssafy.goodnews.map.dto.response.FacilityStateResponseDto;
+import com.ssafy.goodnews.map.dto.response.MapPopulationResponseDto;
+import com.ssafy.goodnews.map.dto.response.MapResponseDto;
+import com.ssafy.goodnews.map.repository.FacilityStateRepository;
+import com.ssafy.goodnews.map.repository.LocalPopulationRepository;
+import com.ssafy.goodnews.map.repository.MapMongoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,15 +34,36 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FacilityService {
+public class MapService {
 
+    private final MapMongoRepository mongoRepository;
     private final BaseValidator baseValidator;
     private final LocalPopulationRepository localPopulationRepository;
-    private final FacilityValidator mapValidator;
+    private final MapValidator mapValidator;
     private final RedisTemplate<String,String> redisTemplate;
     private final FacilityStateRepository facilityStateRepository;
 
 
+    @Transactional(readOnly = true)
+    public BaseResponseDto test() {
+
+        Optional<OffMapInfo> findId = mongoRepository.findFirstByNameRegex("뉴코아아울렛");
+        return BaseResponseDto.builder()
+                .data(findId.get())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto findFacilityInfo(int page, int size) {
+        baseValidator.checkPageAndSize(page,size);
+        PageRequest pageable = PageRequest.of(page, size);
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("전체 시설 정보 조회를 성공했습니다")
+                .data(mongoRepository.findAll())
+                .build();
+    }
 
     @Transactional(readOnly = true)
     public BaseResponseDto findPopulation() {
@@ -72,6 +97,24 @@ public class FacilityService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public BaseResponseDto detailFacility(String id) {
+
+        Optional<OffMapInfo> findFaciltiy = mongoRepository.findById(id);
+        mapValidator.checkFaciltiy(findFaciltiy,id);
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("지도 상세 정보를 조회했습니다")
+                .data(MapResponseDto.builder()
+                        .type(findFaciltiy.get().getType())
+                        .name(findFaciltiy.get().getName())
+                        .lon(findFaciltiy.get().getLon())
+                        .lat(findFaciltiy.get().getLat())
+                        .canuse(findFaciltiy.get().getCanuse())
+                        .facility(findFaciltiy.get().getFacility())
+                        .build())
+                .build();
+    }
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
