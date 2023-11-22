@@ -1,6 +1,6 @@
 package com.saveurlife.goodnews.family
 
-import android.app.Application
+
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -9,11 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
@@ -27,6 +30,8 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 import com.saveurlife.goodnews.service.UserDeviceInfoService
+import com.saveurlife.goodnews.sync.FamilySyncWorker
+import com.saveurlife.goodnews.sync.SyncService
 
 class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     enum class Mode { ADD, READ, EDIT }
@@ -34,18 +39,19 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     private lateinit var familyListRecyclerView: RecyclerView
     private lateinit var binding: FragmentFamilyBinding
     private lateinit var realm: Realm
-    var familyListAdapter: FamilyListAdapter = FamilyListAdapter(requireContext(), this)
+    lateinit var familyListAdapter: FamilyListAdapter
 
     // 클래스 레벨 변수로 장소 데이터 저장
     private var familyPlaces: List<FamilyPlace> = listOf()
 
     private lateinit var deviceStateService: DeviceStateService
     private lateinit var userDeviceInfoService: UserDeviceInfoService
+    private var familyAPI: FamilyAPI = FamilyAPI()
+    private var memberAPI: MemberAPI = MemberAPI()
+
     companion object{
         lateinit var familyEditText:TextView
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        lateinit var familyAPI: FamilyAPI
-        lateinit var memberAPI: MemberAPI
         lateinit var memberId:String
         var numToStatus:Map<Int, Status> = mapOf(
             0 to Status.HEALTHY,
@@ -55,20 +61,43 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         )
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("test", "페이지가 시작되었다.")
+            var workManager = WorkManager.getInstance(requireContext())
+
+            // 조건 설정 - 인터넷 연결 시에만 실행
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            // request 생성
+            val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
+                .setConstraints(constraints)
+                .build()
+
+            // 실행
+            workManager.enqueue(updateRequest)
+            addList()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        deviceStateService = DeviceStateService()
+        familyListAdapter = FamilyListAdapter(context, this)
+        userDeviceInfoService = UserDeviceInfoService(requireContext())
+        memberId = userDeviceInfoService.deviceId
+
+//        addList()
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentFamilyBinding.inflate(inflater, container, false)
-        deviceStateService = DeviceStateService()
-
-        userDeviceInfoService = UserDeviceInfoService(requireContext())
-
-        memberId = userDeviceInfoService.deviceId
         familyEditText = binding.familyEditText
-
-        familyAPI = FamilyAPI()
-        memberAPI = MemberAPI()
 
 
 
@@ -96,26 +125,20 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         familyListAdapter = FamilyListAdapter(requireContext(), this)
         familyListRecyclerView.adapter = familyListAdapter
 
-        familyListAdapter.addList()
     }
-//    fun getFamilyListAdapter(): FamilyListAdapter {
-//        return familyListAdapter
-//    }
+
     // 아이템 클릭 이벤트 처리
     override fun onAcceptButtonClick(position: Int) {
         val item = familyListAdapter.familyList[position]
         // 서버 요청 등 처리
         familyAPI.updateRegistFamily(item.acceptNumber, false)
-        // 데이터 갱신
-        familyListAdapter.addList()
     }
 
     override fun onRejectButtonClick(position: Int) {
         val item = familyListAdapter.familyList[position]
         // 서버 요청 등 처리
         familyAPI.updateRegistFamily(item.acceptNumber, true)
-        // 데이터 갱신
-        familyListAdapter.addList()
+
     }
     // Realm에서 데이터 로드 및 UI 업데이트
     private fun loadFamilyPlaces() {
@@ -192,12 +215,66 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
 
     // 가족 추가
     private fun showAddDialog() {
-
-        val dialogFragment = FamilyAddFragment(familyListAdapter)
+        val dialogFragment = FamilyAddFragment(this)
         if(deviceStateService.isNetworkAvailable(requireContext())){
             dialogFragment.show(childFragmentManager, "FamilyAddFragment")
         }else{
             Toast.makeText(requireContext(), "네트워크 상태가 불안정합니다.\n다시 시도해 주세요", Toast.LENGTH_SHORT).show()
         }
+    }
+
+
+    fun addList(){
+        // 서버에서 리스트 가져와서 추가 -> 인터넷 연결 시
+
+        if(deviceStateService.isNetworkAvailable(requireContext())){
+            val userDeviceInfoService = UserDeviceInfoService(requireContext())
+            familyListAdapter.resetFamilyList()
+            familyAPI.getRegistFamily(userDeviceInfoService.deviceId, object : FamilyAPI.WaitListCallback {
+                override fun onSuccess(result: ArrayList<WaitInfo>) {
+                    result.forEach{
+                        var str = it.name
+                        var cov = ""
+                        if(str.length == 3){
+                            cov = it.name[0] + "*" + it.name[2]
+                        }else if(str.length == 2){
+                            cov = it.name[0] + "*"
+                        }else{
+                            cov = it.name[0]+""
+                            for (i in 2 .. str.length){
+                                cov += "*"
+                            }
+                        }
+
+                        familyListAdapter.addFamilyWait(it.name, it.id)
+                    }
+
+                    familyListAdapter.notifyDataSetChanged()
+                }
+
+                override fun onFailure(error: String) {
+                    // 실패 시의 처리
+                    Log.d("Family", "Registration failed: $error")
+                }
+            })
+        }
+
+
+
+        val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
+        val syncService = SyncService()
+
+        // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
+        if (resultRealm != null) {
+            resultRealm.forEach {
+                if(it.state == null){
+                    familyListAdapter.addFamilyInfo(it.name, Status.NOT_SHOWN, syncService.realmInstantToString(it.lastConnection))
+
+                }else{
+                    familyListAdapter.addFamilyInfo(it.name, FamilyFragment.numToStatus[it.state!!.toInt()]!!, syncService.realmInstantToString(it.lastConnection))
+                }
+            }
+        }
+
     }
 }

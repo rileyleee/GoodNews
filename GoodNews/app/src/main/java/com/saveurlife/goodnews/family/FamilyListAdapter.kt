@@ -42,6 +42,8 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
     interface OnItemClickListener {
         fun onAcceptButtonClick(position: Int)
         fun onRejectButtonClick(position: Int)
+
+//        fun addList()
     }
     
     // 가족 수락을 위함
@@ -54,7 +56,7 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
             acceptBtn.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-//                    val item = familyList[position]
+
                     // 서버 요청
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onAcceptButtonClick(position)
@@ -151,61 +153,13 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
         familyList.add(FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
 //        notifyItemInserted(familyList.size)
     }
-    private fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
+    fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
 //        notifyItemInserted(familyList.size)
     }
-    fun addList(){
-        // 서버에서 리스트 가져와서 추가 -> 인터넷 연결 시
+
+    fun resetFamilyList(){
         familyList = mutableListOf()
-        if(deviceStateService.isNetworkAvailable(context)){
-            val userDeviceInfoService = UserDeviceInfoService(context)
-            familyAPI.getRegistFamily(userDeviceInfoService.deviceId, object : FamilyAPI.WaitListCallback {
-                override fun onSuccess(result: ArrayList<WaitInfo>) {
-                    result.forEach{
-                        var str = it.name
-                        var cov = ""
-                        if(str.length == 3){
-                            cov = it.name[0] + "*" + it.name[2]
-                        }else if(str.length == 2){
-                            cov = it.name[0] + "*"
-                        }else{
-                            cov = it.name[0]+""
-                            for (i in 2 .. str.length){
-                                cov += "*"
-                            }
-                        }
-
-                        addFamilyWait(it.name, it.id)
-                    }
-
-                    notifyDataSetChanged()
-                }
-
-                override fun onFailure(error: String) {
-                    // 실패 시의 처리
-                    Log.d("Family", "Registration failed: $error")
-                }
-            })
-        }
-
-
-
-        val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
-        val syncService = SyncService()
-
-        // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
-        if (resultRealm != null) {
-            resultRealm.forEach {
-                if(it.state == null){
-                    addFamilyInfo(it.name, Status.NOT_SHOWN, syncService.realmInstantToString(it.lastConnection))
-
-                }else{
-                    addFamilyInfo(it.name, FamilyFragment.numToStatus[it.state!!.toInt()]!!, syncService.realmInstantToString(it.lastConnection))
-                }
-            }
-            Log.d("test", familyList.size.toString())
-        }
-
     }
+
 }

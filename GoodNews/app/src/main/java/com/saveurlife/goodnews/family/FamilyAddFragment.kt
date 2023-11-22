@@ -17,7 +17,7 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 
 
-class FamilyAddFragment(private var familyListAdapter: FamilyListAdapter) : DialogFragment() {
+class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFragment() {
     private lateinit var binding: FragmentFamilyAddBinding
     private val familyAPI = FamilyAPI()
     private lateinit var userDeviceInfoService:UserDeviceInfoService
@@ -49,7 +49,7 @@ class FamilyAddFragment(private var familyListAdapter: FamilyListAdapter) : Dial
                 override fun onSuccess(result: String) {
                     Log.d("Family", result)
                     // 리스트 다시 갱신
-                    familyListAdapter.addList()
+                    familyFragment.addList()
                     dismiss()
                 }
 
