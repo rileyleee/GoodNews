@@ -14,9 +14,15 @@ class ChooseGroupMemberAdapter(private var userList: List<BleMeshConnectedUser>)
     private val selectedUserIds = mutableListOf<String>()
 
 
+
     fun getSelectedUserIds(): List<String> {
-        return selectedUserIds
+        // 필터링된 선택된 사용자 ID 리스트를 반환
+        return selectedUserIds.filter { selectedId ->
+            userList.any { user -> user.userId == selectedId }
+        }
     }
+
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -70,6 +76,7 @@ class ChooseGroupMemberAdapter(private var userList: List<BleMeshConnectedUser>)
     }
     fun updateUsers(newUsers: List<BleMeshConnectedUser>) {
         userList = newUsers
+
         notifyDataSetChanged()
     }
 }
