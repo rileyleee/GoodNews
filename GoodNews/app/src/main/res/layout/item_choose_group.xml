@@ -26,16 +26,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
-<!--    <CheckBox-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintTop_toTopOf="@id/aroundStatus"-->
-<!--        app:layout_constraintBottom_toBottomOf="@id/aroundStatus"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
-
-    <RadioButton
+    <CheckBox
         android:id="@+id/radio"
-        android:checked="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:buttonTint="@color/main"
