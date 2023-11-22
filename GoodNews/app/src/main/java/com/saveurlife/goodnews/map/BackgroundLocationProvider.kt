@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.map
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
@@ -9,6 +10,7 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -18,6 +20,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.LoadingActivity
+import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
@@ -35,6 +39,7 @@ class BackgroundLocationProvider(private val context: Context) {
     private val memberId = userDeviceInfoService.deviceId
     private var currentTime by Delegates.notNull<Long>()
     private val emergencyAlarmProvider = EmergencyAlarmProvider()
+    var loadingActivity = LoadingActivity()
 
 
     interface LocationUpdateListener {
@@ -106,7 +111,10 @@ class BackgroundLocationProvider(private val context: Context) {
             )
         } else {
             // 권한 없을 경우 안내하기 (우리는 권한 없을 경우 앱을 아예 사용할 수 없는데 꼭 사용해야 할까)
-            Toast.makeText(context, "권한 오류 발생", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "백그라운드 위치 권한을 허용해주세요", Toast.LENGTH_SHORT).show()
+            val i = Intent(context, AuthorityActivity::class.java)
+            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(i)
         }
     }
 
