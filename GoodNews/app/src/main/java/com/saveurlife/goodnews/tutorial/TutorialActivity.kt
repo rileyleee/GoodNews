@@ -10,6 +10,7 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.databinding.ActivityTutorialBinding
 import com.saveurlife.goodnews.enterinfo.EnterInfoActivity
@@ -76,7 +77,7 @@ class TutorialActivity : AppCompatActivity() {
 
     //추가 정보 입력 페이지로 이동
     fun navigateToOtherActivity() {
-        val intent = Intent(this, EnterInfoActivity::class.java)
+        val intent = Intent(this, AuthorityActivity::class.java)
         startActivity(intent)
     }
 }

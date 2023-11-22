@@ -23,6 +23,8 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -103,7 +105,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 현재의 정보를 서버로 보낸다
         val result = realm.query<Member>().first().find()
 
-        Log.d("ttest", result.toString())
         if(result!=null){
             var memberId = result.memberId
             var name = result.name
@@ -118,12 +119,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 //            result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
 
             realm.writeBlocking {
-                val liveObject = findLatest(result)
+                val liveObject = this.findLatest(result)
                 if (liveObject != null) {
                     liveObject.lastConnection = RealmInstant.from(newTime / 1000, (newTime % 1000).toInt())
                 }
             }
-//            realm.close()
         }
     }
 
@@ -131,13 +131,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
     private fun fetchDataFamilyMemInfo() {
         Log.d("ttest","여기")
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
-//        realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        // 우선 realm 비운다
-        val oldData = realm.query<FamilyMemInfo>().find()
 
-        oldData.forEach{
+        GlobalScope.launch {
             realm.writeBlocking {
-                delete(it)
+                query<FamilyMemInfo>().find()
+                    ?.also { delete(it) }
             }
         }
         // 가족 정보를 받아와 realm을 수정한다.
@@ -181,7 +179,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                 Log.d("Family", "Registration failed: $error")
             }
         })
-//        realm.close()
     }
 
     // 가족 모임 장소
@@ -201,11 +198,10 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 장소의 새로운 상태를 받아온다
         // 어짜피 3개 밖에 없으므로 다 삭제후 넣는다.
 
-        // 기존 정보 삭제
-        val oldData = realm.query<FamilyPlace>().find()
-        oldData.forEach {
+        GlobalScope.launch {
             realm.writeBlocking {
-                delete(it)
+                query<FamilyPlace>().find()
+                    ?.also { delete(it) }
             }
         }
 

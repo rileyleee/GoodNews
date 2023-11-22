@@ -90,7 +90,7 @@
                     android:layout_marginEnd="8dp"
                     android:text="위험"
                     android:textColor="@color/white"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="@id/placeStatusSwitch"
                     app:layout_constraintEnd_toEndOf="@id/placeStatusSwitch"
                     app:layout_constraintTop_toTopOf="@id/placeStatusSwitch" />
@@ -102,7 +102,7 @@
                     android:layout_marginStart="8dp"
                     android:text="안전"
                     android:textColor="@color/white"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="@id/placeStatusSwitch"
                     app:layout_constraintStart_toStartOf="@id/placeStatusSwitch"

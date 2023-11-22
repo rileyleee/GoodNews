@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/radius"
+    android:gravity="center"
+    tools:context=".map.FamilyUserInfoFragment">
+
+    <LinearLayout
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/card_component"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/familyNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/font_color"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="김이름" />
+
+            <View
+                android:id="@+id/familyStatusCircle"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/my_status_circle"
+                app:layout_constraintBottom_toBottomOf="@id/familyNameTextView"
+                app:layout_constraintStart_toEndOf="@id/familyNameTextView"
+                app:layout_constraintTop_toTopOf="@id/familyNameTextView" />
+
+            <TextView
+                android:id="@+id/familyLastTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="마지막 접속 시각"
+                android:textColor="@color/explain_gray"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/familyNameTextView" />
+
+            <TextView
+                android:id="@+id/familyLastTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/explain_gray"
+                app:layout_constraintBottom_toBottomOf="@id/familyLastTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/familyLastTitle"
+                tools:text="YYYY-MM-DD HH:MM:SS" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/familyCloseButton"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_match_parent"
+            android:backgroundTint="@color/white"
+            android:gravity="center"
+            android:text="닫기"
+            android:textColor="@color/font_color"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</FrameLayout>
