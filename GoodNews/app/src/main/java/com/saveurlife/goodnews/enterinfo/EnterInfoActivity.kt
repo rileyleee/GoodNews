@@ -37,7 +37,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var memberAPI: MemberAPI
     private lateinit var syncService: SyncService
     val userDeviceInfoService = UserDeviceInfoService(this);
-    val sharedPreferences = GoodNewsApplication.preferences
+//    val sharedPreferences = GoodNewsApplication.preferences
 
     private lateinit var setPhone: String
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,21 +49,6 @@ class EnterInfoActivity : AppCompatActivity() {
         setContentView(binding.root)
         memberAPI = MemberAPI()
         syncService = SyncService()
-        // 위험 권한 요청
-        permissionsUtil = PermissionsUtil(this)
-        permissionsUtil.requestAllPermissions()
-
-        // 백그라운드 위치 권한 요청
-        if (!sharedPreferences.getBoolean(
-                "isBackgroundPermissionApproved",
-                false
-            ) && ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsUtil.permissionDialog(this)
-        }
 
         // EditText 비활성화
         with(binding) {
