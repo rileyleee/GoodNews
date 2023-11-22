@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.saveurlife.goodnews.GoodNewsApplication
+import java.security.Permissions
 
 class PermissionsUtil(private val activity: Activity) {
     companion object {
@@ -18,13 +19,12 @@ class PermissionsUtil(private val activity: Activity) {
     }
 
     private var dialog: AlertDialog? = null
+    private val sharedPreferences = GoodNewsApplication.preferences
+    private lateinit var allPermissions: MutableList<String>
+    private lateinit var permissionsToRequest: List<String>
 
-    val sharedPreferences = GoodNewsApplication.preferences
-
-    // 앱 사용 위한 권한 요청(백그라운드 위치 정보 액세스 권한은 별도로 처리)
-    fun requestAllPermissions() {
-
-        val allPermissions = mutableListOf(
+    fun listingPermissions() {
+        allPermissions = mutableListOf(
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.READ_PHONE_STATE,
@@ -45,10 +45,41 @@ class PermissionsUtil(private val activity: Activity) {
             allPermissions.add(android.Manifest.permission.NEARBY_WIFI_DEVICES)
         }
 
-        val permissionsToRequest = allPermissions.filter {
+        permissionsToRequest = allPermissions.filter {
             ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
         }
+    }
 
+    // 앱 사용 위한 권한 요청(백그라운드 위치 정보 액세스 권한은 별도로 처리)
+    fun requestAllPermissions() {
+
+//        allPermissions = mutableListOf(
+//            android.Manifest.permission.ACCESS_FINE_LOCATION,
+//            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+//            android.Manifest.permission.READ_PHONE_STATE,
+//            android.Manifest.permission.READ_SMS,
+//            android.Manifest.permission.READ_PHONE_NUMBERS
+//        )
+//
+//        // 안드로이드 12 스노우콘 (API 레벨 31)부터 명시적 권한 요청 필요
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            allPermissions.add(android.Manifest.permission.BLUETOOTH_SCAN)
+//            allPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
+//            allPermissions.add(android.Manifest.permission.BLUETOOTH_ADMIN)
+//            allPermissions.add(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+//
+//        }
+//        // 안드로이드 13 티라미수 (API 레벨 33)부터 명시적 권한 요청 필요
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            allPermissions.add(android.Manifest.permission.NEARBY_WIFI_DEVICES)
+//        }
+//
+//        val permissionsToRequest = allPermissions.filter {
+//            ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
+//        }
+
+        // 권한 리스트화 하기
+        listingPermissions()
 
         if (permissionsToRequest.isNotEmpty()) {
             ActivityCompat.requestPermissions(
@@ -133,7 +164,15 @@ class PermissionsUtil(private val activity: Activity) {
             }
             dismissDialog()
         }
+    }
 
+    fun needMorePermissions(): Boolean {
+
+        // 권한 리스트화 하기
+        listingPermissions()
+        
+        // 권한 더 필요해서 담겨 있는 경우 true, 더 이상 권한 필요 없으면 false
+        return permissionsToRequest.isNotEmpty()
 
     }
 
