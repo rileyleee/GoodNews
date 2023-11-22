@@ -43,6 +43,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
     private lateinit var mapsFragment: MapsFragment
     private lateinit var realm: Realm
+    private var familyAPI = FamilyAPI()
 
     // 제출 전에 담아둘 변수
     private var tempFamilyPlace: FamilyPlace? = null
