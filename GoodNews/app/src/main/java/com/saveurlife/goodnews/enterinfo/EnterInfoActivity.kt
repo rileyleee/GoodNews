@@ -54,6 +54,8 @@ class EnterInfoActivity : AppCompatActivity() {
         memberAPI = MemberAPI()
         syncService = SyncService()
 
+        workManager = WorkManager.getInstance(applicationContext)
+
         // EditText 비활성화
         with(binding) {
             phoneEditText1.hint = setPhone.substring(0, 3)

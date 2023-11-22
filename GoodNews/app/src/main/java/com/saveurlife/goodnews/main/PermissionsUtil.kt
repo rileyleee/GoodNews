@@ -4,13 +4,11 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.saveurlife.goodnews.GoodNewsApplication
-import java.security.Permissions
 
 class PermissionsUtil(private val activity: Activity) {
     companion object {
@@ -112,10 +110,14 @@ class PermissionsUtil(private val activity: Activity) {
                 DialogInterface.BUTTON_POSITIVE -> {
                     backgroundPermission(activity)
                 }
+                DialogInterface.BUTTON_NEGATIVE -> {
+                    Toast.makeText(activity, "백그라운드 권한 미허용으로 앱이 정상적으로 작동하지 않습니다.", Toast.LENGTH_LONG).show()
+                }
+
             }
         }
         builder.setPositiveButton("네", listener)
-        builder.setNegativeButton("아니오", null)
+        builder.setNegativeButton("아니오", listener)
         dialog = builder.create()
         dialog?.show()
     }

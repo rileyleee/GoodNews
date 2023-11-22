@@ -39,6 +39,8 @@ class AuthorityActivity : AppCompatActivity() {
         binding = ActivityAuthorityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        workManager = WorkManager.getInstance(applicationContext)
+
         binding.authButton.setOnClickListener {
             Toast.makeText(this, "권한 설정", Toast.LENGTH_SHORT).show()
 
