@@ -76,6 +76,7 @@ import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import com.saveurlife.goodnews.ble.scan.ScanManager;
 import com.saveurlife.goodnews.main.PreferencesUtil;
+import com.saveurlife.goodnews.map.FamilyMemProvider;
 import com.saveurlife.goodnews.models.ChatMessage;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
@@ -98,6 +99,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private FamilyMemProvider familyMemProvider = new FamilyMemProvider();
+    private LiveData<List<String>> familyMemIds;
     private AdvertiseManager advertiseManager;
     private ScanManager scanManager;
     private BleGattCallback bleGattCallback;
@@ -216,6 +219,8 @@ public class BleService extends Service {
         advertiseManager = AdvertiseManager.getInstance(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
         scanManager = ScanManager.getInstance(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
         bleGattCallback = BleGattCallback.getInstance(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
+
+        familyMemIds = familyMemProvider.getAllFamilyMemIds();
     }
 
     // 블루투스 시작 버튼
@@ -450,7 +455,9 @@ public class BleService extends Service {
                         BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
+
                     if (!bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
+                        checkMatchingIds(insert, familyMemIds);
                         bleMeshConnectedDevicesMap.put(device.getAddress(), insert);
                         if (nowSize.equals(maxSize)) {
                             bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -607,6 +614,25 @@ public class BleService extends Service {
 
         // ... 필요한 경우 다른 콜백 메서드 추가 ...
     };
+
+
+
+
+    public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, LiveData<List<String>> familyMemIds) {
+        // LiveData의 현재 값을 가져옴
+        List<String> currentFamilyMemIds = familyMemIds.getValue();
+        if (currentFamilyMemIds != null) {
+            for (String id : currentFamilyMemIds) {
+                if (insert.containsKey(id)) {
+                    Log.i("Matched ID", id);
+                }
+            }
+        }
+    }
+
+
+
+
 
     //구조요청 알림
     private void sendNotification(String messageContent) {
