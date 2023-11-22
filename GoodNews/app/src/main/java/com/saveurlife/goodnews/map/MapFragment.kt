@@ -79,6 +79,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private var familyPlaceProvider = FamilyPlaceProvider()
     private var familyList = mutableListOf<FamilyMemInfo>()
     private var familyPlaceList = mutableListOf<FamilyPlace>()
+    private var familyMarkers = mutableListOf<Marker>()
+    private var familyPlaceMarkers = mutableListOf<Marker>()
 
     // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -410,14 +412,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 bottomSheet.layoutParams = layoutParams
             }
         })
-
-        // 가족,가족 약속 장소 마커 추가
-        CoroutineScope(Dispatchers.Main).launch {
-            familyList = familyMemProvider.getFamilyMemInfo()
-            addFamilyLocation()
-            familyPlaceList = familyPlaceProvider.getFamilyPlace()
-            addFamilyPlaceLocation()
-        }
     }
 
     @Throws(IOException::class)
@@ -515,11 +509,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             setOnClickListener { _, index ->
                 binding.itemMapFacilityWrap.visibility = View.VISIBLE
                 val facility = facilities[index]
-//                Toast.makeText(
-//                    context,
-//                    "시설이름: ${facility.name} 시설타입: ${facility.type}",
-//                    Toast.LENGTH_SHORT
-//                ).show()
                 binding.facilityNameTextView.text = facility.name
                 binding.facilityTypeTextView.text = facility.type
                 val iconRes = when (facility.type) {
@@ -685,8 +674,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     // 업데이트 코드
     private fun updateFacilitiesByCategory(category: FacilityUIType) {
-        // 지도 마커 및 하단 리스트
-        addFacilitiesToMap(category)
+
+        when (category) {
+            FacilityUIType.FAMILY -> CoroutineScope(Dispatchers.Main).launch {
+                familyList = familyMemProvider.getFamilyMemInfo()
+                removeFamilyPlaceMarkers() // 가족 약속 장소 마커 지우기
+                addFamilyLocation()
+            }
+
+            FacilityUIType.MEETING_PLACE -> CoroutineScope(Dispatchers.Main).launch {
+                familyPlaceList = familyPlaceProvider.getFamilyPlace()
+                removeFamilyMarkers() // 가족 마커 지우기
+                addFamilyPlaceLocation()
+            }
+
+            else -> {// 지도 마커 및 하단 리스트
+                removeFamilyMarkers() // 가족 마커 지우기
+                removeFamilyPlaceMarkers() // 가족 약속 장소 마커 지우기
+                addFacilitiesToMap(category)
+            }
+        }
     }
 
     // 서브 카테고리 업데이트 코드
@@ -818,9 +825,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 }
 
                 Log.v("어떤 가족인가요", "${fam.name}")
+                familyMarkers.add(famMarker)
                 mapView.overlays.add(famMarker)
             } else {
-                Log.w("addFamilyLocation", "Invalid family member object encountered.")
+                Log.w("addFamilyLocation", "가족 위치 렌더링 중 오류 발생")
             }
             mapView.invalidate()
         }
@@ -828,27 +836,53 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     private fun addFamilyPlaceLocation() {
         familyPlaceList.forEach { famPlace ->
-            val location =
-                GeoPoint("${famPlace.latitude}".toDouble(), "${famPlace.longitude}".toDouble())
 
-            val famPlaceMarker = Marker(mapView)
-            famPlaceMarker.position = location
-            famPlaceMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            famPlaceMarker.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
-            famPlaceMarker.title = "${famPlace.name}"
-            famPlaceMarker.snippet = "주소: ${famPlace.address}, 현재 상태: ${famPlace.canUse}"
+            if (famPlace.isValid()) {
+                val location =
+                    GeoPoint("${famPlace.latitude}".toDouble(), "${famPlace.longitude}".toDouble())
 
-            famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
-                Toast.makeText(
-                    requireContext(),
-                    "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
-                    Toast.LENGTH_LONG
-                ).show()
-                true
+                val famPlaceMarker = Marker(mapView)
+                famPlaceMarker.position = location
+                famPlaceMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                famPlaceMarker.icon =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+                famPlaceMarker.title = "${famPlace.name}"
+                famPlaceMarker.snippet = "주소: ${famPlace.address}, 현재 상태: ${famPlace.canUse}"
+
+                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
+                    Toast.makeText(
+                        requireContext(),
+                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    true
+                }
+                familyPlaceMarkers.add(famPlaceMarker)
+                mapView.overlays.add(famPlaceMarker)
+            } else {
+                Log.w("addFamilyPlaceLocation", "가족 약속장소 위치 렌더링 중 오류 발생")
             }
-            mapView.overlays.add(famPlaceMarker)
             mapView.invalidate()
         }
+    }
+
+    // 가족 마커 제거 함수
+    private fun removeFamilyMarkers() {
+        familyMarkers.forEach { marker ->
+            mapView.overlays.remove(marker)
+        }
+        familyMarkers.clear()
+        mapView.invalidate()
+    }
+
+
+    // 가족 약속장소 마커 제거 함수
+    private fun removeFamilyPlaceMarkers() {
+        familyPlaceMarkers.forEach { marker ->
+            mapView.overlays.remove(marker)
+        }
+        familyPlaceMarkers.clear()
+        mapView.invalidate()
     }
 }
 
