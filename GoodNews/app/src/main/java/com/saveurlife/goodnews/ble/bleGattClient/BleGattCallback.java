@@ -13,12 +13,25 @@ import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import java.util.Map;
 
 public class BleGattCallback extends BluetoothGattCallback {
+    private static BleGattCallback instance;
 
     private String myId;
     private String myName;
     private ChatRepository chatRepository;
     private SendMessageManager sendMessageManager;
     private static Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap;
+
+
+
+    public static BleGattCallback getInstance(String myId, String myName,
+                                              ChatRepository chatRepository,
+                                              SendMessageManager sendMessageManager,
+                                              Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap) {
+        if (instance == null) {
+            instance = new BleGattCallback(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
+        }
+        return instance;
+    }
 
 
 

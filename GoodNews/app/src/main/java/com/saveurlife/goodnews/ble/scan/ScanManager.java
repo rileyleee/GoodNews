@@ -17,6 +17,9 @@ import android.os.ParcelUuid;
 import androidx.lifecycle.MutableLiveData;
 
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
+import com.saveurlife.goodnews.ble.ChatRepository;
+import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
+import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import com.saveurlife.goodnews.ble.service.BleService;
 
 import java.util.ArrayList;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ScanManager {
+    private static ScanManager instance;
 
     private BluetoothLeScanner mBluetoothLeScanner;
     private BleServiceScanCallback mBleScanCallback;
@@ -36,6 +40,18 @@ public class ScanManager {
     private static Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap;
     private MutableLiveData<List<String>> deviceArrayListNameLiveData;
 
+
+
+    public static ScanManager getInstance(BluetoothLeScanner mBluetoothLeScanner,
+                                              ArrayList<String> deviceArrayList, ArrayList<String> deviceArrayListName,
+                                              ArrayList<BluetoothDevice> bluetoothDevices,
+                                              Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap,
+                                              MutableLiveData<List<String>> deviceArrayListNameLiveData) {
+        if (instance == null) {
+            instance = new ScanManager(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
+        }
+        return instance;
+    }
 
     public ScanManager(BluetoothLeScanner mBluetoothLeScanner,
                        ArrayList<String> deviceArrayList, ArrayList<String> deviceArrayListName,
