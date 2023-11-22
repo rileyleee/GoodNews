@@ -77,19 +77,7 @@ class LoadingActivity : AppCompatActivity() {
             }
         }, 2000)
 
-
-        // 테스트
-        val familyAPI = FamilyAPI()
-        familyAPI.registFamilyPlace("test5678", "이름임다",0.1,0.1,1, "text", object :FamilyAPI.RegistFamilyCallback {
-            override fun onSuccess(result: PlaceDetailInfo) {
-                Log.i("placeId", result.toString())
-            }
-
-            override fun onFailure(error: String) {
-                TODO("Not yet implemented")
-            }
-        })
-
+g
 
 //        binding.start.setOnClickListener {
 //            val intent = Intent(this, TutorialActivity::class.java)
