@@ -12,6 +12,7 @@ import androidx.work.WorkManager
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.MapAPI
 import com.saveurlife.goodnews.api.MemberAPI
+import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.Member
@@ -76,8 +77,7 @@ class LoadingActivity : AppCompatActivity() {
             }
         }, 2000)
 
-
-
+g
 
 //        binding.start.setOnClickListener {
 //            val intent = Intent(this, TutorialActivity::class.java)
