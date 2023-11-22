@@ -773,6 +773,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         userInfo.putString("userStatus", user.healthStatus)
         userInfo.putString("userUpdateTime", user.updateTime)
         userInfo.putDouble("distance", distance)
+        userInfo.putString("userId", user.userId)
 
         dialogFragment.arguments = userInfo
 
