@@ -208,7 +208,13 @@ class MainActivity : AppCompatActivity() {
         binding.navigationView.setupWithNavController(navController)
         binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.homeFragment, R.id.mapFragment, R.id.familyFragment, R.id.myPageFragment -> {
+                R.id.homeFragment, R.id.familyFragment, R.id.myPageFragment -> {
+                    navController.navigateSingleTop(menuItem.itemId)
+                    true
+                }
+                R.id.mapFragment -> {
+                    // 지도 Fragment로 이동할 때 Loading ProgressBar를 표시
+                    showLoadingProgressBar()
                     navController.navigateSingleTop(menuItem.itemId)
                     true
                 }
@@ -260,6 +266,16 @@ class MainActivity : AppCompatActivity() {
             // 기본적인 뒤로 가기 동작 수행 (옵션)
             finish()
         }
+    }
+
+    // 로딩 프로그래스 바 표시 함수
+    private fun showLoadingProgressBar() {
+        binding.loadingProgressBar.visibility = View.VISIBLE
+    }
+
+    // 로딩 프로그래스 바 감추기 함수
+    fun hideLoadingProgressBar() {
+        binding.loadingProgressBar.visibility = View.GONE
     }
 
     // 배터리 최적화 여부 확인 -> boolean 반환
