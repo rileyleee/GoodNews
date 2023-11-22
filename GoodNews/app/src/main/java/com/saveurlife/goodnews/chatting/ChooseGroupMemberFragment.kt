@@ -66,7 +66,13 @@ class ChooseGroupMemberFragment : Fragment() {
         val recyclerView = binding.recyclerViewChooseGroup
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-//        //확인
+        binding.createGroupChattingButton.setOnClickListener {
+            val selectedIds = adapter.getSelectedUserIds()
+            println("selectedIds: $selectedIds")
+        }
+
+
+        //확인
 //        binding.createGroupChattingButton.setOnClickListener {
 //            if (isBound && ::bleService.isInitialized) {
 //                bleService.addMembersToGroup("김나연 그룹", adapter.getSelectedUserIds())
@@ -83,4 +89,6 @@ class ChooseGroupMemberFragment : Fragment() {
 
         return binding.root
     }
+
+
 }
