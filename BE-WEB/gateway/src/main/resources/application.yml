@@ -1,0 +1,21 @@
+server:
+  port: 8001
+#  ssl:
+#    enabled: true
+#    key-store-type: pkcs12
+#    key-store: classpath:ssl/keystore.p12
+#    key-store-password: gnteam307
+
+
+spring:
+  application:
+    name: gateway-service
+  profiles:
+    active: prd
+jwt:
+  secretKey: aWQgyiORSXixtGdZLzfh
+  access:
+    expiration: 3600000
+  refresh:
+    expiration: 18000000
+
