@@ -176,34 +176,34 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         // 서버에 먼저 보내고, placeId 얻어온 다음에 Realm 저장 진행해야됨!!!
         val memberId = getMemberId()
         Log.i("@@@@@@@tempFamilyPlace", tempFamilyPlace?.name.toString())
-//        seq?.let { seqNumber ->
-//            tempFamilyPlace?.let { place ->
-//                // FamilyService의 인스턴스를 사용하여 함수 호출
-//                familyAPI.registFamilyPlace(
-//                    memberId,
-//                    place.name,
-//                    place.latitude,
-//                    place.longitude,
-//                    object : FamilyServiceCallback {
-//                        override fun onSuccess(placeId: String) {
-//                            Log.i("placeId", placeId)
-//                            Log.i("@@@@@@@@@@@2address", place.address)
-//                            saveFamilyPlaceToRealm(
-//                                placeId,
-//                                place.name,
-//                                place.address,
-//                                place.latitude,
-//                                place.longitude,
-//                            )
-//                        }
-//
-//                        override fun onFailure(error: String) {
-//                            // 실패 시의 처리
-//                            Log.d("Family", "ADD MODE failed: $error")
-//                        }
-//                    })
-//            }
-//        }
+        seq?.let { seqNumber ->
+            tempFamilyPlace?.let { place ->
+                // FamilyService의 인스턴스를 사용하여 함수 호출
+                familyAPI.registFamilyPlace(
+                    memberId,
+                    place.name,
+                    place.latitude,
+                    place.longitude,
+                    object : FamilyServiceCallback {
+                        override fun onSuccess(placeId: String) {
+                            Log.i("placeId", placeId)
+                            Log.i("@@@@@@@@@@@2address", place.address)
+                            saveFamilyPlaceToRealm(
+                                placeId,
+                                place.name,
+                                place.address,
+                                place.latitude,
+                                place.longitude,
+                            )
+                        }
+
+                        override fun onFailure(error: String) {
+                            // 실패 시의 처리
+                            Log.d("Family", "ADD MODE failed: $error")
+                        }
+                    })
+            }
+        }
     }
 
     private fun getMemberId(): String {
