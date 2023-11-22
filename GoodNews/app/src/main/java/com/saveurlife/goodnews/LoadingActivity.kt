@@ -77,7 +77,6 @@ class LoadingActivity : AppCompatActivity() {
             }
         }, 2000)
 
-g
 
 //        binding.start.setOnClickListener {
 //            val intent = Intent(this, TutorialActivity::class.java)

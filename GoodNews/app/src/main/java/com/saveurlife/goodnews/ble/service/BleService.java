@@ -220,7 +220,11 @@ public class BleService extends Service {
         scanManager = ScanManager.getInstance(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
         bleGattCallback = BleGattCallback.getInstance(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
 
+        familyMemProvider.updateAllFamilyMemIds();
         familyMemIds = familyMemProvider.getAllFamilyMemIds();
+        Log.i("familyMemIds", familyMemIds.toString());
+
+//        chatDatabaseManager.createFamilyMemInfo();
     }
 
     // 블루투스 시작 버튼
@@ -406,7 +410,15 @@ public class BleService extends Service {
                     gatt.close();
                 }
 
-                bleMeshConnectedDevicesMap.remove(device.getAddress());
+                Map<String, BleMeshConnectedUser> removedUsers = bleMeshConnectedDevicesMap.remove(device.getAddress());
+                bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
+
+                for(String removedUserId : removedUsers.keySet()){
+                    if(familyMemIds.getValue().contains(removedUserId)){
+                        // 여기서 가족 연결 끊어짐 알람
+                        Log.i("가족 연결 끊어짐 알람", removedUserId);
+                    }
+                }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
                 sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
             }
@@ -452,12 +464,29 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
                         }
 
+                        // 가족 연결
+                        if(familyMemIds.getValue().contains(dataId)){
+                            // 처음 연결된건지 확인
+                            Boolean check = false;
+                            for(Map<String, BleMeshConnectedUser> bleUsers : bleMeshConnectedDevicesMap.values()){
+                                if(bleUsers.containsKey(data)){
+                                    check = true;
+                                    break;
+                                }
+                            }
+
+                            if(!check){
+                                // 여기서 가족 연결 알람
+                                Log.i("가족 연결 알람", dataId);
+                            }
+                        }
+
                         BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
 
                     if (!bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
-                        checkMatchingIds(insert, familyMemIds);
+                        checkMatchingIds(insert, familyMemIds, parts);
                         bleMeshConnectedDevicesMap.put(device.getAddress(), insert);
                         if (nowSize.equals(maxSize)) {
                             bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -471,7 +500,6 @@ public class BleService extends Service {
 
                     spreadMessage(device.getAddress(), message);
                 }
-
                 // 지속적 위치, 상태 정보 뿌리기
                 else if (messageType.equals("base")) {
                     BleMeshConnectedUser existingUser = null;
@@ -482,8 +510,12 @@ public class BleService extends Service {
                         bleMeshConnectedDevicesMap.get(device.getAddress()).put(senderId, bleMeshConnectedUser);
                         bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
                     }
-                }
 
+                    // 가족 상태 렘 업데이트
+                    if(familyMemIds.getValue().contains(senderId)){
+
+                    }
+                }
                 // 모두에게 구조요청
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
@@ -497,7 +529,6 @@ public class BleService extends Service {
 //                        sendNotification(message);
                     spreadMessage(device.getAddress(), message);
                 }
-
                 // 특정 대상에게 채팅
                 else if (messageType.equals("chat")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
@@ -540,7 +571,8 @@ public class BleService extends Service {
                         spreadMessage(device.getAddress(), message);
                     }
 
-                } else if (messageType.equals("invite")) {
+                }
+                else if (messageType.equals("invite")) {
                     ArrayList<String> groupMembers = new ArrayList<>(Arrays.asList(parts[2].split("@")));
 
                     if (groupMembers.contains(myId)) {
@@ -557,18 +589,27 @@ public class BleService extends Service {
 
                     spreadMessage(device.getAddress(), message);
 
-                } else if (messageType.equals("disconnect")) {
+                }
+                else if (messageType.equals("disconnect")) {
                     BluetoothGatt gatt = deviceGattMap.remove(device.getAddress());
                     gatt.close();
 
                     bleConnectedDevicesArrayList.remove(device.getAddress());
                     bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
 
-                    bleMeshConnectedDevicesMap.remove(device.getAddress());
+                    Map<String, BleMeshConnectedUser> removedUsers = bleMeshConnectedDevicesMap.remove(device.getAddress());
                     bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
+                    for(String removedUserId : removedUsers.keySet()){
+                        if(familyMemIds.getValue().contains(removedUserId)){
+                            // 여기서 가족 연결 끊어짐 알람
+                            Log.i("가족 연결 끊어짐 알람", removedUserId);
+                        }
+                    }
+
                     sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
-                } else if (messageType.equals("change")) {
+                }
+                else if (messageType.equals("change")) {
                     Log.i("bleMeshConnectedDevicesMap", message);
                     String maxSize = parts[2];
                     String nowSize = parts[3];
@@ -591,6 +632,24 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
 
                         }
+
+                        if(familyMemIds.getValue().contains(dataId)){
+                            // 처음 연결된건지 확인
+                            Boolean check = false;
+                            for(Map<String, BleMeshConnectedUser> bleUsers : bleMeshConnectedDevicesMap.values()){
+                                if(bleUsers.containsKey(data)){
+                                    check = true;
+                                    break;
+                                }
+                            }
+
+                            if(!check){
+                                // 여기서 가족 연결 알람
+                                Log.i("가족 연결 알람", dataId);
+                            }
+                        }
+
+
                         BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
@@ -618,7 +677,7 @@ public class BleService extends Service {
 
 
 
-    public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, LiveData<List<String>> familyMemIds) {
+    public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, LiveData<List<String>> familyMemIds, String[] parts) {
         // LiveData의 현재 값을 가져옴
         List<String> currentFamilyMemIds = familyMemIds.getValue();
         if (currentFamilyMemIds != null) {
