@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
@@ -17,26 +18,34 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.ext.query
 
-class FamilyListAdapter(private val context: Context) :
+class FamilyListAdapter(private val context: Context, private val listener: OnItemClickListener ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val deviceStateService = DeviceStateService()
+    var familyList: MutableList<FamilyData> = mutableListOf()
 
     companion object{
         const val TYPE_WAIT = 1
         const val TYPE_ACCEPT = 2
-        private var familyList: MutableList<FamilyData> = mutableListOf()
         private val familyAPI = FamilyAPI()
     }
 
 
     // 뷰홀더 두개 필요
+    // 이미 등록된 가족
     class AcceptViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nameView: TextView = view.findViewById(R.id.familyNameTextView)
         val statusView: View = view.findViewById(R.id.familyStatusCircle)
         val lastAccessTimeView: TextView = view.findViewById(R.id.familyLastAccessTime)
     }
-    class WaitViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+    interface OnItemClickListener {
+        fun onAcceptButtonClick(position: Int)
+        fun onRejectButtonClick(position: Int)
+    }
+    
+    // 가족 수락을 위함
+    class WaitViewHolder(view: View, private val listener: OnItemClickListener) : RecyclerView.ViewHolder(view) {
         val nameView: TextView = view.findViewById(R.id.WaitNameTextView)
         val acceptBtn: TextView = view.findViewById(R.id.acceptButton)
         val rejectBtn: TextView = view.findViewById(R.id.rejectButton)
@@ -45,20 +54,26 @@ class FamilyListAdapter(private val context: Context) :
             acceptBtn.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    val item = familyList[position]
+//                    val item = familyList[position]
                     // 서버 요청
-                    familyAPI.updateRegistFamily(item.acceptNumber, false)
-                    FamilyFragment.familyListAdapter.addList()
-                    // realm 저장 -> 해당 사람 요청
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onAcceptButtonClick(position)
+                    }
+//                    familyAPI.updateRegistFamily(item.acceptNumber, false)
+//                    (view.context as? AppCompatActivity)?.run {
+//                        FamilyFragment.familyListAdapter.addList()
+                    }
                 }
-            }
+
             rejectBtn.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    val item = familyList[position]
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onRejectButtonClick(position)
+                    }
+//                    val item = familyList[position]
                     // 서버 요청
-                    familyAPI.updateRegistFamily(item.acceptNumber, true)
-                    FamilyFragment.familyListAdapter.addList()
+//                    familyAPI.updateRegistFamily(item.acceptNumber, true)
                 }
             }
         }
@@ -82,7 +97,7 @@ class FamilyListAdapter(private val context: Context) :
             TYPE_WAIT -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_family_wait, parent, false)
-                WaitViewHolder(view)
+                WaitViewHolder(view, listener)
             }
             else -> throw IllegalArgumentException("Invalid view type")
         }
@@ -134,11 +149,11 @@ class FamilyListAdapter(private val context: Context) :
 
     fun addFamilyWait(name:String, acceptNumber:Int){
         familyList.add(FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
-        notifyItemInserted(familyList.size)
+//        notifyItemInserted(familyList.size)
     }
     private fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
-        notifyItemInserted(familyList.size)
+//        notifyItemInserted(familyList.size)
     }
     fun addList(){
         // 서버에서 리스트 가져와서 추가 -> 인터넷 연결 시
@@ -163,6 +178,8 @@ class FamilyListAdapter(private val context: Context) :
 
                         addFamilyWait(it.name, it.id)
                     }
+
+                    notifyDataSetChanged()
                 }
 
                 override fun onFailure(error: String) {
@@ -172,8 +189,11 @@ class FamilyListAdapter(private val context: Context) :
             })
         }
 
+
+
         val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
         val syncService = SyncService()
+
         // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
         if (resultRealm != null) {
             resultRealm.forEach {
@@ -186,5 +206,6 @@ class FamilyListAdapter(private val context: Context) :
             }
             Log.d("test", familyList.size.toString())
         }
+
     }
 }

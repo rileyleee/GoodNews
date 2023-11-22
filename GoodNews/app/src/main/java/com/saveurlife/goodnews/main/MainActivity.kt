@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.lifecycle.LiveData
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -509,22 +510,26 @@ class MainActivity : AppCompatActivity() {
 
 private fun NavController.navigateSingleTop(id: Int) {
     if(id == R.id.familyFragment){
-        var workManager = WorkManager.getInstance(context)
 
-        // 조건 설정 - 인터넷 연결 시에만 실행
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        // request 생성
-        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
-            .setConstraints(constraints)
-            .build()
-
-        // 실행
-        workManager.enqueue(updateRequest)
-        FamilyFragment.familyListAdapter = FamilyListAdapter(context)
-        FamilyFragment.familyListAdapter.addList()
+        FamilyFragment.fa
+//        val fragment:FamilyFragment = FamilyFragment()
+//        .addList()
+//        var workManager = WorkManager.getInstance(context)
+//
+//        // 조건 설정 - 인터넷 연결 시에만 실행
+//        val constraints = Constraints.Builder()
+//            .setRequiredNetworkType(NetworkType.CONNECTED)
+//            .build()
+//
+//        // request 생성
+//        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
+//            .setConstraints(constraints)
+//            .build()
+//
+//        // 실행
+//        workManager.enqueue(updateRequest)
+//        FamilyFragment.familyListAdapter = FamilyListAdapter(context)
+//        FamilyFragment.familyListAdapter.addList()
     }
 
     if (currentDestination?.id != id) {

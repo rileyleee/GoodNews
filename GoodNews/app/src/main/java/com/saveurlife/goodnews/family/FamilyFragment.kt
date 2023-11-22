@@ -28,12 +28,13 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 
-class FamilyFragment : Fragment() {
+class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     enum class Mode { ADD, READ, EDIT }
 
     private lateinit var familyListRecyclerView: RecyclerView
     private lateinit var binding: FragmentFamilyBinding
     private lateinit var realm: Realm
+    var familyListAdapter: FamilyListAdapter = FamilyListAdapter(requireContext(), this)
 
     // 클래스 레벨 변수로 장소 데이터 저장
     private var familyPlaces: List<FamilyPlace> = listOf()
@@ -42,33 +43,34 @@ class FamilyFragment : Fragment() {
     private lateinit var userDeviceInfoService: UserDeviceInfoService
     companion object{
         lateinit var familyEditText:TextView
-        lateinit var familyListAdapter: FamilyListAdapter
-        lateinit var numToStatus:Map<Int, Status>
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         lateinit var familyAPI: FamilyAPI
         lateinit var memberAPI: MemberAPI
         lateinit var memberId:String
-//        lateinit var context1: Context
+        var numToStatus:Map<Int, Status> = mapOf(
+            0 to Status.HEALTHY,
+            1 to Status.INJURED,
+            2 to Status.DECEASED,
+            3 to Status.NOT_SHOWN
+        )
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentFamilyBinding.inflate(inflater, container, false)
         deviceStateService = DeviceStateService()
-        familyListAdapter = FamilyListAdapter(requireContext())
+
         userDeviceInfoService = UserDeviceInfoService(requireContext())
+
         memberId = userDeviceInfoService.deviceId
         familyEditText = binding.familyEditText
+
         familyAPI = FamilyAPI()
         memberAPI = MemberAPI()
-//        context1 = requireContext()
-        numToStatus = mapOf(
-            0 to Status.HEALTHY,
-            1 to Status.INJURED,
-            2 to Status.DECEASED,
-            3 to Status.NOT_SHOWN
-        )
+
+
 
         return binding.root
     }
@@ -91,13 +93,30 @@ class FamilyFragment : Fragment() {
 
         familyListRecyclerView = view.findViewById(R.id.familyList)
         familyListRecyclerView.layoutManager = LinearLayoutManager(context)
-        familyListAdapter = FamilyListAdapter(requireContext())
+        familyListAdapter = FamilyListAdapter(requireContext(), this)
         familyListRecyclerView.adapter = familyListAdapter
 
         familyListAdapter.addList()
-
+    }
+//    fun getFamilyListAdapter(): FamilyListAdapter {
+//        return familyListAdapter
+//    }
+    // 아이템 클릭 이벤트 처리
+    override fun onAcceptButtonClick(position: Int) {
+        val item = familyListAdapter.familyList[position]
+        // 서버 요청 등 처리
+        familyAPI.updateRegistFamily(item.acceptNumber, false)
+        // 데이터 갱신
+        familyListAdapter.addList()
     }
 
+    override fun onRejectButtonClick(position: Int) {
+        val item = familyListAdapter.familyList[position]
+        // 서버 요청 등 처리
+        familyAPI.updateRegistFamily(item.acceptNumber, true)
+        // 데이터 갱신
+        familyListAdapter.addList()
+    }
     // Realm에서 데이터 로드 및 UI 업데이트
     private fun loadFamilyPlaces() {
         // Realm 인스턴스 열기
@@ -170,12 +189,15 @@ class FamilyFragment : Fragment() {
         dialogFragment.show(childFragmentManager, "FamilyPlaceAddEditFragment")
     }
 
+
+    // 가족 추가
     private fun showAddDialog() {
-        val dialogFragment = FamilyAddFragment()
+
+        val dialogFragment = FamilyAddFragment(familyListAdapter)
         if(deviceStateService.isNetworkAvailable(requireContext())){
             dialogFragment.show(childFragmentManager, "FamilyAddFragment")
         }else{
-            Toast.makeText(requireContext(), "네트워크 상태가 불안정합니다. 다시 시도해 주세요", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "네트워크 상태가 불안정합니다.\n다시 시도해 주세요", Toast.LENGTH_SHORT).show()
         }
     }
 }

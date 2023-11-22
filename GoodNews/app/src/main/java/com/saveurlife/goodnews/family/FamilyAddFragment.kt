@@ -17,7 +17,7 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 
 
-class FamilyAddFragment : DialogFragment() {
+class FamilyAddFragment(private var familyListAdapter: FamilyListAdapter) : DialogFragment() {
     private lateinit var binding: FragmentFamilyAddBinding
     private val familyAPI = FamilyAPI()
     private lateinit var userDeviceInfoService:UserDeviceInfoService
@@ -43,12 +43,13 @@ class FamilyAddFragment : DialogFragment() {
         binding.familyAddSubmit.setOnClickListener {
             // 여기에 추가되어야 하는 것 : 신청을 눌렀을 때, 해당 신청 요청 box도 하나 띄워줘야 한다.
             Toast.makeText(activity, "가족 신청 버튼을 눌렀습니다.", Toast.LENGTH_SHORT).show()
+
             // 신청 요청
             var result = familyAPI.registFamily(memberId, FamilyFragment.familyEditText.text.toString() , object : FamilyAPI.FamilyRegistrationCallback {
                 override fun onSuccess(result: String) {
                     Log.d("Family", result)
                     // 리스트 다시 갱신
-                    FamilyFragment.familyListAdapter.addList()
+                    familyListAdapter.addList()
                     dismiss()
                 }
 
