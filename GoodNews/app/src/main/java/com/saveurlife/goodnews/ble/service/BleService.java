@@ -67,10 +67,12 @@ import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 //import com.saveurlife.goodnews.ble.GroupRepository;
+import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
 //import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
+import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import com.saveurlife.goodnews.ble.scan.ScanManager;
 import com.saveurlife.goodnews.main.PreferencesUtil;
@@ -150,7 +152,6 @@ public class BleService extends Service {
     private BluetoothGattServer mGattServer;
 
 
-
     private HandlerThread handlerThread;
     private Handler handler;
     private static final int INTERVAL = 5000; // 30 seconds
@@ -212,9 +213,9 @@ public class BleService extends Service {
 
         sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
-        advertiseManager = new AdvertiseManager(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
-        scanManager = new ScanManager(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
-        bleGattCallback = new BleGattCallback(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
+        advertiseManager = AdvertiseManager.getInstance(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
+        scanManager = ScanManager.getInstance(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
+        bleGattCallback = BleGattCallback.getInstance(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
     }
 
     // 블루투스 시작 버튼
@@ -344,7 +345,6 @@ public class BleService extends Service {
         spreadDeviceGattMap.remove(address);
         sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
     }
-
 
 
     public LiveData<List<String>> getDeviceArrayListNameLiveData() {
@@ -633,6 +633,7 @@ public class BleService extends Service {
         notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
 
     }
+
     //포그라운드
     public void foresendNotification(String[] parts) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -722,9 +723,6 @@ public class BleService extends Service {
         notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
 
     }
-
-
-
 
 
     @Override
@@ -819,43 +817,42 @@ public class BleService extends Service {
 
         return userLiveData;
     }
+
+
+    private GroupDatabaseManager groupDatabaseManager = new GroupDatabaseManager();
+    private GroupRepository groupRepository = new GroupRepository(groupDatabaseManager);
+
+    public void addMembersToGroup(String groupName, List<String> members) {
+
+        Map<String, BleMeshConnectedUser> allConnectedUser = new HashMap<>();
+        for (Map<String, BleMeshConnectedUser> users : bleMeshConnectedDevicesMap.values()) {
+            allConnectedUser.putAll(users);
+            Log.i("연결된사용자수", Integer.toString(users.size()));
+        }
+
+
+        List<BleMeshConnectedUser> membersList = new ArrayList<>();
+        for (String memberId : members) {
+            Log.i("memberId", memberId);
+            if (allConnectedUser.containsKey(memberId)) {
+                Log.i("allConnectedUser", allConnectedUser.get(memberId).toString());
+                membersList.add(allConnectedUser.get(memberId));
+
+            }
+        }
+        Log.i("membersList", membersList.toString());
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+        String formattedDate = sdf.format(now);
+        String groupId = "group" + myId + formattedDate;
+
+        groupRepository.addMembersToGroup(groupId, groupName, membersList);
+
+        List<String> membersId = new ArrayList<>();
+        for (BleMeshConnectedUser member : membersList) {
+            membersId.add(member.getUserId());
+        }
+
+        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
+    }
 }
-
-
-
-
-//    private GroupDatabaseManager groupDatabaseManager = new GroupDatabaseManager();
-//    private GroupRepository groupRepository = new GroupRepository(groupDatabaseManager);
-//
-//    public void addMembersToGroup(String groupName, List<String> members){
-//
-//        Map<String, BleMeshConnectedUser> allConnectedUser = new HashMap<>();
-//        for(Map<String, BleMeshConnectedUser> users : bleMeshConnectedDevicesMap.values()){
-//            allConnectedUser.putAll(users);
-//            Log.i("연결된사용자수", Integer.toString(users.size()));
-//        }
-//
-//
-//        List<BleMeshConnectedUser> membersList=new ArrayList<>();
-//        for(String memberId : members){
-//            Log.i("memberId", memberId);
-//            if(allConnectedUser.containsKey(memberId)){
-//                Log.i("allConnectedUser", allConnectedUser.get(memberId).toString());
-//                membersList.add(allConnectedUser.get(memberId));
-//
-//            }
-//        }
-//        Log.i("membersList", membersList.toString());
-//        Date now = new Date();
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
-//        String formattedDate = sdf.format(now);
-//        String groupId = "group"+myId+formattedDate;
-//
-//        groupRepository.addMembersToGroup(groupId, groupName, membersList);
-//
-//        List<String> membersId = new ArrayList<>();
-//        for(BleMeshConnectedUser member : membersList){
-//            membersId.add(member.getUserId());
-//        }
-//
-//        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
