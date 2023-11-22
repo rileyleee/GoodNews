@@ -545,7 +545,7 @@ public class BleService extends Service {
                                 .flatMap(users -> groupMembers.stream().map(users::get).filter(Objects::nonNull))
                                 .collect(Collectors.toList());
 
-//                        groupRepository.addMembersToGroup(groupId, groupName, membersList);
+                        groupRepository.addMembersToGroup(groupId, groupName, membersList);
                     }
 
                     spreadMessage(device.getAddress(), message);
@@ -830,14 +830,12 @@ public class BleService extends Service {
             Log.i("연결된사용자수", Integer.toString(users.size()));
         }
 
-
         List<BleMeshConnectedUser> membersList = new ArrayList<>();
         for (String memberId : members) {
             Log.i("memberId", memberId);
             if (allConnectedUser.containsKey(memberId)) {
                 Log.i("allConnectedUser", allConnectedUser.get(memberId).toString());
                 membersList.add(allConnectedUser.get(memberId));
-
             }
         }
         Log.i("membersList", membersList.toString());

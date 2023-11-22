@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -24,7 +23,6 @@ public class UserDeviceInfoService {
 
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             String phoneNumber = telephonyManager.getLine1Number();
-            Log.i("phoneNumber", phoneNumber);
             if (phoneNumber != null) {
                 if (phoneNumber.startsWith("+82"))
                     phoneNumber = phoneNumber.replace("+82", "0");
@@ -33,7 +31,6 @@ public class UserDeviceInfoService {
                 return "00000000000";
             }
         } else {
-
             return "권한이 없습니다.";
         }
     }
