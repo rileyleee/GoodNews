@@ -194,9 +194,9 @@ class FamilyAPI {
     }
 
     // 가족 모임 장소 등록
-    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, param: Any){
+    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, seq:Int, address:String, callback:RegistFamilyCallback){
         // request
-        val data = RequestPlaceDetailInfo(memberId, name, lat, lon)
+        val data = RequestPlaceDetailInfo(memberId, name, lat, lon, seq, address)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -218,7 +218,7 @@ class FamilyAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -566,5 +566,10 @@ class FamilyAPI {
         fun onSuccess(result: ArrayList<PlaceInfo>)
         fun onFailure(error:String)
     }
+    interface RegistFamilyCallback {
+        fun onSuccess(result: PlaceDetailInfo)
+        fun onFailure(error:String)
+    }
 
 }
+

@@ -19,6 +19,9 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.MapsFragment
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.api.FamilyAPI
+import com.saveurlife.goodnews.api.PlaceDetailInfo
+import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
 import com.saveurlife.goodnews.family.FamilyFragment.Companion.familyAPI
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
@@ -181,11 +184,12 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                     place.name,
                     place.latitude,
                     place.longitude,
-                    object : FamilyServiceCallback {
-                        override fun onSuccess(placeId: String) {
-                            Log.i("placeId", placeId)
+                    place.seq,
+                    place.address, object :FamilyAPI.RegistFamilyCallback {
+                        override fun onSuccess(result: PlaceDetailInfo) {
+                            Log.i("placeId", result.toString())
                             saveFamilyPlaceToRealm(
-                                placeId,
+                                result.placeId,
                                 place.name,
                                 place.address,
                                 place.latitude,
@@ -211,7 +215,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
     // Realm에 저장하는 코드 (ADD 모드)
     private fun saveFamilyPlaceToRealm(
-        placeId: String,
+        placeId: Int,
         name: String,
         address: String,
         lat: Double,
