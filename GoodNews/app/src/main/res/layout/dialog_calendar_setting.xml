@@ -1,123 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/CalendarCard"
-        android:layout_width="350dp"
+        android:layout_width="330dp"
         android:layout_height="320dp"
         android:background="@drawable/card_component"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/birthDialogTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="생년월일"
-        android:textSize="26sp"
-        android:textColor="@color/font_color"
-        app:layout_constraintEnd_toStartOf="@+id/dialogBloodGuideline2"
-        app:layout_constraintStart_toStartOf="@+id/dialogBloodGuideline"
-        app:layout_constraintTop_toTopOf="@id/CalendarCard" />
+        <TextView
+            android:id="@+id/birthDialogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="생년월일"
+            android:textColor="@color/font_color"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/dialogBloodGuideline2"
+            app:layout_constraintStart_toStartOf="@+id/dialogBloodGuideline"
+            app:layout_constraintTop_toTopOf="@id/CalendarCard" />
 
-    <TextView
-        android:id="@+id/yearTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="년"
-        android:textSize="21sp"
-        android:textColor="@color/font_color"
-        app:layout_constraintTop_toTopOf="@id/yearPicker"
-        app:layout_constraintBottom_toBottomOf="@id/yearPicker"
-        app:layout_constraintStart_toEndOf="@id/yearPicker"
-        app:layout_constraintEnd_toStartOf="@id/monthPicker"/>
+        <TextView
+            android:id="@+id/yearTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="년"
+            android:textColor="@color/font_color"
+            android:textSize="21sp"
+            app:layout_constraintBottom_toBottomOf="@id/yearPicker"
+            app:layout_constraintEnd_toStartOf="@id/monthPicker"
+            app:layout_constraintStart_toEndOf="@id/yearPicker"
+            app:layout_constraintTop_toTopOf="@id/yearPicker" />
 
-    <TextView
-        android:id="@+id/monthTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="월"
-        android:textSize="21sp"
-        android:textColor="@color/font_color"
-        app:layout_constraintTop_toTopOf="@id/monthPicker"
-        app:layout_constraintStart_toEndOf="@id/monthPicker"
-        app:layout_constraintBottom_toBottomOf="@id/monthPicker"
-        app:layout_constraintEnd_toStartOf="@id/dayPicker"/>
+        <TextView
+            android:id="@+id/monthTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="월"
+            android:textColor="@color/font_color"
+            android:textSize="21sp"
+            app:layout_constraintBottom_toBottomOf="@id/monthPicker"
+            app:layout_constraintEnd_toStartOf="@id/dayPicker"
+            app:layout_constraintStart_toEndOf="@id/monthPicker"
+            app:layout_constraintTop_toTopOf="@id/monthPicker" />
 
-    <TextView
-        android:id="@+id/dayTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="일"
-        android:textSize="21sp"
-        android:textColor="@color/font_color"
-        app:layout_constraintStart_toEndOf="@id/dayPicker"
-        app:layout_constraintTop_toTopOf="@id/dayPicker"
-        app:layout_constraintBottom_toBottomOf="@id/dayPicker"
-        app:layout_constraintEnd_toEndOf="@id/dialogBloodGuideline2"/>
+        <TextView
+            android:id="@+id/dayTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="일"
+            android:textColor="@color/font_color"
+            android:textSize="21sp"
+            app:layout_constraintBottom_toBottomOf="@id/dayPicker"
+            app:layout_constraintEnd_toEndOf="@id/dialogBloodGuideline2"
+            app:layout_constraintStart_toEndOf="@id/dayPicker"
+            app:layout_constraintTop_toTopOf="@id/dayPicker" />
 
-    <TextView
-        android:id="@+id/requestBirth"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_white"
-        android:backgroundTint="@color/button"
-        android:gravity="center"
-        android:text="완료"
-        android:textColor="@color/font_color"
-        android:textSize="21sp"
-        android:layout_marginBottom="30dp"
-        app:layout_constraintBottom_toBottomOf="@+id/CalendarCard"
-        app:layout_constraintEnd_toEndOf="@id/dialogBloodGuideline2"
-        app:layout_constraintStart_toStartOf="@+id/dialogBloodGuideline"
-        app:layout_constraintTop_toBottomOf="@+id/yearPicker" />
+        <TextView
+            android:id="@+id/requestBirth"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/btn_white"
+            android:backgroundTint="@color/button"
+            android:gravity="center"
+            android:text="완료"
+            android:textColor="@color/font_color"
+            android:textSize="21sp"
+            app:layout_constraintBottom_toBottomOf="@+id/CalendarCard"
+            app:layout_constraintEnd_toEndOf="@id/dialogBloodGuideline2"
+            app:layout_constraintStart_toStartOf="@+id/dialogBloodGuideline"
+            app:layout_constraintTop_toBottomOf="@+id/yearPicker" />
 
-    <NumberPicker
-        android:id="@+id/yearPicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/font_color"
-        app:layout_constraintStart_toStartOf="@id/dialogBloodGuideline"
-        app:layout_constraintTop_toBottomOf="@id/birthDialogTitle"
-        app:layout_constraintEnd_toStartOf="@id/yearTitle"/>
+        <NumberPicker
+            android:id="@+id/yearPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/font_color"
+            app:layout_constraintEnd_toStartOf="@id/yearTitle"
+            app:layout_constraintStart_toStartOf="@id/dialogBloodGuideline"
+            app:layout_constraintTop_toBottomOf="@id/birthDialogTitle" />
 
-    <NumberPicker
-        android:id="@+id/monthPicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/font_color"
-        app:layout_constraintTop_toBottomOf="@id/birthDialogTitle"
-        app:layout_constraintStart_toEndOf="@id/yearTitle"
-        app:layout_constraintEnd_toStartOf="@id/monthTitle"/>
+        <NumberPicker
+            android:id="@+id/monthPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/font_color"
+            app:layout_constraintEnd_toStartOf="@id/monthTitle"
+            app:layout_constraintStart_toEndOf="@id/yearTitle"
+            app:layout_constraintTop_toBottomOf="@id/birthDialogTitle" />
 
-    <NumberPicker
-        android:id="@+id/dayPicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/font_color"
-        app:layout_constraintTop_toBottomOf="@id/birthDialogTitle"
-        app:layout_constraintStart_toEndOf="@id/monthTitle"
-        app:layout_constraintEnd_toStartOf="@id/dayTitle"/>
+        <NumberPicker
+            android:id="@+id/dayPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/font_color"
+            app:layout_constraintEnd_toStartOf="@id/dayTitle"
+            app:layout_constraintStart_toEndOf="@id/monthTitle"
+            app:layout_constraintTop_toBottomOf="@id/birthDialogTitle" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogBloodGuideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.1" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/dialogBloodGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.02" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/dialogBloodGuideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.9" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/dialogBloodGuideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.98" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

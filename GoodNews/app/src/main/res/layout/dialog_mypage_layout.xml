@@ -14,8 +14,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="내 정보 수정"
-        android:textSize="26sp"
         android:textColor="@color/font_color"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/myPageDialogCard"
         app:layout_constraintStart_toStartOf="@+id/myPageDialogCard"
         app:layout_constraintTop_toTopOf="@+id/myPageDialogCard" />
@@ -35,8 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="김싸피"
-        android:textSize="21dp"
         android:textColor="@color/font_color"
+        android:textSize="21dp"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageName" />
 
@@ -55,8 +56,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="000-0000-0000"
-        android:textSize="21dp"
         android:textColor="@color/font_color"
+        android:textSize="21dp"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageNameEdit"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypagePhone" />
 
@@ -74,8 +75,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2000년 01월 01일"
-        android:textSize="21sp"
         android:textColor="@color/font_color"
+        android:textSize="21sp"
         app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypagebirth" />
 
@@ -109,8 +110,8 @@
         android:background="@drawable/input_stroke"
         android:gravity="center"
         android:text="남자"
-        android:textSize="16dp"
         android:textColor="@color/font_color"
+        android:textSize="16dp"
         app:layout_constraintEnd_toStartOf="@id/dialogMypageWoman"
         app:layout_constraintStart_toStartOf="@+id/dialogMypageNameEdit"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageGender" />
@@ -123,8 +124,8 @@
         android:background="@drawable/input_stroke"
         android:gravity="center"
         android:text="여자"
-        android:textSize="16dp"
         android:textColor="@color/font_color"
+        android:textSize="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/dialogMypageMan"
         app:layout_constraintEnd_toStartOf="@+id/myPageguideline4"
         app:layout_constraintStart_toEndOf="@id/dialogMypageMan"
@@ -139,16 +140,16 @@
         app:layout_constraintStart_toStartOf="@+id/dialogMypageName"
         app:layout_constraintTop_toBottomOf="@+id/dialogMypageMan" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/dialogMypageRhEdit"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="5dp"-->
-<!--        android:text="rh+"-->
-<!--        android:textSize="21sp"-->
-<!--        android:textColor="@color/font_color"-->
-<!--        app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/dialogMypageRhEdit"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="5dp"-->
+    <!--        android:text="rh+"-->
+    <!--        android:textSize="21sp"-->
+    <!--        android:textColor="@color/font_color"-->
+    <!--        app:layout_constraintStart_toStartOf="@id/dialogMypageNameEdit"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />-->
 
     <TextView
         android:id="@+id/dialogMypageBloodEdit"
@@ -156,8 +157,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="Rh+ O형"
-        android:textSize="21sp"
         android:textColor="@color/font_color"
+        android:textSize="21sp"
         app:layout_constraintStart_toStartOf="@id/dialogMypageBlood"
         app:layout_constraintTop_toBottomOf="@id/dialogMypageBlood" />
 
@@ -167,7 +168,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginStart="10dp"
-        android:src="@drawable/mypage_blood"
+        android:src="@drawable/blood"
         app:layout_constraintBottom_toBottomOf="@+id/dialogMypageBloodEdit"
         app:layout_constraintStart_toEndOf="@+id/dialogMypageBloodEdit"
         app:layout_constraintTop_toTopOf="@+id/dialogMypageBloodEdit" />
@@ -237,14 +238,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.07" />
+        app:layout_constraintGuide_percent="0.04" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/myPageguideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.93" />
+        app:layout_constraintGuide_percent="0.96" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/myPageguideline5"

@@ -30,13 +30,13 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 
-// FamilyServiceCallback 인터페이스 정의
-interface FamilyServiceCallback {
-    fun onSuccess(placeId: String)
-    fun onFailure(error: String)
-}
-
 class FamilyPlaceAddEditFragment : DialogFragment() {
+
+    // FamilyServiceCallback 인터페이스 정의
+    interface FamilyServiceCallback {
+        fun onSuccess(placeId: String)
+        fun onFailure(error: String)
+    }
 
     private lateinit var binding: FragmentFamilyPlaceAddEditBinding
     private lateinit var geocoder: Geocoder
@@ -67,7 +67,8 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
     // 데이터 로드 및 표시 (READ 모드)
     private fun loadDataAndDisplay(seq: Int?) {
         seq?.let {
-//            val data = loadData(it)
+            val data = loadData(it)
+            displayData(data)
         }
     }
 
@@ -90,10 +91,12 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
     // 데이터 UI에 표시 (READ 모드)
     private fun displayData(data: FamilyPlace?) {
-        data?.let {
-            // 데이터 UI에 적용
-            binding.readModeNickname.text = it.name
-            binding.readModeAddress.text = it.address
+        if (::binding.isInitialized) {
+            data?.let {
+                // 데이터 UI에 적용
+                binding.readModeNickname.text = it.name
+                binding.readModeAddress.text = it.address
+            }
         }
     }
 
@@ -175,7 +178,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
     private fun addNewPlace(seq: Int?) {
         // 서버에 먼저 보내고, placeId 얻어온 다음에 Realm 저장 진행해야됨!!!
         val memberId = getMemberId()
-
+        Log.i("@@@@@@@tempFamilyPlace", tempFamilyPlace?.name.toString())
         seq?.let { seqNumber ->
             tempFamilyPlace?.let { place ->
                 // FamilyService의 인스턴스를 사용하여 함수 호출
@@ -193,7 +196,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                                 place.name,
                                 place.address,
                                 place.latitude,
-                                place.longitude
+                                place.longitude,
                             )
                         }
 
@@ -253,6 +256,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         when (mode) {
             Mode.ADD -> {
                 binding.meetingPlaceAddSubmit.text = "장소 등록"
+                binding.meetingPlaceMapView.visibility = View.VISIBLE
                 binding.addEditContentWrap.visibility = View.VISIBLE
                 binding.readContentWrap.visibility = View.GONE
 
@@ -260,12 +264,14 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
             Mode.EDIT -> {
                 binding.meetingPlaceAddSubmit.text = "장소 수정"
+                binding.meetingPlaceMapView.visibility = View.VISIBLE
                 binding.addEditContentWrap.visibility = View.VISIBLE
                 binding.readContentWrap.visibility = View.GONE
             }
 
             else -> { // READ 모드
                 binding.meetingPlaceAddSubmit.text = "수정하기"
+                binding.meetingPlaceMapView.visibility = View.GONE
                 binding.addEditContentWrap.visibility = View.GONE
                 binding.readContentWrap.visibility = View.VISIBLE
             }
@@ -288,9 +294,11 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                 place.latLng?.let {
                     mapsFragment.setLocation(it.latitude, it.longitude)
 
+                    Log.d("@@@@@@@@@@address", place.address)
+
                     // FamilyPlace에 저장
                     tempFamilyPlace = FamilyPlace().apply {
-                        this.address = place.address ?: ""
+                        this.address = place.address?.toString() ?: ""
                         this.latitude = it.latitude
                         this.longitude = it.longitude
                     }

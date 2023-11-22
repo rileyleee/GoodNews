@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".main.MainMeshFragment"
-    android:orientation="vertical"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
     android:layout_marginStart="20dp"
+    android:layout_marginTop="10dp"
     android:layout_marginEnd="20dp"
+    android:layout_marginBottom="10dp"
     android:background="@drawable/card_component"
-    android:backgroundTint="@color/white">
+    android:backgroundTint="@color/white"
+    android:orientation="vertical"
+    app:tabRippleColor="@color/sub"
+    tools:context=".main.MainMeshFragment">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
-        app:tabTextAppearance="@style/MyTabTextAppearance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabTextColor="@color/font_color"
         app:tabIndicatorColor="@color/sub"
-        app:tabIndicatorHeight="4dp"/>
-<!--    app:tabBackground="@drawable/tab_background_selector"-->
+        app:tabIndicatorHeight="4dp"
+        app:tabSelectedTextColor="@color/font_color"
+        app:tabTextAppearance="@style/MyTabTextAppearance"
+        app:tabTextColor="@color/inactive_gray" />
+    <!--    app:tabBackground="@drawable/tab_background_selector"-->
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
