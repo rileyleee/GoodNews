@@ -530,8 +530,8 @@ class FamilyAPI {
                     if (errorBodyString != null) {
                         try {
                             val errorJson = JSONObject(errorBodyString)
-                            val code = errorJson.getInt("status")
-                            val message = errorJson.getString("error")
+                            val code = errorJson.getInt("code")
+                            val message = errorJson.getString("message")
 
                             Log.d("API ERROR", "Error Code: $code, Message: $message")
 
