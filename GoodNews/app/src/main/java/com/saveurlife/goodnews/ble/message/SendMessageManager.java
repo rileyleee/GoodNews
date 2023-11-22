@@ -50,7 +50,7 @@ public class SendMessageManager {
 
         String[] location = locationService.getLastKnownLocation().split("/");
 
-        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]), false);
+        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
 
         newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
         for (Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()) {
@@ -244,7 +244,7 @@ public class SendMessageManager {
         for (BluetoothGatt gatt : deviceGattMap.values()) {
             // 여기서 자기 꺼 빼고 보내게
             Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap=new HashMap<>();
-            BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]), false);
+            BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
             newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
 
             for(Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()){

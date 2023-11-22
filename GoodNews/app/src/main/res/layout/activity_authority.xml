@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".authority.AuthorityActivity">
+
+    <TextView
+        android:id="@+id/authTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="원활한 희소식 사용을 위한 \n접근 권한 안내"
+        android:textSize="27sp"
+        android:textColor="@color/main"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/authGuide"
+        android:layout_marginTop="40dp"/>
+
+    <TextView
+        android:id="@+id/authSubTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="필수 접근 권한"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        app:layout_constraintTop_toBottomOf="@id/authTitle"
+        app:layout_constraintStart_toStartOf="@id/authTitle"
+        android:layout_marginTop="20dp"/>
+
+    <ImageView
+        android:id="@+id/authLocationIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/baseline_location_on_24"
+        android:backgroundTint="@color/main"
+        app:layout_constraintTop_toBottomOf="@id/authSubTitle"
+        app:layout_constraintStart_toStartOf="@id/authGuide"
+        android:layout_marginTop="30dp"/>
+
+    <TextView
+        android:id="@+id/authLocationTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위치"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        android:layout_marginStart="5dp"
+        app:layout_constraintTop_toTopOf="@id/authLocationIcon"
+        app:layout_constraintStart_toEndOf="@id/authLocationIcon"/>
+
+    <TextView
+        android:id="@+id/authLocationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="현 위치 파악"
+        android:textSize="21sp"
+        android:textColor="@color/gray"
+        app:layout_constraintStart_toStartOf="@id/authLocationTitle"
+        app:layout_constraintTop_toBottomOf="@id/authLocationTitle"/>
+
+
+
+    <ImageView
+        android:id="@+id/authCallIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/baseline_call_24"
+        android:layout_marginTop="30dp"
+        app:layout_constraintTop_toBottomOf="@id/authLocationText"
+        app:layout_constraintStart_toStartOf="@id/authGuide"
+        />
+
+    <TextView
+        android:id="@+id/authCallTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="전화"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        android:layout_marginStart="5dp"
+        app:layout_constraintTop_toTopOf="@id/authCallIcon"
+        app:layout_constraintStart_toEndOf="@id/authCallIcon"/>
+
+    <TextView
+        android:id="@+id/authCallText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사용자 인증, 식별, 가족 추가"
+        android:textColor="@color/gray"
+        android:textSize="21sp"
+        app:layout_constraintTop_toBottomOf="@id/authCallTitle"
+        app:layout_constraintStart_toStartOf="@id/authCallTitle"/>
+
+    <ImageView
+        android:id="@+id/authSmsIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/baseline_chat_24"
+        android:layout_marginTop="30dp"
+        app:layout_constraintStart_toStartOf="@id/authGuide"
+        app:layout_constraintTop_toBottomOf="@id/authCallText"/>
+
+    <TextView
+        android:id="@+id/authSmsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SMS"
+        android:textColor="@color/font_color"
+        android:textSize="21sp"
+        android:layout_marginStart="5dp"
+        app:layout_constraintStart_toEndOf="@id/authSmsIcon"
+        app:layout_constraintTop_toTopOf="@id/authSmsIcon"/>
+
+    <TextView
+        android:id="@+id/authSmsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="사용자 인증, 식별"
+        android:textSize="21sp"
+        android:textColor="@color/gray"
+        app:layout_constraintStart_toStartOf="@id/authSmsTitle"
+        app:layout_constraintTop_toBottomOf="@id/authSmsTitle"/>
+
+    <ImageView
+        android:id="@+id/authBleIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/baseline_bluetooth_24"
+        android:layout_marginTop="30dp"
+        app:layout_constraintStart_toStartOf="@id/authGuide"
+        app:layout_constraintTop_toBottomOf="@id/authSmsText"/>
+
+    <TextView
+        android:id="@+id/authBleTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="블루투스 연결 정보"
+        android:textSize="21sp"
+        android:textColor="@color/font_color"
+        android:layout_marginStart="5dp"
+        app:layout_constraintTop_toTopOf="@id/authBleIcon"
+        app:layout_constraintStart_toEndOf="@id/authBleIcon"/>
+
+    <TextView
+        android:id="@+id/authBleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="정보 송신, 정보 수신"
+        android:textSize="21sp"
+        android:textColor="@color/gray"
+        app:layout_constraintStart_toStartOf="@id/authBleTitle"
+        app:layout_constraintTop_toBottomOf="@id/authBleTitle"/>
+
+    <TextView
+        android:id="@+id/authButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="확인"
+        android:textSize="21sp"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:background="@drawable/btn_match_parent"
+        app:layout_constraintStart_toStartOf="@id/startGuide"
+        app:layout_constraintEnd_toEndOf="@id/endGuide"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        />
+
+
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/authGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/startGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/endGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="20dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

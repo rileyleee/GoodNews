@@ -19,17 +19,23 @@ class ChatDatabaseManager {
             val realm = Realm.open(config)
 
             try {
-                realm.write {
-                    copyToRealm(chatMessage)
-                }
-                withContext(Dispatchers.Main) {
-                    onSuccess()
+                val existingMessage = realm.query<ChatMessage>("id = $0", chatMessage.id).first().find()
+                if (existingMessage == null) {
+                    realm.write {
+                        copyToRealm(chatMessage)
+                    }
+                    withContext(Dispatchers.Main) {
+                        onSuccess()
+                    }
+                } else {
+                    Log.i("createChatMessage", "Chat message with id ${chatMessage.id} already exists.")
                 }
             } finally {
                 realm.close()
             }
         }
     }
+
 
     fun getAllChatRoomIds(onSuccess: (List<String>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {

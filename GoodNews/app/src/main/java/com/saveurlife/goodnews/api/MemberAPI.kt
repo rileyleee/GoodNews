@@ -208,6 +208,7 @@ class MemberAPI {
         val requestBody = json.toRequestBody(mediaType)
 
         val call = memberService.findMemberInfo(requestBody)
+        Log.d("test", data.memberId)
 
         // response
 

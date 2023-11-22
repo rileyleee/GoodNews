@@ -118,7 +118,10 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 //            result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
 
             realm.writeBlocking {
-                findLatest(result)?.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
+                val liveObject = findLatest(result)
+                if (liveObject != null) {
+                    liveObject.lastConnection = RealmInstant.from(newTime / 1000, (newTime % 1000).toInt())
+                }
             }
 //            realm.close()
         }

@@ -3,13 +3,33 @@ package com.saveurlife.goodnews.map
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
+import com.saveurlife.goodnews.models.FamilyMemInfo
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
 
 class ConnectedUserProvider(
     private val sharedViewModel: SharedViewModel,
     private val viewLifecycleOwner: LifecycleOwner
 ) {
+
+    private val familyList = mutableListOf<FamilyMemInfo>()
+
+    fun getFamilyList(): MutableList<FamilyMemInfo> {
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+        val resultList = realm.query<FamilyMemInfo>().find()
+
+        if (!resultList.isEmpty()) {
+            resultList.forEach { fam -> familyList.add(fam) }
+        }
+        realm.close()
+
+        return familyList
+    }
+
     fun provideConnectedUsers(callback: (List<BleMeshConnectedUser>) -> Unit) {
 
 
@@ -24,10 +44,12 @@ class ConnectedUserProvider(
 
                 Log.v("connectedUser", "$users")
 
+                // BLE로 연결된 내역에서 가족인 경우에는 필터링해서 realm에 저장하는 방식으로 마커가 두 번 찍히지 않게 처리
+
                 users.forEach { user ->
-                    try{
-                    val userToString = user.toString()
-                    val userData = userToString.split("/")
+                    try {
+                        val userToString = user.toString()
+                        val userData = userToString.split("/")
                         val userId = userData[0]
                         val userName = userData[1]
                         val updateTime = userData[2]
@@ -38,12 +60,46 @@ class ConnectedUserProvider(
                             "connectedUserData",
                             "$userId, $userName, $updateTime, $healthStatus, $lat, $lon"
                         )
-                        Log.d("connectedUserProvider","BleMeshConnectedUser 객체로 복사 중")
-                    // userList에 담기
-                    userList.add(                        
-                        BleMeshConnectedUser( userData[0], userData[1], userData[2], userData[3], userData[4].toDouble(), userData[5].toDouble(),false)
-                    )}
-                    catch(e: Exception){
+                        Log.d("connectedUserProvider", "BleMeshConnectedUser 객체로 복사 중")
+
+
+                        // 가족 리스트에 해당 유저의 ID가 존재하는지 확인
+                        val isFamilyMember = familyList.any { fam -> userId == fam.id }
+
+                        if (!isFamilyMember) {
+                            // userList에 담기
+                            userList.add(
+                                BleMeshConnectedUser(
+                                    userId,
+                                    userName,
+                                    updateTime,
+                                    healthStatus,
+                                    lat,
+                                    lon,
+                                )
+                            )
+                        } else {
+                            // 가족 리스트에 해당한다면 해당 값 업데이트
+                            val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+                            realm.writeBlocking {
+                                // 해당 가족 구성원의 정보를 찾음
+                                val thisFamMem =
+                                    query<FamilyMemInfo>("id == $0", userId).first().find()
+
+                                // 정보를 업데이트
+                                if (thisFamMem != null) {
+                                    thisFamMem.apply {
+                                        this.state = healthStatus
+                                        this.latitude = lat
+                                        this.longitude = lon
+                                    }
+                                    Log.d("ConnectedUserProvider", "가족 구성원 정보 업데이트 완료: $thisFamMem")
+                                }
+                            }
+                            realm.close()
+                        }
+                    } catch (e: Exception) {
                         Log.e("ConnectedUserProvider", "연결된 이용자 데이터를 객체로 복사 중 오류 발생", e)
                     }
                 }

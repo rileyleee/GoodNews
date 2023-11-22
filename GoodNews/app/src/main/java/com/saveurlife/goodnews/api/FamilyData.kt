@@ -5,7 +5,7 @@ data class RequestPlaceCanUse(val canuse:Boolean)
 data class RequestPlaceInfo(val name:String, val lat:Double, val lon:Double)
 data class RequestPlaceId(val placeId:Int)
 data class RequestFamilyRegist(val memberId:String, val otherPhone:String)
-data class RequestPlaceDetailInfo(val memberId:String, val name:String, val lat:Double, val lon:Double)
+data class RequestPlaceDetailInfo(val memberId:String, val name:String, val lat:Double, val lon:Double, val seq :Int, val address:String)
 data class RequestAccept(val familyMemberId:Int, val refuse:Boolean)
 
 // response
