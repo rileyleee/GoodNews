@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.lifecycle.LiveData
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity() {
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
-
+    private lateinit var familyFragment: FamilyFragment
     // flash on 여부
     private val sharedViewModel: SharedViewModel by viewModels()
 
@@ -151,7 +152,7 @@ class MainActivity : AppCompatActivity() {
             super.onCreate(savedInstanceState)
             binding = ActivityMainBinding.inflate(layoutInflater)
             setContentView(binding.root)
-
+            familyFragment = FamilyFragment()
             //ble - 서비스 바인딩
             Intent(this, BleService::class.java).also { intent ->
                 bindService(intent, connection, Context.BIND_AUTO_CREATE)
@@ -505,39 +506,42 @@ class MainActivity : AppCompatActivity() {
             unbindService(connection)
         }
     }
+    private fun NavController.navigateSingleTop(id: Int) {
+//        if(id == R.id.familyFragment){
+//            familyFragment.addList()
+//            .addList()
+////    //        .addList()
+//            var workManager = WorkManager.getInstance(context)
+//
+//            // 조건 설정 - 인터넷 연결 시에만 실행
+//            val constraints = Constraints.Builder()
+//                .setRequiredNetworkType(NetworkType.CONNECTED)
+//                .build()
+//
+//            // request 생성
+//            val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
+//                .setConstraints(constraints)
+//                .build()
+//
+//             실행
+//            workManager.enqueue(updateRequest)
+//            FamilyFragment.familyListAdapter = FamilyListAdapter(context)
+//            FamilyFragment.familyListAdapter.addList()
+//        }
+
+        if (currentDestination?.id != id) {
+
+
+            navigate(id)
+            val startDestination = this.graph.startDestinationId
+            val builder = NavOptions.Builder()
+            builder.setLaunchSingleTop(true)  // 이미 back stack의 top에 해당 fragment가 있으면 재사용
+            builder.setPopUpTo(startDestination, false)  // 시작 destination까지 back stack을 clear하지 않음
+            val options = builder.build()
+            navigate(id, null, options)
+        }
+
+    }
 }
 
-private fun NavController.navigateSingleTop(id: Int) {
-    if(id == R.id.familyFragment){
-        var workManager = WorkManager.getInstance(context)
-
-        // 조건 설정 - 인터넷 연결 시에만 실행
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        // request 생성
-        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
-            .setConstraints(constraints)
-            .build()
-
-        // 실행
-        workManager.enqueue(updateRequest)
-        FamilyFragment.familyListAdapter = FamilyListAdapter(context)
-        FamilyFragment.familyListAdapter.addList()
-    }
-
-    if (currentDestination?.id != id) {
-
-
-        navigate(id)
-        val startDestination = this.graph.startDestinationId
-        val builder = NavOptions.Builder()
-        builder.setLaunchSingleTop(true)  // 이미 back stack의 top에 해당 fragment가 있으면 재사용
-        builder.setPopUpTo(startDestination, false)  // 시작 destination까지 back stack을 clear하지 않음
-        val options = builder.build()
-        navigate(id, null, options)
-    }
-
-}
 

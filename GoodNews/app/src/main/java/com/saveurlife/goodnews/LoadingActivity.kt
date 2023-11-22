@@ -77,13 +77,13 @@ class LoadingActivity : AppCompatActivity() {
                         .setRequiredNetworkType(NetworkType.CONNECTED)
                         .build()
 
-                    // request 생성
-                    val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
-                        .setConstraints(constraints)
-                        .build()
+                // request 생성
+                val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
+                    .setConstraints(constraints)
+                    .build()
 
-                    // 실행
-                    workManager.enqueue(updateRequest)
+                // 실행
+                workManager.enqueue(updateRequest)
 
                     startActivity(i)
                     finish()
@@ -94,7 +94,6 @@ class LoadingActivity : AppCompatActivity() {
                 startActivity(i)
                 finish()
             }
-
         }, 2000)
 
 //            // 앱의 MainActivity로 넘어가기
