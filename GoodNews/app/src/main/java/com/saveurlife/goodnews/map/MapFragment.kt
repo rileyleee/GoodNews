@@ -33,6 +33,7 @@ import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.SyncService
+import io.realm.kotlin.ext.isValid
 import io.realm.kotlin.query.RealmResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,8 +77,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var screenRect: BoundingBox
     private var familyMemProvider = FamilyMemProvider()
     private var familyPlaceProvider = FamilyPlaceProvider()
-    private var familyList = mutableListOf <FamilyMemInfo>()
-    private var familyPlaceList = mutableListOf <FamilyPlace>()
+    private var familyList = mutableListOf<FamilyMemInfo>()
+    private var familyPlaceList = mutableListOf<FamilyPlace>()
 
     // 사용자의 위치를 표시하는 이전 마커에 대한 참조를 저장할 변수
     private var previousLocationOverlay: MyLocationMarkerOverlay? = null
@@ -410,14 +411,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
         })
 
-        // 가족 마커 추가
-        familyList = familyMemProvider.getFamilyMemInfo()
-        addFamilyLocation()
-
-        // 가족 약속 장소 추가
-        familyPlaceList = familyPlaceProvider.getFamilyPlace()
-        addFamilyPlaceLocation()
-
+        // 가족,가족 약속 장소 마커 추가
+        CoroutineScope(Dispatchers.Main).launch {
+            familyList = familyMemProvider.getFamilyMemInfo()
+            addFamilyLocation()
+            familyPlaceList = familyPlaceProvider.getFamilyPlace()
+            addFamilyPlaceLocation()
+        }
     }
 
     @Throws(IOException::class)
@@ -794,35 +794,42 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun addFamilyLocation() {
-        Log.d("addFamilyLocation","가족 위치 렌더링 중이에요")
-        familyList.map { fam ->
-            Log.d("addFamilyLocation","여기 들어왔나요?")
-            val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
+        Log.d("addFamilyLocation", "가족 위치 렌더링 중이에요")
+        familyList.forEach { fam ->
+            Log.d("fam", "$fam")
+            if (fam.isValid()) {
+                Log.d("addFamilyLocation", "여기 들어왔나요?")
+                val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
 
-            val famMarker = Marker(mapView)
-            famMarker.position = location
-            famMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            famMarker.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
-            famMarker.title = "${fam.name}"
-            famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
+                val famMarker = Marker(mapView)
+                famMarker.position = location
+                famMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                famMarker.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+                famMarker.title = "${fam.name}"
+                famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
 
-            famMarker.setOnMarkerClickListener { famMarker, _ ->
-                Toast.makeText(
-                    requireContext(),
-                    "${famMarker.title}: ${famMarker.snippet}",
-                    Toast.LENGTH_LONG
-                ).show()
-                true
+                famMarker.setOnMarkerClickListener { famMarker, _ ->
+                    Toast.makeText(
+                        requireContext(),
+                        "${famMarker.title}: ${famMarker.snippet}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    true
+                }
+
+                Log.v("어떤 가족인가요", "${fam.name}")
+                mapView.overlays.add(famMarker)
+            } else {
+                Log.w("addFamilyLocation", "Invalid family member object encountered.")
             }
-            Log.v("어떤 가족인가요","${fam.name}")
-            mapView.overlays.add(famMarker)
             mapView.invalidate()
         }
     }
 
     private fun addFamilyPlaceLocation() {
-        familyPlaceList.map { famPlace ->
-            val location = GeoPoint("${famPlace.latitude}".toDouble(), "${famPlace.longitude}".toDouble())
+        familyPlaceList.forEach { famPlace ->
+            val location =
+                GeoPoint("${famPlace.latitude}".toDouble(), "${famPlace.longitude}".toDouble())
 
             val famPlaceMarker = Marker(mapView)
             famPlaceMarker.position = location
