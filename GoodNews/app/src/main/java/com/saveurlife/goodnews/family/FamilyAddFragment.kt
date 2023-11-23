@@ -42,7 +42,7 @@ class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFrag
         // 신청 버튼 클릭했을 때
         binding.familyAddSubmit.setOnClickListener {
             // 여기에 추가되어야 하는 것 : 신청을 눌렀을 때, 해당 신청 요청 box도 하나 띄워줘야 한다.
-            Toast.makeText(activity, "가족 신청 버튼을 눌렀습니다.", Toast.LENGTH_SHORT).show()
+//            Toast.makeText(activity, "가족 신청 버튼을 눌렀습니다.", Toast.LENGTH_SHORT).show()
 
             // 신청 요청
             var result = familyAPI.registFamily(memberId, FamilyFragment.familyEditText.text.toString() , object : FamilyAPI.FamilyRegistrationCallback {
