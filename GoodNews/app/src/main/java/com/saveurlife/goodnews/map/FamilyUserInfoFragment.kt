@@ -43,7 +43,7 @@ class FamilyUserInfoFragment : DialogFragment() {
                 }
 
 
-                "injure" -> context?.let { ctx ->
+                "injury" -> context?.let { ctx ->
                     this.binding.familyStatusCircle.backgroundTintList =
                         ContextCompat.getColorStateList(ctx, R.color.caution)
                 }

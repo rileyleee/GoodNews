@@ -50,7 +50,7 @@ class OtherUserInfoFragment : DialogFragment() {
                 }
 
 
-                "injure" -> context?.let { ctx ->
+                "injury" -> context?.let { ctx ->
                     this.binding.otherStatusCircle.backgroundTintList =
                         ContextCompat.getColorStateList(ctx, R.color.caution)
                 }
