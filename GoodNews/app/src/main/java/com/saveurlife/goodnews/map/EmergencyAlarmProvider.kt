@@ -87,12 +87,13 @@ class EmergencyAlarmProvider(private val context: Context) {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     )
+
                     layout.layoutParams = layoutParams
 
                     val mapContent: TextView = layout.findViewById(R.id.custom_map_content)
-                    val mapTime: TextView = layout.findViewById(R.id.custom_map_location)
+                    val mapTime: TextView = layout.findViewById(R.id.custom_map_time)
 
-                    mapContent.text = it.content
+                    mapContent.text = "주변 20미터 이내에 위험이 감지되었습니다. \n주의를 기울이시고 안전에 유의해 주세요."
                     mapTime.text = syncService.realmInstantToString(it.time)
 
                     // 토스트 메시지를 표시합니다.

@@ -75,9 +75,6 @@ class OtherUserInfoFragment : DialogFragment() {
                 putExtra("page",2)
             }
             startActivity(intent)
-
-
-
             dismiss()
         }
 
