@@ -790,6 +790,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     private fun showFamilyUserInfoDialog(famUser: FamilyMemInfo) {
+
+        var syncService = SyncService()
+
         Log.d("famUserClicked", "가족 유저가 클릭되었습니다.")
         val dialogFragment = FamilyUserInfoFragment()
 
@@ -798,7 +801,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         famUserInfo.putString("userName", famUser.name)
         famUserInfo.putString("userStatus", famUser.state)
-        famUserInfo.putString("userUpdateTime", famUser.lastConnection.toString())
+        famUserInfo.putString("userUpdateTime", syncService.realmInstantToString(famUser.lastConnection))
 
         dialogFragment.arguments = famUserInfo
 
