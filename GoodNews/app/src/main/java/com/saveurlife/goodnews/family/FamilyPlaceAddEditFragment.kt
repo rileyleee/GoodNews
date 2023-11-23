@@ -56,8 +56,6 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
             mode = it.getSerializable("mode") as Mode
             seqNumber = it.getInt("seq")
 
-            Log.i("@@@@@@@@@@seqNumber", seqNumber.toString())
-
             when (mode) {
                 Mode.READ -> loadDataAndDisplay(seqNumber)
                 Mode.EDIT -> loadDataForEdit(seqNumber)

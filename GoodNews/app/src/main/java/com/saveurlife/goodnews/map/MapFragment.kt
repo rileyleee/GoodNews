@@ -196,7 +196,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
         val mainActivity = requireActivity() as MainActivity
 
-        Log.i("@@@@@@@@", "네")
         mapView = view.findViewById(R.id.map) as MapView
 
         // 현재 내 위치 정보 제공자

@@ -510,7 +510,6 @@ class FlashlightFragment : Fragment() {
         }
     }
 
-    // test 임시 코드 @@
 //    private fun testMorseCode(morseCode: String, onCompletion: (() -> Unit)? = null) {
 //        if (!hasFlash()) {
 //            Toast.makeText(activity, "No flash available on your device", Toast.LENGTH_SHORT).show()
