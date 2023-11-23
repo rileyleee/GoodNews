@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import LoadingDialog
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -190,10 +191,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
         val mainActivity = requireActivity() as MainActivity
-        mainActivity.hideLoadingProgressBar()
 
+        Log.i("@@@@@@@@", "네")
         mapView = view.findViewById(R.id.map) as MapView
 
         // 현재 내 위치 정보 제공자
@@ -306,6 +309,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
+                mainActivity.hideLoadingProgressBar()
             }
         })
 

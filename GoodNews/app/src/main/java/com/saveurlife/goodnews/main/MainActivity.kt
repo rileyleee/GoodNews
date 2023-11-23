@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.main
 
+import LoadingDialog
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -16,6 +17,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -31,7 +33,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
-import androidx.lifecycle.LiveData
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
@@ -45,18 +46,15 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.ble.service.BleService
-import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.family.FamilyFragment
 import com.saveurlife.goodnews.family.FamilyListAdapter
-import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.LocationTrackingService
 import com.saveurlife.goodnews.sync.FamilySyncWorker
 import io.realm.kotlin.Realm
@@ -64,8 +62,13 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
 
+    //    val dialog = LoadingDialog(this)
+    private val dialog: LoadingDialog by lazy {
+        LoadingDialog(this)
+    }
     val sharedPreferences = GoodNewsApplication.preferences
 
     private val navController by lazy {
@@ -280,14 +283,16 @@ class MainActivity : AppCompatActivity() {
 
     // 로딩 프로그래스 바 표시 함수
     private fun showLoadingProgressBar() {
-        binding.loadingProgressBar.visibility = View.VISIBLE
-        binding.loadingProgressBar.isIndeterminate = true
+
+        dialog.show()
     }
 
     // 로딩 프로그래스 바 감추기 함수
     fun hideLoadingProgressBar() {
-        binding.loadingProgressBar.visibility = View.GONE
+        Log.i("ddasfasff", "hideLoadingProgressBar: ")
+        dialog.dismiss()
     }
+
 
     // 배터리 최적화 여부 확인 -> boolean 반환
     private fun isBatteryOptimizationIgnored(context: Context): Boolean {
