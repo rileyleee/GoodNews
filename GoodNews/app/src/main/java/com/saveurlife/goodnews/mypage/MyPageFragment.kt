@@ -1,10 +1,12 @@
 package com.saveurlife.goodnews.mypage
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Environment
 import android.text.Editable
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -15,7 +17,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.MemberAPI
@@ -32,6 +37,7 @@ import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
+import java.io.File
 import java.util.Calendar
 import kotlin.properties.Delegates
 
@@ -68,6 +74,7 @@ class MyPageFragment : Fragment() {
     private var sendLat by Delegates.notNull<Double>()
     private var sendLon by Delegates.notNull<Double>()
 
+    private val ACTION_SEND_FILE = "app-release.apk"
 
     private var realmaddInfo: String? = null
 
@@ -123,6 +130,25 @@ class MyPageFragment : Fragment() {
         binding.mapDownloadButton.setOnClickListener {
             Log.d("com.saveurlife.goodnews.map.MapDownloader","지도 다운로드 하러가야지")
             startMapFileDownload()
+        }
+
+
+
+        if(isFileExistInDirectory()){
+            // 파일 존재할 경우
+            binding.shareApp.text = "앱 공유"
+        }else{
+            binding.shareApp.text = "앱 저장"
+        }
+
+        // 앱 공유
+        binding.shareApp.setOnClickListener{
+            if(isFileExistInDirectory()){
+                // 파일 공유
+                onClickShare()
+            }else{
+                startAppAPKDownload()
+            }
         }
 
         //객체 만들기
@@ -599,6 +625,37 @@ class MyPageFragment : Fragment() {
         val fileName = "7_15_korea-001.sqlite"
 
         mapDownloader.downloadFile(url, fileName)
+    }
+//shareApp
+    private fun startAppAPKDownload(){
+        Log.d("APK Down", "APK 다운로드 합니다.")
+
+        val workManager = WorkManager.getInstance(requireContext())
+
+        // 작업 생성
+        val downloadRequest = OneTimeWorkRequest.Builder(DownloadAPK::class.java)
+            .build()
+
+        // 작업 예약
+        workManager.enqueue(downloadRequest)
+    }
+
+    private fun onClickShare() {
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), ACTION_SEND_FILE)
+        val fileUri = FileProvider.getUriForFile(requireContext(), "com.ssafy.goodnews.file-provider", file)
+
+        Log.d("send","파일 보내기")
+
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_SEND
+        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        sendIntent.type = "application/vnd.android.package-archive"
+        startActivity(sendIntent)
+    }
+
+    private fun isFileExistInDirectory(): Boolean {
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), ACTION_SEND_FILE)
+        return file.exists()
     }
 
 }

@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import LoadingDialog
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -28,6 +29,7 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
+import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
@@ -189,6 +191,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
+        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
+        val mainActivity = requireActivity() as MainActivity
+
         mapView = view.findViewById(R.id.map) as MapView
 
         // 현재 내 위치 정보 제공자
@@ -301,6 +308,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
+                mainActivity.hideLoadingProgressBar()
             }
         })
 
@@ -781,6 +789,22 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         return user
     }
 
+    private fun showFamilyUserInfoDialog(famUser: FamilyMemInfo) {
+        Log.d("famUserClicked", "가족 유저가 클릭되었습니다.")
+        val dialogFragment = FamilyUserInfoFragment()
+
+        // 클릭한 가족 사용자의 정보를 프래그 먼트로 전달
+        val famUserInfo = Bundle()
+
+        famUserInfo.putString("userName", famUser.name)
+        famUserInfo.putString("userStatus", famUser.state)
+        famUserInfo.putString("userUpdateTime", famUser.lastConnection.toString())
+
+        dialogFragment.arguments = famUserInfo
+
+        dialogFragment.show(childFragmentManager, "showFamilyUserInfoDialog")
+    }
+
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
         println("두 좌표의 값은 ???? $lat1, $lon1, $lat2, $lon2")
         val earthRadius = 6371000.0 // 지구 반지름 (미터 단위)
@@ -803,8 +827,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     private fun addFamilyLocation() {
         Log.d("addFamilyLocation", "가족 위치 렌더링 중이에요")
+
         familyList.forEach { fam ->
+
             Log.d("fam", "$fam")
+
             if (fam.isValid()) {
                 Log.d("addFamilyLocation", "여기 들어왔나요?")
                 val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
@@ -817,11 +844,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
 
                 famMarker.setOnMarkerClickListener { famMarker, _ ->
-                    Toast.makeText(
-                        requireContext(),
-                        "${famMarker.title}: ${famMarker.snippet}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    // 가족 정보 다이얼로그 연결 위한 데이터 전송
+                    showFamilyUserInfoDialog(fam)
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "${famMarker.title}: ${famMarker.snippet}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
                     true
                 }
 
@@ -832,6 +861,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.w("addFamilyLocation", "가족 위치 렌더링 중 오류 발생")
             }
             mapView.invalidate()
+
+
         }
     }
 
@@ -846,18 +877,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famPlaceMarker.position = location
                 famPlaceMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 famPlaceMarker.icon =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_meeting_place)
                 famPlaceMarker.title = "${famPlace.name}"
                 famPlaceMarker.snippet = "주소: ${famPlace.address}, 현재 상태: ${famPlace.canUse}"
 
-                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
-                    Toast.makeText(
-                        requireContext(),
-                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    true
-                }
+//                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                    true
+//                }
                 familyPlaceMarkers.add(famPlaceMarker)
                 mapView.overlays.add(famPlaceMarker)
             } else {
