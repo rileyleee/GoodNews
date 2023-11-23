@@ -23,6 +23,7 @@ import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
+//import com.saveurlife.goodnews.family.FamilyFragment.Companion.familyAPI
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
