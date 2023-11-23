@@ -869,18 +869,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famPlaceMarker.position = location
                 famPlaceMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 famPlaceMarker.icon =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_meeting_place)
                 famPlaceMarker.title = "${famPlace.name}"
                 famPlaceMarker.snippet = "주소: ${famPlace.address}, 현재 상태: ${famPlace.canUse}"
 
-                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
-                    Toast.makeText(
-                        requireContext(),
-                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    true
-                }
+//                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                    true
+//                }
                 familyPlaceMarkers.add(famPlaceMarker)
                 mapView.overlays.add(famPlaceMarker)
             } else {
