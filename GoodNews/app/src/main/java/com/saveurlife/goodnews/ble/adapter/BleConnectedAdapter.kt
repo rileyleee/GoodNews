@@ -14,6 +14,7 @@ import kotlin.math.sqrt
 
 class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : RecyclerView.Adapter<BleConnectedAdapter.UserViewHolder>() {
 
+    private val uniqueUserList = userList.distinctBy { it.userId }
     // 클릭 리스너 인터페이스 정의
     var onChattingButtonClickListener: OnChattingButtonClickListener? = null
     interface OnChattingButtonClickListener {
@@ -28,7 +29,7 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
 
     //데이터 바인딩
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        val user = userList[position]
+        val user = uniqueUserList[position]
         holder.bind(user)
 
         holder.binding.aroundChatting.setOnClickListener {
@@ -37,7 +38,7 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
     }
 
     //리스트의 크기만큼 반환
-    override fun getItemCount() = userList.size
+    override fun getItemCount() = uniqueUserList.size
 
     class UserViewHolder(val binding: ItemAroundListBinding) : RecyclerView.ViewHolder(binding.root) {
 
