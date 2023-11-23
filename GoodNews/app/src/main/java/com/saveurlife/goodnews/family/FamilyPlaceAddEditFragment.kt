@@ -49,7 +49,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
     private var tempFamilyPlace: FamilyPlace? = null
 
     private var mode: Mode? = null
-    private var seqNumber: Int? = null
+    private var seqNumber: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,9 +66,9 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
     }
 
     // 데이터 로드 및 표시 (READ 모드)
-    private fun loadDataAndDisplay(seq: Int?) {
-        seq?.let {
-            val data = loadData(it)
+    private fun loadDataAndDisplay(seq: Int) {
+        seq.let {
+            val data = loadData(seq)
             displayData(data)
         }
     }
@@ -81,13 +81,26 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         }
     }
 
-    // Realm에서 데이터 로드
+    // Realm에서 데이터 로드 (seq에 맞는 데이터)
     private fun loadData(seq: Int): FamilyPlace? {
         // Realm 열고 데이터를 받아오기
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        val data = realm.query(FamilyPlace::class, "seq == $seq").first().find()
+        val data: FamilyPlace? = realm.query<FamilyPlace>("seq == $0", seq).first().find()
+
+        // Realm 객체를 일반 데이터 클래스로 변환 (복사)
+        val copiedData: FamilyPlace? = data?.let {
+            FamilyPlace(
+                placeId = it.placeId,
+                name = it.name,
+                address = it.address,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                canUse = it.canUse,
+                seq = it.seq,
+            )
+        }
         realm.close()
-        return data
+        return copiedData
     }
 
     // 데이터 UI에 표시 (READ 모드)
@@ -95,9 +108,12 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         if (::binding.isInitialized) {
             data?.let {
                 // 데이터 UI에 적용
-                binding.readModeNickname.text = it.name
-                binding.readModeAddress.text = it.address
+                binding?.readModeNickname?.text = it.name
+                binding?.readModeAddress?.text = it.address
             }
+        } else {
+            // binding이 초기화되지 않은 경우에 대한 처리
+            // 예: Log.e("MyFragment", "Binding is not initialized.")
         }
     }
 
@@ -176,11 +192,10 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
     }
 
     // 새로운 장소를 Realm에 추가하는 메서드
-    private fun addNewPlace(seq: Int?) {
+    private fun addNewPlace(seq: Int) {
         // 서버에 먼저 보내고, placeId 얻어온 다음에 Realm 저장 진행해야됨!!!
         val memberId = getMemberId()
-        Log.i("@@@@@@@tempFamilyPlace", tempFamilyPlace?.name.toString())
-        seq?.let { seqNumber ->
+        seq.let {
             tempFamilyPlace?.let { place ->
                 // FamilyService의 인스턴스를 사용하여 함수 호출
                 familyAPI.registFamilyPlace(
@@ -188,8 +203,8 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                     place.name,
                     place.latitude,
                     place.longitude,
-                    place.seq,
-                    place.address, object :FamilyAPI.RegistFamilyCallback {
+                    seq,
+                    place.address, object : FamilyAPI.RegistFamilyCallback {
                         override fun onSuccess(result: PlaceDetailInfo) {
                             Log.i("placeId", result.toString())
                             saveFamilyPlaceToRealm(
@@ -198,6 +213,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                                 place.address,
                                 place.latitude,
                                 place.longitude,
+                                seq,
                             )
                         }
 
@@ -223,7 +239,8 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         name: String,
         address: String,
         lat: Double,
-        lon: Double
+        lon: Double,
+        seq: Int
     ) {
         // Realm 인스턴스 열기
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
@@ -231,11 +248,12 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
         realm.writeBlocking {
             // 새로운 FamilyPlace 객체 생성 및 속성 설정
             copyToRealm(FamilyPlace().apply {
-                this.placeId = placeId.toInt() // 서버 응답에서 받은 placeId 사용
+                this.placeId = placeId // 서버 응답에서 받은 placeId 사용
                 this.name = name
                 this.address = address
                 this.latitude = lat
                 this.longitude = lon
+                this.seq = seq
             })
         }
 
@@ -295,9 +313,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
                 place.latLng?.let {
                     mapsFragment.setLocation(it.latitude, it.longitude)
 
-                    Log.d("@@@@@@@@@@address", place.address)
-
-                    // FamilyPlace에 저장
+                    // tempFamilyPlace에 저장
                     tempFamilyPlace = FamilyPlace().apply {
                         this.address = place.address?.toString() ?: ""
                         this.latitude = it.latitude

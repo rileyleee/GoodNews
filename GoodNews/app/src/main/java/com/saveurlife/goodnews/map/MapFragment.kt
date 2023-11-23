@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import LoadingDialog
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -28,6 +29,7 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
+import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
@@ -189,6 +191,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
+        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
+        val mainActivity = requireActivity() as MainActivity
+
         mapView = view.findViewById(R.id.map) as MapView
 
         // 현재 내 위치 정보 제공자
@@ -301,6 +308,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
+                mainActivity.hideLoadingProgressBar()
             }
         })
 

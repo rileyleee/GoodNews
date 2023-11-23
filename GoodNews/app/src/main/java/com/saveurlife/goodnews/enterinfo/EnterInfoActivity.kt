@@ -332,7 +332,7 @@ class EnterInfoActivity : AppCompatActivity() {
                 copyToRealm(Member().apply {
                     memberId = setMemberId
                     birthDate = setBirthDate.toString()
-                    phone = setPhone // 기기에 맞게 수정 필요@@
+                    phone = setPhone
                     name = setName
                     gender = setGender.toString()
                     bloodType = setBloodType.toString()
@@ -345,7 +345,6 @@ class EnterInfoActivity : AppCompatActivity() {
             preferencesUtil.setString("name", setName)
             preferencesUtil.setString("id",setMemberId)
 
-            // 인터넷이 있을 때 Spring => @@ 수정 필요
             memberAPI.registMemberInfo(setMemberId,
                 setPhone,
                 setName,
