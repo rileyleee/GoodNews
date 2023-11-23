@@ -27,13 +27,14 @@ class MapAPI {
 
 
     // 지도 시설 상태 등록
-    fun registMapFacility(buttonType: Boolean, text:String, lat:Double, lon:Double){
-        val data = RequestPlaceStateInfo(buttonType, text, lat, lon)
+    fun registMapFacility(buttonType: Boolean, text:String, lat:Double, lon:Double, date: String){
+        val data = RequestPlaceStateInfo(buttonType, text, lat, lon, date)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
         val call = mapService.registMapFacility(requestBody)
 
+        Log.d("tesssss", data.toString())
         // response
         call.enqueue(object : Callback<ResponseFacilityRegist> {
             override fun onResponse(call: Call<ResponseFacilityRegist>, response: Response<ResponseFacilityRegist>) {

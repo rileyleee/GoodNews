@@ -245,12 +245,13 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
         val oldData = realm.query<MapInstantInfo>().find()
 
+        val syncService = SyncService()
         if(oldData!=null){
             oldData.forEach {
                 if(it.state =="1"){
-                    mapAPI.registMapFacility(true, it.content, it.latitude, it.longitude)
+                    mapAPI.registMapFacility(true, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
                 }else{
-                    mapAPI.registMapFacility(false, it.content, it.latitude, it.longitude)
+                    mapAPI.registMapFacility(false, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
                 }
             }
         }

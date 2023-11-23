@@ -1,7 +1,7 @@
 package com.saveurlife.goodnews.api
 
 // Request
-data class RequestPlaceStateInfo(val buttonType:Boolean, val text:String, val lat:Double, val lon:Double)
+data class RequestPlaceStateInfo(val buttonType:Boolean, val text:String, val lat:Double, val lon:Double, val date:String)
 data class RequestPlaceDate(val date: String)
 
 // Response
