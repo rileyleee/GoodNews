@@ -417,6 +417,7 @@ public class BleService extends Service {
                     if(familyMemIds.getValue().contains(removedUserId)){
                         // 여기서 가족 연결 끊어짐 알람
                         Log.i("가족 연결 끊어짐 알람", removedUserId);
+                        foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -477,7 +478,8 @@ public class BleService extends Service {
 
                             if(!check){
                                 // 여기서 가족 연결 알람
-                                Log.i("가족 연결 알람", dataId);
+                                Log.i("가족 연결 알람", data[1]);
+                                foresendFamilyNotification(data[1], true);
                             }
                         }
 
@@ -607,6 +609,7 @@ public class BleService extends Service {
                         if(familyMemIds.getValue().contains(removedUserId)){
                             // 여기서 가족 연결 끊어짐 알람
                             Log.i("가족 연결 끊어짐 알람", removedUserId);
+                            foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
                         }
                     }
 
@@ -649,6 +652,7 @@ public class BleService extends Service {
                             if(!check){
                                 // 여기서 가족 연결 알람
                                 Log.i("가족 연결 알람", dataId);
+                                foresendFamilyNotification(data[1], true);
                             }
                         }
 
@@ -678,8 +682,6 @@ public class BleService extends Service {
     };
 
 
-
-
     public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, LiveData<List<String>> familyMemIds, String[] parts) {
         // LiveData의 현재 값을 가져옴
         List<String> currentFamilyMemIds = familyMemIds.getValue();
@@ -691,9 +693,6 @@ public class BleService extends Service {
             }
         }
     }
-
-
-
 
 
     //구조요청 알림
@@ -810,6 +809,49 @@ public class BleService extends Service {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
         notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
 
+    }
+
+
+    //가족 알림(포그라운드)
+    public void foresendFamilyNotification(String name, boolean isConnect) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                View layout = inflater.inflate(R.layout.custom_toast_family, null);
+
+                // 커스텀 레이아웃의 파라미터 설정
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                layout.setLayoutParams(layoutParams);
+
+                // 커스텀 레이아웃의 뷰에 접근하여 설정
+                TextView senderName = layout.findViewById(R.id.toast_family);
+                if(isConnect){
+                    String content = "가족 " + name + "님이 연결되었습니다.";
+                    senderName.setText(content);
+                }else{
+                    String content = "가족 " + name + "님과 연결이 끊겼습니다.";
+                    senderName.setText(content);
+                }
+
+
+
+                // 시스템 알림 사운드 재생
+                try {
+                    MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.toast_alarm);
+                    mediaPlayer.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+                toast.show();
+            }
+        });
     }
 
 
