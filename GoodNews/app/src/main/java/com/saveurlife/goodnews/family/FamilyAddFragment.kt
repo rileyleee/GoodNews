@@ -49,7 +49,7 @@ class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFrag
                 override fun onSuccess(result: String) {
                     Log.d("Family", result)
                     // 리스트 다시 갱신
-                    familyFragment.addList()
+//                    familyFragment.addList()
                     dismiss()
                 }
 
@@ -76,7 +76,7 @@ class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFrag
             // Context와 Fragment의 상태를 체크
             AlertDialog.Builder(currentActivity)
                 .setTitle("알림")
-                .setMessage("가족신청을 실패했습니다.\n다시 확인해 주세요!")
+                .setMessage("가족신청을 실패했습니다.\n다시 확인해 주세요!\nError:${text}")
                 .setPositiveButton("확인") { _, _ ->
                     // 다이얼로그를 닫기
                     dismiss()

@@ -21,6 +21,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -54,7 +55,9 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
         // 실행
         workManager.enqueue(updateRequest)
      */
-
+    interface SyncCompleteListener {
+        fun onSyncComplete()
+    }
     override fun doWork(): Result {
         val userDeviceInfoService = UserDeviceInfoService(applicationContext)
 
@@ -73,19 +76,21 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
 
 
         try {
-
-            // 2. 가족 구성원 정보 -> familymem_info
-            fetchDataFamilyMemInfo()
-            // 3. 가족 모임 장소 -> family_place
-            fetchDataFamilyPlace()
-
-
+            runBlocking {
+                Log.d("etttt", "워커 안에서 시작")
+                // 2. 가족 구성원 정보 -> familymem_info
+                fetchDataFamilyMemInfo()
+                // 3. 가족 모임 장소 -> family_place
+                fetchDataFamilyPlace()
+                Log.d("etttt", "워커가 찐 끝")
+            }
+            Log.d("tetttt", "여기실행되면 울거임")
+            return Result.success()
         } catch (e : Exception){
-            Log.d("Data Sync", "데이터를 불러오지 못했습니다." +e.toString())
+            Log.d("Family Sync", "데이터를 불러오지 못했습니다." +e.toString())
             return Result.failure()
         } finally {
-            Log.d("Data Sync", "최신 정보로 업데이트 했습니다.")
-            return Result.success()
+            Log.d("Family Sync", "최신 정보로 업데이트 했습니다.")
         }
 
 
@@ -116,6 +121,7 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
                     memberAPI.findMemberInfo(it.memberId, object :MemberAPI.MemberCallback{
 
                         override fun onSuccess(result2: MemberInfo) {
+                            Log.d("family", "저장 시작")
                             realm.writeBlocking {
                                 copyToRealm(
                                     FamilyMemInfo().apply {
@@ -129,11 +135,11 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
                                         familyId = it.familyId
                                     })
                             }
-
+                            Log.d("family", "저장 끝")
                         }
 
                         override fun onFailure(error: String) {
-
+                            Log.d("family", "저장 실패")
                         }
 
                     })

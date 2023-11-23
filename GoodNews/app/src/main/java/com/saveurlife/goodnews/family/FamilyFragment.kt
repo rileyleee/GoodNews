@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.family
 
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
@@ -32,6 +34,7 @@ import io.realm.kotlin.query.RealmResults
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import com.saveurlife.goodnews.sync.FamilySyncWorker
 import com.saveurlife.goodnews.sync.SyncService
+import kotlinx.coroutines.delay
 
 class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     enum class Mode { ADD, READ, EDIT }
@@ -48,11 +51,11 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     private lateinit var userDeviceInfoService: UserDeviceInfoService
     private var familyAPI: FamilyAPI = FamilyAPI()
     private var memberAPI: MemberAPI = MemberAPI()
+    private lateinit var memberId:String
 
     companion object{
-        lateinit var familyEditText:TextView
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        lateinit var memberId:String
+        lateinit var familyEditText:TextView
         var numToStatus:Map<Int, Status> = mapOf(
             0 to Status.HEALTHY,
             1 to Status.INJURED,
@@ -61,9 +64,10 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         )
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onResume() {
+        Log.d("test", "실행됨")
         super.onResume()
-        Log.d("test", "페이지가 시작되었다.")
             var workManager = WorkManager.getInstance(requireContext())
 
             // 조건 설정 - 인터넷 연결 시에만 실행
@@ -76,9 +80,20 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
                 .setConstraints(constraints)
                 .build()
 
+
+        // WorkManager 작업 완료 후 호출되는 리스너를 등록
+//        workManager.getWorkInfoByIdLiveData(updateRequest.id)
+//            .observe(viewLifecycleOwner) {
+//                if (it != null && it.state == WorkInfo.State.SUCCEEDED) {
+//                    // WorkManager 작업이 완료되면 UI 갱신
+                    Log.d("testtt","여긴 워커 끝")
+                    addList()
+
+//                    familyListAdapter.notifyDataSetChanged()
+//                }
+//            }
             // 실행
             workManager.enqueue(updateRequest)
-            addList()
     }
 
     override fun onAttach(context: Context) {
@@ -87,9 +102,6 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         familyListAdapter = FamilyListAdapter(context, this)
         userDeviceInfoService = UserDeviceInfoService(requireContext())
         memberId = userDeviceInfoService.deviceId
-
-//        addList()
-
     }
 
     override fun onCreateView(
@@ -98,9 +110,6 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     ): View? {
         binding = FragmentFamilyBinding.inflate(inflater, container, false)
         familyEditText = binding.familyEditText
-
-
-
         return binding.root
     }
 
@@ -120,26 +129,36 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
             showAddDialog()
         }
 
+        // 리사이클러뷰 연결
         familyListRecyclerView = view.findViewById(R.id.familyList)
         familyListRecyclerView.layoutManager = LinearLayoutManager(context)
+
+
         familyListAdapter = FamilyListAdapter(requireContext(), this)
         familyListRecyclerView.adapter = familyListAdapter
 
     }
 
     // 아이템 클릭 이벤트 처리
+    @SuppressLint("NotifyDataSetChanged")
     override fun onAcceptButtonClick(position: Int) {
         val item = familyListAdapter.familyList[position]
         // 서버 요청 등 처리
         familyAPI.updateRegistFamily(item.acceptNumber, false)
+//        addList()
+//        familyListAdapter.notifyDataSetChanged()
+
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onRejectButtonClick(position: Int) {
         val item = familyListAdapter.familyList[position]
         // 서버 요청 등 처리
         familyAPI.updateRegistFamily(item.acceptNumber, true)
-
+//        addList()
+//        familyListAdapter.notifyDataSetChanged()
     }
+
     // Realm에서 데이터 로드 및 UI 업데이트
     private fun loadFamilyPlaces() {
         // Realm 인스턴스 열기
@@ -224,32 +243,34 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     fun addList(){
+
         // 서버에서 리스트 가져와서 추가 -> 인터넷 연결 시
 
         if(deviceStateService.isNetworkAvailable(requireContext())){
             val userDeviceInfoService = UserDeviceInfoService(requireContext())
             familyListAdapter.resetFamilyList()
+
             familyAPI.getRegistFamily(userDeviceInfoService.deviceId, object : FamilyAPI.WaitListCallback {
                 override fun onSuccess(result: ArrayList<WaitInfo>) {
                     result.forEach{
                         var str = it.name
                         var cov = ""
-                        if(str.length == 3){
+                        if (str.length == 3) {
                             cov = it.name[0] + "*" + it.name[2]
-                        }else if(str.length == 2){
+                        } else if (str.length == 2) {
                             cov = it.name[0] + "*"
-                        }else{
-                            cov = it.name[0]+""
-                            for (i in 2 .. str.length){
+                        } else {
+                            cov = it.name[0].toString()
+                            for (i in 2 until str.length) {
                                 cov += "*"
                             }
                         }
 
-                        familyListAdapter.addFamilyWait(it.name, it.id)
+                        familyListAdapter.addFamilyWait(cov, it.id)
+                        familyListAdapter.notifyDataSetChanged()
                     }
-
-                    familyListAdapter.notifyDataSetChanged()
                 }
 
                 override fun onFailure(error: String) {
@@ -259,22 +280,20 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
             })
         }
 
-
-
+        Log.d("testt", "여기 실행은 되는건가")
         val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
         val syncService = SyncService()
-
+        Log.d("testtt", resultRealm.toString())
         // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
         if (resultRealm != null) {
             resultRealm.forEach {
                 if(it.state == null){
                     familyListAdapter.addFamilyInfo(it.name, Status.NOT_SHOWN, syncService.realmInstantToString(it.lastConnection))
-
                 }else{
-                    familyListAdapter.addFamilyInfo(it.name, FamilyFragment.numToStatus[it.state!!.toInt()]!!, syncService.realmInstantToString(it.lastConnection))
+                    familyListAdapter.addFamilyInfo(it.name, numToStatus[it.state!!.toInt()]!!, syncService.realmInstantToString(it.lastConnection))
                 }
             }
         }
-
+        familyListAdapter.notifyDataSetChanged()
     }
 }
