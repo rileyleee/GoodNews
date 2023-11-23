@@ -19,23 +19,29 @@ import kotlinx.coroutines.withContext
 
 class GroupDatabaseManager {
 
-    fun createGroupMember(groupId: String, groupMemInfo: GroupMemInfo, onSuccess: () -> Unit){
+    fun createGroupMember(groupId: String, groupMemInfo: GroupMemInfo, onSuccess: () -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
             val config = RealmConfiguration.Builder(schema = setOf(GroupMemInfo::class)).build()
             val realm = Realm.open(config)
 
             try {
-                realm.write {
-                    copyToRealm(groupMemInfo)
-                }
-                withContext(Dispatchers.Main) {
-                    onSuccess()
+                val existingGroup = realm.query<GroupMemInfo>("groupId = $0", groupId).first().find()
+                if (existingGroup == null) {
+                    realm.write {
+                        copyToRealm(groupMemInfo)
+                    }
+                    withContext(Dispatchers.Main) {
+                        onSuccess()
+                    }
+                } else {
+                    Log.i("createGroupMember", "Group member with groupId $groupId already exists.")
                 }
             } finally {
                 realm.close()
             }
         }
     }
+
 
 
 
