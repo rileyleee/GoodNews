@@ -82,16 +82,16 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
 
 
         // WorkManager 작업 완료 후 호출되는 리스너를 등록
-        workManager.getWorkInfoByIdLiveData(updateRequest.id)
-            .observe(viewLifecycleOwner) {
-                if (it != null && it.state == WorkInfo.State.SUCCEEDED) {
-                    // WorkManager 작업이 완료되면 UI 갱신
+//        workManager.getWorkInfoByIdLiveData(updateRequest.id)
+//            .observe(viewLifecycleOwner) {
+//                if (it != null && it.state == WorkInfo.State.SUCCEEDED) {
+//                    // WorkManager 작업이 완료되면 UI 갱신
                     Log.d("testtt","여긴 워커 끝")
                     addList()
 
 //                    familyListAdapter.notifyDataSetChanged()
-                }
-            }
+//                }
+//            }
             // 실행
             workManager.enqueue(updateRequest)
     }

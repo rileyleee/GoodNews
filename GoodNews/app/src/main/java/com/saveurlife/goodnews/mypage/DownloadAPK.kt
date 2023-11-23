@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.mypage
 
 import android.content.Context
 import android.os.Environment
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
@@ -15,8 +16,9 @@ class DownloadAPK(context: Context, params: WorkerParameters) : CoroutineWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            val url = inputData.getString(APK_URL)
-            val destinationPath = inputData.getString(APK_DESTINATION_PATH)
+            val url = APK_URL
+            val destinationPath = APK_DESTINATION_PATH
+            Log.d("tst", url+" "+destinationPath)
 
             if (url != null && destinationPath != null) {
                 downloadFile(url, destinationPath)
@@ -25,6 +27,7 @@ class DownloadAPK(context: Context, params: WorkerParameters) : CoroutineWorker(
                 Result.failure()
             }
         } catch (e: Exception) {
+            Log.d("teee", e.toString())
             Result.failure()
         }
     }
@@ -41,6 +44,7 @@ class DownloadAPK(context: Context, params: WorkerParameters) : CoroutineWorker(
             val fileName = "app-release.apk"
             val fullPath = "$destinationPath/$fileName"
 
+            Log.d("test down", fullPath)
             input = connection.inputStream
             File(fullPath).outputStream().use { output ->
                 input.copyTo(output)
@@ -53,7 +57,7 @@ class DownloadAPK(context: Context, params: WorkerParameters) : CoroutineWorker(
 
     companion object {
         // 다운 받을 곳
-        const val APK_URL = "https://saveurlife.kr/images"
+        const val APK_URL = "https://saveurlife.kr/images/app-release.apk"
         // 저장할 곳
         val APK_DESTINATION_PATH =  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()
     }
