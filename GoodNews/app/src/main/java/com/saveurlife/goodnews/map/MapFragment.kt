@@ -781,11 +781,28 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         userInfo.putString("userStatus", user.healthStatus)
         userInfo.putString("userUpdateTime", user.updateTime)
         userInfo.putDouble("distance", distance)
+        userInfo.putString("userId", user.userId)
 
         dialogFragment.arguments = userInfo
 
         dialogFragment.show(childFragmentManager, "OtherUserInfoFragment")
         return user
+    }
+
+    private fun showFamilyUserInfoDialog(famUser: FamilyMemInfo) {
+        Log.d("famUserClicked", "가족 유저가 클릭되었습니다.")
+        val dialogFragment = FamilyUserInfoFragment()
+
+        // 클릭한 가족 사용자의 정보를 프래그 먼트로 전달
+        val famUserInfo = Bundle()
+
+        famUserInfo.putString("userName", famUser.name)
+        famUserInfo.putString("userStatus", famUser.state)
+        famUserInfo.putString("userUpdateTime", famUser.lastConnection.toString())
+
+        dialogFragment.arguments = famUserInfo
+
+        dialogFragment.show(childFragmentManager, "showFamilyUserInfoDialog")
     }
 
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
@@ -810,8 +827,11 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     private fun addFamilyLocation() {
         Log.d("addFamilyLocation", "가족 위치 렌더링 중이에요")
+
         familyList.forEach { fam ->
+
             Log.d("fam", "$fam")
+
             if (fam.isValid()) {
                 Log.d("addFamilyLocation", "여기 들어왔나요?")
                 val location = GeoPoint("${fam.latitude}".toDouble(), "${fam.longitude}".toDouble())
@@ -824,11 +844,13 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
 
                 famMarker.setOnMarkerClickListener { famMarker, _ ->
-                    Toast.makeText(
-                        requireContext(),
-                        "${famMarker.title}: ${famMarker.snippet}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    // 가족 정보 다이얼로그 연결 위한 데이터 전송
+                    showFamilyUserInfoDialog(fam)
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "${famMarker.title}: ${famMarker.snippet}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
                     true
                 }
 
@@ -839,6 +861,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.w("addFamilyLocation", "가족 위치 렌더링 중 오류 발생")
             }
             mapView.invalidate()
+
+
         }
     }
 
@@ -853,18 +877,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famPlaceMarker.position = location
                 famPlaceMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 famPlaceMarker.icon =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_family)
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_meeting_place)
                 famPlaceMarker.title = "${famPlace.name}"
                 famPlaceMarker.snippet = "주소: ${famPlace.address}, 현재 상태: ${famPlace.canUse}"
 
-                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
-                    Toast.makeText(
-                        requireContext(),
-                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    true
-                }
+//                famPlaceMarker.setOnMarkerClickListener { famPlaceMarker, _ ->
+//                    Toast.makeText(
+//                        requireContext(),
+//                        "${famPlaceMarker.title}: ${famPlaceMarker.snippet}",
+//                        Toast.LENGTH_LONG
+//                    ).show()
+//                    true
+//                }
                 familyPlaceMarkers.add(famPlaceMarker)
                 mapView.overlays.add(famPlaceMarker)
             } else {

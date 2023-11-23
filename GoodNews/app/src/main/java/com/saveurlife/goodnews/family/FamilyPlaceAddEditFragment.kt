@@ -23,7 +23,7 @@ import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.api.WaitInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
-import com.saveurlife.goodnews.family.FamilyFragment.Companion.familyAPI
+//import com.saveurlife.goodnews.family.FamilyFragment.Companion.familyAPI
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
@@ -43,6 +43,7 @@ class FamilyPlaceAddEditFragment : DialogFragment() {
 
     private lateinit var mapsFragment: MapsFragment
     private lateinit var realm: Realm
+    private var familyAPI = FamilyAPI()
 
     // 제출 전에 담아둘 변수
     private var tempFamilyPlace: FamilyPlace? = null
