@@ -66,7 +66,10 @@ public class BleGattCallback extends BluetoothGattCallback {
             if ("disconnect".equals(type)) {
                 gatt.close();
             } else if ("chat".equals(type)) {
-                chatRepository.addMessageToChatRoom(parts[7], parts[8], myId, myName, parts[9], parts[3], true);
+                if(parts[1].equals(myId)){
+                    chatRepository.addMessageToChatRoom(parts[7], parts[8], myId, myName, parts[9], parts[3], true);
+                }
+
             }
 
             Log.i("송신 메시지", new String(characteristic.getValue()));
