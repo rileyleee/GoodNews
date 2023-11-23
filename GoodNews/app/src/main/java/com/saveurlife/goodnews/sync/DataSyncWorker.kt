@@ -26,6 +26,7 @@ import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
@@ -147,7 +148,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                     var tempTime = it.lastConnection
                     val localDateTime = LocalDateTime.parse(tempTime, formatter)
                     val milliseconds =
-                        localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
                     memberAPI.findMemberInfo(it.memberId, object :MemberAPI.MemberCallback{
 
                         override fun onSuccess(result2: MemberInfo) {
@@ -269,7 +270,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                         tempState = "0"
                     }
                     val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
-                    val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
                     realm.writeBlocking {
                         copyToRealm(
                             MapInstantInfo().apply {

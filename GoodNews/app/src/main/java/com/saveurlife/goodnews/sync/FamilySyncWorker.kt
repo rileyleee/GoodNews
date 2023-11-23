@@ -23,6 +23,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
@@ -72,7 +73,7 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         newTime = System.currentTimeMillis()
-        newTime += TimeUnit.HOURS.toMillis(9)
+//        newTime += TimeUnit.HOURS.toMillis(9)
 
 
         try {
@@ -117,7 +118,7 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
                     var tempTime = it.lastConnection
                     val localDateTime = LocalDateTime.parse(tempTime, formatter)
                     val milliseconds =
-                        localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
                     memberAPI.findMemberInfo(it.memberId, object :MemberAPI.MemberCallback{
 
                         override fun onSuccess(result2: MemberInfo) {
