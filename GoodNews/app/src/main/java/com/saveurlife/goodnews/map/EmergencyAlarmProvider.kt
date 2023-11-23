@@ -1,21 +1,34 @@
 package com.saveurlife.goodnews.map
 
+import android.content.Context
+import android.icu.text.SimpleDateFormat
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
+import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.exceptions.RealmException
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
+import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sqrt
 
-class EmergencyAlarmProvider {
+class EmergencyAlarmProvider(private val context: Context) {
 
     private lateinit var realm: Realm
     private lateinit var userInfo:RealmResults<Member>
@@ -24,6 +37,9 @@ class EmergencyAlarmProvider {
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
     fun getAlarmInfo(): MapInstantInfo? {
+
+        var syncService = SyncService()
+
 
         var mostRecentInfo: MapInstantInfo? = null
 
@@ -63,6 +79,33 @@ class EmergencyAlarmProvider {
 
             mostRecentInfo?.let {
                 Log.v("mostRecentInfo", "가장 최근 정보: ${it.content}")
+                CoroutineScope(Dispatchers.Main).launch {
+                    val inflater = LayoutInflater.from(context)
+                    val layout = inflater.inflate(R.layout.custom_toast_map, null)
+
+                    val layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    layout.layoutParams = layoutParams
+
+                    val mapContent: TextView = layout.findViewById(R.id.custom_map_content)
+                    val mapTime: TextView = layout.findViewById(R.id.custom_map_location)
+
+                    mapContent.text = it.content
+                    mapTime.text = syncService.realmInstantToString(it.time)
+
+                    // 토스트 메시지를 표시합니다.
+//                    Toast.makeText(context, it.content, Toast.LENGTH_SHORT).show()
+
+                    val toast = Toast(context)
+                    toast.duration = Toast.LENGTH_LONG
+                    toast.view = layout
+                    toast.setGravity(Gravity.TOP or Gravity.FILL_HORIZONTAL, 0, 0)
+                    toast.show()
+
+
+                }
             }
 
         }
