@@ -225,8 +225,6 @@ public class BleService extends Service {
         familyMemProvider.updateAllFamilyMemIds();
         familyMemIds = familyMemProvider.getAllFamilyMemIds();
         Log.i("familyMemIds", familyMemIds.toString());
-
-
     }
 
     // 블루투스 시작 버튼
@@ -554,22 +552,25 @@ public class BleService extends Service {
                                 sendChatting(nameBack, contentBack);
                             }
                         }
-                    } else if (myFamilyId.equals(targetId)) {
-                        chatRepository.addMessageToChatRoom(targetId, "가족", senderId, senderName, content, time, isRead);
-                        spreadMessage(device.getAddress(), message);
-                    } else if (myGroupIds.contains(targetId)) {
-                        chatRepository.addMessageToChatRoom(targetId, "그룹이름", senderId, senderName, content, time, isRead);
-                        if (!goodNewsApplication.isInBackground()) {
-                            foresendNotification(parts);
-                        } else {
-                            String nameBack = parts.length > 2 ? parts[2] : "이름 없음";
-                            String contentBack = parts.length > 9 ? parts[9] : "내용 없음";
-                            sendChatting(nameBack, contentBack);
-                        }
-
-                        spreadMessage(device.getAddress(), message);
-
-                    } else {
+                    }
+//                    else if (myFamilyId.equals(targetId)) {
+//                        chatRepository.addMessageToChatRoom(targetId, "가족", senderId, senderName, content, time, isRead);
+//                        spreadMessage(device.getAddress(), message);
+//                    }
+//                    else if (myGroupIds.contains(targetId)) {
+//                        chatRepository.addMessageToChatRoom(targetId, "그룹이름", senderId, senderName, content, time, isRead);
+//                        if (!goodNewsApplication.isInBackground()) {
+//                            foresendNotification(parts);
+//                        } else {
+//                            String nameBack = parts.length > 2 ? parts[2] : "이름 없음";
+//                            String contentBack = parts.length > 9 ? parts[9] : "내용 없음";
+//                            sendChatting(nameBack, contentBack);
+//                        }
+//
+//                        spreadMessage(device.getAddress(), message);
+//
+//                    }
+                    else {
                         spreadMessage(device.getAddress(), message);
                     }
 
@@ -876,12 +877,10 @@ public class BleService extends Service {
 
     //    private MutableLiveData<Map<String, Map<String, BleMeshConnectedUser>>> bleMeshConnectedDevicesMapLiveData = new MutableLiveData<>();
     public BleMeshConnectedUser getBleMeshConnectedUser(String userId) {
-        Log.i("BleMeshConnectedUser", userId);
         BleMeshConnectedUser returnUser = null;
         for (Map<String, BleMeshConnectedUser> innerMap : bleMeshConnectedDevicesMap.values()) {
             if (innerMap.containsKey(userId)) {
                 returnUser = innerMap.get(userId);
-                Log.i("BleMeshConnectedUser", userId);
             }
         }
         return returnUser;
@@ -919,13 +918,11 @@ public class BleService extends Service {
 
         List<BleMeshConnectedUser> membersList = new ArrayList<>();
         for (String memberId : members) {
-            Log.i("memberId", memberId);
             if (allConnectedUser.containsKey(memberId)) {
-                Log.i("allConnectedUser", allConnectedUser.get(memberId).toString());
                 membersList.add(allConnectedUser.get(memberId));
             }
         }
-        Log.i("membersList", membersList.toString());
+
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
         String formattedDate = sdf.format(now);

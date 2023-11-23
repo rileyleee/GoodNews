@@ -117,7 +117,7 @@ public class ScanManager {
 
 
     private Map<String, Long> lastSeenMap = new HashMap<>();
-    private static final long EXPIRATION_TIME_MS = 4000;
+    private static final long EXPIRATION_TIME_MS = 5000;
     private final Handler scanHandler = new Handler(Looper.getMainLooper());
     private final Runnable removeExpiredDevicesRunnable = new Runnable() {
         @Override
