@@ -1,7 +1,6 @@
 package com.saveurlife.goodnews.enterinfo
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
@@ -13,11 +12,12 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
@@ -26,6 +26,7 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
+import com.saveurlife.goodnews.sync.DataSyncWorker
 import com.saveurlife.goodnews.sync.SyncService
 
 
@@ -37,9 +38,12 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var memberAPI: MemberAPI
     private lateinit var syncService: SyncService
     val userDeviceInfoService = UserDeviceInfoService(this);
-    val sharedPreferences = GoodNewsApplication.preferences
 
     private lateinit var setPhone: String
+
+    // WorkManager
+    private lateinit var workManager: WorkManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,21 +53,8 @@ class EnterInfoActivity : AppCompatActivity() {
         setContentView(binding.root)
         memberAPI = MemberAPI()
         syncService = SyncService()
-        // 위험 권한 요청
-        permissionsUtil = PermissionsUtil(this)
-        permissionsUtil.requestAllPermissions()
 
-        // 백그라운드 위치 권한 요청
-        if (!sharedPreferences.getBoolean(
-                "isBackgroundPermissionApproved",
-                false
-            ) && ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsUtil.permissionDialog(this)
-        }
+        workManager = WorkManager.getInstance(applicationContext)
 
         // EditText 비활성화
         with(binding) {
@@ -367,6 +358,19 @@ class EnterInfoActivity : AppCompatActivity() {
             Log.i("저장", "저장완료")
             // 메인으로 이동
             val intent = Intent(this, MainActivity::class.java)
+
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            // request 생성
+            val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
+                .setConstraints(constraints)
+                .build()
+
+            // 실행
+            workManager.enqueue(updateRequest)
+
             startActivity(intent)
         }
     }
