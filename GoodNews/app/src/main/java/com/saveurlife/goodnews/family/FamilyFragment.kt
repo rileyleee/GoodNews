@@ -57,10 +57,10 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         lateinit var familyEditText:TextView
         var numToStatus:Map<Int, Status> = mapOf(
-            0 to Status.HEALTHY,
-            1 to Status.INJURED,
-            2 to Status.DECEASED,
-            3 to Status.NOT_SHOWN
+            1 to Status.HEALTHY,
+            2 to Status.INJURED,
+            3 to Status.DECEASED,
+            0 to Status.NOT_SHOWN
         )
     }
 

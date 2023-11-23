@@ -77,7 +77,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         newTime = System.currentTimeMillis()
-        newTime += TimeUnit.HOURS.toMillis(9)
+//        newTime += TimeUnit.HOURS.toMillis(9)
         try {
 
             // 1. 회원 가입 정보 -> member table
