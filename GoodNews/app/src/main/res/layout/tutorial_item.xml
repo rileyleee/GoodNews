@@ -22,21 +22,21 @@
 
     <TextView
         android:id="@+id/tutorial_detail"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="세부내용"
         android:textColor="@color/font_color"
         android:textSize="16sp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tutorial_title" />
 
     <ImageView
         android:id="@+id/tutorial_img"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="450dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:contentDescription="@string/tutorial_description"
