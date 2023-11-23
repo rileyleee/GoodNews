@@ -8,10 +8,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.WaitInfo
+import com.saveurlife.goodnews.flashlight.FlashlightData
+import com.saveurlife.goodnews.flashlight.FlashlightListAdapter
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -23,6 +26,17 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
 
     private val deviceStateService = DeviceStateService()
     var familyList: MutableList<FamilyData> = mutableListOf()
+
+    interface OnFamilyUpdateUI {
+        fun updateUI()
+    }
+    // 리스너 객체 참조 저장
+    private var familyListener: OnFamilyUpdateUI? = null
+
+    // 리스너 객체 참조 => 어댑터에 전달
+    fun setFamilyUpdateUI(listener:OnFamilyUpdateUI) {
+        this.familyListener = listener
+    }
 
     companion object{
         const val TYPE_WAIT = 1

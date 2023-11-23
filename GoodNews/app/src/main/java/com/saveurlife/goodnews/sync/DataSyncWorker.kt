@@ -216,9 +216,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                                     FamilyPlace().apply {
                                         placeId = result2.placeId
                                         name = result2.name
+                                        address = result2.address
                                         latitude = result2.lat
                                         longitude = result2.lon
                                         canUse = result2.canuse
+                                        seq = it.seq
                                     }
                                 )
                             }
