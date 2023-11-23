@@ -29,6 +29,7 @@ class FamilyMemProvider {
 
                 if (familyList.isNotEmpty()) { // 깊은 복사 수행
                     familyList.forEach { fam ->
+
                         Log.v("realm에서 꺼낸 가족 정보", "${fam.name}")
                         val copiedFam = FamilyMemInfo().apply {
                             this.id = fam.id
