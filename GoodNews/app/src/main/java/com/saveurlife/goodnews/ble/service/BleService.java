@@ -220,11 +220,13 @@ public class BleService extends Service {
         scanManager = ScanManager.getInstance(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
         bleGattCallback = BleGattCallback.getInstance(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
 
+//        chatDatabaseManager.createFamilyMemInfo();
+
         familyMemProvider.updateAllFamilyMemIds();
         familyMemIds = familyMemProvider.getAllFamilyMemIds();
         Log.i("familyMemIds", familyMemIds.toString());
 
-//        chatDatabaseManager.createFamilyMemInfo();
+
     }
 
     // 블루투스 시작 버튼
