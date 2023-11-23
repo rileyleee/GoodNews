@@ -38,23 +38,23 @@ class TutorialActivity : AppCompatActivity() {
         //튜토리얼 설명 list 생성
         val tutorialDataList = listOf(
             TutorialData(
-                "WIFI DIRECT로 채팅",
-                "통신 불가능이어도 \n 100m 이내 사람이 있다면 \n 채팅 가능 어쩌구",
+                "BLE로 오프라인 채팅",
+                "통신이 불가능해도 Mesh Network로\n연결된 사람들의 정보를 볼 수 있어요!",
                 R.drawable.tutorial_1
             ),
             TutorialData(
-                "지도 내 주변 대피소 현황",
-                "위급 시 대피할 수 있는 대피소, \n 병원, 식료품점을 지도에 한눈에 \n 볼 수 있습니다.",
+                "주변 대피소 현황 지도",
+                "위급 시, 대피할 수 있는 대피소 / 병원 /\n식료품점을 한눈에 볼 수 있어요!",
                 R.drawable.tutorial_2
             ),
             TutorialData(
                 "소중한 나의 가족 위치",
-                "미리 등록해둔 가족의 위치를\n 지도를 통해 확인할 수 있고\n 어쩌구",
+                "미리 등록해둔 가족의 위치를 지도를 통해\n확인하고, 약속장소를 등록할 수 있어요!",
                 R.drawable.tutorial_3
             ),
             TutorialData(
                 "나만의 모스 부호",
-                "나의 위급함을 전달하기 위해 \n 나만의 모스 부호를 만들어\n 보여줄 수 있고 해석 어쩌구",
+                "대화가 불가능할 때, 나만의 모스 부호를\n만들어 상대방과 소통해 보세요!",
                 R.drawable.tutorial_4
             )
         )
