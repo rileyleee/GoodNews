@@ -26,7 +26,7 @@ class ConnectedUserMarkerOverlay (private val geoPoint: GeoPoint, private val on
         val point = mapView.projection.toPixels(geoPoint, null)
 
         // 화면 좌표에 원(마커)을 그림
-        canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), 30f, paint)
+        canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), 15f, paint)
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent, mapView: MapView): Boolean {

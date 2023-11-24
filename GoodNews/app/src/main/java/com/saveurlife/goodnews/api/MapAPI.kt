@@ -27,13 +27,14 @@ class MapAPI {
 
 
     // 지도 시설 상태 등록
-    fun registMapFacility(buttonType: Boolean, text:String, lat:Double, lon:Double){
-        val data = RequestPlaceStateInfo(buttonType, text, lat, lon)
+    fun registMapFacility(buttonType: Boolean, text:String, lat:Double, lon:Double, date: String){
+        val data = RequestPlaceStateInfo(buttonType, text, lat, lon, date)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
         val call = mapService.registMapFacility(requestBody)
 
+        Log.d("tesssss", data.toString())
         // response
         call.enqueue(object : Callback<ResponseFacilityRegist> {
             override fun onResponse(call: Call<ResponseFacilityRegist>, response: Response<ResponseFacilityRegist>) {
@@ -63,8 +64,8 @@ class MapAPI {
                     if (errorBodyString != null) {
                         try {
                             val errorJson = JSONObject(errorBodyString)
-                            val code = errorJson.getInt("code")
-                            val message = errorJson.getString("message")
+                            val code = errorJson.getInt("status")
+                            val message = errorJson.getString("error")
 
                             Log.d("API ERROR", "Error Code: $code, Message: $message")
 
@@ -105,14 +106,17 @@ class MapAPI {
 
 
 
-
-                        callback.onSuccess(data)
+                        if(data != null){
+                            callback.onSuccess(data)
+                        }
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
                 } else {
                     Log.d("API ERROR", response.toString())
                     val errorBodyString = response.errorBody()?.string()
+
+                    // 오류가 빈값(공백)으로 보내옴..
 
                     if (errorBodyString != null) {
                         try {
@@ -123,7 +127,7 @@ class MapAPI {
                             Log.d("API ERROR", "Error Code: $code, Message: $message")
 
                         } catch (e: JSONException) {
-                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                            Log.d("API ERROR", "Error parsing JSON: $errorBodyString", e)
                         }
                     } else {
                         Log.d("API ERROR", "Error body is null")
@@ -175,8 +179,8 @@ class MapAPI {
                     if (errorBodyString != null) {
                         try {
                             val errorJson = JSONObject(errorBodyString)
-                            val code = errorJson.getInt("code")
-                            val message = errorJson.getString("message")
+                            val code = errorJson.getInt("status")
+                            val message = errorJson.getString("error")
 
                             Log.d("API ERROR", "Error Code: $code, Message: $message")
 

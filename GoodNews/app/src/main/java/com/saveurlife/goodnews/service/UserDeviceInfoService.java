@@ -24,7 +24,7 @@ public class UserDeviceInfoService {
 
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             String phoneNumber = telephonyManager.getLine1Number();
-            Log.i("phoneNumber", phoneNumber);
+//            Log.i("phoneNumber", phoneNumber); // 전화번호 없는 기기의 경우 오류 발생
             if (phoneNumber != null) {
                 if (phoneNumber.startsWith("+82"))
                     phoneNumber = phoneNumber.replace("+82", "0");

@@ -1,54 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="15dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:padding="15dp">
 
     <TextView
         android:id="@+id/aroundStatus"
         android:layout_width="25dp"
         android:layout_height="25dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/my_status_circle"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@drawable/my_status_circle"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/aroundName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="김싸피"
-        android:textSize="16sp"
         android:textColor="@color/font_color"
-        app:layout_constraintStart_toEndOf="@id/aroundStatus"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/aroundBetween"/>
+        app:layout_constraintEnd_toStartOf="@id/aroundBetween"
+        app:layout_constraintStart_toEndOf="@id/aroundStatus"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/aroundBetween"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="10m"
-        android:textSize="12sp"
+        android:layout_marginStart="20dp"
         android:textColor="@color/point"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/aroundName"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/aroundLocation"/>
+        app:layout_constraintTop_toTopOf="parent" />
+    <!--    app:layout_constraintEnd_toStartOf="@id/aroundLocation"-->
 
-    <TextView
-        android:id="@+id/aroundLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/location"
-        android:textSize="16sp"
-        android:textColor="@color/font_color"
-        app:layout_constraintStart_toEndOf="@id/aroundBetween"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/aroundChatting"/>
+    <!--    <TextView-->
+    <!--        android:id="@+id/aroundLocation"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="@string/location"-->
+    <!--        android:textSize="16sp"-->
+    <!--        android:textColor="@color/font_color"-->
+    <!--        app:layout_constraintStart_toEndOf="@id/aroundBetween"-->
+    <!--        app:layout_constraintTop_toTopOf="parent"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toStartOf="@id/aroundChatting"/>-->
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/aroundChatting"

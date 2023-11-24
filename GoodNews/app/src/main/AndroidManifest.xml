@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- 인터넷, 네트워크, 와이파이 관련 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -41,10 +40,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 외부 저장소에 쓰고 읽기 권한 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-
-    <!--배터리 최적화 끄기-->
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> <!-- 배터리 최적화 끄기 -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:name=".GoodNewsApplication"
@@ -57,7 +54,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodNews"
         tools:targetApi="31">
-
+        <activity
+            android:name=".authority.AuthorityActivity"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -76,16 +75,13 @@
         <service
             android:name=".service.LocationTrackingService"
             android:enabled="true"
-            android:exported="true"></service>
-
-        
+            android:exported="true" />
         <service android:name=".ble.service.BleService" />
 
         <activity
             android:name=".chatting.ChattingDetailActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false" />           
-
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".alarm.AlarmActivity"
             android:exported="false" />
@@ -107,7 +103,13 @@
         <activity
             android:name=".main.MainActivity"
             android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/*" />
+            </intent-filter>
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
 
@@ -115,5 +117,15 @@
             <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             <!-- </intent-filter> -->
         </activity>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.ssafy.goodnews.file-provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
+
 </manifest>

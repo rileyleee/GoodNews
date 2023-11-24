@@ -197,6 +197,7 @@ public class SendMessageManager {
 
     public void sendMessageGroupInvite(Map<String, BluetoothGatt> deviceGattMap, List<String> receiverIds, String groupId, String groupName){
         String message = "invite/"+myId+"/";
+        receiverIds.add(myId);
         for(int i=0; i<receiverIds.size(); i++){
             message = message.concat(receiverIds.get(i));
             if(i<receiverIds.size()-1){

@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/sirenCard"
-        android:layout_width="300dp"
+        android:layout_width="330dp"
         android:layout_height="350dp"
         android:background="@drawable/card_component"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -54,10 +54,9 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/sirenStartButton"
-        android:layout_width="180dp"
+        android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="12dp"
         android:background="@drawable/btn_sub"
         android:backgroundTint="@color/gender"
         app:layout_constraintStart_toStartOf="@id/sirenCard"
@@ -81,10 +80,9 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/sirenStopButton"
-        android:layout_width="180dp"
+        android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="12dp"
         android:background="@drawable/btn_match_parent"
         app:layout_constraintStart_toStartOf="@id/sirenCard"
         app:layout_constraintEnd_toEndOf="@id/sirenCard"

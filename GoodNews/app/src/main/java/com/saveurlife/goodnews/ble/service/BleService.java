@@ -67,13 +67,16 @@ import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 //import com.saveurlife.goodnews.ble.GroupRepository;
+import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
 //import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
+import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import com.saveurlife.goodnews.ble.scan.ScanManager;
 import com.saveurlife.goodnews.main.PreferencesUtil;
+import com.saveurlife.goodnews.map.FamilyMemProvider;
 import com.saveurlife.goodnews.models.ChatMessage;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
@@ -96,6 +99,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private FamilyMemProvider familyMemProvider = new FamilyMemProvider();
+    private LiveData<List<String>> familyMemIds;
     private AdvertiseManager advertiseManager;
     private ScanManager scanManager;
     private BleGattCallback bleGattCallback;
@@ -148,7 +153,6 @@ public class BleService extends Service {
     private MutableLiveData<Map<String, Map<String, BleMeshConnectedUser>>> bleMeshConnectedDevicesMapLiveData = new MutableLiveData<>();
 
     private BluetoothGattServer mGattServer;
-
 
 
     private HandlerThread handlerThread;
@@ -212,9 +216,15 @@ public class BleService extends Service {
 
         sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
-        advertiseManager = new AdvertiseManager(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
-        scanManager = new ScanManager(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
-        bleGattCallback = new BleGattCallback(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
+        advertiseManager = AdvertiseManager.getInstance(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
+        scanManager = ScanManager.getInstance(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
+        bleGattCallback = BleGattCallback.getInstance(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
+
+//        chatDatabaseManager.createFamilyMemInfo();
+
+        familyMemProvider.updateAllFamilyMemIds();
+        familyMemIds = familyMemProvider.getAllFamilyMemIds();
+        Log.i("familyMemIds", familyMemIds.toString());
     }
 
     // 블루투스 시작 버튼
@@ -346,7 +356,6 @@ public class BleService extends Service {
     }
 
 
-
     public LiveData<List<String>> getDeviceArrayListNameLiveData() {
         return deviceArrayListNameLiveData;
     }
@@ -401,7 +410,16 @@ public class BleService extends Service {
                     gatt.close();
                 }
 
-                bleMeshConnectedDevicesMap.remove(device.getAddress());
+                Map<String, BleMeshConnectedUser> removedUsers = bleMeshConnectedDevicesMap.remove(device.getAddress());
+                bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
+
+                for(String removedUserId : removedUsers.keySet()){
+                    if(familyMemIds.getValue().contains(removedUserId)){
+                        // 여기서 가족 연결 끊어짐 알람
+                        Log.i("가족 연결 끊어짐 알람", removedUserId);
+                        foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+                    }
+                }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
                 sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
             }
@@ -447,10 +465,30 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
                         }
 
+                        // 가족 연결
+                        if(familyMemIds.getValue().contains(dataId)){
+                            // 처음 연결된건지 확인
+                            Boolean check = false;
+                            for(Map<String, BleMeshConnectedUser> bleUsers : bleMeshConnectedDevicesMap.values()){
+                                if(bleUsers.containsKey(data)){
+                                    check = true;
+                                    break;
+                                }
+                            }
+
+                            if(!check){
+                                // 여기서 가족 연결 알람
+                                Log.i("가족 연결 알람", data[1]);
+                                foresendFamilyNotification(data[1], true);
+                            }
+                        }
+
                         BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
+
                     if (!bleMeshConnectedDevicesMap.containsKey(device.getAddress())) {
+                        checkMatchingIds(insert, familyMemIds, parts);
                         bleMeshConnectedDevicesMap.put(device.getAddress(), insert);
                         if (nowSize.equals(maxSize)) {
                             bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -464,7 +502,6 @@ public class BleService extends Service {
 
                     spreadMessage(device.getAddress(), message);
                 }
-
                 // 지속적 위치, 상태 정보 뿌리기
                 else if (messageType.equals("base")) {
                     BleMeshConnectedUser existingUser = null;
@@ -475,8 +512,12 @@ public class BleService extends Service {
                         bleMeshConnectedDevicesMap.get(device.getAddress()).put(senderId, bleMeshConnectedUser);
                         bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
                     }
-                }
 
+                    // 가족 상태 렘 업데이트
+                    if(familyMemIds.getValue().contains(senderId)){
+
+                    }
+                }
                 // 모두에게 구조요청
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
@@ -490,7 +531,6 @@ public class BleService extends Service {
 //                        sendNotification(message);
                     spreadMessage(device.getAddress(), message);
                 }
-
                 // 특정 대상에게 채팅
                 else if (messageType.equals("chat")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
@@ -514,26 +554,30 @@ public class BleService extends Service {
                                 sendChatting(nameBack, contentBack);
                             }
                         }
-                    } else if (myFamilyId.equals(targetId)) {
-                        chatRepository.addMessageToChatRoom(targetId, "가족", senderId, senderName, content, time, isRead);
-                        spreadMessage(device.getAddress(), message);
-                    } else if (myGroupIds.contains(targetId)) {
-                        chatRepository.addMessageToChatRoom(targetId, "그룹이름", senderId, senderName, content, time, isRead);
-                        if (!goodNewsApplication.isInBackground()) {
-                            foresendNotification(parts);
-                        } else {
-                            String nameBack = parts.length > 2 ? parts[2] : "이름 없음";
-                            String contentBack = parts.length > 9 ? parts[9] : "내용 없음";
-                            sendChatting(nameBack, contentBack);
-                        }
-
-                        spreadMessage(device.getAddress(), message);
-
-                    } else {
+                    }
+//                    else if (myFamilyId.equals(targetId)) {
+//                        chatRepository.addMessageToChatRoom(targetId, "가족", senderId, senderName, content, time, isRead);
+//                        spreadMessage(device.getAddress(), message);
+//                    }
+//                    else if (myGroupIds.contains(targetId)) {
+//                        chatRepository.addMessageToChatRoom(targetId, "그룹이름", senderId, senderName, content, time, isRead);
+//                        if (!goodNewsApplication.isInBackground()) {
+//                            foresendNotification(parts);
+//                        } else {
+//                            String nameBack = parts.length > 2 ? parts[2] : "이름 없음";
+//                            String contentBack = parts.length > 9 ? parts[9] : "내용 없음";
+//                            sendChatting(nameBack, contentBack);
+//                        }
+//
+//                        spreadMessage(device.getAddress(), message);
+//
+//                    }
+                    else {
                         spreadMessage(device.getAddress(), message);
                     }
 
-                } else if (messageType.equals("invite")) {
+                }
+                else if (messageType.equals("invite")) {
                     ArrayList<String> groupMembers = new ArrayList<>(Arrays.asList(parts[2].split("@")));
 
                     if (groupMembers.contains(myId)) {
@@ -545,23 +589,33 @@ public class BleService extends Service {
                                 .flatMap(users -> groupMembers.stream().map(users::get).filter(Objects::nonNull))
                                 .collect(Collectors.toList());
 
-//                        groupRepository.addMembersToGroup(groupId, groupName, membersList);
+                        groupRepository.addMembersToGroup(groupId, groupName, membersList);
                     }
 
                     spreadMessage(device.getAddress(), message);
 
-                } else if (messageType.equals("disconnect")) {
+                }
+                else if (messageType.equals("disconnect")) {
                     BluetoothGatt gatt = deviceGattMap.remove(device.getAddress());
                     gatt.close();
 
                     bleConnectedDevicesArrayList.remove(device.getAddress());
                     bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
 
-                    bleMeshConnectedDevicesMap.remove(device.getAddress());
+                    Map<String, BleMeshConnectedUser> removedUsers = bleMeshConnectedDevicesMap.remove(device.getAddress());
                     bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
+                    for(String removedUserId : removedUsers.keySet()){
+                        if(familyMemIds.getValue().contains(removedUserId)){
+                            // 여기서 가족 연결 끊어짐 알람
+                            Log.i("가족 연결 끊어짐 알람", removedUserId);
+                            foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+                        }
+                    }
+
                     sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
-                } else if (messageType.equals("change")) {
+                }
+                else if (messageType.equals("change")) {
                     Log.i("bleMeshConnectedDevicesMap", message);
                     String maxSize = parts[2];
                     String nowSize = parts[3];
@@ -584,6 +638,25 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
 
                         }
+
+                        if(familyMemIds.getValue().contains(dataId)){
+                            // 처음 연결된건지 확인
+                            Boolean check = false;
+                            for(Map<String, BleMeshConnectedUser> bleUsers : bleMeshConnectedDevicesMap.values()){
+                                if(bleUsers.containsKey(data)){
+                                    check = true;
+                                    break;
+                                }
+                            }
+
+                            if(!check){
+                                // 여기서 가족 연결 알람
+                                Log.i("가족 연결 알람", dataId);
+                                foresendFamilyNotification(data[1], true);
+                            }
+                        }
+
+
                         BleMeshConnectedUser meshConnectedUser = new BleMeshConnectedUser(dataId, data[1], data[2], data[3], Double.parseDouble(data[4]), Double.parseDouble(data[5]));
                         insert.put(dataId, meshConnectedUser);
                     }
@@ -607,6 +680,20 @@ public class BleService extends Service {
 
         // ... 필요한 경우 다른 콜백 메서드 추가 ...
     };
+
+
+    public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, LiveData<List<String>> familyMemIds, String[] parts) {
+        // LiveData의 현재 값을 가져옴
+        List<String> currentFamilyMemIds = familyMemIds.getValue();
+        if (currentFamilyMemIds != null) {
+            for (String id : currentFamilyMemIds) {
+                if (insert.containsKey(id)) {
+                    Log.i("Matched ID", id);
+                }
+            }
+        }
+    }
+
 
     //구조요청 알림
     private void sendNotification(String messageContent) {
@@ -633,6 +720,7 @@ public class BleService extends Service {
         notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
 
     }
+
     //포그라운드
     public void foresendNotification(String[] parts) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -724,7 +812,47 @@ public class BleService extends Service {
     }
 
 
+    //가족 알림(포그라운드)
+    public void foresendFamilyNotification(String name, boolean isConnect) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+                View layout = inflater.inflate(R.layout.custom_toast_family, null);
 
+                // 커스텀 레이아웃의 파라미터 설정
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                layout.setLayoutParams(layoutParams);
+
+                // 커스텀 레이아웃의 뷰에 접근하여 설정
+                TextView senderName = layout.findViewById(R.id.toast_family);
+                if(isConnect){
+                    String content = "가족 " + name + "님이 연결되었습니다.";
+                    senderName.setText(content);
+                }else{
+                    String content = "가족 " + name + "님과 연결이 끊겼습니다.";
+                    senderName.setText(content);
+                }
+
+
+
+                // 시스템 알림 사운드 재생
+                try {
+                    MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.toast_alarm);
+                    mediaPlayer.start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
+                toast.show();
+            }
+        });
+    }
 
 
     @Override
@@ -791,12 +919,10 @@ public class BleService extends Service {
 
     //    private MutableLiveData<Map<String, Map<String, BleMeshConnectedUser>>> bleMeshConnectedDevicesMapLiveData = new MutableLiveData<>();
     public BleMeshConnectedUser getBleMeshConnectedUser(String userId) {
-        Log.i("BleMeshConnectedUser", userId);
         BleMeshConnectedUser returnUser = null;
         for (Map<String, BleMeshConnectedUser> innerMap : bleMeshConnectedDevicesMap.values()) {
             if (innerMap.containsKey(userId)) {
                 returnUser = innerMap.get(userId);
-                Log.i("BleMeshConnectedUser", userId);
             }
         }
         return returnUser;
@@ -819,43 +945,38 @@ public class BleService extends Service {
 
         return userLiveData;
     }
+
+
+    private GroupDatabaseManager groupDatabaseManager = new GroupDatabaseManager();
+    private GroupRepository groupRepository = new GroupRepository(groupDatabaseManager);
+
+    public void addMembersToGroup(String groupName, List<String> members) {
+
+        Map<String, BleMeshConnectedUser> allConnectedUser = new HashMap<>();
+        for (Map<String, BleMeshConnectedUser> users : bleMeshConnectedDevicesMap.values()) {
+            allConnectedUser.putAll(users);
+            Log.i("연결된사용자수", Integer.toString(users.size()));
+        }
+
+        List<BleMeshConnectedUser> membersList = new ArrayList<>();
+        for (String memberId : members) {
+            if (allConnectedUser.containsKey(memberId)) {
+                membersList.add(allConnectedUser.get(memberId));
+            }
+        }
+
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+        String formattedDate = sdf.format(now);
+        String groupId = "group" + myId + formattedDate;
+
+        groupRepository.addMembersToGroup(groupId, groupName, membersList);
+
+        List<String> membersId = new ArrayList<>();
+        for (BleMeshConnectedUser member : membersList) {
+            membersId.add(member.getUserId());
+        }
+
+        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
+    }
 }
-
-
-
-
-//    private GroupDatabaseManager groupDatabaseManager = new GroupDatabaseManager();
-//    private GroupRepository groupRepository = new GroupRepository(groupDatabaseManager);
-//
-//    public void addMembersToGroup(String groupName, List<String> members){
-//
-//        Map<String, BleMeshConnectedUser> allConnectedUser = new HashMap<>();
-//        for(Map<String, BleMeshConnectedUser> users : bleMeshConnectedDevicesMap.values()){
-//            allConnectedUser.putAll(users);
-//            Log.i("연결된사용자수", Integer.toString(users.size()));
-//        }
-//
-//
-//        List<BleMeshConnectedUser> membersList=new ArrayList<>();
-//        for(String memberId : members){
-//            Log.i("memberId", memberId);
-//            if(allConnectedUser.containsKey(memberId)){
-//                Log.i("allConnectedUser", allConnectedUser.get(memberId).toString());
-//                membersList.add(allConnectedUser.get(memberId));
-//
-//            }
-//        }
-//        Log.i("membersList", membersList.toString());
-//        Date now = new Date();
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
-//        String formattedDate = sdf.format(now);
-//        String groupId = "group"+myId+formattedDate;
-//
-//        groupRepository.addMembersToGroup(groupId, groupName, membersList);
-//
-//        List<String> membersId = new ArrayList<>();
-//        for(BleMeshConnectedUser member : membersList){
-//            membersId.add(member.getUserId());
-//        }
-//
-//        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);

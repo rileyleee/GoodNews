@@ -13,12 +13,25 @@ import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import java.util.Map;
 
 public class BleGattCallback extends BluetoothGattCallback {
+    private static BleGattCallback instance;
 
     private String myId;
     private String myName;
     private ChatRepository chatRepository;
     private SendMessageManager sendMessageManager;
     private static Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap;
+
+
+
+    public static BleGattCallback getInstance(String myId, String myName,
+                                              ChatRepository chatRepository,
+                                              SendMessageManager sendMessageManager,
+                                              Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap) {
+        if (instance == null) {
+            instance = new BleGattCallback(myId, myName, chatRepository, sendMessageManager, bleMeshConnectedDevicesMap);
+        }
+        return instance;
+    }
 
 
 
@@ -53,7 +66,10 @@ public class BleGattCallback extends BluetoothGattCallback {
             if ("disconnect".equals(type)) {
                 gatt.close();
             } else if ("chat".equals(type)) {
-                chatRepository.addMessageToChatRoom(parts[7], parts[8], myId, myName, parts[9], parts[3], true);
+                if(parts[1].equals(myId)){
+                    chatRepository.addMessageToChatRoom(parts[7], parts[8], myId, myName, parts[9], parts[3], true);
+                }
+
             }
 
             Log.i("송신 메시지", new String(characteristic.getValue()));

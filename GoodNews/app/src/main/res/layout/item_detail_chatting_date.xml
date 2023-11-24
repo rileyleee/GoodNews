@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/detailChatDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="XXXX년 XX월 XX일"
+        android:textSize="16sp"
+        android:textColor="@color/font_color"
+        android:background="@drawable/chatting_date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+<!--    <TextView-->
+<!--        android:id="@+id/"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="XXXX년 XX월 XX일"-->
+<!--        android:textSize="16sp"-->
+<!--        android:textColor="@color/font_color"-->
+<!--        app:layout_constraintTop_toTopOf="@id/detailChatBox"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/detailChatBox"-->
+<!--        app:layout_constraintStart_toStartOf="@id/detailChatBox"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/detailChatBox"/>-->
+
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/detailChatGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.2"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/detailChatGuide2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

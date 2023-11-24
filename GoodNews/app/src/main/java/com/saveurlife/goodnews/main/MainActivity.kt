@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.main
 
+import LoadingDialog
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -16,6 +17,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -31,8 +33,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
-import androidx.lifecycle.LiveData
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -45,18 +47,15 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.ble.service.BleService
-import com.saveurlife.goodnews.chatting.ChattingFragment
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.family.FamilyFragment
 import com.saveurlife.goodnews.family.FamilyListAdapter
-import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.LocationTrackingService
 import com.saveurlife.goodnews.sync.FamilySyncWorker
 import io.realm.kotlin.Realm
@@ -64,8 +63,13 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
 
+    //    val dialog = LoadingDialog(this)
+    private val dialog: LoadingDialog by lazy {
+        LoadingDialog(this)
+    }
     val sharedPreferences = GoodNewsApplication.preferences
 
     private val navController by lazy {
@@ -74,23 +78,23 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController
     }
 
-    companion object{
-        var checkFlash : Boolean = false
+    companion object {
+        var checkFlash: Boolean = false
     }
 //    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
 //    private val realm: Realm = Realm.open(config)
 
-    val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-    private val items: RealmResults<Member> = realm.query<Member>().find()
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
+    private lateinit var familyFragment: FamilyFragment
 
     // flash on 여부
     private val sharedViewModel: SharedViewModel by viewModels()
 
     //ble
     lateinit var bleService: BleService
+
     //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
     private var isBound = false
 
@@ -105,38 +109,40 @@ class MainActivity : AppCompatActivity() {
             // BleService의 LiveData를 관찰하고 SharedViewModel을 통해 업데이트합니다.
             // 데이터가 변경될 때마다 SharedViewModel의 bleDeviceNames 라이브 데이터를 새로운 값으로 업데이트
             if (::bleService.isInitialized) {
-            bleService.getDeviceArrayListNameLiveData().observe(this@MainActivity, Observer { deviceNames ->
-                val deviceMap = mutableMapOf<String, String>()
-                deviceNames.forEach { deviceName ->
-                    val parts = deviceName.split("/")
+                bleService.getDeviceArrayListNameLiveData()
+                    .observe(this@MainActivity, Observer { deviceNames ->
+                        val deviceMap = mutableMapOf<String, String>()
+                        deviceNames.forEach { deviceName ->
+                            val parts = deviceName.split("/")
 
-                    // parts 리스트에서 필요한 데이터를 추출합니다.
-                    if (parts.size >= 2) {
-                        val deviceId = parts[0]
-                        val deviceName = parts[1]
-                        println("아이디는 이거에요 $deviceId")
-                        println("이름은 이거에요 $deviceName")
+                            // parts 리스트에서 필요한 데이터를 추출합니다.
+                            if (parts.size >= 2) {
+                                val deviceId = parts[0]
+                                val deviceName = parts[1]
+                                println("아이디는 이거에요 $deviceId")
+                                println("이름은 이거에요 $deviceName")
 
-                        deviceMap[deviceId] = deviceName
+                                deviceMap[deviceId] = deviceName
 //                        sharedViewModel.bleDeviceNames.value = deviceNames
+                            }
+                        }
+                        sharedViewModel.bleDeviceMap.value = deviceMap
+                    })
+
+                bleService.getBleMeshConnectedDevicesArrayListLiveData()
+                    .observe(this@MainActivity) { connectedDevicesMap ->
+
+                        sharedViewModel.updateBleMeshConnectedDevicesMap(connectedDevicesMap)
+
+                        connectedDevicesMap.forEach { (deviceId, connectedUsersMap) ->
+                            println("BLE 장치 ID: $deviceId")
+
+                            connectedUsersMap.forEach { (userId, user) ->
+                                println("사용자 ID: $userId, 이름: ${user.userName}, 상태: ${user.healthStatus}, 업데이트시간:${user.updateTime}, 위도: ${user.lat}, 경도: ${user.lon}")
+                            }
+
+                        }
                     }
-                }
-                sharedViewModel.bleDeviceMap.value = deviceMap
-            })
-
-            bleService.getBleMeshConnectedDevicesArrayListLiveData().observe(this@MainActivity) { connectedDevicesMap ->
-
-                sharedViewModel.updateBleMeshConnectedDevicesMap(connectedDevicesMap)
-
-                connectedDevicesMap.forEach { (deviceId, connectedUsersMap) ->
-                    println("BLE 장치 ID: $deviceId")
-
-                    connectedUsersMap.forEach { (userId, user) ->
-                        println("사용자 ID: $userId, 이름: ${user.userName}, 상태: ${user.healthStatus}, 업데이트시간:${user.updateTime}, 위도: ${user.lat}, 경도: ${user.lon}")
-                    }
-
-                }
-            }
             }
         }
 
@@ -147,15 +153,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ResourceType")
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            setContentView(binding.root)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-            //ble - 서비스 바인딩
-            Intent(this, BleService::class.java).also { intent ->
-                bindService(intent, connection, Context.BIND_AUTO_CREATE)
-            }
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        val familyItems: RealmResults<FamilyMemInfo> = realm.query<FamilyMemInfo>().find()
+        familyFragment = FamilyFragment()
+        //ble - 서비스 바인딩
+        Intent(this, BleService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
 //
 //        realm.writeBlocking {
 //            copyToRealm(Member().apply {
@@ -169,13 +178,16 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         //FamilyMemInfo 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
-        if (items.isEmpty() && sharedPreferences.getBoolean("familyAlarmIgnore", false) == false) {
+        if (familyItems.isEmpty() && !sharedPreferences.getBoolean("familyAlarmIgnore", false)) {
             val dialog = FamilyAlarmFragment()
+            realm.close()
             dialog.show(supportFragmentManager, "FamilyAlarmFragment")
+        } else {
+            realm.close()
         }
 
         // 다시 보지 않기 여부에 따라 다이얼로그 띄워주기
-        if (sharedPreferences.getBoolean("mapDownloadIgnore", false) == false) {
+        if (!sharedPreferences.getBoolean("mapDownloadIgnore", false)) {
             val dialog = MapAlarmFragment()
             dialog.show(supportFragmentManager, "MapAlarmFragment")
         }
@@ -208,7 +220,14 @@ class MainActivity : AppCompatActivity() {
         binding.navigationView.setupWithNavController(navController)
         binding.navigationView.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.homeFragment, R.id.mapFragment, R.id.familyFragment, R.id.myPageFragment -> {
+                R.id.homeFragment, R.id.familyFragment, R.id.myPageFragment -> {
+                    navController.navigateSingleTop(menuItem.itemId)
+                    true
+                }
+
+                R.id.mapFragment -> {
+                    // 지도 Fragment로 이동할 때 Loading ProgressBar를 표시
+                    showLoadingProgressBar()
                     navController.navigateSingleTop(menuItem.itemId)
                     true
                 }
@@ -238,9 +257,10 @@ class MainActivity : AppCompatActivity() {
                 setTitle("배터리 최적화 일시 중지")
                 setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
                 setPositiveButton("확인") { _, _ ->
-                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                        data = Uri.parse("package:com.saveurlife.goodnews")
-                    }
+                    val intent =
+                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:com.saveurlife.goodnews")
+                        }
                     startActivity(intent)
                 }
                 setNegativeButton("취소", null)
@@ -261,6 +281,19 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    // 로딩 프로그래스 바 표시 함수
+    private fun showLoadingProgressBar() {
+
+        dialog.show()
+    }
+
+    // 로딩 프로그래스 바 감추기 함수
+    fun hideLoadingProgressBar() {
+        Log.i("ddasfasff", "hideLoadingProgressBar: ")
+        dialog.dismiss()
+    }
+
 
     // 배터리 최적화 여부 확인 -> boolean 반환
     private fun isBatteryOptimizationIgnored(context: Context): Boolean {
@@ -505,39 +538,42 @@ class MainActivity : AppCompatActivity() {
             unbindService(connection)
         }
     }
+    private fun NavController.navigateSingleTop(id: Int) {
+//        if(id == R.id.familyFragment){
+//            familyFragment.addList()
+//            .addList()
+////    //        .addList()
+//            var workManager = WorkManager.getInstance(context)
+//
+//            // 조건 설정 - 인터넷 연결 시에만 실행
+//            val constraints = Constraints.Builder()
+//                .setRequiredNetworkType(NetworkType.CONNECTED)
+//                .build()
+//
+//            // request 생성
+//            val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
+//                .setConstraints(constraints)
+//                .build()
+//
+//             실행
+//            workManager.enqueue(updateRequest)
+//            FamilyFragment.familyListAdapter = FamilyListAdapter(context)
+//            FamilyFragment.familyListAdapter.addList()
+//        }
+
+        if (currentDestination?.id != id) {
+
+
+            navigate(id)
+            val startDestination = this.graph.startDestinationId
+            val builder = NavOptions.Builder()
+            builder.setLaunchSingleTop(true)  // 이미 back stack의 top에 해당 fragment가 있으면 재사용
+            builder.setPopUpTo(startDestination, false)  // 시작 destination까지 back stack을 clear하지 않음
+            val options = builder.build()
+            navigate(id, null, options)
+        }
+
+    }
 }
 
-private fun NavController.navigateSingleTop(id: Int) {
-    if(id == R.id.familyFragment){
-        var workManager = WorkManager.getInstance(context)
-
-        // 조건 설정 - 인터넷 연결 시에만 실행
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        // request 생성
-        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
-            .setConstraints(constraints)
-            .build()
-
-        // 실행
-        workManager.enqueue(updateRequest)
-        FamilyFragment.familyListAdapter = FamilyListAdapter(context)
-        FamilyFragment.familyListAdapter.addList()
-    }
-
-    if (currentDestination?.id != id) {
-
-
-        navigate(id)
-        val startDestination = this.graph.startDestinationId
-        val builder = NavOptions.Builder()
-        builder.setLaunchSingleTop(true)  // 이미 back stack의 top에 해당 fragment가 있으면 재사용
-        builder.setPopUpTo(startDestination, false)  // 시작 destination까지 back stack을 clear하지 않음
-        val options = builder.build()
-        navigate(id, null, options)
-    }
-
-}
 

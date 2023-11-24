@@ -27,6 +27,7 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.MorseCode
+import com.saveurlife.goodnews.service.LocationService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
@@ -120,6 +121,14 @@ class FlashlightFragment : Fragment() {
             adapter = flashRecordListAdapter
             layoutManager = flashRecordListManager
         }
+
+        // 초기값 넣어두기 -> 우선은 페이지 생성 시 위치로 기준을 했음.
+        var locationService :LocationService = LocationService(requireContext())
+        val inputString = locationService.lastKnownLocation
+        val resultString = formatFraction(inputString)
+
+        flashListAdapter.addSelfList("SOS")
+        flashListAdapter.addSelfList(resultString)
 
         // 첫 값 realm 에서 가져옴
         val result = realm.query<MorseCode>().distinct("text").find()
@@ -510,7 +519,6 @@ class FlashlightFragment : Fragment() {
         }
     }
 
-    // test 임시 코드 @@
 //    private fun testMorseCode(morseCode: String, onCompletion: (() -> Unit)? = null) {
 //        if (!hasFlash()) {
 //            Toast.makeText(activity, "No flash available on your device", Toast.LENGTH_SHORT).show()
@@ -587,7 +595,22 @@ class FlashlightFragment : Fragment() {
             }
         }
     }
+    fun formatFraction(input: String): String {
+        val fractions = input.split("/")
 
+        if (fractions.size == 2) {
+            val numerator = fractions[0].toFloatOrNull()
+            val denominator = fractions[1].toFloatOrNull()
+
+            if (numerator != null && denominator != null && denominator != 0f) {
+                val formattedNumerator = String.format("%.4f", numerator)
+                val formattedDenominator = String.format("%.4f", denominator)
+                return "$formattedNumerator $formattedDenominator"
+            }
+        }
+
+        return input // 변환 실패 시 원본 문자열 반환
+    }
     private fun flashOff() {
         if (isFlashOn) {
             try {

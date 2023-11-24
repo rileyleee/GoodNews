@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.map
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -9,11 +10,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.ble.BleMeshConnectedUser
+import com.saveurlife.goodnews.ble.adapter.BleConnectedAdapter
+import com.saveurlife.goodnews.chatting.ChattingDetailActivity
+import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentOtherUserInfoBinding
 
 class OtherUserInfoFragment : DialogFragment() {
     private lateinit var binding: FragmentOtherUserInfoBinding
+
+    private lateinit var userId: String
+    private lateinit var userName: String
+    private lateinit var userStatus: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,9 +34,10 @@ class OtherUserInfoFragment : DialogFragment() {
 
         // 데이터 받아와 화면에 표시
         arguments?.let { bundle ->
-            val userName = bundle.getString("userName")
-            val userStatus = bundle.getString("userStatus")
+            userName = bundle.getString("userName").toString()
+            userStatus = bundle.getString("userStatus").toString()
             val distance = bundle.getDouble("distance")
+            userId = bundle.getString("userId").toString()
 
             binding.otherNameTextView.text = userName
             binding.otherDistanceTextView.text = distance.toString() + "M"
@@ -39,7 +50,7 @@ class OtherUserInfoFragment : DialogFragment() {
                 }
 
 
-                "injure" -> context?.let { ctx ->
+                "injury" -> context?.let { ctx ->
                     this.binding.otherStatusCircle.backgroundTintList =
                         ContextCompat.getColorStateList(ctx, R.color.caution)
                 }
@@ -57,8 +68,13 @@ class OtherUserInfoFragment : DialogFragment() {
 
         // 채팅하기 버튼 클릭했을 때
         binding.chatMoveButton.setOnClickListener {
-            // 채팅으로 이동 추가 @@
-
+            val intent = Intent(context, ChattingDetailActivity::class.java).apply {
+                putExtra("chatRoomId", userId)
+                putExtra("chatName", userName)
+                putExtra("chatOtherStatus", userStatus)
+                putExtra("page",2)
+            }
+            startActivity(intent)
             dismiss()
         }
 

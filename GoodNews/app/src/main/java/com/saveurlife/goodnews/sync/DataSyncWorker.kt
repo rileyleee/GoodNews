@@ -23,7 +23,10 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
@@ -75,7 +78,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
         newTime = System.currentTimeMillis()
-        newTime += TimeUnit.HOURS.toMillis(9)
+//        newTime += TimeUnit.HOURS.toMillis(9)
         try {
 
             // 1. 회원 가입 정보 -> member table
@@ -103,7 +106,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 현재의 정보를 서버로 보낸다
         val result = realm.query<Member>().first().find()
 
-        Log.d("ttest", result.toString())
         if(result!=null){
             var memberId = result.memberId
             var name = result.name
@@ -118,12 +120,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 //            result.lastConnection = RealmInstant.from(newTime/1000, (newTime%1000).toInt())
 
             realm.writeBlocking {
-                val liveObject = findLatest(result)
+                val liveObject = this.findLatest(result)
                 if (liveObject != null) {
                     liveObject.lastConnection = RealmInstant.from(newTime / 1000, (newTime % 1000).toInt())
                 }
             }
-//            realm.close()
         }
     }
 
@@ -131,13 +132,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
     private fun fetchDataFamilyMemInfo() {
         Log.d("ttest","여기")
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
-//        realm = Realm.open(GoodNewsApplication.realmConfiguration)
-        // 우선 realm 비운다
-        val oldData = realm.query<FamilyMemInfo>().find()
 
-        oldData.forEach{
+        GlobalScope.launch {
             realm.writeBlocking {
-                delete(it)
+                query<FamilyMemInfo>().find()
+                    ?.also { delete(it) }
             }
         }
         // 가족 정보를 받아와 realm을 수정한다.
@@ -149,7 +148,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                     var tempTime = it.lastConnection
                     val localDateTime = LocalDateTime.parse(tempTime, formatter)
                     val milliseconds =
-                        localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
                     memberAPI.findMemberInfo(it.memberId, object :MemberAPI.MemberCallback{
 
                         override fun onSuccess(result2: MemberInfo) {
@@ -181,7 +180,6 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                 Log.d("Family", "Registration failed: $error")
             }
         })
-//        realm.close()
     }
 
     // 가족 모임 장소
@@ -201,11 +199,10 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 장소의 새로운 상태를 받아온다
         // 어짜피 3개 밖에 없으므로 다 삭제후 넣는다.
 
-        // 기존 정보 삭제
-        val oldData = realm.query<FamilyPlace>().find()
-        oldData.forEach {
+        GlobalScope.launch {
             realm.writeBlocking {
-                delete(it)
+                query<FamilyPlace>().find()
+                    ?.also { delete(it) }
             }
         }
 
@@ -220,9 +217,11 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                                     FamilyPlace().apply {
                                         placeId = result2.placeId
                                         name = result2.name
+                                        address = result2.address
                                         latitude = result2.lat
                                         longitude = result2.lon
                                         canUse = result2.canuse
+                                        seq = it.seq
                                     }
                                 )
                             }
@@ -247,12 +246,13 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
         val oldData = realm.query<MapInstantInfo>().find()
 
+        val syncService = SyncService()
         if(oldData!=null){
             oldData.forEach {
                 if(it.state =="1"){
-                    mapAPI.registMapFacility(true, it.content, it.latitude, it.longitude)
+                    mapAPI.registMapFacility(true, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
                 }else{
-                    mapAPI.registMapFacility(false, it.content, it.latitude, it.longitude)
+                    mapAPI.registMapFacility(false, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
                 }
             }
         }
@@ -270,7 +270,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
                         tempState = "0"
                     }
                     val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
-                    val milliseconds = localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
                     realm.writeBlocking {
                         copyToRealm(
                             MapInstantInfo().apply {
