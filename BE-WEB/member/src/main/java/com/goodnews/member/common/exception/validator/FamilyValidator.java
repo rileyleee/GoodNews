@@ -1,10 +1,10 @@
-package com.ssafy.goodnews.common.exception.validator;
+package com.goodnews.member.common.exception.validator;
 
-import com.ssafy.goodnews.common.exception.CustomException;
-import com.ssafy.goodnews.common.exception.message.FamilyErrorEnum;
-import com.ssafy.goodnews.member.domain.Family;
-import com.ssafy.goodnews.member.domain.FamilyMember;
-import com.ssafy.goodnews.member.domain.FamilyPlace;
+import com.goodnews.member.common.exception.CustomException;
+import com.goodnews.member.common.exception.message.FamilyErrorEnum;
+import com.goodnews.member.member.domain.Family;
+import com.goodnews.member.member.domain.FamilyMember;
+import com.goodnews.member.member.domain.FamilyPlace;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;

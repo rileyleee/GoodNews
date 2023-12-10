@@ -1,4 +1,4 @@
-package com.ssafy.goodnews.member.dto.request.member;
+package com.goodnews.member.member.dto.request.member;
 
 import lombok.Getter;
 

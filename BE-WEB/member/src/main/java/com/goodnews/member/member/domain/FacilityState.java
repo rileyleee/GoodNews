@@ -1,8 +1,7 @@
-package com.ssafy.goodnews.map.domain;
+package com.goodnews.member.member.domain;
 
+import com.goodnews.member.member.dto.request.facility.MapRegistFacilityRequestDto;
 import com.ssafy.goodnews.common.domain.BaseCreateEntity;
-import com.ssafy.goodnews.common.domain.BaseEntity;
-import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

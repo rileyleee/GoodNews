@@ -1,5 +1,8 @@
 package com.goodnews.member.member.repository;
 
+
+
+
 import com.goodnews.member.member.domain.FacilityState;
 import org.springframework.data.jpa.repository.JpaRepository;
 
