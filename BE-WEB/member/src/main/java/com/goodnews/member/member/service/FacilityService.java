@@ -1,21 +1,17 @@
-package com.ssafy.goodnews.map.service;
+package com.goodnews.member.member.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.goodnews.common.dto.BaseResponseDto;
-import com.ssafy.goodnews.common.exception.validator.BaseValidator;
-import com.ssafy.goodnews.common.exception.validator.MapValidator;
-import com.ssafy.goodnews.map.domain.FacilityState;
-import com.ssafy.goodnews.map.domain.LocalPopulation;
-import com.ssafy.goodnews.map.domain.OffMapInfo;
-import com.ssafy.goodnews.map.dto.request.MapPopulationRequestDto;
-import com.ssafy.goodnews.map.dto.request.MapRegistFacilityRequestDto;
-import com.ssafy.goodnews.map.dto.response.FacilityStateResponseDto;
-import com.ssafy.goodnews.map.dto.response.MapPopulationResponseDto;
-import com.ssafy.goodnews.map.dto.response.MapResponseDto;
-import com.ssafy.goodnews.map.repository.FacilityStateRepository;
-import com.ssafy.goodnews.map.repository.LocalPopulationRepository;
-import com.ssafy.goodnews.map.repository.MapMongoRepository;
+import com.goodnews.member.common.dto.BaseResponseDto;
+import com.goodnews.member.common.exception.validator.BaseValidator;
+import com.goodnews.member.member.domain.FacilityState;
+import com.goodnews.member.member.domain.LocalPopulation;
+import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
+import com.goodnews.member.member.dto.request.facility.MapRegistFacilityRequestDto;
+import com.goodnews.member.member.dto.response.facility.FacilityStateResponseDto;
+import com.goodnews.member.member.dto.response.facility.MapPopulationResponseDto;
+import com.goodnews.member.member.repository.FacilityStateRepository;
+import com.goodnews.member.member.repository.LocalPopulationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j

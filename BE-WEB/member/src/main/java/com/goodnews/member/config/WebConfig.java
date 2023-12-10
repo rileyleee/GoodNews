@@ -1,6 +1,6 @@
-package com.ssafy.goodnews.config;
+package com.goodnews.member.config;
 
-import com.ssafy.goodnews.common.util.property.ApplicationProperties;
+import com.goodnews.member.common.util.property.ApplicationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;

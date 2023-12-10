@@ -1,12 +1,12 @@
-package com.ssafy.goodnews.member.controller;
+package com.goodnews.member.member.controller.web;
 
-import com.ssafy.goodnews.common.dto.BaseResponseDto;
-import com.ssafy.goodnews.common.dto.LoginDto;
-import com.ssafy.goodnews.common.dto.RefreshTokenResponseDto;
-import com.ssafy.goodnews.common.dto.TokenDto;
-import com.ssafy.goodnews.jwt.JwtTokenProvider;
-import com.ssafy.goodnews.member.dto.request.member.*;
-import com.ssafy.goodnews.member.service.MemberService;
+import com.goodnews.member.common.dto.BaseResponseDto;
+import com.goodnews.member.common.dto.LoginDto;
+import com.goodnews.member.common.dto.RefreshTokenResponseDto;
+import com.goodnews.member.common.dto.TokenDto;
+import com.goodnews.member.jwt.JwtTokenProvider;
+import com.goodnews.member.member.dto.request.member.*;
+import com.goodnews.member.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
-public class MemberController {
+public class MemberWebController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
