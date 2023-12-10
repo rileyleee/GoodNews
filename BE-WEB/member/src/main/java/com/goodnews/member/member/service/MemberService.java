@@ -1,20 +1,22 @@
 package com.goodnews.member.member.service;
 
-import com.goodnews.member.common.domain.BaseEntity;
 import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.common.dto.LoginDto;
 import com.goodnews.member.common.dto.TokenDto;
+import com.goodnews.member.common.exception.validator.FacilityValidator;
+import com.goodnews.member.member.domain.FamilyMember;
+import com.goodnews.member.member.domain.LocalPopulation;
+import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
+import com.goodnews.member.member.dto.request.member.*;
+import com.goodnews.member.member.dto.response.facility.MapPopulationResponseDto;
+import com.goodnews.member.member.dto.response.member.MemberFirstLoginResponseDto;
+import com.goodnews.member.member.dto.response.member.MemberInfoResponseDto;
 import com.goodnews.member.common.exception.CustomException;
-import com.goodnews.member.common.exception.validator.FamilyValidator;
 import com.goodnews.member.common.exception.validator.MemberValidator;
 import com.goodnews.member.common.exception.validator.TokenValidator;
 import com.goodnews.member.jwt.JwtTokenProvider;
-import com.goodnews.member.member.domain.Family;
-import com.goodnews.member.member.domain.FamilyMember;
 import com.goodnews.member.member.domain.Member;
-import com.goodnews.member.member.dto.request.member.*;
-import com.goodnews.member.member.dto.response.member.MemberFirstLoginResponseDto;
-import com.goodnews.member.member.dto.response.member.MemberInfoResponseDto;
+import com.goodnews.member.member.repository.LocalPopulationRepository;
 import com.goodnews.member.member.repository.MemberRepository;
 import com.goodnews.member.member.repository.querydsl.MemberQueryDslRepository;
 import io.jsonwebtoken.Jwts;
@@ -32,16 +34,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
-    private final MemberRepository memberRepository;
     private final MemberQueryDslRepository memberQueryDslRepository;
+    private final MemberRepository memberRepository;
     private final TokenValidator tokenValidator;
     private final MemberValidator memberValidator;
     private final JwtTokenProvider jwtTokenProvider;
     @Value("${jwt.secretKey}")
     private String secretKey;
     private final RedisTemplate<String, String> redisTemplate;
-    private FamilyValidator familyValidator;
-
+    private final LocalPopulationRepository localPopulationRepository;
+    private final FacilityValidator mapValidator;
     @Transactional
     public BaseResponseDto registMemberInfo(MemberRegistRequestDto memberRegistRequestDto) {
 
@@ -214,4 +216,52 @@ public class MemberService {
                 .message("멤버 위치 및 마지막 연결 시각을 업데이트했습니다")
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto findPopulation() {
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("앱 이용자 조회를 성공했습니다")
+                .data( localPopulationRepository.findAll().stream()
+                        .map(localPopulation -> MapPopulationResponseDto.builder()
+                                .id(localPopulation.getId())
+                                .name(localPopulation.getName())
+                                .population(localPopulation.getPopulation())
+                                .build()))
+                .build();
+    }
+
+    @Transactional
+    public BaseResponseDto updatePopulation(MapPopulationRequestDto mapPopulationRequestDto) {
+
+
+        mapPopulationRequestDto.getPopulationList().forEach(localPopulationDto -> {
+            Optional<LocalPopulation> findLocalPopulation = localPopulationRepository.findById(localPopulationDto.getId());
+            mapValidator.checkLocalPopulation(findLocalPopulation, localPopulationDto.getId());
+            findLocalPopulation.ifPresent(lp -> lp.updatePopulation(localPopulationDto));
+        });
+
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("앱 사용자 인구 수 업데이트 성공했습니다")
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public BaseResponseDto getPhoneNumber(String phoneNumber) {
+
+        Optional<Member> findMember = memberRepository.findByPhoneNumber(phoneNumber);
+        memberValidator.checkPhoneMember(findMember,phoneNumber);
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("해당 전화번호 회원의 이름 조회를 성공했습니다")
+                .data(findMember.get().getName())
+                .build();
+    }
+
+
+
 }

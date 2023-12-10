@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class BaseConnectEntity {
-//    @LastModifiedDate
-//    private LocalDateTime locationTime;
+    @LastModifiedDate
+    private LocalDateTime locationTime;
 
     @LastModifiedDate
     private LocalDateTime lastUpdate;

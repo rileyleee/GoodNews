@@ -12,7 +12,7 @@ public class FamilyInviteResponseDto {
 
 
     @Builder
-    public FamilyInviteResponseDto(int id,String name, String phoneNumber) {
+    public FamilyInviteResponseDto(int id, String name, String phoneNumber) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;

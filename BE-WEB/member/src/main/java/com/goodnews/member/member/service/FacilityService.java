@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.common.exception.validator.BaseValidator;
+import com.goodnews.member.common.exception.validator.FacilityValidator;
 import com.goodnews.member.member.domain.FacilityState;
 import com.goodnews.member.member.domain.LocalPopulation;
 import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
@@ -14,7 +15,6 @@ import com.goodnews.member.member.repository.FacilityStateRepository;
 import com.goodnews.member.member.repository.LocalPopulationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,39 +26,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MapService {
+public class FacilityService {
 
-    private final MapMongoRepository mongoRepository;
     private final BaseValidator baseValidator;
     private final LocalPopulationRepository localPopulationRepository;
-    private final MapValidator mapValidator;
+    private final FacilityValidator mapValidator;
     private final RedisTemplate<String,String> redisTemplate;
     private final FacilityStateRepository facilityStateRepository;
 
 
-    @Transactional(readOnly = true)
-    public BaseResponseDto test() {
-
-        Optional<OffMapInfo> findId = mongoRepository.findFirstByNameRegex("뉴코아아울렛");
-        return BaseResponseDto.builder()
-                .data(findId.get())
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    public BaseResponseDto findFacilityInfo(int page, int size) {
-        baseValidator.checkPageAndSize(page,size);
-        PageRequest pageable = PageRequest.of(page, size);
-
-        return BaseResponseDto.builder()
-                .success(true)
-                .message("전체 시설 정보 조회를 성공했습니다")
-                .data(mongoRepository.findAll())
-                .build();
-    }
 
     @Transactional(readOnly = true)
     public BaseResponseDto findPopulation() {
@@ -92,30 +72,25 @@ public class MapService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public BaseResponseDto detailFacility(String id) {
-
-        Optional<OffMapInfo> findFaciltiy = mongoRepository.findById(id);
-        mapValidator.checkFaciltiy(findFaciltiy,id);
-        return BaseResponseDto.builder()
-                .success(true)
-                .message("지도 상세 정보를 조회했습니다")
-                .data(MapResponseDto.builder()
-                        .type(findFaciltiy.get().getType())
-                        .name(findFaciltiy.get().getName())
-                        .lon(findFaciltiy.get().getLon())
-                        .lat(findFaciltiy.get().getLat())
-                        .canuse(findFaciltiy.get().getCanuse())
-                        .facility(findFaciltiy.get().getFacility())
-                        .build())
-                .build();
-    }
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         formatter.parse(request.getDate());
-        saveToRedis(request);
+//        saveToRedis(request);
+        // DB에 동일한 lat, lon이 있는지 확인
+        Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
+        if (findFacilityState.isPresent()) {
+            // 업데이트 로직
+            findFacilityState.get().updateState(request);
+
+        } else {
+            // 삽입 로직
+            facilityStateRepository.save(FacilityState.builder()
+                    .mapRegistFacilityRequestDto(request)
+                    .build());
+        }
+
 
         return BaseResponseDto.builder()
                 .success(true)
@@ -130,7 +105,7 @@ public class MapService {
         redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.HOURS);
     }
     @Transactional
-    @Scheduled(fixedRate = 600000) // 1분마다 실행 (원하는 시간으로 조정 가능)
+//    @Scheduled(fixedRate = 300) // 1분마다 실행 (원하는 시간으로 조정 가능)
     public void saveToDatabaseFromRedis() throws JsonProcessingException {
         // Redis에서 모든 키 가져오기
         Set<String> allKeys = redisTemplate.keys("*");

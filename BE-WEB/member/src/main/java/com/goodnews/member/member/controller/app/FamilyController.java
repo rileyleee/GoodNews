@@ -1,10 +1,10 @@
 package com.goodnews.member.member.controller.app;
 
-import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.member.dto.request.family.*;
+import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberRegistFamilyRequestDto;
-import com.ssafy.goodnews.member.service.FamilyService;
+import com.goodnews.member.member.service.FamilyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

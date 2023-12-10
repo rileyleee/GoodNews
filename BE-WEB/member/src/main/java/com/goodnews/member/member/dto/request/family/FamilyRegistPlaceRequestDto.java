@@ -9,4 +9,7 @@ public class FamilyRegistPlaceRequestDto {
     private String name;
     private Double lat;
     private Double lon;
+    private int seq;
+    private String address;
+
 }

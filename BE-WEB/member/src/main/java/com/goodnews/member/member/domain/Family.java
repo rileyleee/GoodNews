@@ -29,10 +29,4 @@ public class Family {
     public Family(Member member) {
         this.familyId = member.getId();
     }
-
-
-    public void updateFamily(String familyId) {
-        this.familyId = familyId;
-    }
-
 }

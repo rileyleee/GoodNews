@@ -29,7 +29,7 @@ public class FamilyValidator {
     }
 
     public void checkUpdateFamily(Optional<FamilyMember> findMember) {
-         if(findMember.isEmpty()) {
+        if(findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
@@ -102,4 +102,13 @@ public class FamilyValidator {
     }
 
 
+    public void checkSeq(int seq, String memberId) {
+        if(seq > 3) {
+            throw CustomException.builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .code(FamilyErrorEnum.INVALID_FAMILY_PLACE_SIZE.getCode())
+                    .message(FamilyErrorEnum.INVALID_FAMILY_PLACE_SIZE.getMessage()+memberId)
+                    .build();
+        }
+    }
 }
