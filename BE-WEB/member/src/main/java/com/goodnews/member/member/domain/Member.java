@@ -68,10 +68,10 @@ public class Member extends BaseConnectEntity {
         this.id = id;
         this.phoneNumber = phoneNumber;
         this.name = name;
-        this.birthdate = birthDate;
-        this.gender = gender;
-        this.bloodtype = bloodType;
-        this.addinfo = addInfo;
+        this.birthdate = (birthDate != null) ? birthDate : "등록 전";
+        this.gender = (gender != null) ? gender : "등록 전";
+        this.bloodtype = (bloodType != null) ? bloodType : "등록 전";
+        this.addinfo = (addInfo != null) ? addInfo : "등록 전";
         this.lastConnection = LocalDateTime.now();
         this.role = Role.USER;
         this.state = state;
