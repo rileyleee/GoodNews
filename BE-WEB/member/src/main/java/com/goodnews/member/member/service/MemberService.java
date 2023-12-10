@@ -44,19 +44,19 @@ public class MemberService {
     private final RedisTemplate<String, String> redisTemplate;
     private final LocalPopulationRepository localPopulationRepository;
     private final FacilityValidator mapValidator;
+
     @Transactional
     public BaseResponseDto registMemberInfo(MemberRegistRequestDto memberRegistRequestDto) {
-
 
 
         Member newMember = Member.builder()
                 .id(memberRegistRequestDto.getMemberId())
                 .phoneNumber(memberRegistRequestDto.getPhoneNumber())
                 .name(memberRegistRequestDto.getName())
-                .birthDate(memberRegistRequestDto.getBirthDate())
-                .gender(memberRegistRequestDto.getGender())
-                .bloodType(memberRegistRequestDto.getBloodType())
-                .addInfo(memberRegistRequestDto.getAddInfo())
+                .birthDate(memberRegistRequestDto.getBirthDate() != null ? memberRegistRequestDto.getBirthDate() : "등록 전")
+                .gender(memberRegistRequestDto.getGender() != null ? memberRegistRequestDto.getGender() : "등록 전")
+                .bloodType(memberRegistRequestDto.getBloodType() != null ? memberRegistRequestDto.getBloodType() : "등록 전")
+                .addInfo(memberRegistRequestDto.getAddInfo() != null ? memberRegistRequestDto.getAddInfo() : "등록 전")
                 .build();
 
         Optional<Member> findMember = memberRepository.findById(memberRegistRequestDto.getMemberId());
@@ -66,8 +66,6 @@ public class MemberService {
 
             memberRepository.save(newMember);
         }
-
-
 
 
         return BaseResponseDto.builder()
@@ -198,7 +196,7 @@ public class MemberService {
     public BaseResponseDto updateMemberState(String memberId, String state) {
 
         Optional<Member> findMember = memberRepository.findById(memberId);
-        memberValidator.checkMember(findMember,memberId);
+        memberValidator.checkMember(findMember, memberId);
         findMember.get().updateMemberState(state);
         return BaseResponseDto.builder()
                 .success(true)
@@ -223,7 +221,7 @@ public class MemberService {
         return BaseResponseDto.builder()
                 .success(true)
                 .message("앱 이용자 조회를 성공했습니다")
-                .data( localPopulationRepository.findAll().stream()
+                .data(localPopulationRepository.findAll().stream()
                         .map(localPopulation -> MapPopulationResponseDto.builder()
                                 .id(localPopulation.getId())
                                 .name(localPopulation.getName())
@@ -253,7 +251,7 @@ public class MemberService {
     public BaseResponseDto getPhoneNumber(String phoneNumber) {
 
         Optional<Member> findMember = memberRepository.findByPhoneNumber(phoneNumber);
-        memberValidator.checkPhoneMember(findMember,phoneNumber);
+        memberValidator.checkPhoneMember(findMember, phoneNumber);
 
         return BaseResponseDto.builder()
                 .success(true)
@@ -261,7 +259,6 @@ public class MemberService {
                 .data(findMember.get().getName())
                 .build();
     }
-
 
 
 }
