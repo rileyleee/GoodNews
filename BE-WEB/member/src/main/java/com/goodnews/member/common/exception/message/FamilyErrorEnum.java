@@ -1,4 +1,4 @@
-package com.ssafy.goodnews.common.exception.message;
+package com.goodnews.member.common.exception.message;
 
 import lombok.Getter;
 
