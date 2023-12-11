@@ -1,12 +1,8 @@
 package com.saveurlife.goodnews.sync
 
-import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.os.Looper
 import android.util.Log
-import androidx.work.Worker
-import androidx.work.WorkerParameters
+import androidx.lifecycle.MutableLiveData
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.FamilyInfo
@@ -15,8 +11,6 @@ import com.saveurlife.goodnews.api.MemberAPI
 import com.saveurlife.goodnews.api.MemberInfo
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.api.PlaceInfo
-import com.saveurlife.goodnews.family.FamilyFragment
-import com.saveurlife.goodnews.family.FamilyListAdapter
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
@@ -26,17 +20,12 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.notify
-import okhttp3.internal.notifyAll
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.TimeUnit
-import java.util.logging.Handler
 import kotlin.properties.Delegates
 
-class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Worker(context, workerParams){
+class FamilySync(private val context:Context) {
     private lateinit var realm : Realm
     private lateinit var preferences: PreferencesUtil
     private lateinit var phoneId:String
@@ -44,72 +33,28 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
     private lateinit var mapAPI: MapAPI
     private lateinit var familyAPI: FamilyAPI
     private lateinit var memberAPI: MemberAPI
+    private lateinit var userDeviceInfoService:UserDeviceInfoService
     private var newTime by Delegates.notNull<Long>()
-    // 다른 곳에서 가져가서 사용할 경우 아래의 코드를 가져가서 실행해주세요!
-    /*
-        // WorkManager
-        private lateinit var workManager:WorkManager
-        workManager = WorkManager.getInstance(applicationContext)
 
-        // 조건 설정 - 인터넷 연결 시에만 실행
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        // request 생성
-        val updateRequest = OneTimeWorkRequest.Builder(FamilySyncWorker::class.java)
-            .setConstraints(constraints)
-            .build()
-
-        // 실행
-        workManager.enqueue(updateRequest)
-     */
-    interface SyncCompleteListener {
-        fun onSyncComplete()
-    }
-    override fun doWork(): Result {
-        val userDeviceInfoService = UserDeviceInfoService(applicationContext)
-
-
+    val familyMemInfoUpdated = MutableLiveData<Boolean>()
+    val familyPlaceUpdated = MutableLiveData<Boolean>()
+    fun fetchFamily(){
         preferences = GoodNewsApplication.preferences
-        phoneId = userDeviceInfoService.deviceId
         syncTime = preferences.getLong("SyncTime",0L)
-
+        userDeviceInfoService = UserDeviceInfoService(context)
+        phoneId = userDeviceInfoService.deviceId
         mapAPI = MapAPI()
         familyAPI = FamilyAPI()
         memberAPI = MemberAPI()
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
         newTime = System.currentTimeMillis()
-//        newTime += TimeUnit.HOURS.toMillis(9)
 
-
-        try {
-            runBlocking {
-                Log.d("etttt", "워커 안에서 시작")
-                // 2. 가족 구성원 정보 -> familymem_info
-                fetchDataFamilyMemInfo()
-                // 3. 가족 모임 장소 -> family_place
-                fetchDataFamilyPlace()
-                Log.d("etttt", "워커가 찐 끝")
-            }
-            Log.d("tetttt", "여기실행되면 울거임")
-            return Result.success()
-        } catch (e : Exception){
-            Log.d("Family Sync", "데이터를 불러오지 못했습니다." +e.toString())
-            return Result.failure()
-        } finally {
-            Log.d("Family Sync", "최신 정보로 업데이트 했습니다.")
-        }
-
+        fetchDataFamilyMemInfo()
+        fetchDataFamilyPlace()
 
     }
-
-    // 가족 구성원 정보
     private fun fetchDataFamilyMemInfo() {
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
-//        realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
 
         GlobalScope.launch {
             realm.writeBlocking {
@@ -127,10 +72,9 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
                     val localDateTime = LocalDateTime.parse(tempTime, formatter)
                     val milliseconds =
                         localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-                    memberAPI.findMemberInfo(it.memberId, object :MemberAPI.MemberCallback{
+                    memberAPI.findMemberInfo(it.memberId, object : MemberAPI.MemberCallback{
 
                         override fun onSuccess(result2: MemberInfo) {
-                            Log.d("family", "저장 시작")
                             realm.writeBlocking {
                                 copyToRealm(
                                     FamilyMemInfo().apply {
@@ -147,12 +91,11 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
                                         familyId = it.familyId
                                     })
                             }
-                            applicationContext.sendBroadcast(Intent("FAMILY_SYNC"))
-                            Log.d("family", "저장 끝")
+                            familyMemInfoUpdated.postValue(true)
                         }
 
                         override fun onFailure(error: String) {
-                            Log.d("family", "저장 실패")
+                            Log.d("FamilySyncError", "저장 실패")
                         }
 
                     })
@@ -160,10 +103,9 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
             }
             override fun onFailure(error: String) {
                 // 실패 시의 처리
-                Log.d("Family", "Registration failed: $error")
+                Log.d("FamilySyncError", "Registration failed: $error")
             }
         })
-//        realm.close()
     }
 
     // 가족 모임 장소
@@ -182,8 +124,6 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
 
         // 장소의 새로운 상태를 받아온다
         // 어짜피 3개 밖에 없으므로 다 삭제후 넣는다.
-
-
         GlobalScope.launch {
             realm.writeBlocking {
                 query<FamilyPlace>().find()
@@ -209,16 +149,18 @@ class FamilySyncWorker  (context: Context, workerParams: WorkerParameters) : Wor
                                     }
                                 )
                             }
+                        familyPlaceUpdated.postValue(true)
                         }
                         override fun onFailure(error: String) {
-
+                            Log.d("FamilySyncError", error)
                         }
                     })
                 }
             }
             override fun onFailure(error: String) {
-
+                Log.d("FamilySyncError", error)
             }
         })
     }
+
 }
