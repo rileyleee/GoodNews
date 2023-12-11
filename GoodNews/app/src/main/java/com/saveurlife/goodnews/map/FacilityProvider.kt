@@ -1,7 +1,6 @@
 package com.saveurlife.goodnews.map
 
 import android.content.Context
-import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.OffMapFacility
@@ -58,32 +57,32 @@ class FacilityProvider(private val context: Context) {
     // 오프라인 시설 정보 반환(대분류)
     fun getFilteredFacilities(category: FacilityUIType): MutableList<OffMapFacility> {
 
-        Log.v("facilityProvider의 카테고리", "$category")
+        //Log.v("facilityProvider의 카테고리", "$category")
         return when (category) {
             FacilityUIType.HOSPITAL -> {
-                Log.d("facilityProvider", "병원, 약국 찾았어요")
-                Log.v("copiedHospital", "copiedHospital.size: ${copiedHospital.size}")
-                Log.v("copiedHospital","${copiedHospital[1].name}/${copiedHospital[1].type}")
+                //Log.d("facilityProvider", "병원, 약국 찾았어요")
+                //Log.v("copiedHospital", "copiedHospital.size: ${copiedHospital.size}")
+                //Log.v("copiedHospital","${copiedHospital[1].name}/${copiedHospital[1].type}")
                 copiedHospital
             }
 
             FacilityUIType.GROCERY -> {
-                Log.d("facilityProvider", "마트, 편의점 찾았어요")
-                Log.v("copiedGrocery", "copiedGrocery.size: ${copiedGrocery.size}")
-                Log.v("copiedGrocery","${copiedGrocery[1].name}/${copiedGrocery[1].type}")
+                //Log.d("facilityProvider", "마트, 편의점 찾았어요")
+                //Log.v("copiedGrocery", "copiedGrocery.size: ${copiedGrocery.size}")
+                //Log.v("copiedGrocery","${copiedGrocery[1].name}/${copiedGrocery[1].type}")
                 copiedGrocery
             }
             FacilityUIType.SHELTER ->{
-                Log.d("facilityProvider", "대피소 찾았어요")
-                Log.v("copiedShelter", "copiedShelter.size: ${copiedShelter.size}")
-                Log.v("copiedShelter","${copiedShelter[1].name}/${copiedShelter[1].type}")
+                //Log.d("facilityProvider", "대피소 찾았어요")
+                //Log.v("copiedShelter", "copiedShelter.size: ${copiedShelter.size}")
+                //Log.v("copiedShelter","${copiedShelter[1].name}/${copiedShelter[1].type}")
                 copiedShelter
             }
 
             else -> {
-                Log.d("facilityProvider", "기본 값은 전체")
-                Log.v("copiedAll", "copiedAll.size: ${copiedAll.size}")
-                Log.v("copiedAll","${copiedAll[1].name}/${copiedAll[1].type}")
+                //Log.d("facilityProvider", "기본 값은 전체")
+                //Log.v("copiedAll", "copiedAll.size: ${copiedAll.size}")
+                //Log.v("copiedAll","${copiedAll[1].name}/${copiedAll[1].type}")
                 copiedAll
             }
         }
@@ -98,30 +97,30 @@ class FacilityProvider(private val context: Context) {
 
         return when (subCategory) {
             "민방위" -> {
-                Log.d("facilityProvider", "민방위 찾았어요")
-                Log.v("copiedMinbangwi", "copiedMinbangwi.size: ${copiedMinbangwi.size}")
-                Log.v("copiedMinbangwi","${copiedMinbangwi[1].name}/${copiedMinbangwi[1].type}")
+                //Log.d("facilityProvider", "민방위 찾았어요")
+                //Log.v("copiedMinbangwi", "copiedMinbangwi.size: ${copiedMinbangwi.size}")
+                //Log.v("copiedMinbangwi","${copiedMinbangwi[1].name}/${copiedMinbangwi[1].type}")
                 copiedMinbangwi
             }
 
             "지진해일" -> {
-                Log.d("facilityProvider", "지진해일 찾았어요")
-                Log.v("copiedEarthquake", "copiedEarthquake.size: ${copiedEarthquake.size}")
-                Log.v("copiecopiedEarthquakedAll","${copiedEarthquake[1].name}/${copiedEarthquake[1].type}")
+                //Log.d("facilityProvider", "지진해일 찾았어요")
+                //Log.v("copiedEarthquake", "copiedEarthquake.size: ${copiedEarthquake.size}")
+                //Log.v("copiecopiedEarthquakedAll","${copiedEarthquake[1].name}/${copiedEarthquake[1].type}")
                 copiedEarthquake
             }
 
             "전체" -> {
-                Log.d("facilityProvider", "대피소 찾았어요")
-                Log.v("copiedEarthquake", "copiedEarthquake.size: ${copiedEarthquake.size}")
-                Log.v("copiecopiedEarthquakedAll","${copiedEarthquake[1].name}/${copiedEarthquake[1].type}")
+                //Log.d("facilityProvider", "대피소 찾았어요")
+                //Log.v("copiedEarthquake", "copiedEarthquake.size: ${copiedEarthquake.size}")
+                //Log.v("copiecopiedEarthquakedAll","${copiedEarthquake[1].name}/${copiedEarthquake[1].type}")
                 copiedShelter
             }
 
             else -> {
-                Log.d("facilityProvider", "기본 값은 전체")
-                Log.v("copiedShelter", "copiedShelter.size: ${copiedShelter.size}")
-                Log.v("copiedShelter","${copiedShelter[1].name}/${copiedShelter[1].type}")
+                //Log.d("facilityProvider", "기본 값은 전체")
+                //Log.v("copiedShelter", "copiedShelter.size: ${copiedShelter.size}")
+                //Log.v("copiedShelter","${copiedShelter[1].name}/${copiedShelter[1].type}")
                 copiedShelter
             }
         }

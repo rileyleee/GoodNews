@@ -64,7 +64,7 @@ public class Member extends BaseConnectEntity {
     }
 
     @Builder
-    public Member(String id,String phoneNumber, String name, String birthDate, String gender, String bloodType, String addInfo,LocalDateTime lastConnection,Role role,String state) {
+    public Member(String id, String phoneNumber, String name, String birthDate, String gender, String bloodType, String addInfo, LocalDateTime lastConnection, Role role, String state) {
         this.id = id;
         this.phoneNumber = phoneNumber;
         this.name = name;
@@ -81,11 +81,11 @@ public class Member extends BaseConnectEntity {
     public void updateMemberInfo(MemberInfoUpdateRequestDto memberInfoUpdateRequestDto) {
         this.name = memberInfoUpdateRequestDto.getName();
         this.birthdate = memberInfoUpdateRequestDto.getBirthDate();
-        this.bloodtype= memberInfoUpdateRequestDto.getBloodType();
+        this.bloodtype = memberInfoUpdateRequestDto.getBloodType();
         this.addinfo = memberInfoUpdateRequestDto.getAddInfo();
         this.gender = memberInfoUpdateRequestDto.getGender();
         this.lon = memberInfoUpdateRequestDto.getLon();
-        this.lat= memberInfoUpdateRequestDto.getLat();
+        this.lat = memberInfoUpdateRequestDto.getLat();
     }
 
     public void updateMemberState(String state) {

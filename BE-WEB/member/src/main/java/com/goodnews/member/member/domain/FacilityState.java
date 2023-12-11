@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Entity
@@ -27,16 +29,23 @@ public class FacilityState extends BaseEntity {
     private Double lat;
     private Double lon;
 
+    private LocalDateTime lastModifiedDate;
+    private LocalDateTime createdDate;
+
     @Builder
     public FacilityState(MapRegistFacilityRequestDto mapRegistFacilityRequestDto) {
         this.buttonType = mapRegistFacilityRequestDto.isButtonType();
         this.text = mapRegistFacilityRequestDto.getText();
         this.lat = mapRegistFacilityRequestDto.getLat();
         this.lon = mapRegistFacilityRequestDto.getLon();
+        this.lastModifiedDate = LocalDateTime.parse(mapRegistFacilityRequestDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.createdDate = LocalDateTime.now();
     }
 
     public void updateState(MapRegistFacilityRequestDto mapRegistFacilityRequestDto) {
         this.buttonType = mapRegistFacilityRequestDto.isButtonType();
         this.text = mapRegistFacilityRequestDto.getText();
+        this.lastModifiedDate = LocalDateTime.parse(mapRegistFacilityRequestDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.createdDate = LocalDateTime.now();
     }
 }

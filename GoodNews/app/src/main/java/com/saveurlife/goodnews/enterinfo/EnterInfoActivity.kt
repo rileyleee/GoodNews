@@ -301,16 +301,16 @@ class EnterInfoActivity : AppCompatActivity() {
         }
 
         val setGender = when {
-            binding.genderMale.isSelected -> "남자"
-            binding.genderFemale.isSelected -> "여자"
-            else -> "모름"
+            binding.genderMale.isSelected -> "남"
+            binding.genderFemale.isSelected -> "여"
+            else -> "-"
         }
 
         val rhText = binding.dialogRhText.text.toString()
         val bloodText = binding.dialogBloodText.text.toString()
 
         val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
-            "모름 A형"
+            "Rh -형"
         } else {
             "$rhText $bloodText"
         }

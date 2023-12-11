@@ -1,6 +1,5 @@
 package com.saveurlife.goodnews.map
 
-import LoadingDialog
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -16,7 +15,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +34,6 @@ import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.ext.isValid
-import io.realm.kotlin.query.RealmResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -98,7 +95,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private var selectedCategory: FacilityUIType = FacilityUIType.ALL
 
     private val localMapTileArchivePath = "korea_7_13.sqlite"
-    private val serverMapTileArchivePath = "7_15_korea-001.sqlite"
+    private val serverMapTileArchivePath = "7_15_korea.sqlite"
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var sharedViewModel: SharedViewModel
 
