@@ -195,7 +195,6 @@ public class FamilyService {
                                         .name(familyPlace.getName())
                                         .canuse(familyPlace.isCanuse())
                                         .seq(familyPlace.getSeq())
-                                        .address(familyPlace.getAddress())
                                         .build())
                         .collect(Collectors.toList())).build();
     }
