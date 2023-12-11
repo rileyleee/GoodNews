@@ -21,10 +21,10 @@ const MainIntro = () => {
     console.log("구글 스토어로 이동합니다.");
   };
 
-  const handleMoveMapIntroClick = () => {
-    console.log("앱 이용 현황으로 이동합니다.");
-    window.location.hash = "#mapIntro";
-  };
+  // const handleMoveMapIntroClick = () => {
+  //   console.log("앱 이용 현황으로 이동합니다.");
+  //   window.location.hash = "#mapIntro";
+  // };
 
   return (
     <StyledMainIntroWrapper>
@@ -42,7 +42,8 @@ const MainIntro = () => {
         </div>
 
         {/* 버튼 wrap */}
-        <StyledMainButtonWrapper className="grid gap-4 grid-cols-2">
+        {/* <StyledMainButtonWrapper className="grid gap-4 grid-cols-2"> */}
+        <StyledMainButtonWrapper className="grid gap-4 grid-cols-1">
           <Button
             size="Large"
             color="Sub"
@@ -50,9 +51,9 @@ const MainIntro = () => {
             className="drop-shadow-lg"
             onClick={handleMoveGoogleClick}
           >
-            Google Play
+            희소식 다운로드
           </Button>
-          <Button
+          {/* <Button
             size="Large"
             color="Sub"
             isActive={true}
@@ -60,7 +61,7 @@ const MainIntro = () => {
             onClick={handleMoveMapIntroClick}
           >
             앱 이용 현황
-          </Button>
+          </Button> */}
         </StyledMainButtonWrapper>
       </StyledMainContentWrapper>
       <StyledLuMouse />

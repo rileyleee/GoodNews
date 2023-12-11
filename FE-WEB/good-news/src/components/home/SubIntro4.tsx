@@ -37,7 +37,7 @@ const SubIntro4 = () => {
                         
                     </div>
                     <div className="relative">
-                        <StyledFlashLightImage className="place-self-end mt-12" src="/assets/mainFlashLight.png"/>
+                        <StyledFlashLightImage className="place-self-end" src="/assets/mainFlashLight.png"/>
                         {/* V */}
                         <StyledLongImage className="absolute top-1/3 left-4" src="/assets/saveVLong.png"/>
                         {/* E */}
@@ -53,11 +53,8 @@ const SubIntro4 = () => {
 export default SubIntro4
 
 const StyledFlashLightPageWrapper = styled.div`
-  width: 100%;
-  height: calc(100vh - 60px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+width: 100%;
+height: 100%;
 `
 
 const StyledFlashLightIntro = styled.div`
@@ -67,7 +64,6 @@ const StyledFlashLightIntro = styled.div`
 `;
 
 const StyledFlashLightImage = styled.img`
-    width: 100%;
     height: 100%;
 `
 

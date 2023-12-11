@@ -43,7 +43,7 @@ const SubIntro1 = () => {
             </div>
           </div>
         </div>
-        <StyledImage src="" alt="임시 사진" />
+        <StyledImage src="/assets/subIntro1_img.png" alt="임시 사진" />
       </StyledSubIntro1ContentWrapper>
     </StyledSubIntro1Wrapper>
   );
@@ -63,7 +63,5 @@ const StyledSubIntro1ContentWrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  width: 30%;
   height: 80%;
-  background-color: red;
 `;
