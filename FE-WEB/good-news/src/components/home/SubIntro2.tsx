@@ -21,16 +21,17 @@ const SubIntro2 = () => {
                 <Text size="text1">의 상태가</Text>
               </div>
               <Text size="text1">궁금하지 않으신가요?</Text>
-              <Text size="text5" className="mt-24">
+              <Text size="text5" className="mt-40">
                 재난 시, 가족의 상태와 위치를 확인하고
               </Text>
             </div>
-            <StyledImage src="" alt="임시 사진" />
-            <Text size="text5" className="self-end mb-40">
+            <StyledImage src="/assets/subintro2_1.png" alt="임시 사진" />
+            <Text size="text5" className="self-center">
               가족과 만날 장소도 정할 수 있어요.
             </Text>
           </div>
         </div>
+
       </StyledSubIntro2ContentWrapper>
     </StyledSubIntro2Wrapper>
   );
@@ -50,7 +51,6 @@ const StyledSubIntro2ContentWrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  width: 30%;
-  height: 500px;
-  background-color: red;
+  height: 600px;
 `;
+

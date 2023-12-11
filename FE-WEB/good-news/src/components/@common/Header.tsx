@@ -1,7 +1,9 @@
 import styled from "styled-components";
 
 const Header = () => {
-  return <StyledHeader>임시 헤더입니당</StyledHeader>;
+  return <StyledHeader>
+    <StyledImage src="/assets/good_news_logo.png" alt="logo_image" />
+  </StyledHeader>;
 };
 
 export default Header;
@@ -10,10 +12,15 @@ export default Header;
 const StyledHeader = styled.div`
   width: 100%;
   height: 60px;
-  line-height: 60px;
-  /* background-color: #ccc; */
+  display: flex;
+  align-items: center;
   position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
+  padding: 0 20px;
 `;
+
+const StyledImage = styled.img`
+  height: 70%;
+`

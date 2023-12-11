@@ -1,4 +1,3 @@
-<<<<<<< 1d92878115e7aba002802d15a55f7466c78a8775
 // 메인페이지의 제일 처음 부분
 import styled, { keyframes } from "styled-components";
 import { LuMouse } from "react-icons/lu";
@@ -22,10 +21,10 @@ const MainIntro = () => {
     console.log("구글 스토어로 이동합니다.");
   };
 
-  const handleMoveMapIntroClick = () => {
-    console.log("앱 이용 현황으로 이동합니다.");
-    window.location.hash = "#mapIntro";
-  };
+  // const handleMoveMapIntroClick = () => {
+  //   console.log("앱 이용 현황으로 이동합니다.");
+  //   window.location.hash = "#mapIntro";
+  // };
 
   return (
     <StyledMainIntroWrapper>
@@ -43,7 +42,8 @@ const MainIntro = () => {
         </div>
 
         {/* 버튼 wrap */}
-        <StyledMainButtonWrapper className="grid gap-4 grid-cols-2">
+        {/* <StyledMainButtonWrapper className="grid gap-4 grid-cols-2"> */}
+        <StyledMainButtonWrapper className="grid gap-4 grid-cols-1">
           <Button
             size="Large"
             color="Sub"
@@ -51,9 +51,9 @@ const MainIntro = () => {
             className="drop-shadow-lg"
             onClick={handleMoveGoogleClick}
           >
-            Google Play
+            희소식 다운로드
           </Button>
-          <Button
+          {/* <Button
             size="Large"
             color="Sub"
             isActive={true}
@@ -61,7 +61,7 @@ const MainIntro = () => {
             onClick={handleMoveMapIntroClick}
           >
             앱 이용 현황
-          </Button>
+          </Button> */}
         </StyledMainButtonWrapper>
       </StyledMainContentWrapper>
       <StyledLuMouse />
@@ -103,15 +103,3 @@ const StyledLuMouse = styled(LuMouse)`
 
   animation: ${blink} 2s infinite;
 `;
-=======
-import styled from "styled-components"
-import Text from "../@common/Text"
-
-//손전등 관련 설명
-const MainIntro = () => {
-    return(
-        <div></div>)
-}
-
-export default MainIntro
->>>>>>> acf98099dfb6dc75ab21eeaba171aca3029e4aba
