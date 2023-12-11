@@ -75,8 +75,8 @@ public class FacilityService {
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        formatter.parse(request.getDate());
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        formatter.parse(request.getDate());
 //        saveToRedis(request);
         // DB에 동일한 lat, lon이 있는지 확인
         Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());

@@ -10,14 +10,12 @@ public class FamilyPlaceInfoResponseDto {
     private String name;
     private boolean canuse;
     private int seq;
-    private String address;
 
     @Builder
-    public FamilyPlaceInfoResponseDto(int placeId, String name, boolean canuse,int seq,String address) {
+    public FamilyPlaceInfoResponseDto(int placeId, String name, boolean canuse,int seq) {
         this.placeId = placeId;
         this.name = name;
         this.canuse = canuse;
         this.seq = seq;
-        this.address = address;
     }
 }
