@@ -621,8 +621,8 @@ class MyPageFragment : Fragment() {
 
     private fun startMapFileDownload() {
         Log.v("mypagefragment","지도 다운로드 함수 호출")
-        val url = "https://saveurlife.kr/images/7_15_korea-001.sqlite"
-        val fileName = "7_15_korea-001.sqlite"
+        val url = "https://saveurlife.kr/images/7_15_korea.sqlite"
+        val fileName = "7_15_korea.sqlite"
 
         mapDownloader.downloadFile(url, fileName)
     }
