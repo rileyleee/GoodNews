@@ -7,7 +7,7 @@ import Text from "../@common/Text";
 const DownloadIntro = () => {
 
   const handleDownloadClick = () => {
-    console.log("안드로이드 앱 설치 페이지로 넘어가야함 !")
+    window.location.href = "https://saveurlife.kr/images/app-release.apk";
   }
 
   return (
@@ -19,16 +19,23 @@ const DownloadIntro = () => {
           <div className="flex justify-center align-center pt-10">
             <Text size="text2">이제 <strong>희소식</strong>과 함께 시작하세요.</Text>
           </div>
-          <Text className="grid place-items-center pb-6" size="text4">현재까지 2,368,493건의 다운로드</Text>
+          {/* <Text className="grid place-items-center pb-6" size="text4">현재까지 2,368,493건의 다운로드</Text> */}
           <div className="grid place-items-center">
-            <StyledQrCode src="/assets/qrcode.png"/>
-            <Button
+            <StyledQrCode src="/assets/goodnews_qrcode.png" />
+            {/* <Button
               className="px-8 drop-shadow-lg flex flex-row items-center"
               size="Large"
               color="Undefined"
               onClick={handleDownloadClick}
               isActive={true}
-              ><StyledPlayStore src="/assets/googlePlay.png" alt="Download Icon"/>Google Play에서 다운로드</Button>
+              ><StyledPlayStore src="/assets/googlePlay.png" alt="Download Icon"/>Google Play에서 다운로드</Button> */}
+            <Button
+              className="px-8 drop-shadow-lg w-80"
+              size="Large"
+              color="Undefined"
+              onClick={handleDownloadClick}
+              isActive={true}
+              >희소식 다운로드</Button>
           </div>
         </StyledDownloadIntro>
       <Footer />
@@ -54,13 +61,14 @@ const StyledDownloadIntro = styled.div`
 `;
 
 const StyledQrCode = styled.img`
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   margin-bottom: 20px;
+  margin-top: 20px;
 `
 
-const StyledPlayStore = styled.img`
-  width: 30px;
-  height: 30px;
-  margin-right: 0.5rem;
-`
+// const StyledPlayStore = styled.img`
+//   width: 30px;
+//   height: 30px;
+//   margin-right: 0.5rem;
+// `
