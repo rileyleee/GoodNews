@@ -26,8 +26,11 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
+import com.saveurlife.goodnews.service.DeviceStateService
+import com.saveurlife.goodnews.sync.AllDataSync
 import com.saveurlife.goodnews.sync.DataSyncWorker
 import com.saveurlife.goodnews.sync.SyncService
+import java.util.Calendar
 
 
 class EnterInfoActivity : AppCompatActivity() {
@@ -37,6 +40,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var permissionsUtil: PermissionsUtil
     private lateinit var memberAPI: MemberAPI
     private lateinit var syncService: SyncService
+    private lateinit var preferencesUtil: PreferencesUtil
     val userDeviceInfoService = UserDeviceInfoService(this);
 
     private lateinit var setPhone: String
@@ -53,7 +57,7 @@ class EnterInfoActivity : AppCompatActivity() {
         setContentView(binding.root)
         memberAPI = MemberAPI()
         syncService = SyncService()
-
+        preferencesUtil = PreferencesUtil(applicationContext)
         workManager = WorkManager.getInstance(applicationContext)
 
         // EditText 비활성화
@@ -182,6 +186,9 @@ class EnterInfoActivity : AppCompatActivity() {
         yearPicker?.wrapSelectorWheel = false
         yearPicker?.setOnValueChangedListener { picker, oldVal, newVal ->
             dialogYearEdit.text = "${year[newVal]}년" //선택한 값을 변경 text에 넣기
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+            val myAge = currentYear - year[newVal].toInt()
+            preferencesUtil.setInt("age", myAge)
         }
 
         monthPicker?.minValue = 0
@@ -309,13 +316,13 @@ class EnterInfoActivity : AppCompatActivity() {
         val rhText = binding.dialogRhText.text.toString()
         val bloodText = binding.dialogBloodText.text.toString()
 
-        val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
+        val setBloodType = if (rhText == "Rh" && bloodText == "-형") {
             "Rh -형"
         } else {
             "$rhText $bloodText"
         }
 
-        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { null }
+        val setAddInfo = binding.warningEditText.text.toString().ifEmpty { "-" }
 
         // 입력 값 검증 (필수 입력 값 안 들어왔을 때)
         if (setName.isBlank()) {
@@ -358,17 +365,11 @@ class EnterInfoActivity : AppCompatActivity() {
             // 메인으로 이동
             val intent = Intent(this, MainActivity::class.java)
 
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
-            // request 생성
-            val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
-                .setConstraints(constraints)
-                .build()
-
-            // 실행
-            workManager.enqueue(updateRequest)
+            val deviceStateService = DeviceStateService()
+            if(deviceStateService.isNetworkAvailable(applicationContext)){
+                val allDataSync = AllDataSync(applicationContext)
+                allDataSync.fetchAllData()
+            }
 
             startActivity(intent)
         }
