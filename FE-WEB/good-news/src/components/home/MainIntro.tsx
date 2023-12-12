@@ -16,9 +16,8 @@ const blink = keyframes`
 `;
 
 const MainIntro = () => {
-  const handleMoveGoogleClick = () => {
-    // 구글 스토어로 이동하기!!!
-    console.log("구글 스토어로 이동합니다.");
+  const handleMoveDownloadClick = () => {
+    window.location.href = "https://saveurlife.kr/images/app-release.apk";
   };
 
   // const handleMoveMapIntroClick = () => {
@@ -49,7 +48,7 @@ const MainIntro = () => {
             color="Sub"
             isActive={true}
             className="drop-shadow-lg"
-            onClick={handleMoveGoogleClick}
+            onClick={handleMoveDownloadClick}
           >
             희소식 다운로드
           </Button>

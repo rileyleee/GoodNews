@@ -26,13 +26,13 @@ class FamilyAPI {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
     // 가족 모임장소 사용 여부 수정
-    fun getFamiliyUpdatePlaceCanUse(placeId:Int, canUse: Boolean){
+    fun getFamilyUpdatePlaceCanUse(placeId:Int, canUse: Boolean){
         // request
         val data = RequestPlaceCanUse(canUse)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
-        val call = familyService.getFamiliyUpdatePlaceCanUse(placeId, requestBody)
+        val call = familyService.getFamilyUpdatePlaceCanUse(placeId, requestBody)
         call.enqueue(object : Callback<ResponsePlaceUseUpdate> {
             override fun onResponse(call: Call<ResponsePlaceUseUpdate>, response: Response<ResponsePlaceUseUpdate>) {
                 if(response.isSuccessful){

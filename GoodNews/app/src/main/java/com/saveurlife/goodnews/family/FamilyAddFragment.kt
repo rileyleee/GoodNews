@@ -8,13 +8,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.databinding.FragmentFamilyAddBinding
 import com.saveurlife.goodnews.service.UserDeviceInfoService
-import io.realm.kotlin.Realm
 
 
 class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFragment() {
@@ -48,8 +45,6 @@ class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFrag
             var result = familyAPI.registFamily(memberId, FamilyFragment.familyEditText.text.toString() , object : FamilyAPI.FamilyRegistrationCallback {
                 override fun onSuccess(result: String) {
                     Log.d("Family", result)
-                    // 리스트 다시 갱신
-//                    familyFragment.addList()
                     dismiss()
                 }
 
