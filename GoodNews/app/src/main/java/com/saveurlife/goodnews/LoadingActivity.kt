@@ -22,6 +22,7 @@ import com.saveurlife.goodnews.main.PermissionsUtil
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
+import com.saveurlife.goodnews.sync.AllDataSync
 import com.saveurlife.goodnews.sync.DataSyncWorker
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 import io.realm.kotlin.Realm
@@ -73,18 +74,13 @@ class LoadingActivity : AppCompatActivity() {
 
                 } else { //권한 필요 없어
                     val i = Intent(this@LoadingActivity, MainActivity::class.java)
-                    val constraints = Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
 
-                // request 생성
-                val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
-                    .setConstraints(constraints)
-                    .build()
-
-                // 실행
-                workManager.enqueue(updateRequest)
-
+                    val deviceStateService = DeviceStateService()
+                    if(deviceStateService.isNetworkAvailable(applicationContext)){
+                        // 동기화
+                        val allDataSync = AllDataSync(applicationContext)
+                        allDataSync.fetchAllData()
+                    }
                     startActivity(i)
                     finish()
                 }

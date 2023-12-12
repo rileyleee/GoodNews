@@ -320,7 +320,7 @@ class MemberAPI {
     }
 
     // 최초 로그인 유무 조회
-    fun firstLoginInfo(memberId:String){
+    fun firstLoginInfo(memberId:String, callback: LoginCallback){
         val data = RequestMemberId(memberId)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
@@ -345,7 +345,7 @@ class MemberAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -376,5 +376,10 @@ class MemberAPI {
 
 
     }
+    interface LoginCallback {
+        fun onSuccess(result: FirstLogin)
+        fun onFailure(error:String)
+    }
 
 }
+
