@@ -51,8 +51,11 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
         // 마지막 업데이트 시각
         val lastUpdateTime = preferencesUtil.getLong("SyncTime", 0L)
         val syncService = SyncService()
-        binding.myUpdateTime.text =
-            syncService.convertDateLongToString(lastUpdateTime)
+        if(lastUpdateTime == 0L){
+            binding.myUpdateTime.text ="최초 업데이트 전"
+        }else{
+            binding.myUpdateTime.text = syncService.convertDateLongToString(lastUpdateTime)
+        }
 
         // 이름 가져오기
         val userName = preferencesUtil.getString("name", "이름")

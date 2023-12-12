@@ -26,6 +26,8 @@ import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
+import com.saveurlife.goodnews.service.DeviceStateService
+import com.saveurlife.goodnews.sync.AllDataSync
 import com.saveurlife.goodnews.sync.DataSyncWorker
 import com.saveurlife.goodnews.sync.SyncService
 import java.util.Calendar
@@ -363,17 +365,11 @@ class EnterInfoActivity : AppCompatActivity() {
             // 메인으로 이동
             val intent = Intent(this, MainActivity::class.java)
 
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
-            // request 생성
-            val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
-                .setConstraints(constraints)
-                .build()
-
-            // 실행
-            workManager.enqueue(updateRequest)
+            val deviceStateService = DeviceStateService()
+            if(deviceStateService.isNetworkAvailable(applicationContext)){
+                val allDataSync = AllDataSync(applicationContext)
+                allDataSync.fetchAllData()
+            }
 
             startActivity(intent)
         }
