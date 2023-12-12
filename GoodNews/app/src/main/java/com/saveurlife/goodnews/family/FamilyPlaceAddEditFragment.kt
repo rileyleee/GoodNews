@@ -191,6 +191,16 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     // 장소 정보 업데이트 (EDIT 모드)
     private fun updatePlace(seq: Int?) {
+        val memberId = getMemberId()
+
+        //업데이트 로직 구현
+        seq.let {
+            tempFamilyPlace?.let { familyPlace ->
+//                familyAPI.getFamilyUpdatePlaceInfo(
+
+//                )
+            }
+        }
 
     }
 
