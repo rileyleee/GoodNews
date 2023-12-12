@@ -11,7 +11,7 @@ interface FamilyInterface {
 
     // 가족 모임장소 사용 여부 수정 (시설 사용할수 있는지 여부)
     @PUT("family/app/placeuse/{placeId}")
-    fun getFamiliyUpdatePlaceCanUse(@Path("placeId") placeId: Int, @Body placeCanUse: RequestBody):Call<ResponsePlaceUseUpdate>
+    fun getFamilyUpdatePlaceCanUse(@Path("placeId") placeId: Int, @Body placeCanUse: RequestBody):Call<ResponsePlaceUseUpdate>
 
     // 가족 모임장소 수정
     @PUT("family/app/placeinfo/{placeId}")

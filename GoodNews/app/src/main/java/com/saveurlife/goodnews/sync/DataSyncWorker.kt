@@ -187,7 +187,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
         // 내가 변경한 장소 수정
         val allData = realm.query<FamilyPlace>().find()
         allData.forEach {
-            familyAPI.getFamiliyUpdatePlaceCanUse(it.placeId, it.canUse)
+            familyAPI.getFamilyUpdatePlaceCanUse(it.placeId, it.canUse)
             familyAPI.getFamilyUpdatePlaceInfo(
                 it.placeId,
                 it.name,

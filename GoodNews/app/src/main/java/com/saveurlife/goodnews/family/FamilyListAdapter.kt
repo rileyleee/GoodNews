@@ -1,47 +1,21 @@
 package com.saveurlife.goodnews.family
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.api.FamilyAPI
-import com.saveurlife.goodnews.api.WaitInfo
-import com.saveurlife.goodnews.flashlight.FlashlightData
-import com.saveurlife.goodnews.flashlight.FlashlightListAdapter
-import com.saveurlife.goodnews.models.FamilyMemInfo
-import com.saveurlife.goodnews.service.DeviceStateService
-import com.saveurlife.goodnews.service.UserDeviceInfoService
-import com.saveurlife.goodnews.sync.SyncService
-import io.realm.kotlin.ext.query
 
-class FamilyListAdapter(private val context: Context, private val listener: OnItemClickListener ) :
+class FamilyListAdapter(private val listener: OnItemClickListener ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val deviceStateService = DeviceStateService()
     var familyList: MutableList<FamilyData> = mutableListOf()
-
-    interface OnFamilyUpdateUI {
-        fun updateUI()
-    }
-    // 리스너 객체 참조 저장
-    private var familyListener: OnFamilyUpdateUI? = null
-
-    // 리스너 객체 참조 => 어댑터에 전달
-    fun setFamilyUpdateUI(listener:OnFamilyUpdateUI) {
-        this.familyListener = listener
-    }
 
     companion object{
         const val TYPE_WAIT = 1
         const val TYPE_ACCEPT = 2
-        private val familyAPI = FamilyAPI()
     }
 
 
@@ -57,14 +31,13 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
         fun onAcceptButtonClick(position: Int)
         fun onRejectButtonClick(position: Int)
 
-//        fun addList()
     }
     
     // 가족 수락을 위함
     class WaitViewHolder(view: View, private val listener: OnItemClickListener) : RecyclerView.ViewHolder(view) {
         val nameView: TextView = view.findViewById(R.id.WaitNameTextView)
-        val acceptBtn: TextView = view.findViewById(R.id.acceptButton)
-        val rejectBtn: TextView = view.findViewById(R.id.rejectButton)
+        private val acceptBtn: TextView = view.findViewById(R.id.acceptButton)
+        private val rejectBtn: TextView = view.findViewById(R.id.rejectButton)
 
         init {
             acceptBtn.setOnClickListener {
@@ -75,21 +48,14 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onAcceptButtonClick(position)
                     }
-//                    familyAPI.updateRegistFamily(item.acceptNumber, false)
-//                    (view.context as? AppCompatActivity)?.run {
-//                        FamilyFragment.familyListAdapter.addList()
-                    }
                 }
-
+            }
             rejectBtn.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onRejectButtonClick(position)
                     }
-//                    val item = familyList[position]
-                    // 서버 요청
-//                    familyAPI.updateRegistFamily(item.acceptNumber, true)
                 }
             }
         }
@@ -165,11 +131,9 @@ class FamilyListAdapter(private val context: Context, private val listener: OnIt
 
     fun addFamilyWait(name:String, acceptNumber:Int){
         familyList.add(FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
-//        notifyItemInserted(familyList.size)
     }
     fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
-//        notifyItemInserted(familyList.size)
     }
 
     fun resetFamilyList(){
