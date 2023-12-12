@@ -7,7 +7,7 @@ import Text from "../@common/Text";
 const DownloadIntro = () => {
 
   const handleDownloadClick = () => {
-    window.location.href = "https://saveurlife.kr/images/app-release.apk";
+    window.location.href = "https://saveurlife.kr/images/goodnews.apk";
   }
 
   return (
@@ -21,7 +21,7 @@ const DownloadIntro = () => {
           </div>
           {/* <Text className="grid place-items-center pb-6" size="text4">현재까지 2,368,493건의 다운로드</Text> */}
           <div className="grid place-items-center">
-            <StyledQrCode src="/assets/goodnews_qrcode.png" />
+            <StyledQrCode src="/assets/goodnews_qrcode2.png" />
             {/* <Button
               className="px-8 drop-shadow-lg flex flex-row items-center"
               size="Large"

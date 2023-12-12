@@ -8,7 +8,7 @@ const SubIntro3 = () => {
         <StyledMapPageWrapper>
             <StyledMapIntro className="flex flex-row">
                 <div className="basis-1/4 flex items-center justify-center">
-                    <StyledMapImage className="place-items-center" src="/assets/mainMap.png"/>
+                    <StyledMapImage className="place-items-center" src="/assets/subIntroImg.png"/>
                 </div>
                 <div className="basis-3/4 flex flex-col">
                     <div className="flex justify-center align-center">
@@ -17,23 +17,23 @@ const SubIntro3 = () => {
                     <div className="mt-10 mx-12 grid grid-cols-3 gap-10">
                         <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
                             <StyledFilterImage className="mr-1" src="/assets/mapShelter.png"/>
-                            <Text className="ml-1" size="text3">대피소</Text>
+                            <Text className="ml-1" size="text4">대피소</Text>
                         </Card>
                         <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
                             <StyledFilterImage className="mr-1" src="/assets/mapHospital.png"/>
-                            <Text className="ml-1" size="text3">병원</Text>
+                            <Text className="ml-1" size="text4">병원</Text>
                         </Card>
                         <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
                             <StyledFilterImage className="mr-1" src="/assets/mapMart.png"/>
-                            <Text className="ml-1" size="text3">식료품점</Text>
+                            <Text className="ml-1" size="text4">식료품점</Text>
                         </Card>
                         <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
                             <StyledFilterImage className="mr-1" src="/assets/mapFamily.png"/>
-                            <Text className="ml-1" size="text3">가족 위치</Text>
+                            <Text className="ml-1" size="text4">가족 위치</Text>
                         </Card>
                         <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
                             <StyledFilterImage className="mr-1" src="/assets/mapPromise.png"/>
-                            <Text className="ml-1" size="text3">약속 장소</Text>
+                            <Text className="ml-1" size="text4">약속 장소</Text>
                         </Card>
                         <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
                             <StyledFilterImage className="mr-1" src="/assets/mapAroundPerson.png"/>
@@ -68,7 +68,6 @@ const StyledMapIntro = styled.div`
 `;
 
 const StyledMapImage = styled.img`
-    width: 90%;
     height: 85%;
 `
 const StyledFilterImage = styled.img`
