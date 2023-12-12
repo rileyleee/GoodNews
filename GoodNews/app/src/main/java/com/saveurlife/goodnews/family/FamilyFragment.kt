@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +25,6 @@ import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.models.FamilyPlace
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import com.saveurlife.goodnews.sync.FamilySync
 import com.saveurlife.goodnews.sync.SyncService
@@ -38,12 +38,16 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     lateinit var familyListAdapter: FamilyListAdapter
 
     // 클래스 레벨 변수로 장소 데이터 저장
-    private var familyPlaces: List<FamilyPlace> = listOf()
+    private val familyPlace: MutableLiveData<List<FamilyPlace>> by lazy {
+        MutableLiveData<List<FamilyPlace>>()
+    }
+
 
     private lateinit var deviceStateService: DeviceStateService
     private lateinit var userDeviceInfoService: UserDeviceInfoService
     private var familyAPI: FamilyAPI = FamilyAPI()
     private lateinit var memberId:String
+    private lateinit var familySync: FamilySync
 
     companion object{
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
@@ -58,37 +62,37 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     override fun onResume() {
         super.onResume()
 
-        val familySync = FamilySync(requireContext())
+        familySync = FamilySync(requireContext())
         val deviceStateService = DeviceStateService()
-
         // 인터넷 연결 시에만 실행함
+        val observer1 = Observer<Boolean>{
+            if(it){
+                addPlaceList()
+                familySync.familyPlaceUpdated.value = false
+                updatedUIWithFamilyPlaces()
+            }
+        }
+
+        val observer2 = Observer<Boolean>{
+            if(it){
+                addList()
+                familySync.familyMemInfoUpdated.value = false
+            }
+        }
+        familySync.familyPlaceUpdated.observe(this, observer1)
+        familySync.familyMemInfoUpdated.observe(this, observer2)
         if(deviceStateService.isNetworkAvailable(requireContext())){
-            val observer1 = Observer<Boolean>{
-                if(it){
-                    addList()
-                    familySync.familyPlaceUpdated.value = false
-                }
-            }
-
-            val observer2 = Observer<Boolean>{
-                if(it){
-                    addList()
-                    familySync.familyMemInfoUpdated.value = false
-                }
-            }
-            familySync.familyPlaceUpdated.observe(this, observer1)
-            familySync.familyMemInfoUpdated.observe(this, observer2)
-
             // 초기에 갱신도 해야됨.
             familySync.fetchFamily()
         }
         addList()
+        addPlaceList()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         deviceStateService = DeviceStateService()
-        familyListAdapter = FamilyListAdapter(context, this)
+        familyListAdapter = FamilyListAdapter(this)
         userDeviceInfoService = UserDeviceInfoService(requireContext())
         memberId = userDeviceInfoService.deviceId
     }
@@ -106,8 +110,6 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         // 데이터 로딩, UI 업데이트
-        loadFamilyPlaces()
-
         // 각 장소 클릭 이벤트 처리
         binding.meetingPlaceFirst.setOnClickListener { handlePlaceClick(seq = 1) }
         binding.meetingPlaceSecond.setOnClickListener { handlePlaceClick(seq = 2) }
@@ -122,7 +124,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         familyListRecyclerView = view.findViewById(R.id.familyList)
         familyListRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        familyListAdapter = FamilyListAdapter(requireContext(), this)
+        familyListAdapter = FamilyListAdapter(this)
         familyListRecyclerView.adapter = familyListAdapter
     }
 
@@ -134,7 +136,6 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
             familyAPI.updateRegistFamily(item.acceptNumber, false)
         }
         //내 리스트에 넣긴 해야함.
-        val familySync = FamilySync(requireContext());
         val observer2 = Observer<Boolean>{
             if(it){
                 addList()
@@ -154,32 +155,14 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         addList()
     }
 
-    // Realm에서 데이터 로드 및 UI 업데이트
-    private fun loadFamilyPlaces() {
-        // Realm 인스턴스 열기
-        realm = Realm.open(GoodNewsApplication.realmConfiguration)
-
-        try {
-            // Realm 쿼리 실행 및 결과 저장
-            val places: RealmResults<FamilyPlace> = realm.query<FamilyPlace>().find()
-            familyPlaces = realm.copyFromRealm(places)
-
-            // UI 업데이트
-            updatedUIWithFamilyPlaces(familyPlaces)
-        } finally {
-            // Realm 인스턴스 닫기
-            realm.close()
-        }
-    }
-
-    private fun updatedUIWithFamilyPlaces(familyPlaces: List<FamilyPlace>) {
-        familyPlaces.forEach { place ->
-            val statusColor = if (place.canUse == true) ContextCompat.getColor(
+    private fun updatedUIWithFamilyPlaces() {
+        familyPlace.value?.forEach { place ->
+            val statusColor = if (place.canUse) ContextCompat.getColor(
                 requireContext(),
                 R.color.safe
             ) else ContextCompat.getColor(requireContext(), R.color.danger)
 
-            val statusText = if (place.canUse == true) "안전" else "위험"
+            val statusText = if (place.canUse) "안전" else "위험"
 
             when (place.seq) {
                 1 -> {
@@ -208,7 +191,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
 
     // 장소 클릭 했을 때
     private fun handlePlaceClick(seq: Int) {
-        val place = familyPlaces.find { it.seq == seq }
+        val place = familyPlace.value?.find { it.seq == seq }
         val mode = if (place == null) Mode.ADD else Mode.READ
 
         showMeetingDialog(seq, mode)
@@ -216,7 +199,13 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
 
     // 모달 창 띄워주는 것
     private fun showMeetingDialog(seq: Int, mode: Mode) {
-        val dialogFragment = FamilyPlaceAddEditFragment().apply {
+        val observer3 = Observer<List<FamilyPlace>>{
+            updatedUIWithFamilyPlaces()
+        }
+        familyPlace.observe(viewLifecycleOwner, observer3)
+
+
+        val dialogFragment = FamilyPlaceAddEditFragment(this, requireContext()).apply {
             arguments = Bundle().apply {
                 //데이터가 있으면 읽기 모드, 없으면 추가 모드
                 putSerializable("mode", mode)
@@ -251,6 +240,18 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
             }
         }
         return covName
+    }
+    fun fetchAll(){
+        familySync.fetchFamily()
+    }
+    private fun addPlaceList(){
+        realm = Realm.open(GoodNewsApplication.realmConfiguration)
+
+        val resultRealm2 = FamilyFragment.realm.query<FamilyPlace>().find()
+        if(resultRealm2 !=null){
+            familyPlace.value = realm.copyFromRealm(resultRealm2)
+            updatedUIWithFamilyPlaces()
+        }
     }
     private fun addList(){
         // 서버에서 가족들 + 신청 리스트 가져오자
@@ -289,6 +290,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
                 }
             }
         }
+
         familyListAdapter.notifyDataSetChanged()
     }
 }

@@ -25,7 +25,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.properties.Delegates
 
-class FamilySync(private val context:Context) {
+class FamilySync(private val context: Context) {
     private lateinit var realm : Realm
     private lateinit var preferences: PreferencesUtil
     private lateinit var phoneId:String
@@ -91,6 +91,7 @@ class FamilySync(private val context:Context) {
                                         familyId = it.familyId
                                     })
                             }
+
                             familyMemInfoUpdated.postValue(true)
                         }
 
@@ -149,7 +150,7 @@ class FamilySync(private val context:Context) {
                                     }
                                 )
                             }
-                        familyPlaceUpdated.postValue(true)
+                            familyPlaceUpdated.postValue(true)
                         }
                         override fun onFailure(error: String) {
                             Log.d("FamilySyncError", error)
