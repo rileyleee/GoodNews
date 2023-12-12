@@ -21,12 +21,12 @@ const SubIntro2 = () => {
                 <Text size="text1">의 상태가</Text>
               </div>
               <Text size="text1">궁금하지 않으신가요?</Text>
-              <Text size="text5" className="mt-40">
+              <Text size="text4" className="mt-40">
                 재난 시, 가족의 상태와 위치를 확인하고
               </Text>
             </div>
             <StyledImage src="/assets/subintro2_1.png" alt="임시 사진" />
-            <Text size="text5" className="self-center">
+            <Text size="text4" className="self-center">
               가족과 만날 장소도 정할 수 있어요.
             </Text>
           </div>
