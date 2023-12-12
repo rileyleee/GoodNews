@@ -157,7 +157,7 @@ public class BleService extends Service {
 
     private HandlerThread handlerThread;
     private Handler handler;
-    private static final int INTERVAL = 5000; // 30 seconds
+    private static final int INTERVAL = 10000; // 30 seconds
 
 
     @Override
