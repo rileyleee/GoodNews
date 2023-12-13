@@ -101,12 +101,12 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         if (::binding.isInitialized) {
             data?.let {
                 // 데이터 UI에 적용
-                binding?.readModeNickname?.text = it.name
-                binding?.readModeAddress?.text = it.address
+                binding.readModeNickname.text = it.name
+                binding.readModeAddress.text = it.address
             }
         } else {
             // binding이 초기화되지 않은 경우에 대한 처리
-            // 예: Log.e("MyFragment", "Binding is not initialized.")
+            Log.e("MyFragment", "Binding is not initialized.")
         }
     }
 
@@ -126,6 +126,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 hint = "주소를 검색해 주세요."
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             }
+
+        // 토글버튼
+        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // 토글 버튼이 꺼진 상태 (안전 상태)
+                binding.dangerTextView.visibility = View.GONE
+                binding.safeTextView.visibility = View.VISIBLE
+            } else {
+                // 토글 버튼이 켜진 상태 (위험 상태)
+                binding.dangerTextView.visibility = View.VISIBLE
+                binding.safeTextView.visibility = View.GONE
+            }
+        }
 
         val deviceStateService = DeviceStateService()
 
