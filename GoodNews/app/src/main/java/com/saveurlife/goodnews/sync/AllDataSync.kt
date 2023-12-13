@@ -88,6 +88,7 @@ class AllDataSync(private val context: Context) {
                     }else{
                         // 처음 등록
                         memberAPI.registMemberInfo(memberId, phoneNumber, name, birthDate, gender, bloodType, addInfo)
+                        memberAPI.updateMember(memberId, lat, lon)
                     }
                 }
 
