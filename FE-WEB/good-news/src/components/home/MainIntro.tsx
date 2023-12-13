@@ -17,7 +17,7 @@ const blink = keyframes`
 
 const MainIntro = () => {
   const handleMoveDownloadClick = () => {
-    window.location.href = "https://saveurlife.kr/images/app-release.apk";
+    window.location.href = "https://saveurlife.kr/images/goodnews.apk";
   };
 
   // const handleMoveMapIntroClick = () => {

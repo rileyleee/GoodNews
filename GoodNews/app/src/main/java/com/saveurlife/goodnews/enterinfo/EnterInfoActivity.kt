@@ -27,6 +27,7 @@ import io.realm.kotlin.Realm
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
 import com.saveurlife.goodnews.service.DeviceStateService
+import com.saveurlife.goodnews.service.LocationService
 import com.saveurlife.goodnews.sync.AllDataSync
 import com.saveurlife.goodnews.sync.DataSyncWorker
 import com.saveurlife.goodnews.sync.SyncService
@@ -300,9 +301,9 @@ class EnterInfoActivity : AppCompatActivity() {
         val birthYear = binding.dialogEnterYear.text.toString()
         val birthMonth = binding.dialogEnterMonth.text.toString()
         val birthDay = binding.dialogEnterDay.text.toString()
-
-        val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
-            "2000년 01월 01일"
+        val calendar = Calendar.getInstance()
+        val setBirthDate = if (birthYear == "YYYY년" || birthMonth == "MM월" || birthDay == "DD일") {
+            "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월 ${calendar.get(Calendar.DAY_OF_MONTH)}일"
         } else {
             "$birthYear $birthMonth $birthDay"
         }
@@ -316,8 +317,8 @@ class EnterInfoActivity : AppCompatActivity() {
         val rhText = binding.dialogRhText.text.toString()
         val bloodText = binding.dialogBloodText.text.toString()
 
-        val setBloodType = if (rhText == "Rh" && bloodText == "-형") {
-            "Rh -형"
+        val setBloodType = if (rhText == "Rh" && bloodText == "--형") {
+            "Rh --형"
         } else {
             "$rhText $bloodText"
         }
@@ -335,6 +336,8 @@ class EnterInfoActivity : AppCompatActivity() {
             )
 
             // Realm에 저장
+            val locationService = LocationService(applicationContext)
+            val loc = locationService.lastKnownLocation.split("/")
             realm.writeBlocking {
                 copyToRealm(Member().apply {
                     memberId = setMemberId
@@ -344,6 +347,8 @@ class EnterInfoActivity : AppCompatActivity() {
                     gender = setGender.toString()
                     bloodType = setBloodType.toString()
                     addInfo = setAddInfo.toString()
+                    latitude = loc[0].toDouble()
+                    longitude = loc[1].toDouble()
                 })
             }
 
@@ -358,8 +363,9 @@ class EnterInfoActivity : AppCompatActivity() {
                 setBirthDate?.let { syncService.convertDateStringToNumStr(it) },
                 setGender,
                 setBloodType,
-                setAddInfo
+                setAddInfo,
             )
+            memberAPI.updateMember(setMemberId, loc[0].toDouble(), loc[1].toDouble())
 
             Log.i("저장", "저장완료")
             // 메인으로 이동

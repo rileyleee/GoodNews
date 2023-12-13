@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.*;
 public class SendMessageManager {
     private PreferencesUtil preferencesUtil;
     private UUID serviceUUID;
@@ -26,10 +27,9 @@ public class SendMessageManager {
     private String myId;
     private String myName;
 
-    private int sendSize = 5;
+    private int sendSize = 4;
 
-
-    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
+   public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
                               UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;
@@ -39,6 +39,76 @@ public class SendMessageManager {
         this.preferencesUtil = preferencesUtil; // preferencesUtil 값 설정
         this.myName = myName;
     }
+
+
+    private Queue<String> initMessageQueue = new LinkedList<>();
+    public void prepareInitMessage(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
+        String formattedDate = sdf.format(now);
+
+        Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap = new HashMap<>();
+
+        String[] location = locationService.getLastKnownLocation().split("/");
+
+        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
+
+        newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
+        for (Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()) {
+            newBleMeshConnectedDevicesMap.putAll(part);
+        }
+
+        int maxSize = newBleMeshConnectedDevicesMap.size() % sendSize == 0 ? newBleMeshConnectedDevicesMap.size() / sendSize : newBleMeshConnectedDevicesMap.size() / sendSize + 1;
+        int nowSize = 1;
+
+        String result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
+
+        int count = 0;
+
+        Log.i("init 유저 수", Integer.toString(newBleMeshConnectedDevicesMap.size()));
+        for (BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()) {
+            result += user.toInitString();
+            count++;
+            if (count != 0 && (count % sendSize == 0 || count == newBleMeshConnectedDevicesMap.size())) {
+                initMessageQueue.add(result);
+
+                nowSize++;
+                result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
+            } else {
+                result += "@";
+            }
+        }
+        Log.i("메시지큐 사이즈", Integer.toString(initMessageQueue.size()));
+        Log.i("메시지큐", initMessageQueue.toString());
+
+//        sendMessageInit(deviceGatt,bleMeshConnectedDevicesMap);
+
+        sendInitMessageQueue(deviceGatt);
+
+    }
+
+    public void sendInitMessageQueue(BluetoothGatt deviceGatt) {
+        BluetoothGattService service = deviceGatt.getService(serviceUUID);
+
+        if (service != null) {
+            BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
+            if (characteristic != null) {
+                if(!initMessageQueue.isEmpty()){
+                    String message = initMessageQueue.poll();
+//                    Log.i("init message", message);
+                    characteristic.setValue(message);
+                    deviceGatt.writeCharacteristic(characteristic);
+                }
+            }
+            else{
+                initMessageQueue.clear();
+            }
+        }
+        else{
+            initMessageQueue.clear();
+        }
+    }
+
 
 
     public String sendMessageInit(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap) {
