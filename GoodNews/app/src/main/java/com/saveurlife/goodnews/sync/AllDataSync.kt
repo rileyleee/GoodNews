@@ -3,6 +3,7 @@ package com.saveurlife.goodnews.sync
 import android.content.Context
 import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.api.DurationFacilityState
 import com.saveurlife.goodnews.api.FacilityState
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.FamilyInfo
@@ -239,30 +240,32 @@ class AllDataSync(private val context: Context) {
         // server 추가 이후 만들어야 함.
         // 위험정보를 모두 가져와서 저장한다.
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-        mapAPI.getAllMapFacility(object : MapAPI.FacilityStateCallback{
-            override fun onSuccess(result: ArrayList<FacilityState>) {
+        mapAPI.getDurationFacility(syncService.convertDateLongToString(syncTime), object : MapAPI.FacilityStateDurationCallback{
+            override fun onSuccess(result: ArrayList<DurationFacilityState>) {
                 result.forEach {
-                    var tempState:String = ""
-                    if(it.buttonType){
-                        tempState = "1"
-                    }else{
-                        tempState = "0"
+                        var tempState:String = ""
+                        if(it.buttonType){
+                            tempState = "1"
+                        }else{
+                            tempState = "0"
+                        }
+                        val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
+                        val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+                        realm.writeBlocking {
+                            copyToRealm(
+                                MapInstantInfo().apply {
+                                    state = tempState
+                                    content = it.text
+                                    time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
+                                    latitude = it.lat
+                                    longitude = it.lon
+
+                                }
+                            )
+                        }
                     }
-                    val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
-                    val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-                    realm.writeBlocking {
-                        copyToRealm(
-                            MapInstantInfo().apply {
-                                state = tempState
-                                content = it.text
-                                time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
-                                latitude = it.lat
-                                longitude = it.lon
-                            }
-                        )
-                    }
-                }
             }
+
 
             override fun onFailure(error: String) {
             }
