@@ -74,7 +74,7 @@ class MyPageFragment : Fragment() {
     private var sendLat by Delegates.notNull<Double>()
     private var sendLon by Delegates.notNull<Double>()
 
-    private val ACTION_SEND_FILE = "app-release.apk"
+    private val ACTION_SEND_FILE = "goodnews.apk"
 
     private var realmaddInfo: String? = null
 
@@ -464,13 +464,13 @@ class MyPageFragment : Fragment() {
         val monthPicker = birthDialogBinding.monthPicker //월 picker
         val dayPicker = birthDialogBinding.dayPicker //일 picker
         val requestBirth = birthDialogBinding.requestBirth //수정 버튼
-
+        val calendar = Calendar.getInstance()
         if (realmBirth == null) {
-            selectedYear = "2000"
-            selectedMonth = "01"
-            selectedDay = "01"
+            selectedYear = calendar.get(Calendar.YEAR).toString()
+            selectedMonth = (calendar.get(Calendar.MONTH) + 1).toString()
+            selectedDay = calendar.get(Calendar.DAY_OF_MONTH).toString()
             myAge = 0
-            sendBirthdate = "2000년 01월 01일"
+            sendBirthdate = "${selectedYear}년 ${selectedMonth}월 ${selectedDay}일"
         } else {
             val (savedYear, savedMonth, savedDay) = realmBirth!!.split("년 ", "월 ", "일")
                 .map { it.trim() }

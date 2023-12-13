@@ -143,7 +143,7 @@ class MapAPI {
     // 기간 이후 시설 상태 조회
     // 주의 사항!!!!!
     // "2023-11-12 03:12:02" 이런 형태로 보내셔야 합니다.
-    fun getDurationFacility(date: String){
+    fun getDurationFacility(date: String, callback: FacilityStateDurationCallback){
         val data = RequestPlaceDate(date)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
@@ -168,7 +168,7 @@ class MapAPI {
 
 
 
-
+                        callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -201,7 +201,10 @@ class MapAPI {
         fun onSuccess(result: ArrayList<FacilityState>)
         fun onFailure(error:String)
     }
-
+    interface FacilityStateDurationCallback {
+        fun onSuccess(result: ArrayList<DurationFacilityState>)
+        fun onFailure(error:String)
+    }
 
 }
 
