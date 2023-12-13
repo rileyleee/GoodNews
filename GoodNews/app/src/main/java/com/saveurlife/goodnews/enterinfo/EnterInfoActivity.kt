@@ -301,9 +301,9 @@ class EnterInfoActivity : AppCompatActivity() {
         val birthYear = binding.dialogEnterYear.text.toString()
         val birthMonth = binding.dialogEnterMonth.text.toString()
         val birthDay = binding.dialogEnterDay.text.toString()
-
-        val setBirthDate = if (birthYear == "YYYY년" && birthMonth == "MM월" && birthDay == "DD일") {
-            "2023년 01월 01일"
+        val calendar = Calendar.getInstance()
+        val setBirthDate = if (birthYear == "YYYY년" || birthMonth == "MM월" || birthDay == "DD일") {
+            "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월 ${calendar.get(Calendar.DAY_OF_MONTH)}일"
         } else {
             "$birthYear $birthMonth $birthDay"
         }

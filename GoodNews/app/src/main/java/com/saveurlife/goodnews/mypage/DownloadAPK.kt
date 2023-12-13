@@ -57,7 +57,7 @@ class DownloadAPK(context: Context, params: WorkerParameters) : CoroutineWorker(
 
     companion object {
         // 다운 받을 곳
-        const val APK_URL = "https://saveurlife.kr/images/app-release.apk"
+        const val APK_URL = "https://saveurlife.kr/images/goodnews.apk"
         // 저장할 곳
         val APK_DESTINATION_PATH =  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()
     }
