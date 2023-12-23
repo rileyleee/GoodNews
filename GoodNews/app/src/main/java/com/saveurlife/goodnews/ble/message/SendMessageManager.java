@@ -27,7 +27,7 @@ public class SendMessageManager {
     private String myId;
     private String myName;
 
-    private int sendSize = 4;
+    private int sendSize = 3;
 
    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
                               UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.api.DurationFacilityState
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.FamilyInfo
 import com.saveurlife.goodnews.api.MapAPI
@@ -14,6 +15,7 @@ import com.saveurlife.goodnews.api.PlaceInfo
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
+import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -51,6 +53,7 @@ class FamilySync(private val context: Context) {
 
         fetchDataFamilyMemInfo()
         fetchDataFamilyPlace()
+        fetchDataMapInstantInfo()
 
     }
     private fun fetchDataFamilyMemInfo() {
@@ -163,5 +166,58 @@ class FamilySync(private val context: Context) {
             }
         })
     }
+    private fun fetchDataMapInstantInfo() {
+        // 마지막 시간 보다 변경시간이 작을 경우
+        // 모두 보내서 반영한다. -> 수정 필요
+
+        val oldData = realm.query<MapInstantInfo>().find()
+
+        val syncService = SyncService()
+        if(oldData!=null){
+            oldData.forEach {
+                if(it.state =="1"){
+                    mapAPI.registMapFacility(true, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
+                }else{
+                    mapAPI.registMapFacility(false, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
+                }
+            }
+        }
+
+        // server 추가 이후 만들어야 함.
+        // 위험정보를 모두 가져와서 저장한다.
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        mapAPI.getDurationFacility(syncService.convertDateLongToString(syncTime), object : MapAPI.FacilityStateDurationCallback{
+            override fun onSuccess(result: ArrayList<DurationFacilityState>) {
+                result.forEach {
+                    var tempState:String = ""
+                    if(it.buttonType){
+                        tempState = "1"
+                    }else{
+                        tempState = "0"
+                    }
+                    val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
+                    val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+                    realm.writeBlocking {
+                        copyToRealm(
+                            MapInstantInfo().apply {
+                                state = tempState
+                                content = it.text
+                                time = RealmInstant.from(milliseconds/1000, (milliseconds%1000).toInt())
+                                latitude = it.lat
+                                longitude = it.lon
+
+                            }
+                        )
+                    }
+                }
+            }
+
+
+            override fun onFailure(error: String) {
+            }
+        })
+    }
+
+
 
 }

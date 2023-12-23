@@ -10,8 +10,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.api.MapAPI
 import com.saveurlife.goodnews.databinding.FragmentEmergencyInfoDialogBinding
 import com.saveurlife.goodnews.models.MapInstantInfo
+import com.saveurlife.goodnews.service.DeviceStateService
+import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
@@ -105,6 +108,17 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                         time = timeRealmInstant
                     })
                 }
+                val mapAPI = MapAPI()
+                val syncService = SyncService()
+                val deviceStateService = DeviceStateService()
+                if(deviceStateService.isNetworkAvailable(requireContext())){
+                    if(isSafe =="1"){
+                        mapAPI.registMapFacility(true, inputText, (currLatitude * 10000).toInt() / 10000.0, (currLongitude * 10000).toInt() / 10000.0, syncService.realmInstantToString(timeRealmInstant))
+                    }else{
+                        mapAPI.registMapFacility(false, inputText, (currLatitude * 10000).toInt() / 10000.0, (currLongitude * 10000).toInt() / 10000.0, syncService.realmInstantToString(timeRealmInstant))
+                    }
+                }
+
                 withContext(Dispatchers.Main) {
                     // UI 스레드에서 성공 메시지 표시
                     Toast.makeText(context, "위험 정보가 저장되었습니다.", Toast.LENGTH_SHORT).show()

@@ -41,7 +41,7 @@ class DownloadAPK(context: Context, params: WorkerParameters) : CoroutineWorker(
             connection = url.openConnection() as HttpURLConnection
             connection.connect()
 
-            val fileName = "app-release.apk"
+            val fileName = "goodnews.apk"
             val fullPath = "$destinationPath/$fileName"
 
             Log.d("test down", fullPath)
