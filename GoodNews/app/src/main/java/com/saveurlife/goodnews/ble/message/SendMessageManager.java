@@ -12,12 +12,8 @@ import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.*;
+
 public class SendMessageManager {
     private PreferencesUtil preferencesUtil;
     private UUID serviceUUID;
@@ -41,8 +37,18 @@ public class SendMessageManager {
     }
 
 
-    private Queue<String> initMessageQueue = new LinkedList<>();
-    public void prepareInitMessage(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
+    static class Message{
+       String content;
+       BluetoothGatt targetGatt;
+       public Message(String content, BluetoothGatt targetGatt){
+           this.content=content;
+           this.targetGatt=targetGatt;
+       }
+    }
+
+    private Queue<Message> messageQueue = new ArrayDeque<>();
+
+    public void createInitMessage(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
         String formattedDate = sdf.format(now);
@@ -65,117 +71,28 @@ public class SendMessageManager {
 
         int count = 0;
 
-        Log.i("init 유저 수", Integer.toString(newBleMeshConnectedDevicesMap.size()));
         for (BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()) {
             result += user.toInitString();
             count++;
             if (count != 0 && (count % sendSize == 0 || count == newBleMeshConnectedDevicesMap.size())) {
-                initMessageQueue.add(result);
-
+                addMessageToMessageQueue(new Message(result, deviceGatt));
                 nowSize++;
                 result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
             } else {
                 result += "@";
             }
         }
-        Log.i("메시지큐 사이즈", Integer.toString(initMessageQueue.size()));
-        Log.i("메시지큐", initMessageQueue.toString());
-
-//        sendMessageInit(deviceGatt,bleMeshConnectedDevicesMap);
-
-        sendInitMessageQueue(deviceGatt);
-
+        Log.i("메시지큐 사이즈", Integer.toString(messageQueue.size()));
+        Log.i("메시지큐", messageQueue.toString());
     }
 
-    public void sendInitMessageQueue(BluetoothGatt deviceGatt) {
-        BluetoothGattService service = deviceGatt.getService(serviceUUID);
-
-        if (service != null) {
-            BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-            if (characteristic != null) {
-                if(!initMessageQueue.isEmpty()){
-                    String message = initMessageQueue.poll();
-//                    Log.i("init message", message);
-                    characteristic.setValue(message);
-                    deviceGatt.writeCharacteristic(characteristic);
-                }
-            }
-            else{
-                initMessageQueue.clear();
-            }
-        }
-        else{
-            initMessageQueue.clear();
-        }
-    }
-
-
-
-    public String sendMessageInit(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap) {
-        Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
-        String formattedDate = sdf.format(now);
-
-        Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap = new HashMap<>();
-
-        String[] location = locationService.getLastKnownLocation().split("/");
-
-        BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
-
-        newBleMeshConnectedDevicesMap.put(myId, bleMeshConnectedUser);
-        for (Map<String, BleMeshConnectedUser> part : bleMeshConnectedDevicesMap.values()) {
-            newBleMeshConnectedDevicesMap.putAll(part);
-        }
-
-        int maxSize = newBleMeshConnectedDevicesMap.size() % sendSize == 0 ? newBleMeshConnectedDevicesMap.size() / sendSize : newBleMeshConnectedDevicesMap.size() / sendSize + 1;
-        int nowSize = 1;
-
-        String result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
-        BluetoothGattService service = deviceGatt.getService(serviceUUID);
-
-        if (service != null) {
-            BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-            if (characteristic != null) {
-                int count = 0;
-
-                for (BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()) {
-                    result += user.toInitString();
-                    count++;
-
-                    if (count != 0 && (count % sendSize == 0 || count == newBleMeshConnectedDevicesMap.size())) {
-                        characteristic.setValue(result);
-                        deviceGatt.writeCharacteristic(characteristic);
-
-                        // 여기에서 writeCharacteristic()가 완료될 때까지 대기하거나 콜백을 사용해야 합니다.
-                        // 쓰기 작업이 완료되면 다음 쓰기 작업을 시작해야 합니다.
-
-                        nowSize++;
-                        result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
-                    } else {
-                        result += "@";
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-
-    public void spreadMessage(Map<String, BluetoothGatt> deviceGattMap, String content){
+    public void createSpreadMessage(Map<String, BluetoothGatt> deviceGattMap, String content){
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            BluetoothGattService service = gatt.getService(serviceUUID);
-
-            if (service != null) {
-                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-                if (characteristic != null) {
-                    characteristic.setValue(content);
-                    gatt.writeCharacteristic(characteristic);
-                }
-            }
+            addMessageToMessageQueue(new Message(content, gatt));
         }
     }
 
-    public String sendMessageBase(Map<String, BluetoothGatt> deviceGattMap) {
+    public void createBaseMessage(Map<String, BluetoothGatt> deviceGattMap) {
         Log.i("연결 기기 수 : ", Integer.toString(deviceGattMap.size()));
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
@@ -192,20 +109,11 @@ public class SendMessageManager {
         String message = messageBase.toString();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            BluetoothGattService service = gatt.getService(serviceUUID);
-
-            if (service != null) {
-                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-                if (characteristic != null) {
-                    characteristic.setValue(message);
-                    gatt.writeCharacteristic(characteristic);
-                }
-            }
+            addMessageToMessageQueue(new Message(message,gatt));
         }
-        return message;
     }
 
-    public void sendMessageHelp(Map<String, BluetoothGatt> deviceGattMap) {
+    public void createHelpMessage(Map<String, BluetoothGatt> deviceGattMap) {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
         String formattedDate = sdf.format(now);
@@ -221,21 +129,13 @@ public class SendMessageManager {
         String message = messageHelp.toString();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            BluetoothGattService service = gatt.getService(serviceUUID);
-            if (service != null) {
-                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-                if (characteristic != null) {
-                    characteristic.setValue(message);
-                    gatt.writeCharacteristic(characteristic);
-                }
-            }
+            addMessageToMessageQueue(new Message(message,gatt));
         }
     }
 
-    public String sendMessageChat(Map<String, BluetoothGatt> deviceGattMap, String receiverId, String receiverName, String content) {
+    public void createChatMessage(Map<String, BluetoothGatt> deviceGattMap, String receiverId, String receiverName, String content) {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
-//        SimpleDateFormat sdf = new SimpleDateFormat("a hh:mm", Locale.getDefault());
 
         String formattedDate = sdf.format(now);
 
@@ -253,19 +153,11 @@ public class SendMessageManager {
         String message = messageChat.toString();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            BluetoothGattService service = gatt.getService(serviceUUID);
-            if (service != null) {
-                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-                if (characteristic != null) {
-                    characteristic.setValue(message);
-                    gatt.writeCharacteristic(characteristic);
-                }
-            }
+            addMessageToMessageQueue(new Message(message, gatt));
         }
-        return message;
     }
 
-    public void sendMessageGroupInvite(Map<String, BluetoothGatt> deviceGattMap, List<String> receiverIds, String groupId, String groupName){
+    public void createGroupInviteMessage(Map<String, BluetoothGatt> deviceGattMap, List<String> receiverIds, String groupId, String groupName){
         String message = "invite/"+myId+"/";
         receiverIds.add(myId);
         for(int i=0; i<receiverIds.size(); i++){
@@ -281,32 +173,15 @@ public class SendMessageManager {
         Log.i("invite", message);
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            BluetoothGattService service = gatt.getService(serviceUUID);
-            if (service != null) {
-                BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-                if (characteristic != null) {
-                    characteristic.setValue(message);
-                    gatt.writeCharacteristic(characteristic);
-                }
-            }
+            addMessageToMessageQueue(new Message(message, gatt));
         }
     }
 
-
-    public void sendMessageDisconnect(BluetoothGatt gatt) {
-        BluetoothGattService service = gatt.getService(serviceUUID);
-        if (service != null) {
-            BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-            if (characteristic != null) {
-                characteristic.setValue("disconnect/"+myId);
-                gatt.writeCharacteristic(characteristic);
-            }
-        }
+    public void createDisconnectMessage(BluetoothGatt gatt) {
+        String message="disconnect/"+myId;
+        addMessageToMessageQueue(new Message(message, gatt));
     }
-
-
-    // 직접 연결되거나 직접 연결된 디바이스가 끊어질 때만
-    public void sendMessageChange(Map<String, BluetoothGatt> deviceGattMap, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
+    public void createChangeMessage(Map<String, BluetoothGatt> deviceGattMap, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
         String formattedDate = sdf.format(now);
@@ -328,25 +203,39 @@ public class SendMessageManager {
 
             String message="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
 
-            BluetoothGattService service = gatt.getService(serviceUUID);
+            for(BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()){
+                message+=user.toInitString();
+                count++;
+
+                if(count!=0&&(count%sendSize==0||count==newBleMeshConnectedDevicesMap.size())){
+                    addMessageToMessageQueue(new Message(message, gatt));
+                    nowSize++;
+                    message="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
+                    continue;
+                }
+                message+="@";
+            }
+        }
+    }
+
+    public void addMessageToMessageQueue(Message message){
+        messageQueue.offer(message);
+        if(messageQueue.size()==1){
+            sendNextMessageQueue();
+        }
+    }
+
+    public void sendNextMessageQueue(){
+        if(!messageQueue.isEmpty()){
+            Log.i("Queue Size : ", Integer.toString(messageQueue.size()));
+            Message nowMessage=messageQueue.poll();
+
+            BluetoothGattService service = nowMessage.targetGatt.getService(serviceUUID);
             if (service != null) {
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
                 if (characteristic != null) {
-
-                    for(BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()){
-                        message+=user.toInitString();
-                        count++;
-
-                        if(count!=0&&(count%sendSize==0||count==newBleMeshConnectedDevicesMap.size())){
-                            characteristic.setValue(message);
-                            gatt.writeCharacteristic(characteristic);
-                            nowSize++;
-                            message="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
-                            continue;
-                        }
-
-                        message+="@";
-                    }
+                    characteristic.setValue(nowMessage.content);
+                    nowMessage.targetGatt.writeCharacteristic(characteristic);
                 }
             }
         }

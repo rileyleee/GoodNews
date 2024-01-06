@@ -74,7 +74,7 @@ public class BleGattCallback extends BluetoothGattCallback {
             }
             else if("init".equals(type)) {
                 Log.i("init message", new String(characteristic.getValue()));
-                sendMessageManager.sendInitMessageQueue(gatt);
+//                sendMessageManager.sendInitMessageQueue(gatt);
 
             }
 
@@ -82,6 +82,8 @@ public class BleGattCallback extends BluetoothGattCallback {
         } else {
             Log.e("BLE", "Failed to send message to " + gatt.getDevice().getAddress() + ". Error code: " + status);
         }
+
+        sendMessageManager.sendNextMessageQueue();
     }
 
     @Override
@@ -106,7 +108,8 @@ public class BleGattCallback extends BluetoothGattCallback {
 
             if (gatt.getDevice().getBondState() == 12) {
 //                sendMessageManager.sendMessageInit(gatt, bleMeshConnectedDevicesMap);
-                sendMessageManager.prepareInitMessage(gatt, bleMeshConnectedDevicesMap);
+//                sendMessageManager.prepareInitMessage(gatt, bleMeshConnectedDevicesMap);
+                sendMessageManager.createInitMessage(gatt, bleMeshConnectedDevicesMap);
             }
         } else {
             Log.w("BLE", "onServicesDiscovered received: " + status);
@@ -119,7 +122,8 @@ public class BleGattCallback extends BluetoothGattCallback {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             Log.i("BLE", "MTU changed to: " + mtu);
 //            sendMessageManager.sendMessageInit(gatt, bleMeshConnectedDevicesMap);
-            sendMessageManager.prepareInitMessage(gatt, bleMeshConnectedDevicesMap);
+//            sendMessageManager.prepareInitMessage(gatt, bleMeshConnectedDevicesMap);
+            sendMessageManager.createInitMessage(gatt, bleMeshConnectedDevicesMap);
         } else {
             Log.w("BLE", "MTU change failed, status: " + status);
         }

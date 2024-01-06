@@ -248,8 +248,11 @@ public class BleService extends Service {
                 Log.i("disconnect", Integer.toString(bleMeshConnectedDevicesMap.size()));
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
-                sendMessageManager.sendMessageDisconnect(gatt);
-                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+//                sendMessageManager.sendMessageDisconnect(gatt);
+//                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+
+                sendMessageManager.createDisconnectMessage(gatt);
+                sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
             }
         } else {
             connectToDevice(selectedDevice);
@@ -290,8 +293,11 @@ public class BleService extends Service {
 
             deviceArrayListNameLiveData.postValue(deviceArrayListName);
 
-            sendMessageManager.sendMessageDisconnect(gatt);
-            sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+//            sendMessageManager.sendMessageDisconnect(gatt);
+//            sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+
+            sendMessageManager.createDisconnectMessage(gatt);
+            sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
 
         }
     }
@@ -330,29 +336,31 @@ public class BleService extends Service {
     }
 
     public static void sendMessageBase() {
-        sendMessageManager.sendMessageBase(deviceGattMap);
+//        sendMessageManager.sendMessageBase(deviceGattMap);
+        sendMessageManager.createBaseMessage(deviceGattMap);
     }
 
     public void sendMessageHelp() {
-
-        // 여기에 메시지 전송 로직을 구현합니다.
-        sendMessageManager.sendMessageHelp(deviceGattMap);
+//        sendMessageManager.sendMessageHelp(deviceGattMap);
+        sendMessageManager.createHelpMessage(deviceGattMap);
     }
 
     public void sendMessageChat(String receiverId, String receiverName, String content) {
-        // 여기에 메시지 전송 로직을 구현합니다.
-        sendMessageManager.sendMessageChat(deviceGattMap, receiverId, receiverName, content);
+//        sendMessageManager.sendMessageChat(deviceGattMap, receiverId, receiverName, content);
+        sendMessageManager.createChatMessage(deviceGattMap, receiverId, receiverName, content);
     }
 
     public void sendMessageGroupInvite(List<String> receiverIds, String groupId, String groupName) {
-        sendMessageManager.sendMessageGroupInvite(deviceGattMap, receiverIds, groupId, groupName);
+//        sendMessageManager.sendMessageGroupInvite(deviceGattMap, receiverIds, groupId, groupName);
+        sendMessageManager.createGroupInviteMessage(deviceGattMap, receiverIds, groupId, groupName);
     }
 
     private void spreadMessage(String address, String content) {
         Map<String, BluetoothGatt> spreadDeviceGattMap = new HashMap<>();
         spreadDeviceGattMap.putAll(deviceGattMap);
         spreadDeviceGattMap.remove(address);
-        sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
+//        sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
+        sendMessageManager.createSpreadMessage(spreadDeviceGattMap, content);
     }
 
 
@@ -421,7 +429,8 @@ public class BleService extends Service {
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
-                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+//                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+                sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
             }
         }
 
@@ -613,7 +622,8 @@ public class BleService extends Service {
                         }
                     }
 
-                    sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+//                    sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+                    sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
                 }
                 else if (messageType.equals("change")) {
                     Log.i("bleMeshConnectedDevicesMap", message);
@@ -977,6 +987,7 @@ public class BleService extends Service {
             membersId.add(member.getUserId());
         }
 
-        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
+//        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
+        sendMessageManager.createGroupInviteMessage(deviceGattMap, membersId, groupId, groupName);
     }
 }
