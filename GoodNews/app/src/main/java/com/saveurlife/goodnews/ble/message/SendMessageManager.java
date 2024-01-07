@@ -23,7 +23,7 @@ public class SendMessageManager {
     private String myId;
     private String myName;
 
-    private int sendSize = 3;
+    private int sendSize = 1;
 
    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
                               UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
@@ -219,15 +219,26 @@ public class SendMessageManager {
     }
 
     public void addMessageToMessageQueue(Message message){
+        Log.i("AddQueue : ", message.content);
+        Log.i("Queue Size : ", Integer.toString(messageQueue.size()));
         messageQueue.offer(message);
-        if(messageQueue.size()==1){
+        if(!sending){
             sendNextMessageQueue();
         }
     }
 
+    private boolean sending=false;
+
+    public void setSendingTrue(){
+        sending=true;
+    }
+    public void setSendingFalse(){
+        sending=false;
+    }
+
     public void sendNextMessageQueue(){
         if(!messageQueue.isEmpty()){
-            Log.i("Queue Size : ", Integer.toString(messageQueue.size()));
+            setSendingTrue();
             Message nowMessage=messageQueue.poll();
 
             BluetoothGattService service = nowMessage.targetGatt.getService(serviceUUID);
@@ -237,6 +248,12 @@ public class SendMessageManager {
                     characteristic.setValue(nowMessage.content);
                     nowMessage.targetGatt.writeCharacteristic(characteristic);
                 }
+                else{
+                    setSendingFalse();
+                }
+            }
+            else{
+                setSendingFalse();
             }
         }
     }

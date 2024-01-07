@@ -112,7 +112,6 @@ public class BleService extends Service {
 
     public class LocalBinder extends Binder {
         public BleService getService() {
-            // Return this instance of BleService so clients can call public methods
             return BleService.this;
         }
     }
@@ -341,17 +340,14 @@ public class BleService extends Service {
     }
 
     public void sendMessageHelp() {
-//        sendMessageManager.sendMessageHelp(deviceGattMap);
         sendMessageManager.createHelpMessage(deviceGattMap);
     }
 
     public void sendMessageChat(String receiverId, String receiverName, String content) {
-//        sendMessageManager.sendMessageChat(deviceGattMap, receiverId, receiverName, content);
         sendMessageManager.createChatMessage(deviceGattMap, receiverId, receiverName, content);
     }
 
     public void sendMessageGroupInvite(List<String> receiverIds, String groupId, String groupName) {
-//        sendMessageManager.sendMessageGroupInvite(deviceGattMap, receiverIds, groupId, groupName);
         sendMessageManager.createGroupInviteMessage(deviceGattMap, receiverIds, groupId, groupName);
     }
 
@@ -359,7 +355,6 @@ public class BleService extends Service {
         Map<String, BluetoothGatt> spreadDeviceGattMap = new HashMap<>();
         spreadDeviceGattMap.putAll(deviceGattMap);
         spreadDeviceGattMap.remove(address);
-//        sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
         sendMessageManager.createSpreadMessage(spreadDeviceGattMap, content);
     }
 
@@ -429,7 +424,6 @@ public class BleService extends Service {
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
-//                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
                 sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
             }
         }
