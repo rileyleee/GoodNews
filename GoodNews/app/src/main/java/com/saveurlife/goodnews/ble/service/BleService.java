@@ -340,7 +340,15 @@ public class BleService extends Service {
     }
 
     public void sendMessageHelp() {
-        sendMessageManager.createHelpMessage(deviceGattMap);
+//        sendMessageManager.createHelpMessage(deviceGattMap);
+
+
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+        String formattedDate = sdf.format(now);
+        String groupId = "group" + myId + formattedDate;
+        sendMessageManager.createGroupInviteMessage(deviceGattMap, new ArrayList<String>(),
+                groupId, "그룹");
     }
 
     public void sendMessageChat(String receiverId, String receiverName, String content) {
@@ -443,7 +451,6 @@ public class BleService extends Service {
 
                 if (senderId.equals(myId)) return;
 
-                // 처음 연결 시 내 메시 네트워크 유저 정보 교환
                 if (messageType.equals("init")) {
                     String maxSize = parts[2];
                     String nowSize = parts[3];
@@ -505,7 +512,6 @@ public class BleService extends Service {
 
                     spreadMessage(device.getAddress(), message);
                 }
-                // 지속적 위치, 상태 정보 뿌리기
                 else if (messageType.equals("base")) {
                     BleMeshConnectedUser existingUser = null;
                     spreadMessage(device.getAddress(), message);
@@ -521,7 +527,6 @@ public class BleService extends Service {
 
                     }
                 }
-                // 모두에게 구조요청
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
                     if (!goodNewsApplication.isInBackground()) {
@@ -534,7 +539,6 @@ public class BleService extends Service {
 //                        sendNotification(message);
                     spreadMessage(device.getAddress(), message);
                 }
-                // 특정 대상에게 채팅
                 else if (messageType.equals("chat")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
                     String targetId = parts[7];
@@ -616,7 +620,6 @@ public class BleService extends Service {
                         }
                     }
 
-//                    sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
                     sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
                 }
                 else if (messageType.equals("change")) {
@@ -677,6 +680,9 @@ public class BleService extends Service {
                     }
 
                     spreadMessage(device.getAddress(), message);
+                }
+                else if (messageType.equals("danger")){
+
                 }
                 mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);
             }

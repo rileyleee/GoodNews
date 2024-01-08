@@ -23,7 +23,7 @@ public class SendMessageManager {
     private String myId;
     private String myName;
 
-    private int sendSize = 1;
+    private int initUserSize = 2;
 
    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
                               UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
@@ -64,26 +64,24 @@ public class SendMessageManager {
             newBleMeshConnectedDevicesMap.putAll(part);
         }
 
-        int maxSize = newBleMeshConnectedDevicesMap.size() % sendSize == 0 ? newBleMeshConnectedDevicesMap.size() / sendSize : newBleMeshConnectedDevicesMap.size() / sendSize + 1;
+        int maxSize = newBleMeshConnectedDevicesMap.size() % initUserSize == 0 ? newBleMeshConnectedDevicesMap.size() / initUserSize : newBleMeshConnectedDevicesMap.size() / initUserSize + 1;
         int nowSize = 1;
 
-        String result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
+        String content = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
 
         int count = 0;
 
         for (BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()) {
-            result += user.toInitString();
+            content += user.toInitString();
             count++;
-            if (count != 0 && (count % sendSize == 0 || count == newBleMeshConnectedDevicesMap.size())) {
-                addMessageToMessageQueue(new Message(result, deviceGatt));
+            if (count != 0 && (count % initUserSize == 0 || count == newBleMeshConnectedDevicesMap.size())) {
+                addMessageToMessageQueue(new Message(content, deviceGatt));
                 nowSize++;
-                result = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
+                content = "init/" + myId + "/" + maxSize + "/" + nowSize + "/";
             } else {
-                result += "@";
+                content += "@";
             }
         }
-        Log.i("메시지큐 사이즈", Integer.toString(messageQueue.size()));
-        Log.i("메시지큐", messageQueue.toString());
     }
 
     public void createSpreadMessage(Map<String, BluetoothGatt> deviceGattMap, String content){
@@ -106,10 +104,10 @@ public class SendMessageManager {
         messageBase.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageBase.setLocation(locationService.getLastKnownLocation());
 
-        String message = messageBase.toString();
+        String content = messageBase.toString();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            addMessageToMessageQueue(new Message(message,gatt));
+            addMessageToMessageQueue(new Message(content,gatt));
         }
     }
 
@@ -126,10 +124,10 @@ public class SendMessageManager {
         messageHelp.setHealthStatus(preferencesUtil.getString("status", "4"));
         messageHelp.setLocation(locationService.getLastKnownLocation());
 
-        String message = messageHelp.toString();
+        String content = messageHelp.toString();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            addMessageToMessageQueue(new Message(message,gatt));
+            addMessageToMessageQueue(new Message(content,gatt));
         }
     }
 
@@ -158,29 +156,61 @@ public class SendMessageManager {
     }
 
     public void createGroupInviteMessage(Map<String, BluetoothGatt> deviceGattMap, List<String> receiverIds, String groupId, String groupName){
-        String message = "invite/"+myId+"/";
+        for(int i=1;i<=5;i++){
+            receiverIds.add("member"+i);
+        }
+        receiverIds.add("5108c2a83bbf0253");
+        receiverIds.add("4c311a7721a68c6e");
+
+
+        String content = "invite/"+myId+"/";
         receiverIds.add(myId);
-        for(int i=0; i<receiverIds.size(); i++){
-            message = message.concat(receiverIds.get(i));
-            if(i<receiverIds.size()-1){
-                message = message.concat("@");
-            }
+
+
+        for(int i=1; i<=receiverIds.size(); i++){
+            content = content.concat(receiverIds.get(i-1));
+            content = content.concat("@");
         }
 
-        message = message.concat("/" + groupId);
-        message = message.concat("/" + groupName);
+        content=content.substring(0,content.length()-1);
+        content = content.concat("/" + groupId);
+        content = content.concat("/" + groupName);
 
-        Log.i("invite", message);
+        Log.i("invite", content);
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
-            addMessageToMessageQueue(new Message(message, gatt));
+            addMessageToMessageQueue(new Message(content, gatt));
         }
+
+        content = "invite/"+myId+"/";
     }
 
+
+//    public void createGroupInviteMessage(Map<String, BluetoothGatt> deviceGattMap, List<String> receiverIds, String groupId, String groupName){
+//        String content = "invite/"+myId+"/";
+//        receiverIds.add(myId);
+//        for(int i=0; i<receiverIds.size(); i++){
+//            content = content.concat(receiverIds.get(i));
+//            if(i<receiverIds.size()-1){
+//                content = content.concat("@");
+//            }
+//        }
+//
+//        content = content.concat("/" + groupId);
+//        content = content.concat("/" + groupName);
+//
+//        Log.i("invite", content);
+//
+//        for (BluetoothGatt gatt : deviceGattMap.values()) {
+//            addMessageToMessageQueue(new Message(content, gatt));
+//        }
+//    }
+
     public void createDisconnectMessage(BluetoothGatt gatt) {
-        String message="disconnect/"+myId;
-        addMessageToMessageQueue(new Message(message, gatt));
+        String content="disconnect/"+myId;
+        addMessageToMessageQueue(new Message(content, gatt));
     }
+
     public void createChangeMessage(Map<String, BluetoothGatt> deviceGattMap, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
@@ -198,29 +228,35 @@ public class SendMessageManager {
             }
 
             int count = 0;
-            int maxSize = newBleMeshConnectedDevicesMap.size()%sendSize==0 ? newBleMeshConnectedDevicesMap.size()/sendSize :  newBleMeshConnectedDevicesMap.size()/sendSize+1;
+            int maxSize = newBleMeshConnectedDevicesMap.size()% initUserSize ==0 ? newBleMeshConnectedDevicesMap.size()/ initUserSize :  newBleMeshConnectedDevicesMap.size()/ initUserSize +1;
             int nowSize = 1;
 
-            String message="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
+            String content="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
 
             for(BleMeshConnectedUser user : newBleMeshConnectedDevicesMap.values()){
-                message+=user.toInitString();
+                content+=user.toInitString();
                 count++;
 
-                if(count!=0&&(count%sendSize==0||count==newBleMeshConnectedDevicesMap.size())){
-                    addMessageToMessageQueue(new Message(message, gatt));
+                if(count!=0&&(count% initUserSize ==0||count==newBleMeshConnectedDevicesMap.size())){
+                    addMessageToMessageQueue(new Message(content, gatt));
                     nowSize++;
-                    message="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
+                    content="change/"+myId+"/"+maxSize+"/"+nowSize+"/";
                     continue;
                 }
-                message+="@";
+                content+="@";
             }
         }
     }
 
+    public void createDangerInfoMessage(Map<String, BluetoothGatt> deviceGattMap, String dangerInfo){
+        String content="danger/"+myId+"/"+dangerInfo;
+        for (BluetoothGatt gatt : deviceGattMap.values()) {
+            addMessageToMessageQueue(new Message(content,gatt));
+        }
+    }
+
+
     public void addMessageToMessageQueue(Message message){
-        Log.i("AddQueue : ", message.content);
-        Log.i("Queue Size : ", Integer.toString(messageQueue.size()));
         messageQueue.offer(message);
         if(!sending){
             sendNextMessageQueue();
