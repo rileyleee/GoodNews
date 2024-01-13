@@ -113,17 +113,32 @@ class MyPageFragment : Fragment() {
         myAge = preferencesUtil.getInt("age", 0)
 
         //어둡게 보기 기능 - 현재 다크 모드 상태에 따라 스위치 상태 설정
-        val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
-        binding.switchDarkMode.isChecked = isDarkMode
-        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // 스위치가 켜졌을 때: 다크 모드로 변경
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                // 스위치가 꺼졌을 때: 라이트 모드로 변경
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-            preferencesUtil.setBoolean("darkMode", isChecked)
+//        val isDarkMode = preferencesUtil.getBoolean("darkMode", false)
+//        binding.switchDarkMode.isChecked = isDarkMode
+//        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+//            if (isChecked) {
+//                // 스위치가 켜졌을 때: 다크 모드로 변경
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+//            } else {
+//                // 스위치가 꺼졌을 때: 라이트 모드로 변경
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+//            }
+//            preferencesUtil.setBoolean("darkMode", isChecked)
+//        }
+
+        // 내 위치 공개하기 기능 -> 기본 값 False?
+        val isMyLocation = preferencesUtil.getBoolean("myLocation", false)
+        binding.switchMyLocation.isChecked = isMyLocation
+        binding.switchMyLocation.setOnCheckedChangeListener { _, isChecked ->
+            // 더 추가해줘야될 부분이 있다면 이 코드를 사용
+//            if (isChecked) {
+//                // 스위치가 켜졌을 때: 내 위치 공개하기
+//
+//            } else {
+//                // 스위치가 꺼졌을 때: 내 위치 공개하지 않기
+//
+//            }
+            preferencesUtil.setBoolean("myLocation", isChecked)
         }
 
         // 지도 다운로드 버튼 클릭 했을 때
@@ -260,7 +275,7 @@ class MyPageFragment : Fragment() {
             binding.age.text = "만 "+ preferencesUtil.getInt("age", 0).toString()+ "세"
             binding.age.isVisible = true
         }
-        binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode", false)
+//        binding.switchDarkMode.isChecked = preferencesUtil.getBoolean("darkMode", false)
     }
 
     //dialog 모달창에 정보 불러오기
