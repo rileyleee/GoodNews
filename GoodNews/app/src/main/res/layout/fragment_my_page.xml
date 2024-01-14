@@ -224,27 +224,67 @@
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@id/contour" />
 
+<!--        <TextView-->
+<!--            android:id="@+id/darkMode"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:text="어둡게 보기"-->
+<!--            android:textColor="@color/font_color"-->
+<!--            android:textSize="21sp"-->
+<!--            app:layout_constraintStart_toStartOf="@+id/guidelineVertical"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/setting" />-->
+
+<!--        <androidx.appcompat.widget.SwitchCompat-->
+<!--            android:id="@+id/switchDarkMode"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textOff=""-->
+<!--            android:textOn=""-->
+<!--            android:thumb="@drawable/switch_track_thumb"-->
+<!--            app:layout_constraintBottom_toBottomOf="@+id/darkMode"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"-->
+<!--            app:layout_constraintTop_toTopOf="@+id/darkMode"-->
+<!--            app:switchMinWidth="0dp"-->
+<!--            app:thumbTextPadding="24dp"-->
+<!--            app:thumbTint="@null"-->
+<!--            app:track="@drawable/switch_track_selector"-->
+<!--            app:trackTint="@null" />-->
+
+<!--        <View-->
+<!--            android:id="@+id/lineDarkMode"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="1dp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:layout_marginBottom="10dp"-->
+<!--            android:background="@color/inactive_gray"-->
+<!--            app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"-->
+<!--            app:layout_constraintStart_toStartOf="@id/guidelineVertical"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/darkMode" />-->
+
+        <!-- 위치 공개 여부 -->
         <TextView
-            android:id="@+id/darkMode"
+            android:id="@+id/myLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="어둡게 보기"
+            android:text="내 위치 공개하기"
             android:textColor="@color/font_color"
             android:textSize="21sp"
             app:layout_constraintStart_toStartOf="@+id/guidelineVertical"
-            app:layout_constraintTop_toBottomOf="@+id/setting" />
+            app:layout_constraintTop_toBottomOf="@id/setting" />
 
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchDarkMode"
+            android:id="@+id/switchMyLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textOff=""
             android:textOn=""
             android:thumb="@drawable/switch_track_thumb"
-            app:layout_constraintBottom_toBottomOf="@+id/darkMode"
+
+            app:layout_constraintBottom_toBottomOf="@+id/myLocation"
             app:layout_constraintEnd_toStartOf="@+id/guidelineVerticalEnd"
-            app:layout_constraintTop_toTopOf="@+id/darkMode"
+            app:layout_constraintTop_toTopOf="@+id/myLocation"
             app:switchMinWidth="0dp"
             app:thumbTextPadding="24dp"
             app:thumbTint="@null"
@@ -252,7 +292,7 @@
             app:trackTint="@null" />
 
         <View
-            android:id="@+id/lineDarkMode"
+            android:id="@+id/lineLocation"
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_marginTop="10dp"
@@ -260,7 +300,7 @@
             android:background="@color/inactive_gray"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
-            app:layout_constraintTop_toBottomOf="@id/darkMode" />
+            app:layout_constraintTop_toBottomOf="@id/myLocation" />
 
 <!--        <TextView-->
 <!--            android:id="@+id/alarm"-->
@@ -313,7 +353,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@id/guidelineVerticalEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
-            app:layout_constraintTop_toBottomOf="@id/lineDarkMode" />
+            app:layout_constraintTop_toBottomOf="@id/lineLocation" />
 
         <!-- 지도 다운로드 버튼 -->
         <androidx.appcompat.widget.AppCompatButton
