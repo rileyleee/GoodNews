@@ -8,21 +8,15 @@ const SubIntro1 = () => {
   return (
     <StyledSubIntro1Wrapper>
       <StyledSubIntro1ContentWrapper className="flex justify-between items-center">
-        <div>
+        <div className="absolute md:relative">
           {/* 주요 설명 (큰 사이즈) */}
           <div>
-            <div className="flex">
-              <Text size="text1" isBold={true}>
-                통신이 불가능
-              </Text>
-              <Text size="text1">할 때,</Text>
-            </div>
-            <div className="flex">
-              <Text size="text1" isBold={true}>
-                Mesh Network
-              </Text>
-              <Text size="text1">로 연결된</Text>
-            </div>
+            <Text size="text1">
+              <strong>통신이 불가능</strong> 할 때,
+            </Text>
+            <Text size="text1">
+              <strong>Mesh Network</strong> 로 연결된
+            </Text>
             <Text size="text1">사람들의 정보를 볼 수 있어요!</Text>
           </div>
           {/* 설명 (작은 사이즈) */}
@@ -33,12 +27,10 @@ const SubIntro1 = () => {
             <Text size="text4" color="Gray">
               나의 상태를 알리고 연락하고 싶지 않으신가요?
             </Text>
-            <div className="flex mt-8">
-              <Text size="text4" color="Gray" isBold={true}>
-                거리, 통신 환경 모두 상관없이
-              </Text>
-              <Text size="text4" color="Gray" className="ml-2">
-                대화하고 도움을 요청하세요!
+            <div className="mt-8">
+              <Text size="text4" color="Gray">
+                <strong>거리, 통신 환경 모두 상관없이</strong> 대화하고 도움을
+                요청하세요!
               </Text>
             </div>
           </div>

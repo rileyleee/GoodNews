@@ -28,31 +28,41 @@ const MainIntro = () => {
   return (
     <StyledMainIntroWrapper>
       {/* 여기에서 이미지 넣어주기 */}
-      <video muted autoPlay loop>
+      <StyledVideo muted autoPlay loop>
         <source src="/assets/mainBackground.mp4" type="video/mp4" />
-      </video>
+      </StyledVideo>
       <StyledMainContentWrapper>
-        {/* 텍스트 wrap */}
-        <div className="ml-24">
+        {/* 텍스트 wrap md 사이즈부터 보이게 */}
+        <div className="ml-24 hidden md:block">
           <Text size="text1">위급 상황의 손길과 소통</Text>
           <Text size="text1" isBold={true}>
+            희소식과 함께, 안전하게!
+          </Text>
+        </div>
+        {/* 텍스트 wrap sm 사이즈만 보이게 (모바일) */}
+        <div className="text-center md:hidden">
+          <Text size="text2">위급 상황의 손길과 소통</Text>
+          <Text size="text2" isBold={true}>
             희소식과 함께, 안전하게!
           </Text>
         </div>
 
         {/* 버튼 wrap */}
         {/* <StyledMainButtonWrapper className="grid gap-4 grid-cols-2"> */}
-        <StyledMainButtonWrapper className="grid gap-4 grid-cols-1">
+        {/* <StyledMainButtonWrapper className="grid gap-4 grid-cols-1"> */}
+        <div className="flex justify-center">
           <Button
             size="Large"
             color="Sub"
             isActive={true}
-            className="drop-shadow-lg"
+            className="drop-shadow-lg w-full md:w-1/2 mt-8"
             onClick={handleMoveDownloadClick}
           >
             희소식 다운로드
           </Button>
-          {/* <Button
+        </div>
+
+        {/* <Button
             size="Large"
             color="Sub"
             isActive={true}
@@ -61,7 +71,7 @@ const MainIntro = () => {
           >
             앱 이용 현황
           </Button> */}
-        </StyledMainButtonWrapper>
+        {/* </StyledMainButtonWrapper> */}
       </StyledMainContentWrapper>
       <StyledLuMouse />
     </StyledMainIntroWrapper>
@@ -82,6 +92,13 @@ const StyledMainContentWrapper = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+`;
+
+// 비디오 반응형 시 설정 변경
+const StyledVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const StyledMainButtonWrapper = styled.div`
