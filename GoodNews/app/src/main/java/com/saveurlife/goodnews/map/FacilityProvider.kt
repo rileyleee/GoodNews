@@ -7,6 +7,9 @@ import com.saveurlife.goodnews.models.OffMapFacility
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
 
 
@@ -20,7 +23,15 @@ class FacilityProvider(private val context: Context) {
     private val copiedEarthquake = mutableListOf<OffMapFacility>()
 
     init {
-        loadDataFromRealm()
+        // 데이터 로드를 백그라운드에서 실행 -> 이렇게 하면 리스트에 담기 전에 로드하려고 해서 터짐
+        // 메인 액티비티에서 해봐야하나?
+
+//        GlobalScope.launch(Dispatchers.IO) {
+//            loadDataFromRealm()
+//        }
+
+        // 기존 코드
+         loadDataFromRealm()
     }
 
     private fun loadDataFromRealm() {

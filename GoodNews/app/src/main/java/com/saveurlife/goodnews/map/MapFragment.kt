@@ -18,6 +18,7 @@ import android.view.ViewTreeObserver
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -71,7 +72,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
     private lateinit var locationProvider: LocationProvider
-    private lateinit var facilityProvider: FacilityProvider
+//    private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
     private var familyMemProvider = FamilyMemProvider()
@@ -200,7 +201,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         locationProvider.initLocationClient()
 
         // 오프라인 시설 정보 제공자
-        facilityProvider = FacilityProvider(requireContext())
+        //facilityProvider = FacilityProvider(requireContext())
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
@@ -312,12 +313,19 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 사용자가 터치할 때마다 경계 변경
         mapView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
-                // 사용자가 화면을 터치하고 뗄 때마다 호출
-                screenRect = mapView.boundingBox
+                // 백그라운드 스레드에서 경계 변경 처리
+                lifecycleScope.launch(Dispatchers.IO) {
+                    // withContext 함수는 코루틴 블록 내에서 다른 디스패처로 전환할 때 사용하는데
+                    // 여기서 Dispatcher.Main은 안드로이드 UI 스레드에서 실행되는 디스패처임
+                    // 사용자의 경계 변경으로 UI가 업데이트 되는 것은 항상 메인 스레드에서 진행되어야 하기 때문
+                    withContext(Dispatchers.Main){
 
-                Log.v("screenRect", "$screenRect")
-
-                handleSelectedCategory(selectedCategory)
+                        // 사용자가 화면을 터치하고 뗄 때마다 호출
+                        screenRect = mapView.boundingBox
+                        Log.v("screenRect", "$screenRect")
+                        handleSelectedCategory(selectedCategory)
+                    }
+                }
             }
             false
         }
@@ -550,12 +558,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 시설 위치 마커로 찍는 함수 내부에서 사용
     private fun addFacilitiesToMap(category: FacilityUIType) {
 
-        // 마커로 찍을 시설 목록 필터링
-        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
-            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
-
-        // 지도 하단 시트에 표시될 리스트 갱신
-        listAdapter.updateData(facilitiesOverlayItems)
+//        // 마커로 찍을 시설 목록 필터링
+//        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
+//            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+//
+//        // 지도 하단 시트에 표시될 리스트 갱신
+//        listAdapter.updateData(facilitiesOverlayItems)
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -566,26 +574,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 리스트 초기화
         previousFacilityOverlayItems.clear()
 
-        // 새 오버레이 생성
-        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
-
-        // 오버레이를 지도에 추가
-        mapView.overlays.add(overlay)
-        mapView.invalidate()
-
-        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
-        previousFacilityOverlayItems.add(overlay)
+//        // 새 오버레이 생성
+//        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+//
+//        // 오버레이를 지도에 추가
+//        mapView.overlays.add(overlay)
+//        mapView.invalidate()
+//
+//        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+//        previousFacilityOverlayItems.add(overlay)
     }
 
     private fun addSubFacilitiesToMap(subCategory: String) {
 
         // 마커로 찍을 시설 목록 필터링
-        val facilitiesOverlayItems =
-            facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
-                .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
-
-        // 지도 하단 시트에 표시될 리스트 갱신
-        listAdapter.updateData(facilitiesOverlayItems)
+//        val facilitiesOverlayItems =
+//            facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+//                .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+//
+//        // 지도 하단 시트에 표시될 리스트 갱신
+//        listAdapter.updateData(facilitiesOverlayItems)
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -596,15 +604,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 리스트 초기화
         previousFacilityOverlayItems.clear()
 
-        // 새 오버레이 생성
-        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
-
-        // 오버레이를 지도에 추가
-        mapView.overlays.add(overlay)
-        mapView.invalidate()
-
-        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
-        previousFacilityOverlayItems.add(overlay)
+//        // 새 오버레이 생성
+//        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+//
+//        // 오버레이를 지도에 추가
+//        mapView.overlays.add(overlay)
+//        mapView.invalidate()
+//
+//        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+//        previousFacilityOverlayItems.add(overlay)
     }
 
     override fun onResume() {
