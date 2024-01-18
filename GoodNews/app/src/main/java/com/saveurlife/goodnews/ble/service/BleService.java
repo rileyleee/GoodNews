@@ -67,6 +67,7 @@ import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 //import com.saveurlife.goodnews.ble.GroupRepository;
+import com.saveurlife.goodnews.ble.DangerInfoRealmRepository;
 import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
@@ -99,6 +100,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
     private FamilyMemProvider familyMemProvider = new FamilyMemProvider();
     private LiveData<List<String>> familyMemIds;
     private AdvertiseManager advertiseManager;
@@ -342,13 +344,15 @@ public class BleService extends Service {
     public void sendMessageHelp() {
 //        sendMessageManager.createHelpMessage(deviceGattMap);
 
+        sendMessageManager.createDangerInfoMessage(deviceGattMap, "1@2023-12-25T14:11:59.000Z@36.3504@127.2978@화재발생");
 
-        Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
-        String formattedDate = sdf.format(now);
-        String groupId = "group" + myId + formattedDate;
-        sendMessageManager.createGroupInviteMessage(deviceGattMap, new ArrayList<String>(),
-                groupId, "그룹");
+
+//        Date now = new Date();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+//        String formattedDate = sdf.format(now);
+//        String groupId = "group" + myId + formattedDate;
+//        sendMessageManager.createGroupInviteMessage(deviceGattMap, new ArrayList<String>(),
+//                groupId, "그룹");
     }
 
     public void sendMessageChat(String receiverId, String receiverName, String content) {
@@ -682,7 +686,10 @@ public class BleService extends Service {
                     spreadMessage(device.getAddress(), message);
                 }
                 else if (messageType.equals("danger")){
-
+                    // 여기서 렘에 위험정보 저장
+                    String dangerInfo=parts[2];
+                    dangerInfoRealmRepository.saveDangerInfoToRealm(message);
+                    spreadMessage(device.getAddress(), message);
                 }
                 mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);
             }
@@ -987,7 +994,11 @@ public class BleService extends Service {
             membersId.add(member.getUserId());
         }
 
-//        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
         sendMessageManager.createGroupInviteMessage(deviceGattMap, membersId, groupId, groupName);
+    }
+
+
+    public void createDangerInfoMessage(String dangerInfo){
+        sendMessageManager.createDangerInfoMessage(deviceGattMap, dangerInfo);
     }
 }
