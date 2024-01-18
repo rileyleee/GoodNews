@@ -72,7 +72,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
     private lateinit var locationProvider: LocationProvider
-//    private lateinit var facilityProvider: FacilityProvider
+    private lateinit var facilityProvider: FacilityProvider
     private lateinit var currGeoPoint: GeoPoint
     private lateinit var screenRect: BoundingBox
     private var familyMemProvider = FamilyMemProvider()
@@ -201,7 +201,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         locationProvider.initLocationClient()
 
         // 오프라인 시설 정보 제공자
-        //facilityProvider = FacilityProvider(requireContext())
+        facilityProvider = FacilityProvider(requireContext()) // ANR 발생하는 곳
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
