@@ -14,11 +14,34 @@ import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.databinding.ActivityTutorialBinding
 import com.saveurlife.goodnews.enterinfo.EnterInfoActivity
+import com.saveurlife.goodnews.main.PreferencesUtil
+import android.content.res.Configuration
+
 
 class TutorialActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTutorialBinding
+//    private lateinit var preferencesUtil: PreferencesUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 다크모드 여부 확인 및 shared preference에 저장
+//        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+//        val isDarkMode = when (nightModeFlags) {
+//            Configuration.UI_MODE_NIGHT_YES -> {
+//                // 다크 모드
+//                true
+//            }
+//            Configuration.UI_MODE_NIGHT_NO -> {
+//                // 라이트 모드
+//                false
+//            }
+//            else -> false
+//        }
+//
+//        // preferenceUtil 초기화
+//        preferencesUtil = PreferencesUtil.getInstance(applicationContext)
+//        // preferenceUtil에 값을 저장
+//        preferencesUtil.setBoolean("darkMode", isDarkMode)
+
         super.onCreate(savedInstanceState)
         binding = ActivityTutorialBinding.inflate(layoutInflater)
         setContentView(binding.root)
