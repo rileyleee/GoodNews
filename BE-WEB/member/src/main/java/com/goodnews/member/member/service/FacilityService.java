@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -102,10 +103,13 @@ public class FacilityService {
     public void saveToRedis(MapRegistFacilityRequestDto request) throws JsonProcessingException {
         // Redis에 데이터 저장
         String key = request.getLat() + ":" + request.getLon();
-        redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.HOURS);
+        // 1시간
+//        redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.HOURS);
+        // 1분
+        redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.MINUTES);
     }
     @Transactional
-    @Scheduled(fixedRate = 300) // 1분마다 실행 (원하는 시간으로 조정 가능)
+    @Scheduled(fixedRate = 60_000) // 1분마다 실행 (원하는 시간으로 조정 가능) 단위 : ms
     public void saveToDatabaseFromRedis() throws JsonProcessingException {
         // Redis에서 모든 키 가져오기
         Set<String> allKeys = redisTemplate.keys("*");
@@ -115,18 +119,41 @@ public class FacilityService {
         for (String key : filteredKeys) {
             String value = redisTemplate.opsForValue().get(key);
             MapRegistFacilityRequestDto request = new ObjectMapper().readValue(value, MapRegistFacilityRequestDto.class);
+
+
             // DB에 동일한 lat, lon이 있는지 확인
             Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-            if (findFacilityState.isPresent()) {
-                // 업데이트 로직
-                findFacilityState.get().updateState(request);
+//            if (findFacilityState.isPresent()) {
+//                // 업데이트 로직
+//                // 만약 수정 시간이 보내온 시간 이후의 경우 -> 업데이트
+//                if(findFacilityState.get())
+//                findFacilityState.get().updateState(request);
+//                // 만약 수정 시간이 이전 시간인 경우 -> 업데이트 하지 않음
+//
+//            } else {
+//                // 삽입 로직
+//                facilityStateRepository.save(FacilityState.builder()
+//                        .mapRegistFacilityRequestDto(request)
+//                        .build());
+//            }
+//            FacilityState findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
+            if(findFacilityState.isPresent()){
+                LocalDateTime lastModifiedDate = findFacilityState.get().getLastModifiedDate();
 
-            } else {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime inputModifiedDate = LocalDateTime.parse(request.getDate(), formatter);
+
+                if(lastModifiedDate.isBefore(inputModifiedDate)){
+                    // 수정 로직
+                    findFacilityState.get().updateState(request);
+                }
+            }else{
                 // 삽입 로직
                 facilityStateRepository.save(FacilityState.builder()
                         .mapRegistFacilityRequestDto(request)
                         .build());
             }
+
         }
     }
 
