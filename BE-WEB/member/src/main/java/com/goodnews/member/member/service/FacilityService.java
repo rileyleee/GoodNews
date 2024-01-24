@@ -75,23 +75,23 @@ public class FacilityService {
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        formatter.parse(request.getDate());
-//        saveToRedis(request);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter.parse(request.getDate());
+        saveToRedis(request);
         // DB에 동일한 lat, lon이 있는지 확인
-        Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-        if (findFacilityState.isPresent()) {
-            // 업데이트 로직
-            findFacilityState.get().updateState(request);
-
-        } else {
-            // 삽입 로직
-            facilityStateRepository.save(FacilityState.builder()
-                    .mapRegistFacilityRequestDto(request)
-                    .build());
-        }
-
-
+//        Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
+//        if (findFacilityState.isPresent()) {
+//            // 업데이트 로직
+//            findFacilityState.get().updateState(request);
+//
+//        } else {
+//            // 삽입 로직
+//            facilityStateRepository.save(FacilityState.builder()
+//                    .mapRegistFacilityRequestDto(request)
+//                    .build());
+//        }
+//
+//
         return BaseResponseDto.builder()
                 .success(true)
                 .message("시설 상태 정보를 등록했습니다")
@@ -105,7 +105,7 @@ public class FacilityService {
         redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.HOURS);
     }
     @Transactional
-//    @Scheduled(fixedRate = 300) // 1분마다 실행 (원하는 시간으로 조정 가능)
+    @Scheduled(fixedRate = 300) // 1분마다 실행 (원하는 시간으로 조정 가능)
     public void saveToDatabaseFromRedis() throws JsonProcessingException {
         // Redis에서 모든 키 가져오기
         Set<String> allKeys = redisTemplate.keys("*");
