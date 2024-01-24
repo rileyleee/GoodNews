@@ -101,11 +101,11 @@ const StyledVideo = styled.video`
   object-fit: cover;
 `;
 
-const StyledMainButtonWrapper = styled.div`
-  width: 50%;
-  margin: 0 auto;
-  margin-top: 52px;
-`;
+// const StyledMainButtonWrapper = styled.div`
+//   width: 50%;
+//   margin: 0 auto;
+//   margin-top: 52px;
+// `;
 
 const StyledLuMouse = styled(LuMouse)`
   color: white;

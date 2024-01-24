@@ -7,11 +7,38 @@ import Text from "../@common/Text";
 const SubIntro1 = () => {
   return (
     <StyledSubIntro1Wrapper>
-      <StyledSubIntro1ContentWrapper className="flex justify-center lg:justify-between items-center">
-        <div className="absolute lg:relative">
-          {/* sm, md 사이즈일 때 */}
+      <StyledSubIntro1ContentWrapper className="flex justify-center lg:justify-between items-center relative">
+        <div className="absolute lg:relative bg-zinc-300/70 md:bg-inherit">
+          {/* sm 사이즈일 때 */}
           {/* 주요 설명 (큰 사이즈) */}
-          <div className="text-center lg:hidden">
+          <div className="text-center md:hidden">
+            <Text size="text4">
+              <strong>통신이 불가능</strong> 할 때,
+            </Text>
+            <Text size="text4">
+              <strong>Mesh Network</strong> 로 연결된
+            </Text>
+            <Text size="text4">사람들의 정보를 볼 수 있어요!</Text>
+          </div>
+          {/* 설명 (sm) */}
+          <div className="mt-8 text-center md:hidden">
+            <Text size="text6" color="Gray">
+              100m 거리의 주변 사람들에게도, <br />
+              멀리 있는 내 가족들에게도
+            </Text>
+            <Text size="text6" color="Gray">
+              나의 상태를 알리고 연락하고 싶지 않으신가요?
+            </Text>
+            <div className="mt-8">
+              <Text size="text6" color="Gray">
+                <strong>거리, 통신 환경 모두 상관없이</strong> <br />
+                대화하고 도움을 요청하세요!
+              </Text>
+            </div>
+          </div>
+
+          {/* 설명 (md 사이즈) */}
+          <div className="text-center hidden md:block lg:hidden">
             <Text size="text3">
               <strong>통신이 불가능</strong> 할 때,
             </Text>
@@ -20,8 +47,7 @@ const SubIntro1 = () => {
             </Text>
             <Text size="text3">사람들의 정보를 볼 수 있어요!</Text>
           </div>
-          {/* 설명 (작은 사이즈) */}
-          <div className="mt-8 text-center lg:hidden">
+          <div className="mt-8 text-center hidden md:block lg:hidden">
             <Text size="text5" color="Gray">
               100m 거리의 주변 사람들에게도, 멀리 있는 내 가족들에게도
             </Text>
