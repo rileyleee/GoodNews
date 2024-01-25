@@ -1,65 +1,118 @@
-import styled from "styled-components"
-import Text from "../@common/Text"
-import Card from "../@common/Card"
+import styled from "styled-components";
+import Text from "../@common/Text";
 
 // 지도 관련 설명
 const SubIntro3 = () => {
-    return(
-        <StyledMapPageWrapper>
-            <StyledMapIntro className="flex flex-row">
-                <div className="basis-1/4 flex items-center justify-center">
-                    <StyledMapImage className="place-items-center" src="/assets/subIntroImg.png"/>
-                </div>
-                <div className="basis-3/4 flex flex-col">
-                    <div className="flex justify-center align-center">
-                        <Text className="mt-20" size="text2"><strong>지도</strong>로 내가 필요한 정보를 한 눈에</Text>
-                    </div>
-                    <div className="mt-10 mx-12 grid grid-cols-3 gap-10">
-                        <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
-                            <StyledFilterImage className="mr-1" src="/assets/mapShelter.png"/>
-                            <Text className="ml-1" size="text4">대피소</Text>
-                        </Card>
-                        <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
-                            <StyledFilterImage className="mr-1" src="/assets/mapHospital.png"/>
-                            <Text className="ml-1" size="text4">병원</Text>
-                        </Card>
-                        <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
-                            <StyledFilterImage className="mr-1" src="/assets/mapMart.png"/>
-                            <Text className="ml-1" size="text4">식료품점</Text>
-                        </Card>
-                        <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
-                            <StyledFilterImage className="mr-1" src="/assets/mapFamily.png"/>
-                            <Text className="ml-1" size="text4">가족 위치</Text>
-                        </Card>
-                        <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
-                            <StyledFilterImage className="mr-1" src="/assets/mapPromise.png"/>
-                            <Text className="ml-1" size="text4">약속 장소</Text>
-                        </Card>
-                        <Card className="flex drop-shadow-lg justify-center items-center h-24" size="Medium" color="SkyBlue">
-                            <StyledFilterImage className="mr-1" src="/assets/mapAroundPerson.png"/>
-                            <Text className="ml-1" size="text4">주변 사람 위치</Text>
-                        </Card>
-                    </div>
-                    <div className="mt-24 mr-12">
-                        <Text className="text-right" size="text4">재난 상황에 맞는 대피소를 확인할 수 있고</Text>
-                        <Text className="text-right" size="text4">사용자의 위험 정보 공유를 통해</Text>
-                        <Text className="text-right" size="text4">대피소 현황을 업데이트하여 피해를 최소화할 수 있어요</Text>
-                    </div>
-                </div>
-            </StyledMapIntro>
-        </StyledMapPageWrapper>
-    )
-}
+  return (
+    <StyledMapPageWrapper>
+      <StyledMapIntro className="flex items-center justify-center lg:justify-around relative">
+        <StyledMapImage
+          className="h-5/6"
+          src="/assets/subIntroImg.png"
+          alt="지도 페이지 소개"
+        />
+        <div className="absolute md:relative bg-zinc-300/70 md:bg-inherit">
+          {/* sm 타이틀 */}
+          <Text size="text4" className="text-center md:hidden">
+            <strong>지도</strong>로 필요한 정보를 한 눈에
+          </Text>
+          {/* md 타이틀 */}
+          <Text
+            size="text3"
+            className="text-center hidden md:block lg:hidden text-center"
+          >
+            <strong>지도</strong>로 필요한 정보를 한 눈에
+          </Text>
+          {/* lg 타이틀 */}
+          <Text size="text2" className="hidden lg:block text-center">
+            <strong>지도</strong>로 필요한 정보를 한 눈에
+          </Text>
+          <div className="my-10 mx-12 grid grid-cols-3 gap-8">
+            <div className="flex drop-shadow-lg justify-around items-center h-24">
+              <StyledFilterImage src="/assets/mapShelter.png" />
+              <Text className="hidden lg:block" size="text5">
+                대피소
+              </Text>
+            </div>
+            <div className="flex drop-shadow-lg justify-around items-center h-24">
+              <StyledFilterImage src="/assets/mapHospital.png" />
+              <Text className="hidden lg:block" size="text5">
+                병원
+              </Text>
+            </div>
+            <div className="flex drop-shadow-lg justify-around items-center h-24">
+              <StyledFilterImage src="/assets/mapMart.png" />
+              <Text className="hidden lg:block" size="text5">
+                식료품점
+              </Text>
+            </div>
+            <div className="flex drop-shadow-lg justify-around items-center h-24">
+              <StyledFilterImage src="/assets/mapFamily.png" />
+              <Text className="hidden lg:block" size="text5">
+                가족 위치
+              </Text>
+            </div>
+            <div className="flex drop-shadow-lg justify-around items-center h-24">
+              <StyledFilterImage src="/assets/mapPromise.png" />
+              <Text className="hidden lg:block" size="text5">
+                약속 장소
+              </Text>
+            </div>
+            <div className="flex drop-shadow-lg justify-around items-center h-24">
+              <StyledFilterImage src="/assets/mapAroundPerson.png" />
+              <Text className="hidden lg:block" size="text5">
+                주변 사람 위치
+              </Text>
+            </div>
+          </div>
+          {/* sm 추가설명 */}
+          <div className="text-center md:hidden">
+            <Text size="text6" color="Gray">
+              재난 상황에 맞는 대피소를 확인이 가능하며,
+            </Text>
+            <Text size="text6" color="Gray">
+              사용자들의 실시간 위험 정보 공유를 통해
+            </Text>
+            <Text size="text6" color="Gray">
+              대피소 상태를 최신화하여 피해를 줄일 수 있어요.
+            </Text>
+          </div>
+          {/* md 추가설명 */}
+          <div className="text-right hidden md:block lg:hidden">
+            <Text size="text5" color="Gray">
+              재난 상황에 맞는 대피소를 확인이 가능하며,
+            </Text>
+            <Text size="text5" color="Gray">
+              사용자들의 실시간 위험 정보 공유를 통해
+            </Text>
+            <Text size="text5" color="Gray">
+              대피소 상태를 최신화하여 피해를 줄일 수 있어요.
+            </Text>
+          </div>
+          {/* lg 추가설명 */}
+          <div className="hidden lg:block text-right">
+            <Text size="text4" color="Gray">
+              재난 상황에 맞는 대피소를 확인이 가능하며,
+            </Text>
+            <Text size="text4" color="Gray">
+              사용자들의 실시간 위험 정보 공유를 통해
+            </Text>
+            <Text size="text4" color="Gray">
+              대피소 상태를 최신화하여 피해를 줄일 수 있어요.
+            </Text>
+          </div>
+        </div>
+      </StyledMapIntro>
+    </StyledMapPageWrapper>
+  );
+};
 
-export default SubIntro3
+export default SubIntro3;
 
 const StyledMapPageWrapper = styled.div`
   width: 100%;
-  height: calc(100vh - 60px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
+  height: 100%;
+`;
 
 const StyledMapIntro = styled.div`
   width: 80%;
@@ -67,10 +120,8 @@ const StyledMapIntro = styled.div`
   margin: 0 auto;
 `;
 
-const StyledMapImage = styled.img`
-    height: 85%;
-`
+const StyledMapImage = styled.img``;
 const StyledFilterImage = styled.img`
-    width: 60px;
-    height: 60px;
-`
+  width: 56px;
+  height: 56px;
+`;
