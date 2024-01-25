@@ -342,9 +342,9 @@ public class BleService extends Service {
     }
 
     public void sendMessageHelp() {
-//        sendMessageManager.createHelpMessage(deviceGattMap);
+        sendMessageManager.createHelpMessage(deviceGattMap);
 
-        sendMessageManager.createDangerInfoMessage(deviceGattMap, "1@2023-12-25T14:11:59.000Z@36.3504@127.2978@화재발생");
+//        sendMessageManager.createDangerInfoMessage(deviceGattMap, "1@2023-12-25T14:11:59.000Z@36.3504@127.2978@화재발생");
 
 
 //        Date now = new Date();

@@ -34,18 +34,18 @@ class DangerInfoRealmRepository {
             val content = infoParts[4]
 
             // 현재 정보 realm에 저장
-            CoroutineScope(Dispatchers.IO).launch {
-                val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-                try {
-                    realm.write {
-                        copyToRealm(MapInstantInfo(state, content, time, latitude, longitude))
-                    }
-                } catch (e: Exception) {
-                    Log.e("EmergencyInfoDialogFragment", "긴급 정보를 Realm에 저장하는 과정에서 오류", e)
-                } finally {
-                    realm.close()
-                }
-            }
+//            CoroutineScope(Dispatchers.IO).launch {
+//                val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+//                try {
+//                    realm.write {
+//                        copyToRealm(MapInstantInfo(state, content, time, latitude, longitude))
+//                    }
+//                } catch (e: Exception) {
+//                    Log.e("EmergencyInfoDialogFragment", "긴급 정보를 Realm에 저장하는 과정에서 오류", e)
+//                } finally {
+//                    realm.close()
+//                }
+//            }
         } else {
             Log.e("EmergencyInfoDialogFragment", "dangerInfo의 형식이 올바르지 않습니다.")
         }

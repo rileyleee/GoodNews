@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.saveurlife.goodnews.GoodNewsApplication;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
+import com.saveurlife.goodnews.ble.service.BleService;
 import com.saveurlife.goodnews.main.PreferencesUtil;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
@@ -26,8 +27,6 @@ public class SendMessageManager {
     private String myName;
 
     private int initUserSize = 2;
-
-//    private PreferencesUtil preferencesUtil=PreferencesUtil.Companion.getInstance((GoodNewsApplication));
 
 
    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
@@ -53,6 +52,27 @@ public class SendMessageManager {
 
     private Queue<Message> messageQueue = new ArrayDeque<>();
 
+   public String[] getOpenLocation1(){
+       if(preferencesUtil.getBoolean("myLocation", false)){
+           String[] location = locationService.getLastKnownLocation().split("/");
+           return location;
+       }
+       else{
+           String[] location=new String[]{"0.0","0.0"};
+           return location;
+       }
+   }
+
+   public String getOpenLocation2(){
+       if(preferencesUtil.getBoolean("myLocation", false)){
+           String[] location = locationService.getLastKnownLocation().split("/");
+           return location[0]+"/"+location[1];
+       }
+       else{
+           return "0.0/0.0";
+       }
+   }
+
     public void createInitMessage(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
@@ -60,7 +80,8 @@ public class SendMessageManager {
 
         Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap = new HashMap<>();
 
-        String[] location = locationService.getLastKnownLocation().split("/");
+//        String[] location = locationService.getLastKnownLocation().split("/");
+        String[] location = getOpenLocation1();
 
         BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));
 
@@ -107,8 +128,7 @@ public class SendMessageManager {
         messageBase.setSenderName(myName);
         messageBase.setSendTime(formattedDate);
         messageBase.setHealthStatus(preferencesUtil.getString("status", "4"));
-        messageBase.setLocation(locationService.getLastKnownLocation());
-
+        messageBase.setLocation(getOpenLocation2());
         String content = messageBase.toString();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
@@ -127,7 +147,7 @@ public class SendMessageManager {
         messageHelp.setSenderName(myName);
         messageHelp.setSendTime(formattedDate);
         messageHelp.setHealthStatus(preferencesUtil.getString("status", "4"));
-        messageHelp.setLocation(locationService.getLastKnownLocation());
+        messageHelp.setLocation(getOpenLocation2());
 
         String content = messageHelp.toString();
 
@@ -148,7 +168,7 @@ public class SendMessageManager {
         messageChat.setSenderName(myName);
         messageChat.setSendTime(formattedDate);
         messageChat.setHealthStatus(preferencesUtil.getString("status", "4"));
-        messageChat.setLocation(locationService.getLastKnownLocation());
+        messageChat.setLocation(getOpenLocation2());
         messageChat.setReceiverId(receiverId);
         messageChat.setReceiverName(receiverName);
         messageChat.setContent(content);
@@ -220,7 +240,7 @@ public class SendMessageManager {
         Date now = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss");
         String formattedDate = sdf.format(now);
-        String[] location = locationService.getLastKnownLocation().split("/");
+        String[] location = getOpenLocation1();
 
         for (BluetoothGatt gatt : deviceGattMap.values()) {
             // 여기서 자기 꺼 빼고 보내게

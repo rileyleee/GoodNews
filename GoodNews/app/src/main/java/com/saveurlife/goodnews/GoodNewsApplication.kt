@@ -68,7 +68,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
             )
         )
 
-//         Realm.deleteRealm(realmConfiguration)
+         Realm.deleteRealm(realmConfiguration)
 
         val realm: Realm = Realm.open(realmConfiguration)
 
