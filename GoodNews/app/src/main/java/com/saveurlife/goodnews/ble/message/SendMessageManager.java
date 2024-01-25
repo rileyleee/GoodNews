@@ -1,5 +1,8 @@
 package com.saveurlife.goodnews.ble.message;
 
+import static com.saveurlife.goodnews.ble.Common.CHARACTERISTIC_UUID;
+import static com.saveurlife.goodnews.ble.Common.SERVICE_UUID;
+
 import android.app.Application;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -18,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SendMessageManager {
+    private static SendMessageManager instance;
+
     private PreferencesUtil preferencesUtil;
     private UUID serviceUUID;
     private UUID characteristicUUID;
@@ -27,6 +32,14 @@ public class SendMessageManager {
     private String myName;
 
     private int initUserSize = 2;
+
+    public static SendMessageManager getInstance(UUID serviceUUID, UUID characteristicUUID,
+                                                 UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName){
+        if(instance==null){
+            instance=new SendMessageManager(serviceUUID, characteristicUUID, userDeviceInfoService, locationService, preferencesUtil, myName);
+        }
+        return instance;
+    }
 
 
    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
@@ -41,6 +54,27 @@ public class SendMessageManager {
     }
 
 
+    public String[] getOpenLocation1(){
+        if(preferencesUtil.getBoolean("myLocation", false)){
+            String[] location = locationService.getLastKnownLocation().split("/");
+            return location;
+        }
+        else{
+            String[] location=new String[]{"0.0","0.0"};
+            return location;
+        }
+    }
+
+    public String getOpenLocation2(){
+        if(preferencesUtil.getBoolean("myLocation", false)){
+            String[] location = locationService.getLastKnownLocation().split("/");
+            return location[0]+"/"+location[1];
+        }
+        else{
+            return "0.0/0.0";
+        }
+    }
+
     static class Message{
        String content;
        BluetoothGatt targetGatt;
@@ -51,27 +85,6 @@ public class SendMessageManager {
     }
 
     private Queue<Message> messageQueue = new ArrayDeque<>();
-
-   public String[] getOpenLocation1(){
-       if(preferencesUtil.getBoolean("myLocation", false)){
-           String[] location = locationService.getLastKnownLocation().split("/");
-           return location;
-       }
-       else{
-           String[] location=new String[]{"0.0","0.0"};
-           return location;
-       }
-   }
-
-   public String getOpenLocation2(){
-       if(preferencesUtil.getBoolean("myLocation", false)){
-           String[] location = locationService.getLastKnownLocation().split("/");
-           return location[0]+"/"+location[1];
-       }
-       else{
-           return "0.0/0.0";
-       }
-   }
 
     public void createInitMessage(BluetoothGatt deviceGatt, Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
         Date now = new Date();

@@ -39,7 +39,7 @@ public class AutoSendMessageService extends Service {
 
         locationService = new LocationService(this);
         userDeviceInfoService = new UserDeviceInfoService(this);
-        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
+        sendMessageManager = SendMessageManager.getInstance(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
         handlerThread = new HandlerThread("MessageServiceHandlerThread");
         handlerThread.start();
