@@ -18,10 +18,12 @@ const SubIntro2 = () => {
             </Text>
           </div>
           <div className="text-center md:hidden">
-            <Text size="text6" className="mb-2">
+            <Text size="text6" className="mb-2" color="Gray">
               재난 시, 가족의 상태와 위치를 확인하고
             </Text>
-            <Text size="text6">가족과 만날 장소도 정할 수 있어요.</Text>
+            <Text size="text6" color="Gray">
+              가족과 만날 장소도 정할 수 있어요.
+            </Text>
           </div>
 
           {/* md 사이즈일 때 */}
@@ -34,10 +36,12 @@ const SubIntro2 = () => {
             </Text>
           </div>
           <div className="hidden md:block lg:hidden">
-            <Text size="text6" className="mb-4">
+            <Text size="text6" className="mb-4" color="Gray">
               재난 시, 가족의 상태와 위치를 확인하고
             </Text>
-            <Text size="text6">가족과 만날 장소도 정할 수 있어요.</Text>
+            <Text size="text6" color="Gray">
+              가족과 만날 장소도 정할 수 있어요.
+            </Text>
           </div>
 
           {/* lg 사이즈일 때 */}
@@ -50,17 +54,19 @@ const SubIntro2 = () => {
             </Text>
           </div>
           <div className="hidden lg:block">
-            <Text size="text4" className="mb-2">
+            <Text size="text4" className="mb-2" color="Gray">
               재난 시, 가족의 상태와 위치를 확인하고
             </Text>
-            <Text size="text4">가족과 만날 장소도 정할 수 있어요.</Text>
+            <Text size="text4" color="Gray">
+              가족과 만날 장소도 정할 수 있어요.
+            </Text>
           </div>
         </div>
 
         <StyledImage
           src="/assets/subintro2_1.png"
           alt="가족 장소 및 추가 페이지"
-          className="h-4/6 lg:h-5/6"
+          className="h-5/6"
         />
       </StyledSubIntro2ContentWrapper>
       <StyledBackgroundImage1
@@ -100,6 +106,4 @@ const StyledBackgroundImage2 = styled.img`
   z-index: -1;
 `;
 
-const StyledImage = styled.img`
-  height: 600px;
-`;
+const StyledImage = styled.img``;

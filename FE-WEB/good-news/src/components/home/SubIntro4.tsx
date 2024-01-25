@@ -37,23 +37,35 @@ const SubIntro4 = () => {
           </div>
 
           <div className="md:hidden text-center bg-zinc-300/70 md:bg-inherit">
-            <Text size="text6">근거리에 위치한</Text>
-            <Text size="text6">상대방과 소통하기 어려울 때</Text>
-            <Text size="text6">
+            <Text size="text6" color="Gray">
+              근거리에 위치한
+            </Text>
+            <Text size="text6" color="Gray">
+              상대방과 소통하기 어려울 때
+            </Text>
+            <Text size="text6" color="Gray">
               <strong>모스부호</strong>를 만들어 소통할 수 있어요
             </Text>
           </div>
           <div className="hidden md:block lg:hidden">
-            <Text size="text5">근거리에 위치한</Text>
-            <Text size="text5">상대방과 소통하기 어려울 때</Text>
-            <Text size="text5">
+            <Text size="text5" color="Gray">
+              근거리에 위치한
+            </Text>
+            <Text size="text5" color="Gray">
+              상대방과 소통하기 어려울 때
+            </Text>
+            <Text size="text5" color="Gray">
               <strong>모스부호</strong>를 만들어 소통할 수 있어요
             </Text>
           </div>
           <div className="hidden lg:block">
-            <Text size="text4">근거리에 위치한</Text>
-            <Text size="text4">상대방과 소통하기 어려울 때</Text>
-            <Text size="text4">
+            <Text size="text4" color="Gray">
+              근거리에 위치한
+            </Text>
+            <Text size="text4" color="Gray">
+              상대방과 소통하기 어려울 때
+            </Text>
+            <Text size="text4" color="Gray">
               <strong>모스부호</strong>를 만들어 소통할 수 있어요
             </Text>
           </div>

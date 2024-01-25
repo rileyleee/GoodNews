@@ -65,13 +65,13 @@ const SubIntro1 = () => {
           {/* x-lg 사이즈일 때부터 */}
           {/* 주요 설명 (큰 사이즈) */}
           <div className="hidden xl:block">
-            <Text size="text1">
+            <Text size="text2">
               <strong>통신이 불가능</strong> 할 때,
             </Text>
-            <Text size="text1">
+            <Text size="text2">
               <strong>Mesh Network</strong> 로 연결된
             </Text>
-            <Text size="text1">사람들의 정보를 볼 수 있어요!</Text>
+            <Text size="text2">사람들의 정보를 볼 수 있어요!</Text>
           </div>
           {/* lg 사이즈일 때부터 */}
           {/* 주요 설명 (큰 사이즈) */}
