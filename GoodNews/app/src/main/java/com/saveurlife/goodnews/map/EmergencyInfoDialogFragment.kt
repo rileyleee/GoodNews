@@ -118,6 +118,8 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                         time = timeRealmInstant
                     })
                 }
+
+
                 val mapAPI = MapAPI()
                 val syncService = SyncService()
                 val deviceStateService = DeviceStateService()
@@ -128,6 +130,8 @@ class EmergencyInfoDialogFragment : DialogFragment() {
                         mapAPI.registMapFacility(false, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
                     }
                 }
+
+                // BleService.createDangerInfoMessage("state/time/latitude/longitude/content") 호출하도록 해주실 분?
 
                 withContext(Dispatchers.Main) {
                     // UI 스레드에서 성공 메시지 표시

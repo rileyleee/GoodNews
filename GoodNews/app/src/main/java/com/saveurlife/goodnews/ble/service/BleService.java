@@ -67,6 +67,7 @@ import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 //import com.saveurlife.goodnews.ble.GroupRepository;
+import com.saveurlife.goodnews.ble.DangerInfoRealmRepository;
 import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
@@ -99,6 +100,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
     private FamilyMemProvider familyMemProvider = new FamilyMemProvider();
     private LiveData<List<String>> familyMemIds;
     private AdvertiseManager advertiseManager;
@@ -112,7 +114,6 @@ public class BleService extends Service {
 
     public class LocalBinder extends Binder {
         public BleService getService() {
-            // Return this instance of BleService so clients can call public methods
             return BleService.this;
         }
     }
@@ -182,7 +183,7 @@ public class BleService extends Service {
 
 
         locationService = new LocationService(this);
-        userDeviceInfoService = new UserDeviceInfoService(this);
+        userDeviceInfoService = UserDeviceInfoService.getInstance(this);
         myId = userDeviceInfoService.getDeviceId();
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -214,7 +215,7 @@ public class BleService extends Service {
         mGattServer.addService(service);
 
 
-        sendMessageManager = new SendMessageManager(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
+        sendMessageManager = SendMessageManager.getInstance(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
 
         advertiseManager = AdvertiseManager.getInstance(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
         scanManager = ScanManager.getInstance(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
@@ -248,8 +249,11 @@ public class BleService extends Service {
                 Log.i("disconnect", Integer.toString(bleMeshConnectedDevicesMap.size()));
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
-                sendMessageManager.sendMessageDisconnect(gatt);
-                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+//                sendMessageManager.sendMessageDisconnect(gatt);
+//                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+
+                sendMessageManager.createDisconnectMessage(gatt);
+                sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
             }
         } else {
             connectToDevice(selectedDevice);
@@ -290,8 +294,11 @@ public class BleService extends Service {
 
             deviceArrayListNameLiveData.postValue(deviceArrayListName);
 
-            sendMessageManager.sendMessageDisconnect(gatt);
-            sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+//            sendMessageManager.sendMessageDisconnect(gatt);
+//            sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+
+            sendMessageManager.createDisconnectMessage(gatt);
+            sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
 
         }
     }
@@ -330,29 +337,37 @@ public class BleService extends Service {
     }
 
     public static void sendMessageBase() {
-        sendMessageManager.sendMessageBase(deviceGattMap);
+//        sendMessageManager.sendMessageBase(deviceGattMap);
+        sendMessageManager.createBaseMessage(deviceGattMap);
     }
 
     public void sendMessageHelp() {
+        sendMessageManager.createHelpMessage(deviceGattMap);
 
-        // 여기에 메시지 전송 로직을 구현합니다.
-        sendMessageManager.sendMessageHelp(deviceGattMap);
+//        sendMessageManager.createDangerInfoMessage(deviceGattMap, "1@2023-12-25T14:11:59.000Z@36.3504@127.2978@화재발생");
+
+
+//        Date now = new Date();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmssSSS");
+//        String formattedDate = sdf.format(now);
+//        String groupId = "group" + myId + formattedDate;
+//        sendMessageManager.createGroupInviteMessage(deviceGattMap, new ArrayList<String>(),
+//                groupId, "그룹");
     }
 
     public void sendMessageChat(String receiverId, String receiverName, String content) {
-        // 여기에 메시지 전송 로직을 구현합니다.
-        sendMessageManager.sendMessageChat(deviceGattMap, receiverId, receiverName, content);
+        sendMessageManager.createChatMessage(deviceGattMap, receiverId, receiverName, content);
     }
 
     public void sendMessageGroupInvite(List<String> receiverIds, String groupId, String groupName) {
-        sendMessageManager.sendMessageGroupInvite(deviceGattMap, receiverIds, groupId, groupName);
+        sendMessageManager.createGroupInviteMessage(deviceGattMap, receiverIds, groupId, groupName);
     }
 
     private void spreadMessage(String address, String content) {
         Map<String, BluetoothGatt> spreadDeviceGattMap = new HashMap<>();
         spreadDeviceGattMap.putAll(deviceGattMap);
         spreadDeviceGattMap.remove(address);
-        sendMessageManager.spreadMessage(spreadDeviceGattMap, content);
+        sendMessageManager.createSpreadMessage(spreadDeviceGattMap, content);
     }
 
 
@@ -421,7 +436,7 @@ public class BleService extends Service {
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
-                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+                sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
             }
         }
 
@@ -440,7 +455,6 @@ public class BleService extends Service {
 
                 if (senderId.equals(myId)) return;
 
-                // 처음 연결 시 내 메시 네트워크 유저 정보 교환
                 if (messageType.equals("init")) {
                     String maxSize = parts[2];
                     String nowSize = parts[3];
@@ -502,7 +516,6 @@ public class BleService extends Service {
 
                     spreadMessage(device.getAddress(), message);
                 }
-                // 지속적 위치, 상태 정보 뿌리기
                 else if (messageType.equals("base")) {
                     BleMeshConnectedUser existingUser = null;
                     spreadMessage(device.getAddress(), message);
@@ -518,7 +531,6 @@ public class BleService extends Service {
 
                     }
                 }
-                // 모두에게 구조요청
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
                     if (!goodNewsApplication.isInBackground()) {
@@ -531,7 +543,6 @@ public class BleService extends Service {
 //                        sendNotification(message);
                     spreadMessage(device.getAddress(), message);
                 }
-                // 특정 대상에게 채팅
                 else if (messageType.equals("chat")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
                     String targetId = parts[7];
@@ -613,7 +624,7 @@ public class BleService extends Service {
                         }
                     }
 
-                    sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
+                    sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
                 }
                 else if (messageType.equals("change")) {
                     Log.i("bleMeshConnectedDevicesMap", message);
@@ -672,6 +683,12 @@ public class BleService extends Service {
                         bleMeshConnectedDevicesMap.get(device.getAddress()).putAll(insert);
                     }
 
+                    spreadMessage(device.getAddress(), message);
+                }
+                else if (messageType.equals("danger")){
+                    // 여기서 렘에 위험정보 저장
+                    String dangerInfo=parts[2];
+                    dangerInfoRealmRepository.saveDangerInfoToRealm(dangerInfo);
                     spreadMessage(device.getAddress(), message);
                 }
                 mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);
@@ -977,6 +994,11 @@ public class BleService extends Service {
             membersId.add(member.getUserId());
         }
 
-        sendMessageManager.sendMessageGroupInvite(deviceGattMap, membersId, groupId, groupName);
+        sendMessageManager.createGroupInviteMessage(deviceGattMap, membersId, groupId, groupName);
+    }
+
+
+    public void createDangerInfoMessage(String dangerInfo){
+        sendMessageManager.createDangerInfoMessage(deviceGattMap, dangerInfo);
     }
 }

@@ -43,7 +43,7 @@ class FamilySync(private val context: Context) {
     fun fetchFamily(){
         preferences = GoodNewsApplication.preferences
         syncTime = preferences.getLong("SyncTime",0L)
-        userDeviceInfoService = UserDeviceInfoService(context)
+        userDeviceInfoService = UserDeviceInfoService.getInstance(context)
         phoneId = userDeviceInfoService.deviceId
         mapAPI = MapAPI()
         familyAPI = FamilyAPI()

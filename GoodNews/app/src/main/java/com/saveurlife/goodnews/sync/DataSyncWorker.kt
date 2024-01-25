@@ -65,7 +65,7 @@ class DataSyncWorker (context: Context, workerParams: WorkerParameters) : Worker
 
     override fun doWork(): Result {
         // 실행 시 이전 동기화 이후 모든 데이터를 전송한다.
-        val userDeviceInfoService = UserDeviceInfoService(applicationContext)
+        val userDeviceInfoService = UserDeviceInfoService.getInstance(applicationContext)
 
 
         preferences = GoodNewsApplication.preferences

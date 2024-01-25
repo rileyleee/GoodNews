@@ -63,7 +63,7 @@ class InitSyncWorker(context: Context, workerParams: WorkerParameters) : Worker(
 
     override fun doWork(): Result {
         // 초기에 기존 정보를 가져 오고자 할 경우 모든 정보를 realm에 저장한다.
-        val userDeviceInfoService = UserDeviceInfoService(applicationContext)
+        val userDeviceInfoService = UserDeviceInfoService.getInstance(applicationContext)
 
         // 기기 id를 가져온다
         realm = Realm.open(GoodNewsApplication.realmConfiguration)

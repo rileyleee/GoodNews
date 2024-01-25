@@ -35,7 +35,7 @@ import kotlin.properties.Delegates
 
 class BackgroundLocationProvider(private val context: Context) {
 
-    private val userDeviceInfoService = UserDeviceInfoService(context)
+    private val userDeviceInfoService = UserDeviceInfoService.getInstance(context)
     private val memberId = userDeviceInfoService.deviceId
     private var currentTime by Delegates.notNull<Long>()
     private val emergencyAlarmProvider = EmergencyAlarmProvider(context)

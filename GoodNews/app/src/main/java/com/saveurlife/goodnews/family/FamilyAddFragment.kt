@@ -32,7 +32,7 @@ class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFrag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        userDeviceInfoService = UserDeviceInfoService(requireContext())
+        userDeviceInfoService = UserDeviceInfoService.getInstance(requireContext())
         memberId = userDeviceInfoService.deviceId
 
 
