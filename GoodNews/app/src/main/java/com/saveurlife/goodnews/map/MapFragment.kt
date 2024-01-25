@@ -558,12 +558,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     // 시설 위치 마커로 찍는 함수 내부에서 사용
     private fun addFacilitiesToMap(category: FacilityUIType) {
 
-//        // 마커로 찍을 시설 목록 필터링
-//        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
-//            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
-//
-//        // 지도 하단 시트에 표시될 리스트 갱신
-//        listAdapter.updateData(facilitiesOverlayItems)
+        // 마커로 찍을 시설 목록 필터링
+        val facilitiesOverlayItems = facilityProvider.getFilteredFacilities(category)
+            .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 지도 하단 시트에 표시될 리스트 갱신
+        listAdapter.updateData(facilitiesOverlayItems)
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -574,26 +574,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 리스트 초기화
         previousFacilityOverlayItems.clear()
 
-//        // 새 오버레이 생성
-//        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
-//
-//        // 오버레이를 지도에 추가
-//        mapView.overlays.add(overlay)
-//        mapView.invalidate()
-//
-//        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
-//        previousFacilityOverlayItems.add(overlay)
+        // 새 오버레이 생성
+        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+
+        // 오버레이를 지도에 추가
+        mapView.overlays.add(overlay)
+        mapView.invalidate()
+
+        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+        previousFacilityOverlayItems.add(overlay)
     }
 
     private fun addSubFacilitiesToMap(subCategory: String) {
 
         // 마커로 찍을 시설 목록 필터링
-//        val facilitiesOverlayItems =
-//            facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
-//                .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
-//
-//        // 지도 하단 시트에 표시될 리스트 갱신
-//        listAdapter.updateData(facilitiesOverlayItems)
+        val facilitiesOverlayItems =
+            facilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+                .filter { screenRect.contains(GeoPoint(it.latitude, it.longitude)) }
+
+        // 지도 하단 시트에 표시될 리스트 갱신
+        listAdapter.updateData(facilitiesOverlayItems)
 
         // 기존에 표시된 마커 제거
         previousFacilityOverlayItems.forEach { previousOverlay ->
@@ -604,15 +604,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         // 리스트 초기화
         previousFacilityOverlayItems.clear()
 
-//        // 새 오버레이 생성
-//        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
-//
-//        // 오버레이를 지도에 추가
-//        mapView.overlays.add(overlay)
-//        mapView.invalidate()
-//
-//        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
-//        previousFacilityOverlayItems.add(overlay)
+        // 새 오버레이 생성
+        val overlay = createOverlayWithOptions(facilitiesOverlayItems)
+
+        // 오버레이를 지도에 추가
+        mapView.overlays.add(overlay)
+        mapView.invalidate()
+
+        // 현재 보이는 범위에 있는 시설 정보를 이전 마커로 새로 등록
+        previousFacilityOverlayItems.add(overlay)
     }
 
     override fun onResume() {
@@ -678,7 +678,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         if (category == FacilityUIType.SHELTER) {
             val subCategory = binding.subCategoryWrap
             subCategory.visibility = View.VISIBLE
-//            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
+            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
