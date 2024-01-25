@@ -85,7 +85,7 @@ class MyPageFragment : Fragment() {
         super.onAttach(context)
         // 여기서 userDeviceInfoService를 초기화
         preferencesUtil = PreferencesUtil(context)
-        userDeviceInfoService = UserDeviceInfoService(context)
+        userDeviceInfoService = UserDeviceInfoService.getInstance(context)
         memberId = userDeviceInfoService.deviceId
     }
 

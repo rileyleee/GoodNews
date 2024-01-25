@@ -42,7 +42,7 @@ public class SendMessageManager {
     }
 
 
-   public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
+   private SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
                               UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;

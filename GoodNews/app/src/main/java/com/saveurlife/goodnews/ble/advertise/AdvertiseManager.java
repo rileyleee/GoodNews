@@ -33,9 +33,6 @@ public class AdvertiseManager {
     private String myId;
     private String myName;
 
-
-
-
     public static AdvertiseManager getInstance(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
                                                String myId, String myName) {
         if (instance == null) {
@@ -45,7 +42,7 @@ public class AdvertiseManager {
     }
 
 
-    public AdvertiseManager(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
+    private AdvertiseManager(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
                             String myId, String myName){
         this.mBluetoothAdapter = mBluetoothAdapter;
         this.mBluetoothLeAdvertiser = mBluetoothLeAdvertiser;

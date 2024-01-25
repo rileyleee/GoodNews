@@ -183,7 +183,7 @@ public class BleService extends Service {
 
 
         locationService = new LocationService(this);
-        userDeviceInfoService = new UserDeviceInfoService(this);
+        userDeviceInfoService = UserDeviceInfoService.getInstance(this);
         myId = userDeviceInfoService.getDeviceId();
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

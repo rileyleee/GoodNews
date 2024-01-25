@@ -42,7 +42,7 @@ class AllDataSync(private val context: Context) {
     private var newTime by Delegates.notNull<Long>()
 
     fun fetchAllData(){
-        val userDeviceInfoService = UserDeviceInfoService(context)
+        val userDeviceInfoService = UserDeviceInfoService.getInstance(context)
 
         preferences = GoodNewsApplication.preferences
         phoneId = userDeviceInfoService.deviceId
