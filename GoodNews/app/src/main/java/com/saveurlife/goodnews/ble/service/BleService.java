@@ -688,7 +688,7 @@ public class BleService extends Service {
                 else if (messageType.equals("danger")){
                     // 여기서 렘에 위험정보 저장
                     String dangerInfo=parts[2];
-                    dangerInfoRealmRepository.saveDangerInfoToRealm(message);
+                    dangerInfoRealmRepository.saveDangerInfoToRealm(dangerInfo);
                     spreadMessage(device.getAddress(), message);
                 }
                 mGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, value);

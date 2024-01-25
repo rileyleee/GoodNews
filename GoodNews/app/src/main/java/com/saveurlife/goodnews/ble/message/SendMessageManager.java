@@ -1,11 +1,13 @@
 package com.saveurlife.goodnews.ble.message;
 
+import android.app.Application;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
 
+import com.saveurlife.goodnews.GoodNewsApplication;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.main.PreferencesUtil;
 import com.saveurlife.goodnews.service.LocationService;
@@ -24,6 +26,9 @@ public class SendMessageManager {
     private String myName;
 
     private int initUserSize = 2;
+
+//    private PreferencesUtil preferencesUtil=PreferencesUtil.Companion.getInstance((GoodNewsApplication));
+
 
    public SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
                               UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
