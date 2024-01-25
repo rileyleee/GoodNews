@@ -5,19 +5,39 @@ import Text from "../@common/Text";
 
 // 메인페이지의 다운로드 부분(qr, 링크)
 const DownloadIntro = () => {
-
   const handleDownloadClick = () => {
     window.location.href = "https://saveurlife.kr/images/goodnews.apk";
-  }
+  };
 
   return (
     <>
       <StyledDownloadPageWrapper>
         <StyledDownloadIntro>
-          <Text className="grid place-items-center pt-20" size="text4">언제 발생할지 모를 재난</Text>
-          <Text className="grid place-items-center" size="text4">여러분도 미리 대비하시는게 어떨까요?</Text>
-          <div className="flex justify-center align-center pt-10">
-            <Text size="text2">이제 <strong>희소식</strong>과 함께 시작하세요.</Text>
+          {/* md 사이즈에서 보임 */}
+          <div className="hidden md:block">
+            <Text className="grid place-items-center pt-20" size="text4">
+              언제 발생할지 모를 재난
+            </Text>
+            <Text className="grid place-items-center" size="text4">
+              여러분도 미리 대비하시는게 어떨까요?
+            </Text>
+          </div>
+          {/* sm 사이즈에서 보임 (모바일) */}
+          <div className="md:hidden">
+            <Text className="grid place-items-center pt-20" size="text5">
+              언제 발생할지 모를 재난
+            </Text>
+            <Text className="grid place-items-center" size="text5">
+              여러분도 미리 대비하시는게 어떨까요?
+            </Text>
+          </div>
+          <div className="flex justify-center align-center pt-4">
+            <Text size="text4" className="md:hidden">
+              이제 <strong>희소식</strong>과 함께 시작하세요.
+            </Text>
+            <Text size="text2" className="hidden md:block">
+              이제 <strong>희소식</strong>과 함께 시작하세요.
+            </Text>
           </div>
           {/* <Text className="grid place-items-center pb-6" size="text4">현재까지 2,368,493건의 다운로드</Text> */}
           <div className="grid place-items-center">
@@ -30,19 +50,20 @@ const DownloadIntro = () => {
               isActive={true}
               ><StyledPlayStore src="/assets/googlePlay.png" alt="Download Icon"/>Google Play에서 다운로드</Button> */}
             <Button
-              className="px-8 drop-shadow-lg w-80"
+              className="px-8 drop-shadow-lg w-full md:w-80"
               size="Large"
               color="Undefined"
               onClick={handleDownloadClick}
               isActive={true}
-              >희소식 다운로드</Button>
+            >
+              희소식 다운로드
+            </Button>
           </div>
         </StyledDownloadIntro>
-      <Footer />
+        <Footer />
       </StyledDownloadPageWrapper>
     </>
   );
-  
 };
 
 export default DownloadIntro;
@@ -50,8 +71,8 @@ export default DownloadIntro;
 const StyledDownloadPageWrapper = styled.div`
   width: 100%;
   height: 100%;
-  background-color: #E7ECEF;
-`
+  background-color: #e7ecef;
+`;
 
 const StyledDownloadIntro = styled.div`
   width: 80%;
@@ -65,7 +86,7 @@ const StyledQrCode = styled.img`
   height: 120px;
   margin-bottom: 20px;
   margin-top: 20px;
-`
+`;
 
 // const StyledPlayStore = styled.img`
 //   width: 30px;

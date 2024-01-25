@@ -22,6 +22,8 @@ const HomePage: React.FC = () => {
       // "mapIntro",
       "downloadIntro",
     ],
+    arrowNavigation: true,    // 위아래 화살표로 이동 가능
+    scrollBar: false,
   };
 
   return (
