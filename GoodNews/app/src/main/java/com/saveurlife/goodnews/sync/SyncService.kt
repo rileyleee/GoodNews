@@ -78,4 +78,9 @@ class SyncService {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss", Locale.getDefault())
         return dateFormat.format(date)
     }
+
+    // Long으로 된 ms 시간 -> RealmInstance 변경
+    fun convertLongToRealmInstant(time:Long):RealmInstant{
+        return RealmInstant.from(time / 1000, (time % 1000).toInt())
+    }
 }

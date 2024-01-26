@@ -110,7 +110,6 @@ class AllDataSync(private val context: Context) {
 
     // 가족 구성원 정보
     private fun fetchDataFamilyMemInfo() {
-        Log.d("ttest","여기")
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
 
         GlobalScope.launch {
@@ -143,15 +142,14 @@ class AllDataSync(private val context: Context) {
                                         latitude = result2!!.lat
                                         longitude = result2!!.lon
                                         familyId = it.familyId
-                                    })
+                                    }
+                                )
                             }
-
                         }
 
                         override fun onFailure(error: String) {
 
                         }
-
                     })
                 }
             }
@@ -223,12 +221,17 @@ class AllDataSync(private val context: Context) {
     private fun fetchDataMapInstantInfo() {
         // 마지막 시간 보다 변경시간이 작을 경우
         // 모두 보내서 반영한다. -> 수정 필요
+        val syncService = SyncService()
 
         val oldData = realm.query<MapInstantInfo>().find()
+        // 시간 기준 필터링
+        val result:List<MapInstantInfo> = oldData.filter { it.time > syncService.convertLongToRealmInstant(syncTime) }
 
-        val syncService = SyncService()
-        if(oldData!=null){
-            oldData.forEach {
+        // 마지막 연결 시각 이후 변경된 리스트 불러오기
+        // 모두 보내기 -> 서버에서 중복 데이터 처리
+
+        if(result!=null){
+            result.forEach {
                 if(it.state =="1"){
                     mapAPI.registMapFacility(true, it.content, it.latitude, it.longitude, syncService.realmInstantToString(it.time))
                 }else{
@@ -251,6 +254,9 @@ class AllDataSync(private val context: Context) {
                         }
                         val localDateTime = LocalDateTime.parse(it.lastModifiedDate, formatter)
                         val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+
+                        // 여기서 존재 여부에 따라 처리해 준다.
+                        // 서버에서 ID 받아오는 것 처리 한 이후에 바꿔야 하는 부분
                         realm.writeBlocking {
                             copyToRealm(
                                 MapInstantInfo().apply {
