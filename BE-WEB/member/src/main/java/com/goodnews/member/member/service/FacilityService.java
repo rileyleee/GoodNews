@@ -123,20 +123,7 @@ public class FacilityService {
 
             // DB에 동일한 lat, lon이 있는지 확인
             Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-//            if (findFacilityState.isPresent()) {
-//                // 업데이트 로직
-//                // 만약 수정 시간이 보내온 시간 이후의 경우 -> 업데이트
-//                if(findFacilityState.get())
-//                findFacilityState.get().updateState(request);
-//                // 만약 수정 시간이 이전 시간인 경우 -> 업데이트 하지 않음
-//
-//            } else {
-//                // 삽입 로직
-//                facilityStateRepository.save(FacilityState.builder()
-//                        .mapRegistFacilityRequestDto(request)
-//                        .build());
-//            }
-//            FacilityState findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
+
             if(findFacilityState.isPresent()){
                 LocalDateTime lastModifiedDate = findFacilityState.get().getLastModifiedDate();
 
