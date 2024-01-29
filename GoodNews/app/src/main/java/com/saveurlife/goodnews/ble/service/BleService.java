@@ -4,7 +4,6 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 
 import static com.saveurlife.goodnews.ble.Common.CHARACTERISTIC_UUID;
-import static com.saveurlife.goodnews.ble.Common.DEVICEINFO_UUID;
 import static com.saveurlife.goodnews.ble.Common.SERVICE_UUID;
 
 import android.Manifest;
@@ -14,25 +13,14 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.AdvertiseCallback;
-import android.bluetooth.le.AdvertiseData;
-import android.bluetooth.le.AdvertiseSettings;
-import android.bluetooth.le.AdvertisingSet;
-import android.bluetooth.le.AdvertisingSetCallback;
-import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
@@ -42,13 +30,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,16 +49,13 @@ import androidx.lifecycle.Observer;
 import com.saveurlife.goodnews.GoodNewsApplication;
 import com.saveurlife.goodnews.R;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
-//import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
-//import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.DangerInfoRealmRepository;
 import com.saveurlife.goodnews.ble.GroupRepository;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
-//import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.GroupDatabaseManager;
 import com.saveurlife.goodnews.ble.message.SendMessageManager;
 import com.saveurlife.goodnews.ble.scan.ScanManager;
@@ -86,7 +69,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -924,13 +906,12 @@ public class BleService extends Service {
         return chatRepository.getChatRoomMessages(chatRoomId);
     }
 
-    public LiveData<List<String>> getAllChatRoomIds() {
-        return chatRepository.getAllChatRoomIds();
+    public MutableLiveData<List<ChatMessage>> getReadUpdatedChatRoomMessages(String chatRoomId) {
+        return chatRepository.getReadUpdatedChatRoomMessages(chatRoomId);
     }
 
-    public void updateIsReadStatus(String chatRoomId) {
-        chatRepository.updateIsReadStatus(chatRoomId);
-        chatRepository.getChatRoomMessages(chatRoomId);
+    public LiveData<List<String>> getAllChatRoomIds() {
+        return chatRepository.getAllChatRoomIds();
     }
 
 
@@ -1001,4 +982,7 @@ public class BleService extends Service {
     public void createDangerInfoMessage(String dangerInfo){
         sendMessageManager.createDangerInfoMessage(deviceGattMap, dangerInfo);
     }
+
+
+
 }
