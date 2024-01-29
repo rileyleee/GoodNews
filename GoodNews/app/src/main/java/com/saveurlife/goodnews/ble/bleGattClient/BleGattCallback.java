@@ -35,7 +35,7 @@ public class BleGattCallback extends BluetoothGattCallback {
 
 
 
-    public BleGattCallback(String myId, String myName,
+    private BleGattCallback(String myId, String myName,
                            ChatRepository chatRepository,
                            SendMessageManager sendMessageManager,
                            Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){

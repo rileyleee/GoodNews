@@ -1,18 +1,11 @@
 package com.saveurlife.goodnews.ble.message;
 
-import static com.saveurlife.goodnews.ble.Common.CHARACTERISTIC_UUID;
-import static com.saveurlife.goodnews.ble.Common.SERVICE_UUID;
-
-import android.app.Application;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
-
-import com.saveurlife.goodnews.GoodNewsApplication;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
-import com.saveurlife.goodnews.ble.service.BleService;
 import com.saveurlife.goodnews.main.PreferencesUtil;
 import com.saveurlife.goodnews.service.LocationService;
 import com.saveurlife.goodnews.service.UserDeviceInfoService;
@@ -31,7 +24,7 @@ public class SendMessageManager {
     private String myId;
     private String myName;
 
-    private int initUserSize = 2;
+    private int initUserSize = 1;
 
     public static SendMessageManager getInstance(UUID serviceUUID, UUID characteristicUUID,
                                                  UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName){
@@ -93,7 +86,6 @@ public class SendMessageManager {
 
         Map<String, BleMeshConnectedUser> newBleMeshConnectedDevicesMap = new HashMap<>();
 
-//        String[] location = locationService.getLastKnownLocation().split("/");
         String[] location = getOpenLocation1();
 
         BleMeshConnectedUser bleMeshConnectedUser = new BleMeshConnectedUser(myId, myName, formattedDate, preferencesUtil.getString("status", "4"), Double.parseDouble(location[0]), Double.parseDouble(location[1]));

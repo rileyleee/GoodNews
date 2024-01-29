@@ -12,14 +12,38 @@ class ChatRepository(private val chatDatabaseManager: ChatDatabaseManager) {
 
 
     fun getChatRoomMessages(chatRoomId: String): MutableLiveData<List<ChatMessage>> {
-        return chatRoomMessagesLiveData.getOrPut(chatRoomId) {
-            MutableLiveData<List<ChatMessage>>().apply {
-                chatDatabaseManager.getChatMessagesForChatRoom(chatRoomId) { messages ->
-                    postValue(messages)
+        val liveData = chatRoomMessagesLiveData.getOrPut(chatRoomId) {
+            MutableLiveData<List<ChatMessage>>()
+        }
+        chatDatabaseManager.getChatMessagesForChatRoom(chatRoomId) { messages ->
+            liveData.postValue(messages)
+            // 로그로 메시지 출력
+            messages.forEach { message ->
+                Log.d("그냥메시지", "Message: ${message.content}, IsRead: ${message.isRead}")
+            }
+        }
+        return liveData
+    }
+
+    fun getReadUpdatedChatRoomMessages(chatRoomId: String): MutableLiveData<List<ChatMessage>> {
+        val liveData = chatRoomMessagesLiveData.getOrPut(chatRoomId) {
+            MutableLiveData<List<ChatMessage>>()
+        }
+        // '읽음' 상태를 업데이트하고 채팅 메시지를 가져오는 로직
+        chatDatabaseManager.updateIsReadStatus(chatRoomId) {
+            chatDatabaseManager.getChatMessagesForChatRoom(chatRoomId) { messages ->
+                liveData.postValue(messages)
+                // 로그로 메시지 출력
+                messages.forEach { message ->
+                    Log.d("읽음처리메시지", "Message: ${message.content}, IsRead: ${message.isRead}")
                 }
             }
         }
+        return liveData
     }
+
+
+
 
     fun getAllChatRoomIds(): LiveData<List<String>> {
         val chatRoomIdsLiveData = MutableLiveData<List<String>>()
@@ -47,6 +71,7 @@ class ChatRepository(private val chatDatabaseManager: ChatDatabaseManager) {
 
     fun updateIsReadStatus(chatRoomId: String) {
         chatDatabaseManager.updateIsReadStatus(chatRoomId) {
+            getReadUpdatedChatRoomMessages(chatRoomId)
             // 업데이트가 성공했을 때 수행할 작업을 여기에 추가하십시오.
             Log.d("ChatRepository", "isRead status updated for chatRoomId: $chatRoomId")
         }
