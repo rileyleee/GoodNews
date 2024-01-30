@@ -16,6 +16,8 @@ import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.sync.SyncService
 import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,15 +26,16 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 
 class EmergencyInfoDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentEmergencyInfoDialogBinding
     private lateinit var inputText: String
+    private lateinit var currentLocationInfo: RealmResults<MapInstantInfo>
     private var isSafe: String = ""
     private var currentTime by Delegates.notNull<Long>()
+
 
     // 위치 정보 초기화
     private var currLatitude: Double = 0.0
@@ -99,45 +102,77 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         val sharedPref = GoodNewsApplication.preferences
 
-        var userId = sharedPref.getString("id", "id를 찾을 수 없음");
-        var modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime));
-        var storedId = userId+modifiedTime;
+        val userId = sharedPref.getString("id", "id를 찾을 수 없음")
+        val modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime))
+        val storedId = userId+modifiedTime
 
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {
 
             val realm = Realm.open(GoodNewsApplication.realmConfiguration)
-            try {
-                realm.write {
-                    copyToRealm(MapInstantInfo().apply {
-                        id = storedId
-                        content = inputText
-                        state = isSafe
-                        latitude = (currLatitude * 1000).toInt() / 1000.0
-                        longitude = (currLongitude * 1000).toInt() / 1000.0
-                        time = timeRealmInstant
-                    })
-                }
-                val mapAPI = MapAPI()
-                val syncService = SyncService()
-                val deviceStateService = DeviceStateService()
-                if(deviceStateService.isNetworkAvailable(requireContext())){
-                    if(isSafe =="1"){
-                        mapAPI.registMapFacility(true, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
-                    }else{
-                        mapAPI.registMapFacility(false, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
+
+            // 현재 위치에 대한 위험 정보 존재 여부 확인
+            currentLocationInfo = realm.query<MapInstantInfo>("latitude = $0 AND longitude = $1", (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0).find()
+
+            if (currentLocationInfo.isEmpty()) {
+                Log.i("EmergencyInfoDialogFragment", "이 위치에 대한 위험 정보가 없어서 바로 저장합니다.")
+                try {
+                    realm.write {
+                        copyToRealm(MapInstantInfo().apply {
+                            id = storedId
+                            content = inputText
+                            state = isSafe
+                            latitude = (currLatitude * 1000).toInt() / 1000.0
+                            longitude = (currLongitude * 1000).toInt() / 1000.0
+                            time = timeRealmInstant
+                        })
                     }
+                    val mapAPI = MapAPI()
+                    val syncService = SyncService()
+                    val deviceStateService = DeviceStateService()
+                    if(deviceStateService.isNetworkAvailable(requireContext())){
+                        if(isSafe =="1"){
+                            mapAPI.registMapFacility(true, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
+                        }else{
+                            mapAPI.registMapFacility(false, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
+                        }
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        // UI 스레드에서 성공 메시지 표시
+                        Toast.makeText(context, "위험 정보가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("EmergencyInfoDialogFragment", "긴급 정보를 Realm에 저장하는 과정에서 오류", e)
+                } finally {
+                    realm.close()
+                    dismiss() // 다이얼로그 닫기
                 }
 
-                withContext(Dispatchers.Main) {
-                    // UI 스레드에서 성공 메시지 표시
-                    Toast.makeText(context, "위험 정보가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.i("EmergencyInfoDialogFragment", "이 위치에 대한 위험 정보가 존재함에 따라 값을 수정합니다.")
+                try {
+                    realm.write {
+                        // 트랜잭션 안에서 쿼리 조회한 라이브 데이터여야만 수정 가능해서 아래와 같이 재조회
+                        val changedInfo = query<MapInstantInfo>("latitude = $0 AND longitude = $1", (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0).find().first()
+                        changedInfo.id = storedId
+                        changedInfo.content = inputText
+                        changedInfo.state = isSafe
+                        changedInfo.time = timeRealmInstant
+                    }
+                    // 데이터가 존재할 때 동기화 코드
+                    // 여기에 작성
+
+                    withContext(Dispatchers.Main) {
+                        // UI 스레드에서 성공 메시지 표시
+                        Toast.makeText(context, "위험 정보가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("EmergencyInfoDialogFragment", "긴급 정보를 Realm에 저장하는 과정에서 오류", e)
+                } finally {
+                    realm.close()
+                    dismiss() // 다이얼로그 닫기
                 }
-            } catch (e: Exception) {
-                Log.e("EmergencyInfoDialogFragment", "긴급 정보를 Realm에 저장하는 과정에서 오류", e)
-            } finally {
-                realm.close()
-                dismiss() // 다이얼로그 닫기
             }
         }
     }

@@ -17,13 +17,9 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.exceptions.RealmException
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
-import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sqrt
@@ -69,6 +65,7 @@ class EmergencyAlarmProvider(private val context: Context) {
                             )
                         }
                     }
+                    // 가까운 정보 중 가장 최신 정보를 추출
                     mostRecentInfo = closeInfo.maxByOrNull { it.time.epochSeconds }
                 }
             } catch (e: RealmException) {
@@ -118,6 +115,7 @@ class EmergencyAlarmProvider(private val context: Context) {
 
     // realm 객체에서 직접 작업 불가 -> 복사
     fun copyMapInstantInfo(info: MapInstantInfo): MapInstantInfo {
+
         return MapInstantInfo().apply {
             this.state = info.state
             this.latitude = info.latitude
