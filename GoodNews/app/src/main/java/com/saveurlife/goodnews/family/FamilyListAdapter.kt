@@ -113,7 +113,7 @@ class FamilyListAdapter(private val listener: OnItemClickListener ) :
 
                     Status.DECEASED -> {
                         acceptViewHolder.statusView.backgroundTintList =
-                            ContextCompat.getColorStateList(acceptViewHolder.itemView.context, R.color.black)
+                            ContextCompat.getColorStateList(acceptViewHolder.itemView.context, R.color.death)
                     }
 
                     else -> {

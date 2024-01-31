@@ -19,10 +19,11 @@
     <color name="hint_gray">#999999</color>
     <color name="inactive_gray">#C5C5C5</color>
 
-    <!--  상태 색상 (안전 / 주의 / 위험)  -->
+    <!--  상태 색상 (안전 / 주의 / 위험 / 사망)  -->
     <color name="safe">#3AC783</color>
     <color name="caution">#FFD17B</color>
     <color name="danger">#F15E81</color>
+    <color name="death">#FF1A2227</color>
 
     <!--  글자색  -->
     <color name="font_color">#FFFFFFFF</color>

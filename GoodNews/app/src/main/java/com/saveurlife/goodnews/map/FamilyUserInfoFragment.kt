@@ -50,7 +50,7 @@ class FamilyUserInfoFragment : DialogFragment() {
 
                 "death" -> context?.let { ctx ->
                     this.binding.familyStatusCircle.backgroundTintList =
-                        ContextCompat.getColorStateList(ctx, R.color.black)
+                        ContextCompat.getColorStateList(ctx, R.color.death)
                 }
 
                 else -> {
