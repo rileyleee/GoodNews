@@ -18,4 +18,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "GoodNews"
 include(":app")
- 
+include(":wear")
