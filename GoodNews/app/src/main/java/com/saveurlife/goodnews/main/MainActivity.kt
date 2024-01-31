@@ -42,6 +42,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import com.saveurlife.goodnews.BaseActivity
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alarm.AlarmActivity
@@ -55,7 +56,7 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
      private lateinit var binding: ActivityMainBinding
 
     //    val dialog = LoadingDialog(this)
