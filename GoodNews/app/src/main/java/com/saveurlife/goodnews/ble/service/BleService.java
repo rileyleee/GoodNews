@@ -231,9 +231,6 @@ public class BleService extends Service {
                 Log.i("disconnect", Integer.toString(bleMeshConnectedDevicesMap.size()));
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
-//                sendMessageManager.sendMessageDisconnect(gatt);
-//                sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
-
                 sendMessageManager.createDisconnectMessage(gatt);
                 sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
             }
@@ -275,9 +272,6 @@ public class BleService extends Service {
             bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
             deviceArrayListNameLiveData.postValue(deviceArrayListName);
-
-//            sendMessageManager.sendMessageDisconnect(gatt);
-//            sendMessageManager.sendMessageChange(deviceGattMap, bleMeshConnectedDevicesMap);
 
             sendMessageManager.createDisconnectMessage(gatt);
             sendMessageManager.createChangeMessage(deviceGattMap, bleMeshConnectedDevicesMap);
