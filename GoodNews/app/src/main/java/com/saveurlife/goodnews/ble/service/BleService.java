@@ -70,6 +70,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -84,7 +85,7 @@ import java.util.stream.Collectors;
 public class BleService extends Service {
     private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
     private FamilyMemProvider familyMemProvider = new FamilyMemProvider();
-    private LiveData<List<String>> familyMemIds;
+    private Set<String> familyMemIds;
     private AdvertiseManager advertiseManager;
     private ScanManager scanManager;
     private BleGattCallback bleGattCallback;
@@ -163,7 +164,6 @@ public class BleService extends Service {
         preferencesUtil = new PreferencesUtil(this);
         myName = preferencesUtil.getString("name", "이름 없음");
 
-
         locationService = new LocationService(this);
         userDeviceInfoService = UserDeviceInfoService.getInstance(this);
         myId = userDeviceInfoService.getDeviceId();
@@ -205,9 +205,6 @@ public class BleService extends Service {
 
 //        chatDatabaseManager.createFamilyMemInfo();
 
-        familyMemProvider.updateAllFamilyMemIds();
-        familyMemIds = familyMemProvider.getAllFamilyMemIds();
-        Log.i("familyMemIds", familyMemIds.toString());
     }
 
     // 블루투스 시작 버튼
@@ -215,6 +212,15 @@ public class BleService extends Service {
         advertiseManager.startAdvertising();
         scanManager.startScanning();
         startAutoSendMessage();
+
+        familyMemProvider.updateAllFamilyMemIds();
+        familyMemIds = familyMemProvider.getAllFamilyMemIds();
+
+        Log.i("가족같은객체", String.valueOf(familyMemIds==familyMemProvider.getAllFamilyMemIds()));
+        Log.i("가족아이디사이즈", Integer.toString(familyMemIds.size()));
+        for (String familyMemId : familyMemIds) {
+            Log.i("가족아이디",familyMemId);
+        }
     }
 
 
@@ -405,7 +411,7 @@ public class BleService extends Service {
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
                 for(String removedUserId : removedUsers.keySet()){
-                    if(familyMemIds.getValue().contains(removedUserId)){
+                    if(familyMemIds.contains(removedUserId)){
                         // 여기서 가족 연결 끊어짐 알람
                         Log.i("가족 연결 끊어짐 알람", removedUserId);
                         foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
@@ -455,8 +461,9 @@ public class BleService extends Service {
                             deviceArrayListNameLiveData.postValue(deviceArrayListName);
                         }
 
+                        Log.i("가족연결", familyMemIds.toString());
                         // 가족 연결
-                        if(familyMemIds.getValue().contains(dataId)){
+                        if(familyMemIds.contains(dataId)){
                             // 처음 연결된건지 확인
                             Boolean check = false;
                             for(Map<String, BleMeshConnectedUser> bleUsers : bleMeshConnectedDevicesMap.values()){
@@ -503,7 +510,7 @@ public class BleService extends Service {
                     }
 
                     // 가족 상태 렘 업데이트
-                    if(familyMemIds.getValue().contains(senderId)){
+                    if(familyMemIds.contains(senderId)){
 
                     }
                 }
@@ -593,7 +600,7 @@ public class BleService extends Service {
                     bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
                     for(String removedUserId : removedUsers.keySet()){
-                        if(familyMemIds.getValue().contains(removedUserId)){
+                        if(familyMemIds.contains(removedUserId)){
                             // 여기서 가족 연결 끊어짐 알람
                             Log.i("가족 연결 끊어짐 알람", removedUserId);
                             foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
@@ -626,7 +633,7 @@ public class BleService extends Service {
 
                         }
 
-                        if(familyMemIds.getValue().contains(dataId)){
+                        if(familyMemIds.contains(dataId)){
                             // 처음 연결된건지 확인
                             Boolean check = false;
                             for(Map<String, BleMeshConnectedUser> bleUsers : bleMeshConnectedDevicesMap.values()){
@@ -675,9 +682,9 @@ public class BleService extends Service {
     };
 
 
-    public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, LiveData<List<String>> familyMemIds, String[] parts) {
+    public void checkMatchingIds(Map<String, BleMeshConnectedUser> insert, Set<String> familyMemIds, String[] parts) {
         // LiveData의 현재 값을 가져옴
-        List<String> currentFamilyMemIds = familyMemIds.getValue();
+        Set<String> currentFamilyMemIds = familyMemIds;
         if (currentFamilyMemIds != null) {
             for (String id : currentFamilyMemIds) {
                 if (insert.containsKey(id)) {
