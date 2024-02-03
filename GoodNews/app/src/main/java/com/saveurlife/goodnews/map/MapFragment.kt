@@ -434,24 +434,24 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             return file
         } else { // 로컬에 존재하는 지도 파일
             Log.d("지도 출처", "로컬에 있는 지도요")
-            val resourceInputStream =
-                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+//            val resourceInputStream =
+//                context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
 
             // 파일 경로
             val file = File(context.filesDir, localMapTileArchivePath)
 
             // 파일이 이미 존재하지 않는 경우에만 복사 진행
-            if (!file.exists()) {
-                resourceInputStream.use { input ->
-                    FileOutputStream(file).use { output ->
-                        val buffer = ByteArray(1024)
-                        var length: Int
-                        while (input.read(buffer).also { length = it } != -1) {
-                            output.write(buffer, 0, length)
-                        }
-                    }
-                }
-            }
+//            if (!file.exists()) {
+//                resourceInputStream.use { input ->
+//                    FileOutputStream(file).use { output ->
+//                        val buffer = ByteArray(1024)
+//                        var length: Int
+//                        while (input.read(buffer).also { length = it } != -1) {
+//                            output.write(buffer, 0, length)
+//                        }
+//                    }
+//                }
+//            }
             return file
         }
     }

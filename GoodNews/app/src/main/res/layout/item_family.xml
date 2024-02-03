@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="120dp"
-    android:background="@drawable/rounded_background_with_shadow"
+    android:background="@drawable/card_component"
+    android:backgroundTint="@color/card_color"
+    android:elevation="10dp"
     android:padding="20dp">
 
     <TextView
