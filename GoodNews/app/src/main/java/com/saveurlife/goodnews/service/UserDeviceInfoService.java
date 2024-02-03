@@ -30,7 +30,7 @@ public class UserDeviceInfoService {
                     phoneNumber = phoneNumber.replace("+82", "0");
                 return phoneNumber;
             } else {
-                return "00000000000";
+                return "번호가 유효하지 않습니다.";
             }
         } else {
 
