@@ -72,7 +72,7 @@
             android:id="@+id/rhPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/font_color"
+            android:theme="@style/AppTheme.Picker"
             app:layout_constraintEnd_toStartOf="@id/bloodTitle"
             app:layout_constraintStart_toEndOf="@id/rhTitle"
             app:layout_constraintTop_toBottomOf="@+id/bloodDialogTitle" />
@@ -81,7 +81,7 @@
             android:id="@+id/bloodPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/font_color"
+            android:theme="@style/AppTheme.Picker"
             app:layout_constraintEnd_toStartOf="@+id/dialogBloodGuideline2"
             app:layout_constraintStart_toEndOf="@+id/bloodTitle"
             app:layout_constraintTop_toBottomOf="@+id/bloodDialogTitle" />

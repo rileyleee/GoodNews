@@ -83,7 +83,7 @@
             android:id="@+id/yearPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/font_color"
+            android:theme="@style/AppTheme.Picker"
             app:layout_constraintEnd_toStartOf="@id/yearTitle"
             app:layout_constraintStart_toStartOf="@id/dialogBloodGuideline"
             app:layout_constraintTop_toBottomOf="@id/birthDialogTitle" />
@@ -92,7 +92,7 @@
             android:id="@+id/monthPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/font_color"
+            android:theme="@style/AppTheme.Picker"
             app:layout_constraintEnd_toStartOf="@id/monthTitle"
             app:layout_constraintStart_toEndOf="@id/yearTitle"
             app:layout_constraintTop_toBottomOf="@id/birthDialogTitle" />
@@ -101,7 +101,7 @@
             android:id="@+id/dayPicker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/font_color"
+            android:theme="@style/AppTheme.Picker"
             app:layout_constraintEnd_toStartOf="@id/dayTitle"
             app:layout_constraintStart_toEndOf="@id/monthTitle"
             app:layout_constraintTop_toBottomOf="@id/birthDialogTitle" />
