@@ -35,7 +35,7 @@ public class BleGattCallback extends BluetoothGattCallback {
 
 
 
-    public BleGattCallback(String myId, String myName,
+    private BleGattCallback(String myId, String myName,
                            ChatRepository chatRepository,
                            SendMessageManager sendMessageManager,
                            Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap){
@@ -70,18 +70,14 @@ public class BleGattCallback extends BluetoothGattCallback {
                 if(parts[1].equals(myId)){
                     chatRepository.addMessageToChatRoom(parts[7], parts[8], myId, myName, parts[9], parts[3], true);
                 }
-
             }
-            else if("init".equals(type)) {
-                Log.i("init message", new String(characteristic.getValue()));
-                sendMessageManager.sendInitMessageQueue(gatt);
-
-            }
-
             Log.i("송신 메시지", new String(characteristic.getValue()));
         } else {
             Log.e("BLE", "Failed to send message to " + gatt.getDevice().getAddress() + ". Error code: " + status);
         }
+        sendMessageManager.setSendingFalse();
+        sendMessageManager.sendNextMessageQueue();
+
     }
 
     @Override
@@ -105,8 +101,7 @@ public class BleGattCallback extends BluetoothGattCallback {
             Log.i("BLE", "Services discovered.");
 
             if (gatt.getDevice().getBondState() == 12) {
-//                sendMessageManager.sendMessageInit(gatt, bleMeshConnectedDevicesMap);
-                sendMessageManager.prepareInitMessage(gatt, bleMeshConnectedDevicesMap);
+                sendMessageManager.createInitMessage(gatt, bleMeshConnectedDevicesMap);
             }
         } else {
             Log.w("BLE", "onServicesDiscovered received: " + status);
@@ -118,8 +113,7 @@ public class BleGattCallback extends BluetoothGattCallback {
         super.onMtuChanged(gatt, mtu, status);
         if (status == BluetoothGatt.GATT_SUCCESS) {
             Log.i("BLE", "MTU changed to: " + mtu);
-//            sendMessageManager.sendMessageInit(gatt, bleMeshConnectedDevicesMap);
-            sendMessageManager.prepareInitMessage(gatt, bleMeshConnectedDevicesMap);
+            sendMessageManager.createInitMessage(gatt, bleMeshConnectedDevicesMap);
         } else {
             Log.w("BLE", "MTU change failed, status: " + status);
         }

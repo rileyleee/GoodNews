@@ -11,28 +11,40 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.log
 
 class FamilyMemProvider {
 
     // realm에서 가족 리스트 뽑아와서 지도에 띄우기
     private var familyMemInfo: MutableList<FamilyMemInfo> = mutableListOf() // 초기화
 
-    private val allFamilyMemIds = MutableLiveData<List<String>>()
+    private val allFamilyMemIds = HashSet<String>()
 
-    fun getAllFamilyMemIds(): LiveData<List<String>> {
+    fun getAllFamilyMemIds(): Set<String> {
         return allFamilyMemIds
     }
 
 
-    fun updateAllFamilyMemIds() {
+    fun updateAllFamilyMemIds(){
         CoroutineScope(Dispatchers.IO).launch {
             val realm = Realm.open(GoodNewsApplication.realmConfiguration)
             try {
                 val familyList = realm.query<FamilyMemInfo>().find()
                 val familyMemIds = familyList.map { it.id }
 
-                withContext(Dispatchers.Main) {
-                    allFamilyMemIds.value = familyMemIds
+                Log.i("familyList", familyList.size.toString())
+                if (familyList.isNotEmpty()) { // 깊은 복사 수행
+                    familyList.forEach { fam ->
+                        val copiedFam = FamilyMemInfo().apply {
+                            this.id = fam.id
+                            this.name = fam.name
+                            this.latitude = fam.latitude
+                            this.longitude = fam.longitude
+                            this.lastConnection = fam.lastConnection
+                            this.state = fam.state
+                        }
+                        allFamilyMemIds.add(copiedFam.id)
+                    }
                 }
             } finally {
                 realm.close()

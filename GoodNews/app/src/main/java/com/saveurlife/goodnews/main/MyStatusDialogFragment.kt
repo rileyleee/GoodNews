@@ -22,7 +22,7 @@ class MyStatusDialogFragment : DialogFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         memberAPI = MemberAPI()
-        val userDeviceInfoService = UserDeviceInfoService(context)
+        val userDeviceInfoService = UserDeviceInfoService.getInstance(context)
         memberId = userDeviceInfoService.deviceId
 
         if (parentFragment is StatusSelectListener) {

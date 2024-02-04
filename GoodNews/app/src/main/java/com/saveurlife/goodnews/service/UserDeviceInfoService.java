@@ -10,8 +10,18 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 
 public class UserDeviceInfoService {
+    private static UserDeviceInfoService instance;
+
     private Context context;
-    public UserDeviceInfoService(Context context) {
+
+    public static UserDeviceInfoService getInstance(Context context){
+        if(instance == null){
+            instance = new UserDeviceInfoService(context);
+        }
+        return instance;
+    }
+
+    private UserDeviceInfoService(Context context) {
         this.context = context;
     }
 
@@ -30,7 +40,7 @@ public class UserDeviceInfoService {
                     phoneNumber = phoneNumber.replace("+82", "0");
                 return phoneNumber;
             } else {
-                return "00000000000";
+                return "번호가 유효하지 않습니다.";
             }
         } else {
 

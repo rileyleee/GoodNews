@@ -106,6 +106,7 @@ class ChatDatabaseManager {
 
 
     fun getChatMessagesForChatRoom(chatRoomId: String, onSuccess: (List<ChatMessage>) -> Unit) {
+        Log.i("getChatMessagesForChatRoom", "getChatMessagesForChatRoom: ")
         CoroutineScope(Dispatchers.IO).launch {
             val config = RealmConfiguration.Builder(schema = setOf(ChatMessage::class)).build()
             val realm = Realm.open(config)
@@ -141,19 +142,21 @@ class ChatDatabaseManager {
 
 
     fun updateIsReadStatus(chatRoomId: String, onSuccess: () -> Unit) {
+        Log.i("updateIsReadStatus", "updateIsReadStatus: ")
         CoroutineScope(Dispatchers.IO).launch {
             val config = RealmConfiguration.Builder(schema = setOf(ChatMessage::class)).build()
             val realm = Realm.open(config)
 
             try {
-                // 주어진 chatRoomId와 일치하는 모든 메시지의 isRead 값을 true로 업데이트
-                realm.write {
-                    val messagesToUpdate = realm.query<ChatMessage>("chatRoomId = $0", chatRoomId)
-                        .find()
-                        .toList()
+                // 쿼리를 먼저 실행하고 결과를 리스트로 저장
+                val messagesToUpdate = realm.query<ChatMessage>("chatRoomId = $0", chatRoomId)
+                    .find()
+                    .toList()
 
+                // 쓰기 트랜잭션을 시작하여 메시지의 isRead 값을 업데이트
+                realm.write {
                     messagesToUpdate.forEach { message ->
-                        message.isRead = true
+                        findLatest(message)?.let { it.isRead = true }
                     }
                 }
 
@@ -165,4 +168,5 @@ class ChatDatabaseManager {
             }
         }
     }
+
 }

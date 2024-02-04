@@ -21,6 +21,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
@@ -94,6 +97,12 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         val timeRealmInstant = RealmInstant.from(currentTime / 1000, (currentTime % 1000).toInt())
 
+        val sharedPref = GoodNewsApplication.preferences
+
+        var userId = sharedPref.getString("id", "id를 찾을 수 없음");
+        var modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime));
+        var storedId = userId+modifiedTime;
+
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {
 
@@ -101,23 +110,28 @@ class EmergencyInfoDialogFragment : DialogFragment() {
             try {
                 realm.write {
                     copyToRealm(MapInstantInfo().apply {
+                        id = storedId
                         content = inputText
                         state = isSafe
-                        latitude = (currLatitude * 10000).toInt() / 10000.0
-                        longitude = (currLongitude * 10000).toInt() / 10000.0
+                        latitude = (currLatitude * 1000).toInt() / 1000.0
+                        longitude = (currLongitude * 1000).toInt() / 1000.0
                         time = timeRealmInstant
                     })
                 }
+
+
                 val mapAPI = MapAPI()
                 val syncService = SyncService()
                 val deviceStateService = DeviceStateService()
                 if(deviceStateService.isNetworkAvailable(requireContext())){
                     if(isSafe =="1"){
-                        mapAPI.registMapFacility(true, inputText, (currLatitude * 10000).toInt() / 10000.0, (currLongitude * 10000).toInt() / 10000.0, syncService.realmInstantToString(timeRealmInstant))
+                        mapAPI.registMapFacility(true, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
                     }else{
-                        mapAPI.registMapFacility(false, inputText, (currLatitude * 10000).toInt() / 10000.0, (currLongitude * 10000).toInt() / 10000.0, syncService.realmInstantToString(timeRealmInstant))
+                        mapAPI.registMapFacility(false, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
                     }
                 }
+
+                // BleService.createDangerInfoMessage("state/time/latitude/longitude/content") 호출하도록 해주실 분?
 
                 withContext(Dispatchers.Main) {
                     // UI 스레드에서 성공 메시지 표시

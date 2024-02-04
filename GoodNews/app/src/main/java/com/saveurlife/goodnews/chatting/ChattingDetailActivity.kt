@@ -65,7 +65,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
     private fun observeChatRoomMessages() {
         if (::userId.isInitialized) {
-            bleService.getChatRoomMessages(userId).observe(this, Observer { messages ->
+            bleService.getReadUpdatedChatRoomMessages(userId).observe(this, Observer { messages ->
                 chattingDetailAdapter.updateMessages(messages)
                 recyclerView.scrollToPosition(chattingDetailAdapter.itemCount - 1)
             })

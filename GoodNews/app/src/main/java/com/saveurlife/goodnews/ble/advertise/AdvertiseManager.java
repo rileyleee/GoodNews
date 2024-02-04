@@ -15,14 +15,7 @@ import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.os.ParcelUuid;
 import android.util.Log;
-
-import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
-import com.saveurlife.goodnews.ble.ChatRepository;
-import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
-import com.saveurlife.goodnews.ble.message.SendMessageManager;
-
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 public class AdvertiseManager {
     private static AdvertiseManager instance;
@@ -33,9 +26,6 @@ public class AdvertiseManager {
     private String myId;
     private String myName;
 
-
-
-
     public static AdvertiseManager getInstance(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
                                                String myId, String myName) {
         if (instance == null) {
@@ -45,7 +35,7 @@ public class AdvertiseManager {
     }
 
 
-    public AdvertiseManager(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
+    private AdvertiseManager(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
                             String myId, String myName){
         this.mBluetoothAdapter = mBluetoothAdapter;
         this.mBluetoothLeAdvertiser = mBluetoothLeAdvertiser;

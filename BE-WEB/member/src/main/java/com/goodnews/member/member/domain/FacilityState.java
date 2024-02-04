@@ -21,31 +21,29 @@ import java.time.format.DateTimeFormatter;
 public class FacilityState extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
     private Boolean buttonType;
     private String text;
 
     private Double lat;
     private Double lon;
 
-    private LocalDateTime lastModifiedDate;
     private LocalDateTime createdDate;
 
     @Builder
     public FacilityState(MapRegistFacilityRequestDto mapRegistFacilityRequestDto) {
+        this.id = mapRegistFacilityRequestDto.getId();
         this.buttonType = mapRegistFacilityRequestDto.isButtonType();
         this.text = mapRegistFacilityRequestDto.getText();
         this.lat = mapRegistFacilityRequestDto.getLat();
         this.lon = mapRegistFacilityRequestDto.getLon();
-        this.lastModifiedDate = LocalDateTime.parse(mapRegistFacilityRequestDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        this.createdDate = LocalDateTime.now();
+        this.createdDate = LocalDateTime.parse(mapRegistFacilityRequestDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     public void updateState(MapRegistFacilityRequestDto mapRegistFacilityRequestDto) {
         this.buttonType = mapRegistFacilityRequestDto.isButtonType();
         this.text = mapRegistFacilityRequestDto.getText();
-        this.lastModifiedDate = LocalDateTime.parse(mapRegistFacilityRequestDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        this.createdDate = LocalDateTime.now();
+        this.createdDate = LocalDateTime.parse(mapRegistFacilityRequestDto.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 }

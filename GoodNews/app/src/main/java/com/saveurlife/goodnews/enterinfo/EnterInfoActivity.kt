@@ -42,7 +42,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var memberAPI: MemberAPI
     private lateinit var syncService: SyncService
     private lateinit var preferencesUtil: PreferencesUtil
-    val userDeviceInfoService = UserDeviceInfoService(this);
+    val userDeviceInfoService = UserDeviceInfoService.getInstance(this);
 
     private lateinit var setPhone: String
 

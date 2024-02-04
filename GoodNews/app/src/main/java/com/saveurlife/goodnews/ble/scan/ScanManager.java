@@ -53,7 +53,7 @@ public class ScanManager {
         return instance;
     }
 
-    public ScanManager(BluetoothLeScanner mBluetoothLeScanner,
+    private ScanManager(BluetoothLeScanner mBluetoothLeScanner,
                        ArrayList<String> deviceArrayList, ArrayList<String> deviceArrayListName,
                        ArrayList<BluetoothDevice> bluetoothDevices,
                        Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap,

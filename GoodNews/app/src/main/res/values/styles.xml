@@ -72,4 +72,9 @@
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:textColor">@color/font_color</item>
     </style>
+
+    <!-- Number Picker 텍스트 색상 -->
+    <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="android:textColorPrimary">@color/font_color</item>
+    </style>
 </resources>

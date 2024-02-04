@@ -93,7 +93,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         super.onAttach(context)
         deviceStateService = DeviceStateService()
         familyListAdapter = FamilyListAdapter(this)
-        userDeviceInfoService = UserDeviceInfoService(requireContext())
+        userDeviceInfoService = UserDeviceInfoService.getInstance(requireContext())
         memberId = userDeviceInfoService.deviceId
     }
 
@@ -257,7 +257,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         // 서버에서 가족들 + 신청 리스트 가져오자
 
         if(deviceStateService.isNetworkAvailable(requireContext())){
-            val userDeviceInfoService = UserDeviceInfoService(requireContext())
+            val userDeviceInfoService = UserDeviceInfoService.getInstance(requireContext())
             familyListAdapter.resetFamilyList()
 
             // 신청 리스트 가져오기

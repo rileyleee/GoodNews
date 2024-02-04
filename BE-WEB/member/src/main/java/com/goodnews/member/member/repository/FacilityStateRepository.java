@@ -10,13 +10,15 @@ import java.util.Optional;
 
 public interface FacilityStateRepository extends JpaRepository<FacilityState,Integer> {
     Optional<FacilityState> findByLatAndLon(Double lat, Double lon);
+    Optional<FacilityState> findById(String id);
 
     // 특정 날짜 이후의 데이터 조회
-    default List<FacilityState> findByLastModifiedDateAfter(String dateString) {
+    default List<FacilityState> findByCreatedDateAfter(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime targetDate = LocalDateTime.parse(dateString, formatter);
-        return findByLastModifiedDateAfter(targetDate);
+        return findByCreatedDateAfter(targetDate);
     }
-    List<FacilityState> findByLastModifiedDateAfter(LocalDateTime lastModifiedDate);
+    List<FacilityState> findByCreatedDateAfter(LocalDateTime createdDate);
+
 
 }

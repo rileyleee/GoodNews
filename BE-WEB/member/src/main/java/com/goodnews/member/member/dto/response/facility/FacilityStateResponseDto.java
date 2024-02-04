@@ -8,22 +8,22 @@ import java.time.LocalDateTime;
 @Getter
 public class FacilityStateResponseDto {
 
-    private int id;
+    private String id;
     private Boolean buttonType;
     private String text;
 
     private Double lat;
     private Double lon;
 
-    private LocalDateTime lastModifiedDate;
+    private LocalDateTime createdDate;
 
     @Builder
-    public FacilityStateResponseDto(int id, Boolean buttonType, String text, Double lat, Double lon, LocalDateTime lastModifiedDate) {
+    public FacilityStateResponseDto(String id, Boolean buttonType, String text, Double lat, Double lon, LocalDateTime createdDate) {
         this.id = id;
         this.buttonType = buttonType;
         this.text = text;
         this.lat = lat;
         this.lon = lon;
-        this.lastModifiedDate = lastModifiedDate;
+        this.createdDate = createdDate;
     }
 }

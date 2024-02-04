@@ -13,11 +13,13 @@ import com.saveurlife.goodnews.models.Chat
 import com.saveurlife.goodnews.models.ChatMessage
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
+import com.saveurlife.goodnews.models.GroupMemInfo
 //import com.saveurlife.goodnews.models.GroupMemInfo
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
 import com.saveurlife.goodnews.models.OffMapFacility
+import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
@@ -29,6 +31,7 @@ import java.io.InputStreamReader
 class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks {
 
     companion object {
+//        lateinit var userDeviceInfoService: UserDeviceInfoService
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
     }
@@ -37,6 +40,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 
     override fun onCreate() {
 
+        var userDeviceInfoService = UserDeviceInfoService.getInstance(applicationContext)
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
@@ -59,7 +63,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 ChatMessage::class,
                 FamilyMemInfo::class,
                 FamilyPlace::class,
-//                GroupMemInfo::class,
+                GroupMemInfo::class,
                 MapInstantInfo::class,
                 Member::class,
                 MorseCode::class,

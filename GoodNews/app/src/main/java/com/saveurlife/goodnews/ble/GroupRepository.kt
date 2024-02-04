@@ -44,7 +44,7 @@ class GroupRepository(private val groupDatabaseManager: GroupDatabaseManager) {
         Log.i("members", members.size.toString())
         val groupMemInfoList = members.map { member ->
             GroupMemInfo(
-                id = member.userId+groupId.substring(16),
+                id = groupId+member.userId,
                 groupId = groupId,
                 groupName = groupName,
                 userId = member.userId,

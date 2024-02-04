@@ -75,22 +75,9 @@ public class FacilityService {
 
     @Transactional
     public BaseResponseDto registFacility(MapRegistFacilityRequestDto request) throws JsonProcessingException {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        formatter.parse(request.getDate());
-//        saveToRedis(request);
-        // DB에 동일한 lat, lon이 있는지 확인
-        Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-        if (findFacilityState.isPresent()) {
-            // 업데이트 로직
-            findFacilityState.get().updateState(request);
-
-        } else {
-            // 삽입 로직
-            facilityStateRepository.save(FacilityState.builder()
-                    .mapRegistFacilityRequestDto(request)
-                    .build());
-        }
-
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        formatter.parse(request.getDate());
+        saveToRedis(request);
 
         return BaseResponseDto.builder()
                 .success(true)
@@ -102,10 +89,13 @@ public class FacilityService {
     public void saveToRedis(MapRegistFacilityRequestDto request) throws JsonProcessingException {
         // Redis에 데이터 저장
         String key = request.getLat() + ":" + request.getLon();
-        redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.HOURS);
+        // 1시간
+//        redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.HOURS);
+        // 1분
+        redisTemplate.opsForValue().set(key, new ObjectMapper().writeValueAsString(request), 1, TimeUnit.MINUTES);
     }
     @Transactional
-//    @Scheduled(fixedRate = 300) // 1분마다 실행 (원하는 시간으로 조정 가능)
+    @Scheduled(fixedRate = 60_000) // 1분마다 실행 (원하는 시간으로 조정 가능) 단위 : ms
     public void saveToDatabaseFromRedis() throws JsonProcessingException {
         // Redis에서 모든 키 가져오기
         Set<String> allKeys = redisTemplate.keys("*");
@@ -114,14 +104,19 @@ public class FacilityService {
                 .collect(Collectors.toSet());
         for (String key : filteredKeys) {
             String value = redisTemplate.opsForValue().get(key);
-            MapRegistFacilityRequestDto request = new ObjectMapper().readValue(value, MapRegistFacilityRequestDto.class);
-            // DB에 동일한 lat, lon이 있는지 확인
-            Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-            if (findFacilityState.isPresent()) {
-                // 업데이트 로직
-                findFacilityState.get().updateState(request);
 
-            } else {
+            // redis 가 비워져 있을 경우 예외처리
+            if(value == null){
+                log.warn("Redis is null");
+                continue;
+            }
+
+            MapRegistFacilityRequestDto request = new ObjectMapper().readValue(value, MapRegistFacilityRequestDto.class);
+
+            // DB에 동일한 ID 가 있는지 확인
+            Optional<FacilityState> findFacilityState = facilityStateRepository.findById(request.getId());
+
+            if(findFacilityState.isEmpty()){
                 // 삽입 로직
                 facilityStateRepository.save(FacilityState.builder()
                         .mapRegistFacilityRequestDto(request)
@@ -148,14 +143,14 @@ public class FacilityService {
         formatter.parse(date);
 
 
-        List<FacilityStateResponseDto> list = facilityStateRepository.findByLastModifiedDateAfter(date).stream()
+        List<FacilityStateResponseDto> list = facilityStateRepository.findByCreatedDateAfter(date).stream()
                 .map(facilityState -> FacilityStateResponseDto.builder()
                         .id(facilityState.getId())
                         .buttonType(facilityState.getButtonType())
                         .text(facilityState.getText())
                         .lon(facilityState.getLon())
                         .lat(facilityState.getLat())
-                        .lastModifiedDate(facilityState.getLastModifiedDate())
+                        .createdDate(facilityState.getCreatedDate())
                         .build())
                 .collect(Collectors.toList());
         mapValidator.checkFaciltiyState(list,date);
