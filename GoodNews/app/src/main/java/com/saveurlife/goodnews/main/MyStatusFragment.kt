@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMyStatusBinding
-import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 
 class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener {
     private lateinit var binding: FragmentMyStatusBinding
@@ -50,11 +50,11 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
 
         // 마지막 업데이트 시각
         val lastUpdateTime = preferencesUtil.getLong("SyncTime", 0L)
-        val syncService = SyncService()
+        val timeService = TimeService()
         if(lastUpdateTime == 0L){
             binding.myUpdateTime.text ="최초 업데이트 전"
         }else{
-            binding.myUpdateTime.text = syncService.convertDateLongToString(lastUpdateTime)
+            binding.myUpdateTime.text = timeService.convertDateLongToString(lastUpdateTime)
         }
 
         // 이름 가져오기

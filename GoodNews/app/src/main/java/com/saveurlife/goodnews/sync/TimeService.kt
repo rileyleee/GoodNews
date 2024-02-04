@@ -10,10 +10,11 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-class SyncService {
+class TimeService {
     private val preferences: PreferencesUtil = GoodNewsApplication.preferences
 
     // 동기화 시간 반환
+    // Long -> yyyy-MM-dd HH:mm:ss
     fun getLastConnectionTime(): String {
         val millisecond = preferences.getLong("SyncTime", 0L)
 

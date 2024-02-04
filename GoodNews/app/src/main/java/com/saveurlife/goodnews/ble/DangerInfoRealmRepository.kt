@@ -1,20 +1,8 @@
 package com.saveurlife.goodnews.ble
 
 import android.util.Log
-import android.widget.Toast
-import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.api.MapAPI
-import com.saveurlife.goodnews.models.MapInstantInfo
-import com.saveurlife.goodnews.service.DeviceStateService
-import com.saveurlife.goodnews.sync.SyncService
-import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import kotlin.properties.Delegates
 
 import java.util.*
 

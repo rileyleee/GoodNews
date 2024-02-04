@@ -1,24 +1,35 @@
 package com.saveurlife.goodnews.sync
 
 import android.content.Context
+import androidx.lifecycle.MutableLiveData
 import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 
-class AllDataSync(private val context: Context) {
+class SyncService(private val context: Context) {
 
     private val dataSync : DataSync = DataSync(context)
+
+    val familyMemInfoUpdated = MutableLiveData<Boolean>()
+    val familyPlaceUpdated = MutableLiveData<Boolean>()
+
     fun fetchAllData(){
         dataSync.fetchDataMember()
         dataSync.fetchDataFamilyMemInfo()
         dataSync.fetchDataFamilyPlace()
         dataSync.fetchDataMapInstantInfo()
+
+        familyMemInfoUpdated.postValue(true)
+        familyPlaceUpdated.postValue(true)
     }
 
     fun fetchFamilyData(){
         dataSync.fetchDataFamilyPlace()
         dataSync.fetchDataFamilyMemInfo()
+
+        familyMemInfoUpdated.postValue(true)
+        familyPlaceUpdated.postValue(true)
     }
 
     fun fetchFacilityData(){

@@ -12,9 +12,6 @@ import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
@@ -28,9 +25,8 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.LocationService
-import com.saveurlife.goodnews.sync.AllDataSync
-import com.saveurlife.goodnews.sync.DataSyncWorker
 import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 import java.util.Calendar
 
 
@@ -40,7 +36,7 @@ class EnterInfoActivity : AppCompatActivity() {
     private lateinit var realm: Realm
     private lateinit var permissionsUtil: PermissionsUtil
     private lateinit var memberAPI: MemberAPI
-    private lateinit var syncService: SyncService
+    private lateinit var timeService: TimeService
     private lateinit var preferencesUtil: PreferencesUtil
     val userDeviceInfoService = UserDeviceInfoService.getInstance(this);
 
@@ -57,7 +53,7 @@ class EnterInfoActivity : AppCompatActivity() {
         binding = ActivityEnterInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         memberAPI = MemberAPI()
-        syncService = SyncService()
+        timeService = TimeService()
         preferencesUtil = PreferencesUtil(applicationContext)
         workManager = WorkManager.getInstance(applicationContext)
 
@@ -360,7 +356,7 @@ class EnterInfoActivity : AppCompatActivity() {
             memberAPI.registMemberInfo(setMemberId,
                 setPhone,
                 setName,
-                setBirthDate?.let { syncService.convertDateStringToNumStr(it) },
+                setBirthDate?.let { timeService.convertDateStringToNumStr(it) },
                 setGender,
                 setBloodType,
                 setAddInfo,
@@ -373,8 +369,8 @@ class EnterInfoActivity : AppCompatActivity() {
 
             val deviceStateService = DeviceStateService()
             if(deviceStateService.isNetworkAvailable(applicationContext)){
-                val allDataSync = AllDataSync(applicationContext)
-                allDataSync.fetchAllData()
+                val syncService = SyncService(applicationContext)
+                syncService.fetchAllData()
             }
 
             startActivity(intent)

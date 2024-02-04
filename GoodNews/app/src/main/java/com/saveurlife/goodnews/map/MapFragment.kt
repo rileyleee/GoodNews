@@ -32,7 +32,7 @@ import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.OffMapFacility
-import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.ext.isValid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -534,9 +534,9 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     binding.useFalseWrap.visibility = View.VISIBLE
                 }
                 val lastConnection = sharedPref.getLong("SyncTime", 0L)
-                val syncService = SyncService()
+                val timeService = TimeService()
                 binding.facilityLastUpdateTime.text =
-                    syncService.convertDateLongToString(lastConnection)
+                    timeService.convertDateLongToString(lastConnection)
 
             }
         }
@@ -788,7 +788,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
     private fun showFamilyUserInfoDialog(famUser: FamilyMemInfo) {
 
-        var syncService = SyncService()
+        var timeService = TimeService()
 
         Log.d("famUserClicked", "가족 유저가 클릭되었습니다.")
         val dialogFragment = FamilyUserInfoFragment()
@@ -798,7 +798,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         famUserInfo.putString("userName", famUser.name)
         famUserInfo.putString("userStatus", famUser.state)
-        famUserInfo.putString("userUpdateTime", syncService.realmInstantToString(famUser.lastConnection))
+        famUserInfo.putString("userUpdateTime", timeService.realmInstantToString(famUser.lastConnection))
 
         dialogFragment.arguments = famUserInfo
 

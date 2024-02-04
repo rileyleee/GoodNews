@@ -5,29 +5,15 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.saveurlife.goodnews.api.FamilyAPI
-import com.saveurlife.goodnews.api.MapAPI
-import com.saveurlife.goodnews.api.MemberAPI
-import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.main.PermissionsUtil
-import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
-import com.saveurlife.goodnews.service.UserDeviceInfoService
-import com.saveurlife.goodnews.sync.AllDataSync
-import com.saveurlife.goodnews.sync.DataSyncWorker
+import com.saveurlife.goodnews.sync.SyncService
 import com.saveurlife.goodnews.tutorial.TutorialActivity
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
 
 class LoadingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoadingBinding
@@ -78,8 +64,8 @@ class LoadingActivity : AppCompatActivity() {
                     val deviceStateService = DeviceStateService()
                     if(deviceStateService.isNetworkAvailable(applicationContext)){
                         // 동기화
-                        val allDataSync = AllDataSync(applicationContext)
-                        allDataSync.fetchAllData()
+                        val syncService = SyncService(applicationContext)
+                        syncService.fetchAllData()
                     }
                     startActivity(i)
                     finish()
