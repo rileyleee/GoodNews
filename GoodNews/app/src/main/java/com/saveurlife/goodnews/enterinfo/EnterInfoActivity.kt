@@ -19,6 +19,7 @@ import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.MemberAPI
+import com.saveurlife.goodnews.batch.DeleteOldDataService
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -378,6 +379,9 @@ class EnterInfoActivity : AppCompatActivity() {
             memberAPI.updateMember(setMemberId, loc[0].toDouble(), loc[1].toDouble())
 
             Log.i("저장", "저장완료")
+
+
+
             // 메인으로 이동
             val intent = Intent(this, MainActivity::class.java)
 
