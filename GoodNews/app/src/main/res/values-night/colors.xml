@@ -14,6 +14,9 @@
     <color name="sub">#1A2227</color>
     <color name="point">#ED713F</color>
 
+    <!-- 대피소 선택 서브 only -->
+    <color name="sub_only">#C0D6DF</color>
+
     <!--  회색 설정 (진한회색 / 연한회색 / 비활성화)  -->
     <color name="explain_gray">#545454</color>
     <color name="hint_gray">#999999</color>
@@ -23,7 +26,7 @@
     <color name="safe">#3AC783</color>
     <color name="caution">#FFD17B</color>
     <color name="danger">#F15E81</color>
-    <color name="death">#FF1A2227</color>
+    <color name="death">#4C4C4C</color>
 
     <!--  글자색  -->
     <color name="font_color">#FFFFFFFF</color>

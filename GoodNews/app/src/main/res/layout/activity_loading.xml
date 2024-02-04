@@ -8,13 +8,27 @@
     android:background="@color/background">
 
     <ImageView
+        android:id="@+id/lightModeLogoImage"
         android:layout_width="200dp"
         android:layout_height="100dp"
         android:src="@drawable/good_news_logo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+
+    <!--  다크모드 로고 이미지  -->
+    <ImageView
+        android:id="@+id/darkModeLogoImage"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:src="@drawable/good_news_logo_dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
 <!--    <com.airbnb.lottie.LottieAnimationView-->
 <!--        android:id="@+id/lottieAnimationView"-->

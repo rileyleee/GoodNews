@@ -2,32 +2,20 @@ package com.saveurlife.goodnews
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
+import android.view.View
 import androidx.core.app.ActivityCompat
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.saveurlife.goodnews.api.FamilyAPI
-import com.saveurlife.goodnews.api.MapAPI
-import com.saveurlife.goodnews.api.MemberAPI
-import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.databinding.ActivityLoadingBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.main.PermissionsUtil
-import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
-import com.saveurlife.goodnews.service.UserDeviceInfoService
-import com.saveurlife.goodnews.sync.AllDataSync
-import com.saveurlife.goodnews.sync.DataSyncWorker
+import com.saveurlife.goodnews.sync.SyncService
 import com.saveurlife.goodnews.tutorial.TutorialActivity
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
 
 class LoadingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoadingBinding
@@ -44,6 +32,22 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoadingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 다크 모드에 따라 테마 설정
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        when (currentNightMode) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                // 다크 모드일 때 보여질 ImageView 표시
+                binding.darkModeLogoImage.visibility = View.VISIBLE
+                binding.lightModeLogoImage.visibility = View.GONE
+            }
+            else -> {
+                // 다크 모드가 아닐 때 보여질 ImageView 표시
+                binding.lightModeLogoImage.visibility = View.VISIBLE
+                binding.darkModeLogoImage.visibility = View.GONE
+            }
+        }
+
         workManager = WorkManager.getInstance(applicationContext)
 //        Handler().postDelayed(Runnable {
 //            val i = Intent(this@LoadingActivity, TutorialActivity::class.java)
@@ -78,8 +82,8 @@ class LoadingActivity : AppCompatActivity() {
                     val deviceStateService = DeviceStateService()
                     if(deviceStateService.isNetworkAvailable(applicationContext)){
                         // 동기화
-                        val allDataSync = AllDataSync(applicationContext)
-                        allDataSync.fetchAllData()
+                        val syncService = SyncService(applicationContext)
+                        syncService.fetchAllData()
                     }
                     startActivity(i)
                     finish()

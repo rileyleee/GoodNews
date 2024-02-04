@@ -14,51 +14,43 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MapAPI {
 
+    private val TAG_RES = "API RESPONSE"
+    private val TAG_ERR = "API ERROR"
+
     // Retrofit 인스턴스 생성
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://www.saveurlife.kr/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-
     private val mapService = retrofit.create(MapInterface::class.java)
     private val gson = Gson()
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
-
     // 지도 시설 상태 등록
-    fun registMapFacility(buttonType: Boolean, text:String, lat:Double, lon:Double, date: String){
-        val data = RequestPlaceStateInfo(buttonType, text, lat, lon, date)
+    fun registMapFacility(id: String, buttonType: Boolean, text:String, lat:Double, lon:Double, date: String){
+        val data = RequestPlaceStateInfo(id, buttonType, text, lat, lon, date)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
         val call = mapService.registMapFacility(requestBody)
 
-        Log.d("tesssss", data.toString())
         // response
         call.enqueue(object : Callback<ResponseFacilityRegist> {
             override fun onResponse(call: Call<ResponseFacilityRegist>, response: Response<ResponseFacilityRegist>) {
                 if(response.isSuccessful){
                     val responseBody = response.body()
 
-                    Log.d("API RESP", responseBody.toString())
+                    Log.d(TAG_RES, responseBody.toString())
 
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
-
-
-
                     }else{
-                        Log.d("API ERROR", "값이 안왔음.")
+                        Log.e(TAG_ERR, "null 값을 받아왔습니다.")
                     }
                 } else {
-                    Log.d("API ERROR", response.toString())
+                    Log.e(TAG_ERR, response.toString())
                     val errorBodyString = response.errorBody()?.string()
 
                     if (errorBodyString != null) {
@@ -67,18 +59,18 @@ class MapAPI {
                             val code = errorJson.getInt("status")
                             val message = errorJson.getString("error")
 
-                            Log.d("API ERROR", "Error Code: $code, Message: $message")
+                            Log.e(TAG_ERR, "Error Code: $code, Message: $message")
 
                         } catch (e: JSONException) {
-                            Log.e("API ERROR", "Error parsing JSON: $errorBodyString", e)
+                            Log.e(TAG_ERR, "Error parsing JSON: $errorBodyString", e)
                         }
                     } else {
-                        Log.d("API ERROR", "Error body is null")
+                        Log.e(TAG_ERR, "Error body is null")
                     }
                 }
             }
             override fun onFailure(call: Call<ResponseFacilityRegist>, t: Throwable) {
-                Log.d("API ERROR", t.toString())
+                Log.e(TAG_ERR, t.toString())
             }
         })
     }
@@ -99,12 +91,6 @@ class MapAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-
-                        // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
 
                         if(data != null){
                             callback.onSuccess(data)
@@ -161,13 +147,7 @@ class MapAPI {
                     // 받아온 데이터에 대한 응답을 처리
                     if(responseBody!=null){
                         val data = responseBody.data
-                        // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
-
-
+                        Log.d("testtt", data.toString())
                         callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")

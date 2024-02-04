@@ -26,8 +26,9 @@ import com.saveurlife.goodnews.models.FamilyPlace
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import com.saveurlife.goodnews.service.UserDeviceInfoService
-import com.saveurlife.goodnews.sync.FamilySync
+import com.saveurlife.goodnews.sync.DataSync
 import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 
 class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     enum class Mode { ADD, READ, EDIT }
@@ -47,7 +48,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     private lateinit var userDeviceInfoService: UserDeviceInfoService
     private var familyAPI: FamilyAPI = FamilyAPI()
     private lateinit var memberId:String
-    private lateinit var familySync: FamilySync
+    private lateinit var syncService: SyncService
 
     companion object{
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
@@ -62,13 +63,13 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     override fun onResume() {
         super.onResume()
 
-        familySync = FamilySync(requireContext())
+        syncService = SyncService(requireContext())
         val deviceStateService = DeviceStateService()
         // 인터넷 연결 시에만 실행함
         val observer1 = Observer<Boolean>{
             if(it){
                 addPlaceList()
-                familySync.familyPlaceUpdated.value = false
+                syncService.familyPlaceUpdated.value = false
                 updatedUIWithFamilyPlaces()
             }
         }
@@ -76,14 +77,14 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         val observer2 = Observer<Boolean>{
             if(it){
                 addList()
-                familySync.familyMemInfoUpdated.value = false
+                syncService.familyMemInfoUpdated.value = false
             }
         }
-        familySync.familyPlaceUpdated.observe(this, observer1)
-        familySync.familyMemInfoUpdated.observe(this, observer2)
+        syncService.familyPlaceUpdated.observe(this, observer1)
+        syncService.familyMemInfoUpdated.observe(this, observer2)
         if(deviceStateService.isNetworkAvailable(requireContext())){
             // 초기에 갱신도 해야됨.
-            familySync.fetchFamily()
+            syncService.fetchFamilyData()
         }
         addList()
         addPlaceList()
@@ -139,11 +140,11 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         val observer2 = Observer<Boolean>{
             if(it){
                 addList()
-                familySync.familyMemInfoUpdated.value = false
+                syncService.familyMemInfoUpdated.value = false
             }
         }
-        familySync.familyMemInfoUpdated.observe(this, observer2)
-        familySync.fetchFamily()
+        syncService.familyMemInfoUpdated.observe(this, observer2)
+        syncService.fetchFamilyData()
     }
 
     override fun onRejectButtonClick(position: Int) {
@@ -242,7 +243,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         return covName
     }
     fun fetchAll(){
-        familySync.fetchFamily()
+        syncService.fetchFamilyData()
     }
     private fun addPlaceList(){
         realm = Realm.open(GoodNewsApplication.realmConfiguration)
@@ -278,15 +279,15 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         }
         // 가족 리스트 가져오기
         val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
-        val syncService = SyncService()
+        val timeService = TimeService()
 
         // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
         if (resultRealm != null) {
             resultRealm.forEach {
                 if(it.state == null){
-                    familyListAdapter.addFamilyInfo(it.name, Status.NOT_SHOWN, syncService.realmInstantToString(it.lastConnection))
+                    familyListAdapter.addFamilyInfo(it.name, Status.NOT_SHOWN, timeService.realmInstantToString(it.lastConnection))
                 }else{
-                    familyListAdapter.addFamilyInfo(it.name, numToStatus[it.state!!.toInt()]!!, syncService.realmInstantToString(it.lastConnection))
+                    familyListAdapter.addFamilyInfo(it.name, numToStatus[it.state!!.toInt()]!!, timeService.realmInstantToString(it.lastConnection))
                 }
             }
         }

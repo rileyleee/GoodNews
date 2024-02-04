@@ -15,7 +15,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
@@ -33,7 +32,7 @@ import com.saveurlife.goodnews.map.MapDownloader
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
-import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
@@ -367,7 +366,7 @@ class MyPageFragment : Fragment() {
             }
             // 여기서 보내야 된다. 인터넷 연결 시..
             val deviceStateService = DeviceStateService()
-            val syncService = SyncService()
+            val timeService = TimeService()
             preferencesUtil.setInt("age", myAge)
             if(deviceStateService.isNetworkAvailable(requireContext())){
                 val memberAPI = MemberAPI()
