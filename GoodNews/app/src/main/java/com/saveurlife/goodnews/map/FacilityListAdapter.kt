@@ -8,7 +8,7 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ItemListFacilityBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.OffMapFacility
-import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 
 class FacilityListAdapter(
     private var facilities: List<OffMapFacility>,
@@ -33,9 +33,9 @@ class FacilityListAdapter(
 
             // 임시 default 값 -> 마지막 업데이트 시각
             val lastUpdateTime = preferencesUtil.getLong("SyncTime", 0L)
-            val syncService = SyncService()
+            val timeService = TimeService()
             binding.facilityLastUpdateTime.text =
-                syncService.convertDateLongToString(lastUpdateTime)
+                timeService.convertDateLongToString(lastUpdateTime)
 
             // 사용 가능 여부
             when (facility.canUse) {

@@ -14,7 +14,7 @@ import com.saveurlife.goodnews.api.MapAPI
 import com.saveurlife.goodnews.databinding.FragmentEmergencyInfoDialogBinding
 import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.service.DeviceStateService
-import com.saveurlife.goodnews.sync.SyncService
+import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,6 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
 
@@ -121,16 +120,24 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
 
                 val mapAPI = MapAPI()
-                val syncService = SyncService()
+                val timeService = TimeService()
                 val deviceStateService = DeviceStateService()
+
+                val lat = (currLatitude * 1000).toInt() / 1000.0
+                val lon = (currLongitude * 1000).toInt() / 1000.0
+
+                val time = timeService.realmInstantToString(timeRealmInstant)
+
                 if(deviceStateService.isNetworkAvailable(requireContext())){
                     if(isSafe =="1"){
-                        mapAPI.registMapFacility(true, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
+                        mapAPI.registMapFacility(storedId, true, inputText, lat, lon, time)
                     }else{
-                        mapAPI.registMapFacility(false, inputText, (currLatitude * 1000).toInt() / 1000.0, (currLongitude * 1000).toInt() / 1000.0, syncService.realmInstantToString(timeRealmInstant))
+                        mapAPI.registMapFacility(storedId, false, inputText, lat, lon, time)
                     }
                 }
-
+                // 형식 수정되면 알아서 바꾸십쇼
+//                val bleService = BleService();
+//                bleService.createDangerInfoMessage("state/$time/$lat/$lon/$inputText")
                 // BleService.createDangerInfoMessage("state/time/latitude/longitude/content") 호출하도록 해주실 분?
 
                 withContext(Dispatchers.Main) {
