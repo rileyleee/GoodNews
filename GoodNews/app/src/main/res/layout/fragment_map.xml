@@ -52,7 +52,7 @@
                 android:paddingEnd="12dp"
                 android:paddingBottom="8dp"
                 android:text="전체"
-                android:textColor="@color/black" />
+                android:textColor="@drawable/facility_text_color_selector" />
 
             <RadioButton
                 android:id="@+id/radioCivilDefense"
@@ -67,7 +67,7 @@
                 android:paddingEnd="12dp"
                 android:paddingBottom="8dp"
                 android:text="민방위"
-                android:textColor="@color/black" />
+                android:textColor="@drawable/facility_text_color_selector" />
 
             <RadioButton
                 android:id="@+id/radioTsunami"
@@ -82,7 +82,7 @@
                 android:paddingEnd="12dp"
                 android:paddingBottom="8dp"
                 android:text="지진해일"
-                android:textColor="@color/black" />
+                android:textColor="@drawable/facility_text_color_selector" />
         </RadioGroup>
 
         <androidx.constraintlayout.widget.ConstraintLayout

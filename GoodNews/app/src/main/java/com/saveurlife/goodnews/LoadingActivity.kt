@@ -2,9 +2,11 @@ package com.saveurlife.goodnews
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.work.WorkManager
 import com.saveurlife.goodnews.authority.AuthorityActivity
@@ -30,6 +32,22 @@ class LoadingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoadingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 다크 모드에 따라 테마 설정
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        when (currentNightMode) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                // 다크 모드일 때 보여질 ImageView 표시
+                binding.darkModeLogoImage.visibility = View.VISIBLE
+                binding.lightModeLogoImage.visibility = View.GONE
+            }
+            else -> {
+                // 다크 모드가 아닐 때 보여질 ImageView 표시
+                binding.lightModeLogoImage.visibility = View.VISIBLE
+                binding.darkModeLogoImage.visibility = View.GONE
+            }
+        }
+
         workManager = WorkManager.getInstance(applicationContext)
 //        Handler().postDelayed(Runnable {
 //            val i = Intent(this@LoadingActivity, TutorialActivity::class.java)
