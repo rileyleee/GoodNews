@@ -7,6 +7,12 @@
     tools:context=".LoadingActivity"
     android:background="@color/background">
 
+    <!-- 배경에 투명도가 있는 흰색 배경 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80FFFFFF"/>
+
     <ImageView
         android:layout_width="200dp"
         android:layout_height="100dp"

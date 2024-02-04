@@ -23,7 +23,7 @@
     <color name="safe">#3AC783</color>
     <color name="caution">#FFD17B</color>
     <color name="danger">#F15E81</color>
-    <color name="death">#FF1A2227</color>
+    <color name="death">#4C4C4C</color>
 
     <!--  글자색  -->
     <color name="font_color">#FFFFFFFF</color>
