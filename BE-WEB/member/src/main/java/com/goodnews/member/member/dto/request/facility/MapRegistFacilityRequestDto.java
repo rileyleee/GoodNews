@@ -7,6 +7,7 @@ import lombok.ToString;
 @ToString
 public class MapRegistFacilityRequestDto {
 
+    private String id;
     private boolean buttonType;
     private String text;
     private Double lat;

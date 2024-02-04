@@ -8,12 +8,6 @@ server:
 spring:
   application:
     name: discoveryservice
+  profiles:
+    active: prd
 
-eureka:
-#  instance:
-#    hostname: 3.35.136.193
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-    service-url:
-      defaultZone: http://saveurlife.kr:8761/eureka

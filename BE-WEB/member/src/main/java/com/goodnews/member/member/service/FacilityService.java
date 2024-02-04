@@ -20,7 +20,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -79,20 +78,7 @@ public class FacilityService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         formatter.parse(request.getDate());
         saveToRedis(request);
-        // DB에 동일한 lat, lon이 있는지 확인
-//        Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-//        if (findFacilityState.isPresent()) {
-//            // 업데이트 로직
-//            findFacilityState.get().updateState(request);
-//
-//        } else {
-//            // 삽입 로직
-//            facilityStateRepository.save(FacilityState.builder()
-//                    .mapRegistFacilityRequestDto(request)
-//                    .build());
-//        }
-//
-//
+
         return BaseResponseDto.builder()
                 .success(true)
                 .message("시설 상태 정보를 등록했습니다")
@@ -118,29 +104,24 @@ public class FacilityService {
                 .collect(Collectors.toSet());
         for (String key : filteredKeys) {
             String value = redisTemplate.opsForValue().get(key);
+
+            // redis 가 비워져 있을 경우 예외처리
+            if(value == null){
+                log.warn("Redis is null");
+                continue;
+            }
+
             MapRegistFacilityRequestDto request = new ObjectMapper().readValue(value, MapRegistFacilityRequestDto.class);
 
+            // DB에 동일한 ID 가 있는지 확인
+            Optional<FacilityState> findFacilityState = facilityStateRepository.findById(request.getId());
 
-            // DB에 동일한 lat, lon이 있는지 확인
-            Optional<FacilityState> findFacilityState = facilityStateRepository.findByLatAndLon(request.getLat(), request.getLon());
-
-            if(findFacilityState.isPresent()){
-                LocalDateTime lastModifiedDate = findFacilityState.get().getLastModifiedDate();
-
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                LocalDateTime inputModifiedDate = LocalDateTime.parse(request.getDate(), formatter);
-
-                if(lastModifiedDate.isBefore(inputModifiedDate)){
-                    // 수정 로직
-                    findFacilityState.get().updateState(request);
-                }
-            }else{
+            if(findFacilityState.isEmpty()){
                 // 삽입 로직
                 facilityStateRepository.save(FacilityState.builder()
                         .mapRegistFacilityRequestDto(request)
                         .build());
             }
-
         }
     }
 
@@ -162,14 +143,14 @@ public class FacilityService {
         formatter.parse(date);
 
 
-        List<FacilityStateResponseDto> list = facilityStateRepository.findByLastModifiedDateAfter(date).stream()
+        List<FacilityStateResponseDto> list = facilityStateRepository.findByCreatedDateAfter(date).stream()
                 .map(facilityState -> FacilityStateResponseDto.builder()
                         .id(facilityState.getId())
                         .buttonType(facilityState.getButtonType())
                         .text(facilityState.getText())
                         .lon(facilityState.getLon())
                         .lat(facilityState.getLat())
-                        .lastModifiedDate(facilityState.getLastModifiedDate())
+                        .createdDate(facilityState.getCreatedDate())
                         .build())
                 .collect(Collectors.toList());
         mapValidator.checkFaciltiyState(list,date);
