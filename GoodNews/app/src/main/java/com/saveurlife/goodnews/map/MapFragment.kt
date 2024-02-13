@@ -189,10 +189,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
-        val mainActivity = requireActivity() as MainActivity
+//        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
+//        val mainActivity = requireActivity() as MainActivity
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -306,7 +304,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
-                mainActivity.hideLoadingProgressBar()
+//                mainActivity.hideLoadingProgressBar()
             }
         })
 

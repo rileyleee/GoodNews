@@ -110,11 +110,15 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 }
 
                 realm.close()
-                FacilityDataManager.initializeDataIfNeeded{  }
             }
         } else {
             Log.d("데이터 존재 여부", "시설 정보 있으므로 추가 저장 불필요")
-            FacilityDataManager.initializeDataIfNeeded{  }
+        }
+        // 앱 실행 시마다 지도 프래그먼트 로드 가능 여부는 false로 초기화
+        preferences.setBoolean("canLoadMapFragment", false)
+        
+        FacilityDataManager.initializeDataIfNeeded{
+            preferences.setBoolean("canLoadMapFragment", true)
         }
     }
 
