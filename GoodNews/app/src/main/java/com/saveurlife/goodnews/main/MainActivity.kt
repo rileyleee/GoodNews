@@ -217,14 +217,25 @@ class MainActivity : BaseActivity() {
                     navController.navigateSingleTop(menuItem.itemId)
                     true
                 }
+                  // 스피너 버전 기존 코드
+//                R.id.mapFragment -> {
+//                    // 지도 Fragment로 이동할 때 Loading ProgressBar를 표시
+//                    showLoadingProgressBar()
+//                    navController.navigateSingleTop(menuItem.itemId)
+//                    true
+//                }
 
+                // 스피너 대신 sharedPreferences의 값 확인하여 데이터 초기 작업 완료 시에만 들어갈 수 있도록 처리
                 R.id.mapFragment -> {
-                    // 지도 Fragment로 이동할 때 Loading ProgressBar를 표시
-                    showLoadingProgressBar()
-                    navController.navigateSingleTop(menuItem.itemId)
+                    if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
+                        // canLoadMapFragment가 true일 때는 지도 Fragment 로드
+                        navController.navigateSingleTop(menuItem.itemId)
+                    } else {
+                        // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
+                        Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                    }
                     true
                 }
-
                 else -> false
             }
         }
@@ -275,17 +286,16 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    // 로딩 프로그래스 바 표시 함수
-    private fun showLoadingProgressBar() {
-
-        dialog.show()
-    }
-
-    // 로딩 프로그래스 바 감추기 함수
-    fun hideLoadingProgressBar() {
-        Log.i("ddasfasff", "hideLoadingProgressBar: ")
-        dialog.dismiss()
-    }
+//    // 로딩 프로그래스 바 표시 함수
+//    private fun showLoadingProgressBar() {
+//        dialog.show()
+//    }
+//
+//    // 로딩 프로그래스 바 감추기 함수
+//    fun hideLoadingProgressBar() {
+//        Log.i("MainActivityProgessBar", "hideLoadingProgressBar: ")
+//        dialog.dismiss()
+//    }
 
 
     // 배터리 최적화 여부 확인 -> boolean 반환
