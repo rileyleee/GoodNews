@@ -28,10 +28,10 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
-import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
+import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.ext.isValid
@@ -77,6 +77,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var screenRect: BoundingBox
     private var familyMemProvider = FamilyMemProvider()
     private var familyPlaceProvider = FamilyPlaceProvider()
+    private var closeEmergencyInfoProvider = CloseEmergencyInfoProvider()
     private var familyList = mutableListOf<FamilyMemInfo>()
     private var familyPlaceList = mutableListOf<FamilyPlace>()
     private var familyMarkers = mutableListOf<Marker>()
@@ -514,6 +515,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 isAntiAlias = true
             }
         }
+        // 시설 주변 100 미터 내 위험 정보 리스트 작업 위한 변수 선언
+        //var closeInfo: MutableList<MapInstantInfo>
 
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
@@ -544,6 +547,19 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 binding.facilityLastUpdateTime.text =
                     timeService.convertDateLongToString(lastConnection)
 
+                // 시설 좌표 기준 반경 100미터 위험 정보 리스트화
+                var centerLat = facility.latitude
+                var centerLon = facility.longitude
+
+                Log.v("시설 Lat", centerLat.toString())
+                Log.v("시설 Lon", centerLon.toString())
+
+                CoroutineScope(Dispatchers.IO).launch {// 비동기 처리 필요
+                    //메서드에서 넘어오기 전에 담아 버림...
+                    var closeInfo =
+                        closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 500)
+                    Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
+                }
             }
         }
 
