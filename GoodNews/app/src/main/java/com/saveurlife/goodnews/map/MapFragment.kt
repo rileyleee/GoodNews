@@ -676,7 +676,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         if (category == FacilityUIType.SHELTER) {
             val subCategory = binding.subCategoryWrap
             subCategory.visibility = View.VISIBLE
-            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
+            // subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
