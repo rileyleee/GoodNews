@@ -516,7 +516,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             }
         }
         // 시설 주변 100 미터 내 위험 정보 리스트 작업 위한 변수 선언
-        //var closeInfo: MutableList<MapInstantInfo>
+        var closeInfo: MutableList<MapInstantInfo>
 
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
@@ -554,12 +554,18 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("시설 Lat", centerLat.toString())
                 Log.v("시설 Lon", centerLon.toString())
 
-                CoroutineScope(Dispatchers.IO).launch {// 비동기 처리 필요
-                    //메서드에서 넘어오기 전에 담아 버림...
-                    var closeInfo =
-                        closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 500)
-                    Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
+                CoroutineScope(Dispatchers.IO).launch {
+                    closeInfo = closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 200)
+
+                    // 위의 비동기 작업 완료 후 리스트 결과를 메인 스레드로 전달
+                    withContext(Dispatchers.Main) {
+                        Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
+                        // Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo[0].content)
+                        // UI 업데이트 작업
+                        // 메서드명(closeInfo)
+                    }
                 }
+
             }
         }
 

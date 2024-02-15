@@ -3,7 +3,6 @@ package com.saveurlife.goodnews.map
 import android.util.Log
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.models.MapInstantInfo
-import com.saveurlife.goodnews.models.Member
 import io.realm.kotlin.Realm
 import io.realm.kotlin.exceptions.RealmException
 import io.realm.kotlin.ext.query
@@ -87,6 +86,7 @@ class CloseEmergencyInfoProvider {
         val lonDistance = lonDifference * cos(Math.toRadians(lat1)) * 111000
 
         // 사각형 대각선 거리 계산
+        Log.v("두 좌표 간의 거리",sqrt(latDistance * latDistance + lonDistance * lonDistance).toString())
         return sqrt(latDistance * latDistance + lonDistance * lonDistance)
     }
 }
