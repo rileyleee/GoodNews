@@ -27,7 +27,6 @@ class EmergencyAlarmProvider(private val context: Context) {
 
     private lateinit var realm: Realm
     private lateinit var userInfo:RealmResults<Member>
-    private lateinit var userSpecificInfo:Member
     private lateinit var targetInfo: RealmResults<MapInstantInfo>
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
@@ -37,6 +36,7 @@ class EmergencyAlarmProvider(private val context: Context) {
 
 
         var mostRecentInfo: MapInstantInfo? = null
+
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
