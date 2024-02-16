@@ -16,6 +16,8 @@ import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
+import io.realm.kotlin.query.RealmResults
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,7 @@ class EmergencyInfoDialogFragment : DialogFragment() {
     private lateinit var inputText: String
     private var isSafe: String = ""
     private var currentTime by Delegates.notNull<Long>()
+
 
     // 위치 정보 초기화
     private var currLatitude: Double = 0.0
@@ -98,9 +101,9 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         val sharedPref = GoodNewsApplication.preferences
 
-        var userId = sharedPref.getString("id", "id를 찾을 수 없음");
-        var modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime));
-        var storedId = userId+modifiedTime;
+        var userId = sharedPref.getString("id", "id를 찾을 수 없음")
+        var modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime))
+        var storedId = userId+modifiedTime
 
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {

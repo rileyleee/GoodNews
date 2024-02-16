@@ -18,6 +18,7 @@ import android.view.ViewTreeObserver
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,10 +28,10 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
-import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
+import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.ext.isValid
@@ -76,6 +77,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var screenRect: BoundingBox
     private var familyMemProvider = FamilyMemProvider()
     private var familyPlaceProvider = FamilyPlaceProvider()
+    private var closeEmergencyInfoProvider = CloseEmergencyInfoProvider()
     private var familyList = mutableListOf<FamilyMemInfo>()
     private var familyPlaceList = mutableListOf<FamilyPlace>()
     private var familyMarkers = mutableListOf<Marker>()
@@ -188,10 +190,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
-        val mainActivity = requireActivity() as MainActivity
+//        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
+//        val mainActivity = requireActivity() as MainActivity
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -200,7 +200,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         locationProvider.initLocationClient()
 
         // 오프라인 시설 정보 제공자
-        facilityProvider = FacilityProvider(requireContext())
+        facilityProvider = FacilityProvider(requireContext()) // ANR 발생하는 곳
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
@@ -305,19 +305,26 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
-                mainActivity.hideLoadingProgressBar()
+//                mainActivity.hideLoadingProgressBar()
             }
         })
 
         // 사용자가 터치할 때마다 경계 변경
         mapView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
-                // 사용자가 화면을 터치하고 뗄 때마다 호출
-                screenRect = mapView.boundingBox
+                // 백그라운드 스레드에서 경계 변경 처리
+                lifecycleScope.launch(Dispatchers.IO) {
+                    // withContext 함수는 코루틴 블록 내에서 다른 디스패처로 전환할 때 사용하는데
+                    // 여기서 Dispatcher.Main은 안드로이드 UI 스레드에서 실행되는 디스패처임
+                    // 사용자의 경계 변경으로 UI가 업데이트 되는 것은 항상 메인 스레드에서 진행되어야 하기 때문
+                    withContext(Dispatchers.Main){
 
-                Log.v("screenRect", "$screenRect")
-
-                handleSelectedCategory(selectedCategory)
+                        // 사용자가 화면을 터치하고 뗄 때마다 호출
+                        screenRect = mapView.boundingBox
+                        Log.v("screenRect", "$screenRect")
+                        handleSelectedCategory(selectedCategory)
+                    }
+                }
             }
             false
         }
@@ -508,6 +515,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 isAntiAlias = true
             }
         }
+        // 시설 주변 100 미터 내 위험 정보 리스트 작업 위한 변수 선언
+        var closeInfo: MutableList<MapInstantInfo>
 
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
@@ -537,6 +546,25 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 val timeService = TimeService()
                 binding.facilityLastUpdateTime.text =
                     timeService.convertDateLongToString(lastConnection)
+
+                // 시설 좌표 기준 반경 100미터 위험 정보 리스트화
+                var centerLat = facility.latitude
+                var centerLon = facility.longitude
+
+                Log.v("시설 Lat", centerLat.toString())
+                Log.v("시설 Lon", centerLon.toString())
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    closeInfo = closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 200)
+
+                    // 위의 비동기 작업 완료 후 리스트 결과를 메인 스레드로 전달
+                    withContext(Dispatchers.Main) {
+                        Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
+                        // Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo[0].content)
+                        // UI 업데이트 작업
+                        // 메서드명(closeInfo)
+                    }
+                }
 
             }
         }
@@ -670,7 +698,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         if (category == FacilityUIType.SHELTER) {
             val subCategory = binding.subCategoryWrap
             subCategory.visibility = View.VISIBLE
-//            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
+            // subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }
