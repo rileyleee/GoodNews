@@ -23,7 +23,10 @@ class MiniMapDialogFragment : DialogFragment() {
         binding = FragmentMinimapDialogBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-
+        // 미니맵 닫기 버튼 눌렀을 때
+        binding.minimapClose.setOnClickListener {
+            dismiss()
+        }
         return binding.root
     }
 
