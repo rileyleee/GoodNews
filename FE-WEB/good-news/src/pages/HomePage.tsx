@@ -8,6 +8,7 @@ import SubIntro3 from "../components/home/SubIntro3";
 import SubIntro4 from "../components/home/SubIntro4";
 // import MapIntro from "../components/home/MapIntro";
 import DownloadIntro from "../components/home/DownloadIntro";
+import styled from "styled-components";
 
 const HomePage: React.FC = () => {
   let options: any = {
@@ -27,18 +28,40 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div>
-      <SectionsContainer {...options}>
-        <Section><MainIntro /></Section>
-        <Section><SubIntro1 /></Section>
-        <Section><SubIntro2 /></Section>
-        <Section><SubIntro3 /></Section>
-        <Section><SubIntro4 /></Section>
-        {/* <Section><MapIntro /></Section> */}
-        <Section><DownloadIntro /></Section>
-      </SectionsContainer>
-    </div>
+    <>
+      <div className="hidden md:block">
+        <SectionsContainer {...options}>
+          <Section><MainIntro /></Section>
+          <Section><SubIntro1 /></Section>
+          <Section><SubIntro2 /></Section>
+          <Section><SubIntro3 /></Section>
+          <Section><SubIntro4 /></Section>
+          {/* <Section><MapIntro /></Section> */}
+          <Section><DownloadIntro /></Section>
+        </SectionsContainer>
+      </div>
+      <StyledSectionContainer className="md:hidden styledSectionContainer">
+        <StyledSection><MainIntro /></StyledSection>
+        <StyledSection><SubIntro1 /></StyledSection>
+        <StyledSection><SubIntro2 /></StyledSection>
+        <StyledSection><SubIntro3 /></StyledSection>
+        <StyledSection><SubIntro4 /></StyledSection>
+        {/* <StyledSection><MapIntro /></StyledSection> */}
+        <StyledSection><DownloadIntro /></StyledSection>
+      </StyledSectionContainer>
+    </>
   );
 };
 
 export default HomePage;
+
+const StyledSectionContainer = styled.div`
+  height: 100vh;  
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+`
+const StyledSection = styled.div`
+  height: 100vh;
+`
