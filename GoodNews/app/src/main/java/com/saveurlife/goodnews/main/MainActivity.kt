@@ -1,6 +1,5 @@
 package com.saveurlife.goodnews.main
 
-import LoadingDialog
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
@@ -17,7 +16,6 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -31,7 +29,6 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -49,20 +46,18 @@ import com.saveurlife.goodnews.alarm.AlarmActivity
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
-import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.family.FamilyFragment
+import com.saveurlife.goodnews.map.MaploadDialogFragment
+import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.LocationTrackingService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
-class MainActivity : BaseActivity() {
-     private lateinit var binding: ActivityMainBinding
 
-    //    val dialog = LoadingDialog(this)
-    private val dialog: LoadingDialog by lazy {
-        LoadingDialog(this)
-    }
+class MainActivity : BaseActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     val sharedPreferences = GoodNewsApplication.preferences
 
     private val navController by lazy {
@@ -217,13 +212,6 @@ class MainActivity : BaseActivity() {
                     navController.navigateSingleTop(menuItem.itemId)
                     true
                 }
-                  // 스피너 버전 기존 코드
-//                R.id.mapFragment -> {
-//                    // 지도 Fragment로 이동할 때 Loading ProgressBar를 표시
-//                    showLoadingProgressBar()
-//                    navController.navigateSingleTop(menuItem.itemId)
-//                    true
-//                }
 
                 // 스피너 대신 sharedPreferences의 값 확인하여 데이터 초기 작업 완료 시에만 들어갈 수 있도록 처리
                 R.id.mapFragment -> {
@@ -232,7 +220,8 @@ class MainActivity : BaseActivity() {
                         navController.navigateSingleTop(menuItem.itemId)
                     } else {
                         // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
-                        Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                        // Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                        showMapLoadFragment()
                     }
                     true
                 }
@@ -285,18 +274,6 @@ class MainActivity : BaseActivity() {
             finish()
         }
     }
-
-//    // 로딩 프로그래스 바 표시 함수
-//    private fun showLoadingProgressBar() {
-//        dialog.show()
-//    }
-//
-//    // 로딩 프로그래스 바 감추기 함수
-//    fun hideLoadingProgressBar() {
-//        Log.i("MainActivityProgessBar", "hideLoadingProgressBar: ")
-//        dialog.dismiss()
-//    }
-
 
     // 배터리 최적화 여부 확인 -> boolean 반환
     private fun isBatteryOptimizationIgnored(context: Context): Boolean {
@@ -576,6 +553,11 @@ class MainActivity : BaseActivity() {
             navigate(id, null, options)
         }
 
+    }
+
+    private fun showMapLoadFragment() {
+        val loadingFragment = MaploadDialogFragment()
+        loadingFragment.show(supportFragmentManager, "MaploadDialogFragment")
     }
 }
 

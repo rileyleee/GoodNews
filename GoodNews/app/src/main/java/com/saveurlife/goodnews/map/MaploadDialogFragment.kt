@@ -3,15 +3,11 @@ package com.saveurlife.goodnews.map
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import androidx.navigation.fragment.findNavController
-import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMaploadDialogBinding
-import com.saveurlife.goodnews.main.PreferencesUtil
 
 class MaploadDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentMaploadDialogBinding
@@ -28,7 +24,12 @@ class MaploadDialogFragment : DialogFragment() {
             dismiss()
         }
 
+        // 주기적으로 SharedPreferences 값 확인해서 true 이면 mapfragment로 자동 이동
+
+
         return binding.root
     }
+
+
 
 }
