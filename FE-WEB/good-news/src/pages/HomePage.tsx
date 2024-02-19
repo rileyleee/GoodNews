@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <SectionsContainer {...options}>
           <Section><MainIntro /></Section>
           <Section><SubIntro1 /></Section>
@@ -40,7 +40,7 @@ const HomePage: React.FC = () => {
           <Section><DownloadIntro /></Section>
         </SectionsContainer>
       </div>
-      <StyledSectionContainer className="md:hidden styledSectionContainer">
+      <StyledSectionContainer className="lg:hidden styledSectionContainer">
         <StyledSection><MainIntro /></StyledSection>
         <StyledSection><SubIntro1 /></StyledSection>
         <StyledSection><SubIntro2 /></StyledSection>
@@ -58,9 +58,6 @@ export default HomePage;
 const StyledSectionContainer = styled.div`
   height: 100vh;  
   overflow-y: scroll;
-  ::-webkit-scrollbar {
-    display: none;
-  }
 `
 const StyledSection = styled.div`
   height: 100vh;
