@@ -23,4 +23,9 @@ export const GlobalStyles = createGlobalStyle`
         background-color: #274C77;
         border-radius: 16px;
     }
+
+    /* StyledSectionContainer의 스크롤바만 안 보이게 변경 */
+    .styledSectionContainer::-webkit-scrollbar {
+        display: none;
+      }
 `;
