@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp">
+
+    <ImageView
+        android:id="@+id/alertHelpImg"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/help_alert"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/alertHelpText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:text="김싸피님이 도움을 요청했습니다."
+        android:textColor="@color/font_color"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/alertHelpGuide"
+        app:layout_constraintStart_toEndOf="@id/alertHelpImg"
+        app:layout_constraintEnd_toEndOf="@id/alertHelpGuide"
+        app:layout_constraintTop_toTopOf="@id/alertHelpImg"/>
+
+    <TextView
+        android:id="@+id/alertHelpTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10초 전"
+        android:textColor="@color/gray"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@id/alertHelpText"
+        app:layout_constraintTop_toBottomOf="@+id/alertHelpText"/>
+
+<!--    <TextView-->
+<!--        android:id="@+id/alarmHelpTime"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="10초 전"-->
+<!--        android:textColor="@color/gray"-->
+<!--        android:textSize="12sp"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/alarmHelpText"-->
+<!--        app:layout_constraintStart_toEndOf="@id/alarmHelpText"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/alarmHelpText"/>-->
+
+    <ImageView
+        android:id="@+id/alertHelpMessage"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/alarm_chatting"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/alertHelpImg"
+        app:layout_constraintEnd_toStartOf="@+id/alertHelpLocation"
+        app:layout_constraintTop_toTopOf="@id/alertHelpText" />
+
+    <ImageView
+        android:id="@+id/alertHelpLocation"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/alarm_location"
+        app:layout_constraintBottom_toBottomOf="@+id/alertHelpImg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/alertHelpText" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/alertHelpGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
+
+<!--    <androidx.constraintlayout.widget.Group-->
+<!--        android:id="@+id/group"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:constraint_referenced_ids="alarmHelpText,alarmHelpTime"-->
+<!--        app:layout_constraintBaseline_toBaselineOf="@id/alarmHelpGuide"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/alarmHelpGuide"/>-->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -72,8 +72,17 @@ class TimeService {
         // RealmInstant을 밀리초로 변환
         val milliseconds = realmInstant.epochSeconds * 1000 + realmInstant.nanosecondsOfSecond
 
-        // 밀리초를 Date 객체로 변환
-        val date = Date(milliseconds)
+        // 밀리초를 LocalDateTime 객체로 변환
+        val alertTime = LocalDateTime.ofInstant(Date(milliseconds).toInstant(), ZoneId.systemDefault())
+
+        // 9시간 전으로 변경
+        val nineHoursBefore = alertTime.minusHours(9)
+
+        // LocalDateTime을 다시 Date 객체로 변환
+        val date = Date.from(nineHoursBefore.atZone(ZoneId.systemDefault()).toInstant())
+
+//        // 밀리초를 Date 객체로 변환
+//        val date = Date(milliseconds)
 
         // SimpleDateFormat을 사용하여 문자열로 포맷팅
         val dateFormat = SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss", Locale.getDefault())

@@ -48,6 +48,8 @@ import androidx.lifecycle.Observer;
 
 import com.saveurlife.goodnews.GoodNewsApplication;
 import com.saveurlife.goodnews.R;
+import com.saveurlife.goodnews.alert.AlertDatabaseManager;
+import com.saveurlife.goodnews.alert.AlertRepository;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
@@ -142,6 +144,11 @@ public class BleService extends Service {
     private HandlerThread handlerThread;
     private Handler handler;
     private static final int INTERVAL = 10000; // 30 seconds
+
+    //구조요청
+    private AlertDatabaseManager alertDatabaseManager = new AlertDatabaseManager();
+    private AlertRepository alertRepository = new AlertRepository(alertDatabaseManager);
+
 
 
     @Override
@@ -410,11 +417,33 @@ public class BleService extends Service {
                 Map<String, BleMeshConnectedUser> removedUsers = bleMeshConnectedDevicesMap.remove(device.getAddress());
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
 
+//                removedUsers.forEach((key, value) -> {
+//                    System.out.println("Key: " + key + ", Value: " + value);
+//
+//                    String[] parts = value.split("/");
+//                });
+
                 for(String removedUserId : removedUsers.keySet()){
                     if(familyMemIds.contains(removedUserId)){
                         // 여기서 가족 연결 끊어짐 알람
-                        Log.i("가족 연결 끊어짐 알람", removedUserId);
+                        Log.i("가족 연결 끊어짐 알람 - 직접", removedUserId);
                         foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+
+                        // 각 키에 해당하는 값을 가져옴
+                        String valueString = removedUsers.get(removedUserId).toString();
+
+                        String[] values = valueString.split("/");
+//                        43847dbf130eae8a/나여니20/240220225449/4/0.0/0.0
+
+                        String name = values[1];
+                        String status1 = values[3];
+                        Double latitude = Double.valueOf(values[4]);
+                        Double longitude = Double.valueOf(values[5]);
+                        String time = values[2];
+                        String type = "가족끊김";
+
+                        //직접 연결
+                        alertRepository.addFamilyAlert(removedUserId, name, status1, latitude, longitude, time, type);
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -475,8 +504,25 @@ public class BleService extends Service {
 
                             if(!check){
                                 // 여기서 가족 연결 알람
-                                Log.i("가족 연결 알람", data[1]);
+                                Log.i("가족 연결 알람 - 직접", data[1]);
+
+//                                data 형식임
+//                                [43847dbf130eae8a, 나여니20, 240220223837, 4, 0.0, 0.0]
+//                                parts 형식
+//                                [init, 43847dbf130eae8a, 1, 1, 43847dbf130eae8a-나여니20-240220224140-4-0.0-0.0]
+
+
                                 foresendFamilyNotification(data[1], true);
+
+                                String name = data[1];
+                                String status = data[3];
+                                Double latitude = Double.valueOf(data[4]);
+                                Double longitude = Double.valueOf(data[5]);
+                                String time = parts[3];
+                                String type = "가족";
+
+                                //직접 연결
+                                alertRepository.addFamilyAlert(senderId, name, status, latitude, longitude, time, type);
                             }
                         }
 
@@ -516,6 +562,17 @@ public class BleService extends Service {
                 }
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
+
+                    String name = parts[2];
+                    String content = "상태";
+                    Double latitude = 1.0;
+                    Double longitude = 1.0;
+                    String time = parts[3];
+                    String type = "구조";
+
+                    alertRepository.addSaveAlert(senderId, name, content, latitude, longitude, time, type);
+
+
                     if (!goodNewsApplication.isInBackground()) {
                         foresendNotification(parts);
                     } else {
@@ -602,8 +659,20 @@ public class BleService extends Service {
                     for(String removedUserId : removedUsers.keySet()){
                         if(familyMemIds.contains(removedUserId)){
                             // 여기서 가족 연결 끊어짐 알람
-                            Log.i("가족 연결 끊어짐 알람", removedUserId);
+                            Log.i("가족 연결 끊어짐 알람 - 간접 ?", removedUserId);
                             foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+
+                            Log.i("parts", Arrays.toString(parts));
+
+                            String name = parts[2];
+                            String status = "상태";
+                            Double latitude = 1.0;
+                            Double longitude = 1.0;
+                            String time = parts[3];
+                            String type = "가족끊김";
+
+                            //간접 연결인지 확인 필요
+                            alertRepository.addFamilyAlert(senderId, name, status, latitude, longitude, time, type);
                         }
                     }
 
@@ -645,8 +714,19 @@ public class BleService extends Service {
 
                             if(!check){
                                 // 여기서 가족 연결 알람
-                                Log.i("가족 연결 알람", dataId);
+                                Log.i("가족 연결 알람 - 간접?", dataId);
+
                                 foresendFamilyNotification(data[1], true);
+
+                                String name = data[1];
+                                String status = data[3];
+                                Double latitude = Double.valueOf(data[4]);
+                                Double longitude = Double.valueOf(data[5]);
+                                String time = parts[3];
+                                String type = "가족";
+
+                                //간접연결인지 확인 필요
+                                alertRepository.addFamilyAlert(senderId, name, status, latitude, longitude, time, type);
                             }
                         }
 
@@ -834,6 +914,7 @@ public class BleService extends Service {
                     String content = "가족 " + name + "님과 연결이 끊겼습니다.";
                     senderName.setText(content);
                 }
+                Log.i("가족알림","가족알림 연결");
 
 
 

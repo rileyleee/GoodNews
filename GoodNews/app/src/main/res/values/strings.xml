@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GoodNews</string>
+    <string name="app_name">희소식</string>
 
     <!--  TutorialActivity  -->
     <string name="tutorial_skip"><u>건너뛰기</u></string>

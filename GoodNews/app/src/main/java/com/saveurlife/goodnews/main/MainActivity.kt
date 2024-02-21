@@ -31,7 +31,6 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -45,12 +44,13 @@ import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.BaseActivity
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.alarm.AlarmActivity
+import com.saveurlife.goodnews.alert.AlertActivity
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.family.FamilyFragment
+import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.LocationTrackingService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -90,6 +90,9 @@ class MainActivity : BaseActivity() {
 
     //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
     private var isBound = false
+
+    // DeviceStateService 인스턴스 생성
+    private val deviceStateService = DeviceStateService()
 
     private val connection = object : ServiceConnection {
         //Service가 연결되었을 때 호출
@@ -205,7 +208,8 @@ class MainActivity : BaseActivity() {
                 R.id.myPageFragment,
                 R.id.flashlightFragment,
                 R.id.chattingFragment,
-                R.id.chooseGroupMemberFragment
+                R.id.chooseGroupMemberFragment,
+                R.id.tMapFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -217,7 +221,7 @@ class MainActivity : BaseActivity() {
                     navController.navigateSingleTop(menuItem.itemId)
                     true
                 }
-                  // 스피너 버전 기존 코드
+                // 스피너 버전 기존 코드
 //                R.id.mapFragment -> {
 //                    // 지도 Fragment로 이동할 때 Loading ProgressBar를 표시
 //                    showLoadingProgressBar()
@@ -227,63 +231,81 @@ class MainActivity : BaseActivity() {
 
                 // 스피너 대신 sharedPreferences의 값 확인하여 데이터 초기 작업 완료 시에만 들어갈 수 있도록 처리
                 R.id.mapFragment -> {
-                    if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
-                        // canLoadMapFragment가 true일 때는 지도 Fragment 로드
-                        navController.navigateSingleTop(menuItem.itemId)
+
+                    if (deviceStateService.isNetworkAvailable(this)) {
+                        println("!!!!여기에 와야지")
+                        navController.navigateSingleTop(R.id.tMapFragment)
                     } else {
-                        // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
-                        Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                        if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
+                            // canLoadMapFragment가 true일 때는 지도 Fragment 로드
+                            navController.navigateSingleTop(menuItem.itemId)
+                        } else {
+                            // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
+                            Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                        }
                     }
                     true
                 }
+
                 else -> false
             }
         }
 
-        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
-        supportFragmentManager.addOnBackStackChangedListener {
-            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
-            if (supportFragmentManager.backStackEntryCount == 0) {
-                binding.toolbar.visibility = View.VISIBLE
-                binding.navigationView.visibility = View.VISIBLE
-                binding.bottomAppBar.visibility = View.VISIBLE
-                binding.mainCircleAddButton.visibility = View.VISIBLE
-            }
-        }
-
-        binding.mainCircleAddButton.setOnClickListener {
-            showDialog()
-        }
-
-        // 사용자에게 배터리 최적화 무시 요청 (단, 조건에 따라 요청)
-        if (!isBatteryOptimizationIgnored(this)) {
-            AlertDialog.Builder(this).apply {
-                setTitle("배터리 최적화 일시 중지")
-                setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
-                setPositiveButton("확인") { _, _ ->
-                    val intent =
-                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                            data = Uri.parse("package:com.saveurlife.goodnews")
-                        }
-                    startActivity(intent)
+            // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
+            supportFragmentManager.addOnBackStackChangedListener {
+                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+                if (supportFragmentManager.backStackEntryCount == 0) {
+                    binding.toolbar.visibility = View.VISIBLE
+                    binding.navigationView.visibility = View.VISIBLE
+                    binding.bottomAppBar.visibility = View.VISIBLE
+                    binding.mainCircleAddButton.visibility = View.VISIBLE
                 }
-                setNegativeButton("취소", null)
-                show()
             }
-        }
 
-        // 위치 정보 사용 함수 호출
-        callLocationTrackingService()
+            binding.mainCircleAddButton.setOnClickListener {
+                showDialog()
+            }
 
-        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
-        onBackPressedDispatcher.addCallback(this) {
-            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
-            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
-            stopService(intent)
+            // 사용자에게 배터리 최적화 무시 요청 (단, 조건에 따라 요청)
+            if (!isBatteryOptimizationIgnored(this)) {
+                AlertDialog.Builder(this).apply {
+                    setTitle("배터리 최적화 일시 중지")
+                    setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
+                    setPositiveButton("확인") { _, _ ->
+                        val intent =
+                            Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                data = Uri.parse("package:com.saveurlife.goodnews")
+                            }
+                        startActivity(intent)
+                    }
+                    setNegativeButton("취소", null)
+                    show()
+                }
+            }
 
-            // 기본적인 뒤로 가기 동작 수행 (옵션)
-            finish()
-        }
+            // 위치 정보 사용 함수 호출
+            callLocationTrackingService()
+
+            // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+            onBackPressedDispatcher.addCallback(this) {
+                // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+                val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
+                stopService(intent)
+
+                // 기본적인 뒤로 가기 동작 수행 (옵션)
+                finish()
+            }
+
+            //알림 activity에서 가족 fragment로 이동 - 되는지 확인해봐야함
+            val action = intent.action
+            if (action == "showFamilyFragmentByAlert") {
+                navController.navigateSingleTop(R.id.familyFragment)
+                true
+//            supportFragmentManager.beginTransaction()
+//                .replace(R.id.familyFragment, FamilyFragment())
+//                .commit()
+            }
+
     }
 
 //    // 로딩 프로그래스 바 표시 함수
@@ -409,7 +431,7 @@ class MainActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
-                val intent = Intent(this, AlarmActivity::class.java)
+                val intent = Intent(this, AlertActivity::class.java)
                 startActivity(intent)
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                 true
@@ -577,6 +599,7 @@ class MainActivity : BaseActivity() {
         }
 
     }
+
 }
 
 

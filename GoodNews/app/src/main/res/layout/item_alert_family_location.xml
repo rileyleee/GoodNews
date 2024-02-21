@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/familyLocationFragment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/alarmFamilyLocationImg"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/family_regist"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/alarmFamilyLocationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="모임 장소의 상태가 변경되었습니다."
+        android:textColor="@color/font_color"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/alarmFamilyLocationImg"
+        app:layout_constraintStart_toEndOf="@+id/alarmFamilyLocationImg"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/alarmFamilyLocationTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="10초 전"
+        android:textColor="@color/gray"
+        app:layout_constraintBottom_toBottomOf="@+id/alarmFamilyLocationText"
+        app:layout_constraintStart_toEndOf="@id/alarmFamilyLocationText"
+        app:layout_constraintTop_toTopOf="@+id/alarmFamilyLocationText" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
