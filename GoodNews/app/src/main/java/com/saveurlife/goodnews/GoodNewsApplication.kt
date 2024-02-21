@@ -35,9 +35,11 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 //        lateinit var userDeviceInfoService: UserDeviceInfoService
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
+        var isInitialized = false
     }
 
     var isInBackground = true
+
 
     override fun onCreate() {
 
@@ -45,6 +47,9 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
+
+        // 앱 실행 시마다 지도 프래그먼트 로드 가능 여부는 false로 초기화
+        preferences.setBoolean("canLoadMapFragment", false)
 
         super.onCreate()
 
@@ -114,20 +119,21 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 }
 
                 realm.close()
+
+                FacilityDataManager.initializeDataIfNeeded{
+                    preferences.setBoolean("canLoadMapFragment", true)
+                }
             }
         } else {
             Log.d("데이터 존재 여부", "시설 정보 있으므로 추가 저장 불필요")
-        }
-        // 앱 실행 시마다 지도 프래그먼트 로드 가능 여부는 false로 초기화
-        preferences.setBoolean("canLoadMapFragment", false)
-        
-        FacilityDataManager.initializeDataIfNeeded{
-            preferences.setBoolean("canLoadMapFragment", true)
+            FacilityDataManager.initializeDataIfNeeded{
+                preferences.setBoolean("canLoadMapFragment", true)
+            }
         }
     }
 
     object FacilityDataManager{
-        private var isInitialized = false
+//        private var isInitialized = false
         val copiedAll = mutableListOf<OffMapFacility>()
         val copiedShelter = mutableListOf<OffMapFacility>()
         val copiedHospital = mutableListOf<OffMapFacility>()
