@@ -11,13 +11,14 @@ class SyncService(private val context: Context) {
 
     private val dataSync : DataSync = DataSync(context)
 
+
     val familyMemInfoUpdated = MutableLiveData<Boolean>()
     val familyPlaceUpdated = MutableLiveData<Boolean>()
 
     fun fetchAllData(){
         dataSync.fetchDataMember()
-        dataSync.fetchDataFamilyMemInfo()
-        dataSync.fetchDataFamilyPlace()
+        dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdated)
+        dataSync.fetchDataFamilyPlace(familyPlaceUpdated)
         dataSync.fetchDataMapInstantInfo()
 
         familyMemInfoUpdated.postValue(true)
@@ -25,8 +26,8 @@ class SyncService(private val context: Context) {
     }
 
     fun fetchFamilyData(){
-        dataSync.fetchDataFamilyPlace()
-        dataSync.fetchDataFamilyMemInfo()
+        dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdated)
+        dataSync.fetchDataFamilyPlace(familyPlaceUpdated)
 
         familyMemInfoUpdated.postValue(true)
         familyPlaceUpdated.postValue(true)

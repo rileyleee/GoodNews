@@ -221,7 +221,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     private fun addNewPlace(seq: Int) {
         // 서버에 먼저 보내고, placeId 얻어온 다음에 Realm 저장 진행해야됨!!!
         val memberId = getMemberId()
-
+        Log.d("API check", memberId)
         seq.let {
             tempFamilyPlace?.let { place ->
                 // FamilyService의 인스턴스를 사용하여 함수 호출
@@ -259,6 +259,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     private fun getMemberId(): String {
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         val memberId = realm.query<Member>().first().find()?.memberId ?: ""
+        Log.d("API check", memberId)
         realm.close()
         return memberId
     }
