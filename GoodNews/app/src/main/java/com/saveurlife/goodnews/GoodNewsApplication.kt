@@ -84,7 +84,6 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
             CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
-//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.testfacilitydata)))
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 
