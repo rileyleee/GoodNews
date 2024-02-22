@@ -12,12 +12,14 @@ import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.databinding.FragmentMaploadDialogBinding
 
 class MaploadDialogFragment : DialogFragment() {
+
     private lateinit var binding: FragmentMaploadDialogBinding
     private val sharedPreferences = GoodNewsApplication.preferences
 
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "canLoadMapFragment" && sharedPreferences.getBoolean(key, false)) {
+                sharedPreferences.setBoolean("switchToMapAsLoadingEnd", true)
                 dismiss()
             }
         }

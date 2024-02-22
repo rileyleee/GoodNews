@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -28,7 +29,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -66,11 +66,23 @@ class MainActivity : BaseActivity() {
         navHostFragment.navController
     }
 
+
+    // 지도 로딩 완료 확인 후 바로 지도 프래그먼트로 이동
+    private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "switchToMapAsLoadingEnd" && sharedPreferences.getBoolean(key, false)) {
+                navController.navigateSingleTop(R.id.mapFragment)
+                // 이동 후 switchToMapAsLoadingEnd false로 초기화
+                sharedPreferences.setBoolean("switchToMapAsLoadingEnd", false)
+                // switchToMapAsLoadingEnd 변화 감지 리스너 해제 (메모리 누수 방지)
+                destroySharedPreferencesListener()
+            }
+        }
+
     companion object {
         var checkFlash: Boolean = false
+        var sharedPreferencesListenerInitialized = false
     }
-//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-//    private val realm: Realm = Realm.open(config)
 
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
@@ -153,17 +165,6 @@ class MainActivity : BaseActivity() {
         Intent(this, BleService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
-//
-//        realm.writeBlocking {
-//            copyToRealm(Member().apply {
-//                phone = 1012345678
-//                name = "김싸피"
-//                birthDate = "입력하지 않음"
-//                gender = "입력하지 않음"
-//                bloodType = "입력하지 않음"
-//                addInfo = "입력하지 않음"
-//            })
-//        }
 
         //FamilyMemInfo 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
         if (familyItems.isEmpty() && !sharedPreferences.getBoolean("familyAlarmIgnore", false)) {
@@ -219,8 +220,9 @@ class MainActivity : BaseActivity() {
                         // canLoadMapFragment가 true일 때는 지도 Fragment 로드
                         navController.navigateSingleTop(menuItem.itemId)
                     } else {
-                        // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
-                        // Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                        // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
+                        initializeSharedPreferencesListener()
+                        // canLoadMapFragment가 false일 때는 로딩 프래그먼트 실행
                         showMapLoadFragment()
                     }
                     true
@@ -244,23 +246,6 @@ class MainActivity : BaseActivity() {
             showDialog()
         }
 
-        // 사용자에게 배터리 최적화 무시 요청 (단, 조건에 따라 요청)
-//        if (!isBatteryOptimizationIgnored(this)) {
-//            AlertDialog.Builder(this).apply {
-//                setTitle("배터리 최적화 일시 중지")
-//                setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
-//                setPositiveButton("확인") { _, _ ->
-//                    val intent =
-//                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-//                            data = Uri.parse("package:com.saveurlife.goodnews")
-//                        }
-//                    startActivity(intent)
-//                }
-//                setNegativeButton("취소", null)
-//                show()
-//            }
-//        }
-
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
 
@@ -274,13 +259,6 @@ class MainActivity : BaseActivity() {
             finish()
         }
     }
-
-    // 배터리 최적화 여부 확인 -> boolean 반환
-//    private fun isBatteryOptimizationIgnored(context: Context): Boolean {
-//        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-//        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
-//
-//    }
 
     private fun startAdvertiseAndScan() {
         if (isBound && ::bleService.isInitialized) {
@@ -554,9 +532,22 @@ class MainActivity : BaseActivity() {
 
     }
 
+    // 시설 초기 리스트화 작업 미완료 시 로딩 프래그먼트로 이동
     private fun showMapLoadFragment() {
         val loadingFragment = MaploadDialogFragment()
         loadingFragment.show(supportFragmentManager, "MaploadDialogFragment")
+    }
+
+    // 로딩 프래그먼트가 초기작업 완료로 자동으로 dismiss 된 경우, 지도 프래그먼트로 이동 위한 리스너 등록
+    private fun initializeSharedPreferencesListener() {
+        sharedPreferences.preferences.registerOnSharedPreferenceChangeListener(listener)
+        sharedPreferencesListenerInitialized = true
+    }
+
+    // 메모리 누수 방지를 위한 리스너 해제
+    private fun destroySharedPreferencesListener() {
+        sharedPreferences.preferences.unregisterOnSharedPreferenceChangeListener(listener)
+        sharedPreferencesListenerInitialized = false
     }
 }
 
