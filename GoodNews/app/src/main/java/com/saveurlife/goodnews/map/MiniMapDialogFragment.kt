@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMinimapDialogBinding
 import org.osmdroid.tileprovider.MapTileProviderArray
@@ -24,12 +25,16 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sqrt
 
 class MiniMapDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentMinimapDialogBinding
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
 
+    private val sharedPreferences = GoodNewsApplication.preferences
     private val provider: String = "Mapnik"
     private val minZoom: Int = 7
     private val localMaxZoom = 15
@@ -72,7 +77,9 @@ class MiniMapDialogFragment : DialogFragment() {
 
         val tilesOverlay = TilesOverlay(mapProvider, requireContext())
 
-        // 내 위치는 sharedPreference에서 가져오기
+        // 내 위치는 어디에서 가져오는 게 적절한가
+        // 1) 지도 프래그먼트에서만 10초마다 업데이트 되는 sharedPreference의 위치
+        // 2) 모든 프래그먼트에서 30초마다 업데이트되는 realm의 위치
         val myLocation = GeoPoint(37.566535, 126.9779692)
 
         // 상대방의 위치는 이전 모듈에서 보내주는 값으로 설정
@@ -162,5 +169,21 @@ class MiniMapDialogFragment : DialogFragment() {
             }
         }
         return file
+    }
+
+
+    private fun getRoughDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Int {
+
+        // 위도와 경도 차이 계산
+        val latDifference = abs(lat1 - lat2)
+        val lonDifference = abs(lon1 - lon2)
+
+        // 위도와 경도의 차이를 미터로 환산
+        val latDistance = latDifference * 111000
+        val lonDistance = lonDifference * cos(Math.toRadians(lat1)) * 111000
+
+        // 사각형 대각선 거리 계산
+        Log.v("두 좌표 간의 거리", sqrt(latDistance * latDistance + lonDistance * lonDistance).toString())
+        return sqrt(latDistance * latDistance + lonDistance * lonDistance).toInt()
     }
 }
