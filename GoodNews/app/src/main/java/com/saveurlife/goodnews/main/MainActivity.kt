@@ -245,21 +245,21 @@ class MainActivity : BaseActivity() {
         }
 
         // 사용자에게 배터리 최적화 무시 요청 (단, 조건에 따라 요청)
-        if (!isBatteryOptimizationIgnored(this)) {
-            AlertDialog.Builder(this).apply {
-                setTitle("배터리 최적화 일시 중지")
-                setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
-                setPositiveButton("확인") { _, _ ->
-                    val intent =
-                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                            data = Uri.parse("package:com.saveurlife.goodnews")
-                        }
-                    startActivity(intent)
-                }
-                setNegativeButton("취소", null)
-                show()
-            }
-        }
+//        if (!isBatteryOptimizationIgnored(this)) {
+//            AlertDialog.Builder(this).apply {
+//                setTitle("배터리 최적화 일시 중지")
+//                setMessage("위급 상황에서 위치를 실시간으로 저장하기 위해 최적화를 중지합니다.")
+//                setPositiveButton("확인") { _, _ ->
+//                    val intent =
+//                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+//                            data = Uri.parse("package:com.saveurlife.goodnews")
+//                        }
+//                    startActivity(intent)
+//                }
+//                setNegativeButton("취소", null)
+//                show()
+//            }
+//        }
 
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
@@ -276,11 +276,11 @@ class MainActivity : BaseActivity() {
     }
 
     // 배터리 최적화 여부 확인 -> boolean 반환
-    private fun isBatteryOptimizationIgnored(context: Context): Boolean {
-        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
-
-    }
+//    private fun isBatteryOptimizationIgnored(context: Context): Boolean {
+//        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+//        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+//
+//    }
 
     private fun startAdvertiseAndScan() {
         if (isBound && ::bleService.isInitialized) {
