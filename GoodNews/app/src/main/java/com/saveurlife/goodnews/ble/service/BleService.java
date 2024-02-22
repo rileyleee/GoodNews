@@ -23,20 +23,12 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -53,6 +45,7 @@ import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
 import com.saveurlife.goodnews.ble.DangerInfoRealmRepository;
 import com.saveurlife.goodnews.ble.GroupRepository;
+import com.saveurlife.goodnews.ble.BleNotification;
 import com.saveurlife.goodnews.ble.advertise.AdvertiseManager;
 import com.saveurlife.goodnews.ble.bleGattClient.BleGattCallback;
 import com.saveurlife.goodnews.ble.message.ChatDatabaseManager;
@@ -73,16 +66,16 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private BleNotification bleNotification;
+
     private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
     private FamilyMemProvider familyMemProvider = new FamilyMemProvider();
     private Set<String> familyMemIds;
@@ -205,6 +198,8 @@ public class BleService extends Service {
 
 //        chatDatabaseManager.createFamilyMemInfo();
 
+        bleNotification =new BleNotification(getApplicationContext());
+
     }
 
     // 블루투스 시작 버튼
@@ -216,11 +211,8 @@ public class BleService extends Service {
         familyMemProvider.updateAllFamilyMemIds();
         familyMemIds = familyMemProvider.getAllFamilyMemIds();
 
-        Log.i("가족같은객체", String.valueOf(familyMemIds==familyMemProvider.getAllFamilyMemIds()));
-        Log.i("가족아이디사이즈", Integer.toString(familyMemIds.size()));
-        for (String familyMemId : familyMemIds) {
-            Log.i("가족아이디",familyMemId);
-        }
+        String nameBack = "이름 없음";
+        bleNotification.sendNotification(nameBack);
     }
 
 
@@ -319,7 +311,6 @@ public class BleService extends Service {
     }
 
     public static void sendMessageBase() {
-//        sendMessageManager.sendMessageBase(deviceGattMap);
         sendMessageManager.createBaseMessage(deviceGattMap);
     }
 
@@ -414,7 +405,7 @@ public class BleService extends Service {
                     if(familyMemIds.contains(removedUserId)){
                         // 여기서 가족 연결 끊어짐 알람
                         Log.i("가족 연결 끊어짐 알람", removedUserId);
-                        foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+                        bleNotification.foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -476,7 +467,7 @@ public class BleService extends Service {
                             if(!check){
                                 // 여기서 가족 연결 알람
                                 Log.i("가족 연결 알람", data[1]);
-                                foresendFamilyNotification(data[1], true);
+                                bleNotification.foresendFamilyNotification(data[1], true);
                             }
                         }
 
@@ -517,13 +508,12 @@ public class BleService extends Service {
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
                     if (!goodNewsApplication.isInBackground()) {
-                        foresendNotification(parts);
+                        bleNotification.foresendNotification(parts);
                     } else {
                         // 앱이 백그라운드에 있을 때 푸시 알림 보내기
                         String nameBack = parts.length > 2 ? parts[2] : "이름 없음";
-                        sendNotification(nameBack);
+                        bleNotification.sendNotification(nameBack);
                     }
-//                        sendNotification(message);
                     spreadMessage(device.getAddress(), message);
                 }
                 else if (messageType.equals("chat")) {
@@ -541,11 +531,11 @@ public class BleService extends Service {
 
                         if (!senderId.equals(nowChatRoomID)) {
                             if (!goodNewsApplication.isInBackground()) {
-                                foresendNotification(parts);
+                                bleNotification.foresendNotification(parts);
                             } else {
                                 String nameBack = parts.length > 2 ? parts[2] : "이름 없음";
                                 String contentBack = parts.length > 9 ? parts[9] : "내용 없음";
-                                sendChatting(nameBack, contentBack);
+                                bleNotification.sendChatting(nameBack, contentBack);
                             }
                         }
                     }
@@ -603,7 +593,7 @@ public class BleService extends Service {
                         if(familyMemIds.contains(removedUserId)){
                             // 여기서 가족 연결 끊어짐 알람
                             Log.i("가족 연결 끊어짐 알람", removedUserId);
-                            foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+                            bleNotification.foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
                         }
                     }
 
@@ -646,7 +636,7 @@ public class BleService extends Service {
                             if(!check){
                                 // 여기서 가족 연결 알람
                                 Log.i("가족 연결 알람", dataId);
-                                foresendFamilyNotification(data[1], true);
+                                bleNotification.foresendFamilyNotification(data[1], true);
                             }
                         }
 
@@ -693,167 +683,6 @@ public class BleService extends Service {
             }
         }
     }
-
-
-    //구조요청 알림
-    private void sendNotification(String messageContent) {
-        // Notification Channel 생성 (Android O 이상)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "My Notification Channel";
-            String description = "Channel for My App";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID", name, importance);
-            channel.setDescription(description);
-            // 채널을 시스템에 등록
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
-                .setSmallIcon(R.drawable.good_news_logo) // 알림 아이콘 설정
-                .setContentTitle("구조 요청") // 알림 제목
-                .setContentText(messageContent + "님이 구조를 요청했습니다.") // 'message'는 받은 메시지의 내용
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        // 알림 표시
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-        notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
-
-    }
-
-    //포그라운드
-    public void foresendNotification(String[] parts) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-                View layout = inflater.inflate(R.layout.custom_toast, null);
-                View chatLayout = inflater.inflate(R.layout.custom_toast_chat, null);
-
-                // 커스텀 레이아웃의 파라미터 설정
-                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                layout.setLayoutParams(layoutParams);
-
-                // 커스텀 레이아웃의 뷰에 접근하여 설정
-                TextView senderName = layout.findViewById(R.id.toast_name);
-                TextView time = layout.findViewById(R.id.toast_time);
-
-                TextView nameChat = chatLayout.findViewById(R.id.toast_chat_name);
-                TextView context = chatLayout.findViewById(R.id.toast_chat_text);
-                TextView timeChat = chatLayout.findViewById(R.id.toast_chat_time);
-
-                String name = parts.length > 2 ? parts[2] : "이름 없음";
-                if (parts[0].equals("help")) {
-                    String content = name + "님께서 구조를 요청했습니다.";
-                    senderName.setText(content);
-
-                } else if (parts[0].equals("chat")) {
-                    nameChat.setText(name);
-                    String content = parts.length > 9 ? parts[9] : "내용 없음";
-                    context.setText(content);
-                }
-
-
-                String currentTime = new SimpleDateFormat("a hh:mm", Locale.KOREA).format(Calendar.getInstance().getTime());
-                time.setText(currentTime);
-                timeChat.setText(currentTime);
-
-                // 시스템 알림 사운드 재생
-                try {
-//                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-//                                    r.play();
-                    MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.toast_alarm);
-                    mediaPlayer.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                Toast toast = new Toast(getApplicationContext());
-                toast.setDuration(Toast.LENGTH_SHORT);
-                if (parts[0].equals("help")) {
-                    toast.setView(layout);
-                } else if (parts[0].equals("chat")) {
-                    toast.setView(chatLayout);
-                }
-                toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
-                toast.show();
-
-//                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    //채팅 알림(백그라운드)
-    private void sendChatting(String messageContent, String contentBack) {
-        // Notification Channel 생성 (Android O 이상)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "My Notification Channel";
-            String description = "Channel for My App";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("MY_CHANNEL_ID", name, importance);
-            channel.setDescription(description);
-            // 채널을 시스템에 등록
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "MY_CHANNEL_ID")
-                .setSmallIcon(R.drawable.good_news_logo) // 알림 아이콘 설정
-                .setContentTitle(messageContent) // 알림 제목
-                .setContentText(contentBack) // 'message'는 받은 메시지의 내용
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        // 알림 표시
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-        notificationManager.notify(alter++, builder.build()); // 'notificationId'는 각 알림을 구별하는 고유 ID
-
-    }
-
-
-    //가족 알림(포그라운드)
-    public void foresendFamilyNotification(String name, boolean isConnect) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-                View layout = inflater.inflate(R.layout.custom_toast_family, null);
-
-                // 커스텀 레이아웃의 파라미터 설정
-                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                layout.setLayoutParams(layoutParams);
-
-                // 커스텀 레이아웃의 뷰에 접근하여 설정
-                TextView senderName = layout.findViewById(R.id.toast_family);
-                if(isConnect){
-                    String content = "가족 " + name + "님이 연결되었습니다.";
-                    senderName.setText(content);
-                }else{
-                    String content = "가족 " + name + "님과 연결이 끊겼습니다.";
-                    senderName.setText(content);
-                }
-
-
-
-                // 시스템 알림 사운드 재생
-                try {
-                    MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.toast_alarm);
-                    mediaPlayer.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                Toast toast = new Toast(getApplicationContext());
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.setView(layout);
-                toast.setGravity(Gravity.TOP | Gravity.FILL_HORIZONTAL, 0, 0);
-                toast.show();
-            }
-        });
-    }
-
 
     @Override
     public void onDestroy() {
