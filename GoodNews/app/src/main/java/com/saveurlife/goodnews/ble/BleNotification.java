@@ -24,13 +24,20 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class BleNotification {
+    private static BleNotification instance;
     private Context applicationContext;
     private int alter = 1;
 
 
+    public static BleNotification getInstance(Context applicationContext){
+        if(instance==null){
+            instance=new BleNotification(applicationContext);
+        }
+        return instance;
+    }
 
 
-    public BleNotification(Context context){
+    private BleNotification(Context context){
         this.applicationContext =context;
     }
 

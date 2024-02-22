@@ -198,7 +198,7 @@ public class BleService extends Service {
 
 //        chatDatabaseManager.createFamilyMemInfo();
 
-        bleNotification =new BleNotification(getApplicationContext());
+        bleNotification = BleNotification.getInstance(getApplicationContext());
 
     }
 
@@ -210,9 +210,6 @@ public class BleService extends Service {
 
         familyMemProvider.updateAllFamilyMemIds();
         familyMemIds = familyMemProvider.getAllFamilyMemIds();
-
-        String nameBack = "이름 없음";
-        bleNotification.sendNotification(nameBack);
     }
 
 
