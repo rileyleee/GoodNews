@@ -308,7 +308,6 @@ class MainActivity : BaseActivity() {
     private fun startAdvertiseAndScan() {
         if (isBound && ::bleService.isInitialized) {
             bleService.startAdvertiseAndScanAndAuto()
-            Toast.makeText(this, "광고 및 스캔 시작", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "서비스가 바인딩되지 않음", Toast.LENGTH_SHORT).show()
         }
