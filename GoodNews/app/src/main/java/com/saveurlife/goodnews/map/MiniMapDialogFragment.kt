@@ -78,14 +78,19 @@ class MiniMapDialogFragment : DialogFragment() {
         val tilesOverlay = TilesOverlay(mapProvider, requireContext())
 
         // 내 위치는 어디에서 가져오는 게 적절한가
-        // 1) 지도 프래그먼트에서만 10초마다 업데이트 되는 sharedPreference의 위치
+        // 1) 지도 프래그먼트에서만 10초마다 업데이트 되는 sharedPreferences 위치 -> 선정 (값이 없다면 서울광역시 좌표)
         // 2) 모든 프래그먼트에서 30초마다 업데이트되는 realm의 위치
-        val myLocation = GeoPoint(37.566535, 126.9779692)
+        val myLatitude = sharedPreferences.getDouble("lastLat", 37.540705)
+        val myLongitude = sharedPreferences.getDouble("lastLon", 126.956764)
+        val myGeoPoint = GeoPoint(myLatitude, myLongitude)
 
         // 상대방의 위치는 이전 모듈에서 보내주는 값으로 설정
         val otherUserLatitude = requireArguments().getDouble("latitude")
         val otherUserLongitude = requireArguments().getDouble("longitude")
         val otherUserGeoPoint = GeoPoint(otherUserLatitude, otherUserLongitude)
+        
+        // 사용자 간 직선거리
+        val distance = getRoughDistance(myLatitude,myLongitude,otherUserLatitude,otherUserLongitude)
 
         mapView.apply {
 
@@ -122,11 +127,11 @@ class MiniMapDialogFragment : DialogFragment() {
             mapView.isTilesScaledToDpi = false
 
             // 내 위치 마커로 찍기
-            val myLocationMarkerOverlay = MyLocationMarkerOverlay(myLocation)
+            val myLocationMarkerOverlay = MyLocationMarkerOverlay(myGeoPoint)
             mapView.overlays.add(myLocationMarkerOverlay)
 
             // 다른 사용자 위치 마커로 찍기
-            val otherUserMarkerOverlay = ConnectedUserMarkerOverlay(otherUserGeoPoint){}
+            val otherUserMarkerOverlay = ConnectedUserMarkerOverlay(otherUserGeoPoint) {}
             mapView.overlays.add(otherUserMarkerOverlay)
 
             mapView.invalidate()
