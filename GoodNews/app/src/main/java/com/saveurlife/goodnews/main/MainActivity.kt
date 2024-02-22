@@ -58,7 +58,7 @@ import io.realm.kotlin.query.RealmResults
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
 
-    val sharedPreferences = GoodNewsApplication.preferences
+    private val sharedPreferences = GoodNewsApplication.preferences
 
     private val navController by lazy {
         val navHostFragment =
