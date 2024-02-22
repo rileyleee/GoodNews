@@ -105,32 +105,32 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var file: File
 
     // 타일 provider, 최소 줌 및 해상도 설정
-    val provider: String = "Mapnik"
+    private val provider: String = "Mapnik"
 
     // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-    val minZoom: Int = 7
-    val localMaxZoom = 15
-    val serverMaxZoom = 18
-    val pixel: Int = 256
+    private val minZoom: Int = 7
+    private val localMaxZoom = 15
+    private val serverMaxZoom = 18
+    private val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
-    val max = GeoPoint(38.6111, 131.8696)
-    val min = GeoPoint(33.1120, 124.6100)
-    val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
+    private val max = GeoPoint(38.6111, 131.8696)
+    private val min = GeoPoint(33.1120, 124.6100)
+    private val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
     // 마지막 위치 초기 설정 => 서울 시청
-    val sharedPref = GoodNewsApplication.preferences
-    var lastLat = sharedPref.getDouble("lastLat", 37.566535)
-    var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
+    private val sharedPref = GoodNewsApplication.preferences
+    private var lastLat = sharedPref.getDouble("lastLat", 37.566535)
+    private var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
 
     // 오프라인 지도 다운로드 확인 여부
-    var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
+    private var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentMapBinding.inflate(inflater, container, false)
         val preferencesUtil = GoodNewsApplication.preferences
@@ -189,9 +189,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
-//        val mainActivity = requireActivity() as MainActivity
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -305,7 +302,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
-//                mainActivity.hideLoadingProgressBar()
             }
         })
 

@@ -29,6 +29,7 @@ import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.map.MapDownloader
+import com.saveurlife.goodnews.map.MiniMapDialogFragment
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -163,6 +164,12 @@ class MyPageFragment : Fragment() {
             }else{
                 startAppAPKDownload()
             }
+        }
+
+        // (임시) 미니맵 띄우기
+        binding.minimapButton.setOnClickListener{
+            val miniMapFragment = MiniMapDialogFragment()
+            miniMapFragment.show(childFragmentManager, "MiniMapDialogFragment")
         }
 
         //객체 만들기
