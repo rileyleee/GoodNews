@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMinimapDialogBinding
 import org.osmdroid.tileprovider.MapTileProviderArray
@@ -24,12 +25,16 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sqrt
 
 class MiniMapDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentMinimapDialogBinding
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
 
+    private val sharedPreferences = GoodNewsApplication.preferences
     private val provider: String = "Mapnik"
     private val minZoom: Int = 7
     private val localMaxZoom = 15
@@ -41,8 +46,8 @@ class MiniMapDialogFragment : DialogFragment() {
     private val min = GeoPoint(33.1120, 124.6100)
     private val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
-    override fun onViewCreated(view: View, userLocation: Bundle?) {
-        super.onViewCreated(view, userLocation)
+    override fun onViewCreated(view: View, otherUserLocation: Bundle?) {
+        super.onViewCreated(view, otherUserLocation)
 
         mapView = view.findViewById(R.id.map) as MapView
 
@@ -72,6 +77,20 @@ class MiniMapDialogFragment : DialogFragment() {
 
         val tilesOverlay = TilesOverlay(mapProvider, requireContext())
 
+        // 내 위치는 어디에서 가져오는 게 적절한가
+        // 1) 지도 프래그먼트에서만 10초마다 업데이트 되는 sharedPreferences 위치 -> 선정 (값이 없다면 서울광역시 좌표)
+        // 2) 모든 프래그먼트에서 30초마다 업데이트되는 realm의 위치
+        val myLatitude = sharedPreferences.getDouble("lastLat", 37.540705)
+        val myLongitude = sharedPreferences.getDouble("lastLon", 126.956764)
+        val myGeoPoint = GeoPoint(myLatitude, myLongitude)
+
+        // 상대방의 위치는 이전 모듈에서 보내주는 값으로 설정
+        val otherUserLatitude = requireArguments().getDouble("latitude")
+        val otherUserLongitude = requireArguments().getDouble("longitude")
+        val otherUserGeoPoint = GeoPoint(otherUserLatitude, otherUserLongitude)
+        
+        // 사용자 간 직선거리
+        val distance = getRoughDistance(myLatitude,myLongitude,otherUserLatitude,otherUserLongitude)
 
         mapView.apply {
 
@@ -90,13 +109,11 @@ class MiniMapDialogFragment : DialogFragment() {
             mapView.overlayManager.tilesOverlay.loadingBackgroundColor = Color.GRAY
             mapView.overlayManager.tilesOverlay.loadingLineColor = Color.BLACK
 
-
             // 중심좌표 및 배율 설정
             mapView.controller.setZoom(13.0)
             mapView.controller.setCenter(
-//                GeoPoint(userLocation.lat, userLocation.lon)
-                // 임시로 서울 시청을 중심좌표로 설정
-                GeoPoint(37.566535, 126.9779692)
+                // 상대방의 위치를 중심 좌표로 설정
+                GeoPoint(otherUserLatitude, otherUserLongitude)
             )
 
             // 타일 반복 방지
@@ -109,13 +126,21 @@ class MiniMapDialogFragment : DialogFragment() {
             // 기기 화면 DPI에 따라 스케일 DPI 적용(기기별로 보이는 지도 크기 최대한 유사하도록)
             mapView.isTilesScaledToDpi = false
 
+            // 내 위치 마커로 찍기
+            val myLocationMarkerOverlay = MyLocationMarkerOverlay(myGeoPoint)
+            mapView.overlays.add(myLocationMarkerOverlay)
+
+            // 다른 사용자 위치 마커로 찍기
+            val otherUserMarkerOverlay = ConnectedUserMarkerOverlay(otherUserGeoPoint) {}
+            mapView.overlays.add(otherUserMarkerOverlay)
+
             mapView.invalidate()
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        otherUserLocation: Bundle?
     ): View {
         binding = FragmentMinimapDialogBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -129,8 +154,9 @@ class MiniMapDialogFragment : DialogFragment() {
 
     private fun getMapsFile(context: Context): File {
 
+        // 기본 지도 파일로 렌더링
         val resourceInputStream =
-            context.resources.openRawResource(R.raw.korea_7_13) // 지도 파일 변경 시 수정3
+            context.resources.openRawResource(R.raw.korea_7_13)
 
         // 파일 경로
         val file = File(context.filesDir, localMapTileArchivePath)
@@ -148,6 +174,21 @@ class MiniMapDialogFragment : DialogFragment() {
             }
         }
         return file
+    }
 
+
+    private fun getRoughDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Int {
+
+        // 위도와 경도 차이 계산
+        val latDifference = abs(lat1 - lat2)
+        val lonDifference = abs(lon1 - lon2)
+
+        // 위도와 경도의 차이를 미터로 환산
+        val latDistance = latDifference * 111000
+        val lonDistance = lonDifference * cos(Math.toRadians(lat1)) * 111000
+
+        // 사각형 대각선 거리 계산
+        Log.v("두 좌표 간의 거리", sqrt(latDistance * latDistance + lonDistance * lonDistance).toString())
+        return sqrt(latDistance * latDistance + lonDistance * lonDistance).toInt()
     }
 }

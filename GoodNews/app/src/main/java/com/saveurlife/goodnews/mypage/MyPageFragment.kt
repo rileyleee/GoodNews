@@ -92,7 +92,7 @@ class MyPageFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
 
         //Realm에서 내 정보 가져오기
@@ -169,6 +169,12 @@ class MyPageFragment : Fragment() {
         // (임시) 미니맵 띄우기
         binding.minimapButton.setOnClickListener{
             val miniMapFragment = MiniMapDialogFragment()
+            val otherUserLocation = Bundle()
+            otherUserLocation.putDouble("latitude", 36.321655)
+            otherUserLocation.putDouble("longitude", 127.378953)
+
+            miniMapFragment.arguments = otherUserLocation
+
             miniMapFragment.show(childFragmentManager, "MiniMapDialogFragment")
         }
 
