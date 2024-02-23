@@ -213,13 +213,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 serverMapTileArchivePath
             )
 
-        if (file.exists()) {
-            sharedPref.setBoolean("downloadedMap", true)
-        } else {
+        // 사용자가 지도 파일을 삭제했을 때 false 처리
+        if (!file.exists()) {
             sharedPref.setBoolean("downloadedMap", false)
         }
 
-        var tileSource: XYTileSource
+        val tileSource: XYTileSource
 
         if (downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
             tileSource = XYTileSource(

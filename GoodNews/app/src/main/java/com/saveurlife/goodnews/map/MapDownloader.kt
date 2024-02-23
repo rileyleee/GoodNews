@@ -6,7 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-
+import com.saveurlife.goodnews.GoodNewsApplication
 
 
 class MapDownloader(private val context: Context) {
@@ -14,7 +14,7 @@ class MapDownloader(private val context: Context) {
     private val downloadManager by lazy {
         context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
     }
-
+    private val sharedPref = GoodNewsApplication.preferences
     private var downloadId: Long = 0
 
     fun downloadFile(url: String, outputFilePath: String) {
@@ -42,10 +42,12 @@ class MapDownloader(private val context: Context) {
                     val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
                     val status = cursor.getInt(statusIndex)
                     if (status == DownloadManager.STATUS_SUCCESSFUL || status == DownloadManager.STATUS_FAILED) {
-                        val message = if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                            "다운로드를 완료하였습니다."
-                        } else {
-                            "다운로드가 취소되었습니다."
+                        val message: String
+                        if(status == DownloadManager.STATUS_SUCCESSFUL) {
+                            message  = "서버에서 지도 파일을 다운로드를 완료했습니다."
+                            sharedPref.setBoolean("downloadedMap", true)
+                        }else{
+                            message  = "서버에서 지도 파일을 다운로드를 취소했습니다."
                         }
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                     }
