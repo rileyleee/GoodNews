@@ -33,6 +33,8 @@ class MiniMapDialogFragment : DialogFragment() {
     private lateinit var binding: FragmentMinimapDialogBinding
     private lateinit var mapView: MapView
     private lateinit var mapProvider: MapTileProviderArray
+    private lateinit var myLocationMarkerOverlay: MyLocationMarkerOverlay
+    private lateinit var otherUserMarkerOverlay: ConnectedUserMarkerOverlay
 
     private val sharedPreferences = GoodNewsApplication.preferences
     private val provider: String = "Mapnik"
@@ -88,9 +90,10 @@ class MiniMapDialogFragment : DialogFragment() {
         val otherUserLatitude = requireArguments().getDouble("latitude")
         val otherUserLongitude = requireArguments().getDouble("longitude")
         val otherUserGeoPoint = GeoPoint(otherUserLatitude, otherUserLongitude)
-        
+
         // 사용자 간 직선거리
-        val distance = getRoughDistance(myLatitude,myLongitude,otherUserLatitude,otherUserLongitude)
+        val distance =
+            getRoughDistance(myLatitude, myLongitude, otherUserLatitude, otherUserLongitude)
 
         mapView.apply {
 
@@ -127,11 +130,11 @@ class MiniMapDialogFragment : DialogFragment() {
             mapView.isTilesScaledToDpi = false
 
             // 내 위치 마커로 찍기
-            val myLocationMarkerOverlay = MyLocationMarkerOverlay(myGeoPoint)
+            myLocationMarkerOverlay = MyLocationMarkerOverlay(myGeoPoint)
             mapView.overlays.add(myLocationMarkerOverlay)
 
             // 다른 사용자 위치 마커로 찍기
-            val otherUserMarkerOverlay = ConnectedUserMarkerOverlay(otherUserGeoPoint) {}
+            otherUserMarkerOverlay = ConnectedUserMarkerOverlay(otherUserGeoPoint) {}
             mapView.overlays.add(otherUserMarkerOverlay)
 
             mapView.invalidate()
@@ -190,5 +193,12 @@ class MiniMapDialogFragment : DialogFragment() {
         // 사각형 대각선 거리 계산
         Log.v("두 좌표 간의 거리", sqrt(latDistance * latDistance + lonDistance * lonDistance).toString())
         return sqrt(latDistance * latDistance + lonDistance * lonDistance).toInt()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mapView.overlays.remove(myLocationMarkerOverlay)
+        mapView.overlays.remove(otherUserMarkerOverlay)
+        mapView.invalidate()
     }
 }
