@@ -4,10 +4,10 @@ import Text from "../@common/Text";
 // 지도 관련 설명
 const SubIntro3 = () => {
   return (
-    <StyledMapPageWrapper>
-      <StyledMapIntro className="flex items-center justify-center lg:justify-around relative">
+    <StyledSubIntro3Wrapper>
+      <StyledSubIntro3ContentWrapper className="flex items-center justify-center lg:justify-around relative">
         <StyledMapImage
-          className="h-5/6"
+          className="h-4/6 lg:h-5/6"
           src="/assets/subIntroImg.png"
           alt="지도 페이지 소개"
         />
@@ -102,19 +102,19 @@ const SubIntro3 = () => {
             </Text>
           </div>
         </div>
-      </StyledMapIntro>
-    </StyledMapPageWrapper>
+      </StyledSubIntro3ContentWrapper>
+    </StyledSubIntro3Wrapper>
   );
 };
 
 export default SubIntro3;
 
-const StyledMapPageWrapper = styled.div`
+const StyledSubIntro3Wrapper = styled.div`
   width: 100%;
   height: 100%;
 `;
 
-const StyledMapIntro = styled.div`
+const StyledSubIntro3ContentWrapper = styled.div`
   width: 80%;
   height: 100%;
   margin: 0 auto;
@@ -123,5 +123,5 @@ const StyledMapIntro = styled.div`
 const StyledMapImage = styled.img``;
 const StyledFilterImage = styled.img`
   width: 56px;
-  height: 56px;
+  aspect-ratio: 1/1;
 `;

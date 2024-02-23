@@ -103,7 +103,7 @@ const SubIntro1 = () => {
         <StyledImage
           src="/assets/subIntro1_img.png"
           alt="임시 사진"
-          className="h-4/6 lg:h-5/6"
+          className="lg:h-5/6"
         />
       </StyledSubIntro1ContentWrapper>
     </StyledSubIntro1Wrapper>

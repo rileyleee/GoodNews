@@ -6,7 +6,7 @@ import SubIntro1 from "../components/home/SubIntro1";
 import SubIntro2 from "../components/home/SubIntro2";
 import SubIntro3 from "../components/home/SubIntro3";
 import SubIntro4 from "../components/home/SubIntro4";
-// import MapIntro from "../components/home/MapIntro";
+import MapIntro from "../components/home/MapIntro";
 import DownloadIntro from "../components/home/DownloadIntro";
 import styled from "styled-components";
 
@@ -20,7 +20,7 @@ const HomePage: React.FC = () => {
       "subIntro2",
       "subIntro3",
       "subIntro4",
-      // "mapIntro",
+      "mapIntro",
       "downloadIntro",
     ],
     arrowNavigation: true,    // 위아래 화살표로 이동 가능
@@ -36,7 +36,7 @@ const HomePage: React.FC = () => {
           <Section><SubIntro2 /></Section>
           <Section><SubIntro3 /></Section>
           <Section><SubIntro4 /></Section>
-          {/* <Section><MapIntro /></Section> */}
+          <Section><MapIntro /></Section>
           <Section><DownloadIntro /></Section>
         </SectionsContainer>
       </div>
