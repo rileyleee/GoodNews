@@ -139,8 +139,8 @@
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="minimapConnect,minimapTextView"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="minimapConnect"
-        app:layout_constraintEnd_toEndOf="minimapConnect"
+        app:layout_constraintStart_toStartOf="@id/minimapConnect"
+        app:layout_constraintEnd_toEndOf="@id/minimapConnect"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.helper.widget.Layer

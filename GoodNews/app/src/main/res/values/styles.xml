@@ -77,4 +77,9 @@
     <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar" >
         <item name="android:textColorPrimary">@color/font_color</item>
     </style>
+
+    <!-- AutocompleteFragment 텍스트 색상 -->
+    <style name="MyAutocompleteFragmentStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColor">@color/font_color</item>
+    </style>
 </resources>
