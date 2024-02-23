@@ -213,21 +213,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 serverMapTileArchivePath
             )
 
-        // 사용자가 지도 파일을 삭제했을 때 false 처리
-        if (!file.exists()) {
-            sharedPref.setBoolean("downloadedMap", false)
-        }
+        // 파일이 실제로 존재하고 sharedPreferences에도 있는 것으로 확인 되어야 서버 지도 로드
 
-        val tileSource: XYTileSource
-
-        if (downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
-            tileSource = XYTileSource(
+        val tileSource: XYTileSource = if (file.exists() && downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
+            XYTileSource(
                 provider,
                 minZoom, serverMaxZoom, pixel, ".png",
                 arrayOf("http://127.0.0.1")
             )
         } else {
-            tileSource = XYTileSource(
+            XYTileSource(
                 provider,
                 minZoom, localMaxZoom, pixel, ".png",
                 arrayOf("http://127.0.0.1")
@@ -425,14 +420,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun getMapsFile(context: Context): File {
 
         // 서버에서 저장한 지도 파일
-        if (downloadedMap) {
+        // 파일이 실제로 존재하고 sharedPreferences에도 있는 것으로 확인 되어야 서버 지도 로드
+        if (file.exists() && downloadedMap) {
             Log.d("지도 출처", "서버에서 다운로드 받은 지도요")
 
-            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
-            if (!file.exists()) {
-                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
-
-            }
+//            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+//            if (!file.exists()) {
+//                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+//
+//            }
             return file
         } else { // 로컬에 존재하는 지도 파일
             Log.d("지도 출처", "로컬에 있는 지도요")

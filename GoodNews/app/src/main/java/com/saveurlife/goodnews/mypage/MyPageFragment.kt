@@ -52,10 +52,6 @@ class MyPageFragment : Fragment() {
     private var selectedBlood: String? = null
     private var myAge by Delegates.notNull<Int>()
 
-
-//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-//    private val realm: Realm = Realm.open(config)
-
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private var items: RealmResults<Member> = realm.query<Member>().find()
 
@@ -147,8 +143,6 @@ class MyPageFragment : Fragment() {
             startMapFileDownload()
         }
 
-
-
         if(isFileExistInDirectory()){
             // 파일 존재할 경우
             binding.shareApp.text = "앱 공유"
@@ -235,7 +229,6 @@ class MyPageFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        mapDownloader.registerReceiver()
     }
 
     //myPageFragment에 정보 불러오기
@@ -648,14 +641,17 @@ class MyPageFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        mapDownloader.unregisterReceiver()
     }
 
     private fun startMapFileDownload() {
+        // 브로드캐스트 리시버 등록
+        mapDownloader.registerReceiver()
+
         Log.v("mypagefragment","지도 다운로드 함수 호출")
         val url = "https://saveurlife.kr/images/7_15_korea.sqlite"
         val fileName = "7_15_korea.sqlite"
 
+        // 지도 다운로드 함수 호출
         mapDownloader.downloadFile(url, fileName)
     }
 //shareApp
