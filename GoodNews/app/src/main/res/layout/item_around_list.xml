@@ -38,19 +38,27 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/aroundName"
         app:layout_constraintTop_toTopOf="parent" />
-    <!--    app:layout_constraintEnd_toStartOf="@id/aroundLocation"-->
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/aroundLocation"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text="@string/location"-->
-    <!--        android:textSize="16sp"-->
-    <!--        android:textColor="@color/font_color"-->
-    <!--        app:layout_constraintStart_toEndOf="@id/aroundBetween"-->
-    <!--        app:layout_constraintTop_toTopOf="parent"-->
-    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--        app:layout_constraintEnd_toStartOf="@id/aroundChatting"/>-->
+    <TextView
+        android:id="@+id/minimapConnect"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/btn_match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/aroundChatting"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/minimapTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위치 보기"
+        android:textColor="@color/font_same"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/minimapConnect"
+        app:layout_constraintEnd_toEndOf="@+id/minimapConnect"
+        app:layout_constraintStart_toStartOf="@id/minimapConnect"
+        app:layout_constraintTop_toTopOf="@id/minimapConnect" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/aroundChatting"
@@ -58,9 +66,20 @@
         android:layout_height="40dp"
         android:background="@drawable/btn_sub"
         android:text="채팅하기"
+        android:textSize="16sp"
         android:textColor="@color/all_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/requestMinimapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="minimapConnect,minimapTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="minimapConnect"
+        app:layout_constraintEnd_toEndOf="minimapConnect"
         app:layout_constraintTop_toTopOf="parent" />
 
 
