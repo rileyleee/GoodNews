@@ -28,8 +28,29 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/minimapConnect"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/btn_match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/bleConnect"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/minimapTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위치 보기"
+        android:textColor="@color/font_same"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/minimapConnect"
+        app:layout_constraintEnd_toEndOf="@+id/minimapConnect"
+        app:layout_constraintStart_toStartOf="@id/minimapConnect"
+        app:layout_constraintTop_toTopOf="@id/minimapConnect" />
+
+    <TextView
         android:id="@+id/bleConnect"
-        android:layout_width="110dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         android:background="@drawable/btn_sub"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -111,6 +132,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_percent="1" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/requestMinimapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="minimapConnect,minimapTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/minimapConnect"
+        app:layout_constraintEnd_toEndOf="@id/minimapConnect"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.helper.widget.Layer
         android:id="@+id/requestBleButton"
