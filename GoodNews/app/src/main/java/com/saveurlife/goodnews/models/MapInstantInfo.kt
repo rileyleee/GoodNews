@@ -2,8 +2,10 @@ package com.saveurlife.goodnews.models
 
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 
 class MapInstantInfo():RealmObject {
+    @PrimaryKey
     var id: String ="" // 식별자
     var state: String= "" // 위험 O 안전에 따라 한 글자로 표현
     var content: String=""

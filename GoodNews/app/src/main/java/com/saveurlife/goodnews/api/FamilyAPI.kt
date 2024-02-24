@@ -45,12 +45,6 @@ class FamilyAPI {
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
 
-
-
-
-
-
-
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -102,11 +96,6 @@ class FamilyAPI {
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
-
-
-
-
-
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -144,7 +133,6 @@ class FamilyAPI {
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
-        Log.d("test", data.toString())
         val call = familyService.updateRegistFamily(requestBody)
         call.enqueue(object : Callback<ResponseFamilyUpdate> {
             override fun onResponse(call: Call<ResponseFamilyUpdate>, response: Response<ResponseFamilyUpdate>) {
@@ -157,10 +145,6 @@ class FamilyAPI {
                     if(responseBody!=null){
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
 
 
 
@@ -200,6 +184,7 @@ class FamilyAPI {
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
+        Log.d("api check", data.toString())
         val call = familyService.registFamilyPlace(requestBody)
         call.enqueue(object : Callback<ResponsePlaceRegist> {
             override fun onResponse(call: Call<ResponsePlaceRegist>, response: Response<ResponsePlaceRegist>) {
@@ -212,10 +197,6 @@ class FamilyAPI {
                     if(responseBody!=null){
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
 
 
                         callback.onSuccess(data)
@@ -268,10 +249,6 @@ class FamilyAPI {
                     if(responseBody!=null){
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
 
 
                         callback.onSuccess(data.familyId)
@@ -328,10 +305,6 @@ class FamilyAPI {
                         val data = responseBody.data
 
                         // 원하는 작업을 여기에 추가해 주세요.
-
-
-
-
 
 
                         callback.onSuccess(data)
@@ -393,10 +366,6 @@ class FamilyAPI {
                         // 원하는 작업을 여기에 추가해 주세요.
 
 
-
-
-
-
                         callback.onSuccess(data)
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
@@ -453,8 +422,6 @@ class FamilyAPI {
                     if(responseBody!=null){
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
-
-
 
 
 

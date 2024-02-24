@@ -33,16 +33,17 @@ class EmergencyInfoDialogFragment : DialogFragment() {
     private var isSafe: String = ""
     private var currentTime by Delegates.notNull<Long>()
 
+
     // 위치 정보 초기화
     private var currLatitude: Double = 0.0
     private var currLongitude: Double = 0.0
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, userLocation: Bundle?) {
+        super.onViewCreated(view, userLocation)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        userLocation: Bundle?
     ): View? {
         binding = FragmentEmergencyInfoDialogBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -98,9 +99,9 @@ class EmergencyInfoDialogFragment : DialogFragment() {
 
         val sharedPref = GoodNewsApplication.preferences
 
-        var userId = sharedPref.getString("id", "id를 찾을 수 없음");
-        var modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime));
-        var storedId = userId+modifiedTime;
+        var userId = sharedPref.getString("id", "id를 찾을 수 없음")
+        var modifiedTime = SimpleDateFormat("yyMMddHHmmss", Locale.getDefault()).format(Date(currentTime))
+        var storedId = userId+modifiedTime
 
         // 현재 정보 realm에 저장
         CoroutineScope(Dispatchers.IO).launch {

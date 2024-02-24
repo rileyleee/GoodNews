@@ -49,6 +49,12 @@ class DataSync (context: Context) {
 
     private val newTime = System.currentTimeMillis()
 
+
+//    val familyMemInfoUpdated = MutableLiveData<Boolean>()
+//    val familyPlaceUpdated = MutableLiveData<Boolean>()
+
+
+
     // 개인 정보 관련
 
     fun fetchDataMember() {
@@ -113,7 +119,7 @@ class DataSync (context: Context) {
 
     // 가족 관련
     // 1) 가족 구성원 정보
-    fun fetchDataFamilyMemInfo() {
+    fun fetchDataFamilyMemInfo(familyMemInfoUpdated:MutableLiveData<Boolean>) {
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
 
         GlobalScope.launch {
@@ -151,6 +157,7 @@ class DataSync (context: Context) {
                                         familyId = it.familyId
                                     })
                             }
+                            familyMemInfoUpdated.postValue(true)
                         }
 
                         override fun onFailure(error: String) {
@@ -168,7 +175,7 @@ class DataSync (context: Context) {
     }
 
     // 가족 모임 장소
-    fun fetchDataFamilyPlace() {
+    fun fetchDataFamilyPlace(familyPlaceUpdated:MutableLiveData<Boolean>) {
         // 내가 변경한 장소 수정
         val allData = realm.query<FamilyPlace>().find()
         allData.forEach {
@@ -212,6 +219,7 @@ class DataSync (context: Context) {
                                         }
                                     )
                                 }
+                                familyPlaceUpdated.postValue(true)
                                 // family
                                 preferences.setLong("FamilySyncTime", newTime)
                             }
@@ -281,31 +289,34 @@ class DataSync (context: Context) {
             object : MapAPI.FacilityStateDurationCallback {
                 override fun onSuccess(result: ArrayList<DurationFacilityState>) {
                     result.forEach {
-                        var stateStr = ""
-                        if (it.buttonType) {
-                            stateStr = "1"
-                        } else {
-                            stateStr = "0"
-                        }
-                        val localDateTime = LocalDateTime.parse(it.createdDate, formatter)
-                        val milliseconds =
-                            localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+                        val vaildCheck = realm.query<MapInstantInfo>("id == $0", it.id).find()
+                        if(vaildCheck == null) {
+                            var stateStr = ""
+                            if (it.buttonType) {
+                                stateStr = "1"
+                            } else {
+                                stateStr = "0"
+                            }
+                            val localDateTime = LocalDateTime.parse(it.createdDate, formatter)
+                            val milliseconds =
+                                localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
 
-                        realm.writeBlocking {
-                            copyToRealm(
-                                MapInstantInfo().apply {
-                                    id = it.id
-                                    state = stateStr
-                                    content = it.text
-                                    time = RealmInstant.from(
-                                        milliseconds / 1000,
-                                        (milliseconds % 1000).toInt()
-                                    )
-                                    latitude = it.lat
-                                    longitude = it.lon
+                            realm.writeBlocking {
+                                copyToRealm(
+                                    MapInstantInfo().apply {
+                                        id = it.id
+                                        state = stateStr
+                                        content = it.text
+                                        time = RealmInstant.from(
+                                            milliseconds / 1000,
+                                            (milliseconds % 1000).toInt()
+                                        )
+                                        latitude = it.lat
+                                        longitude = it.lon
 
-                                }
-                            )
+                                    }
+                                )
+                            }
                         }
                     }
 

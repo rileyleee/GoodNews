@@ -18,6 +18,7 @@ import android.view.ViewTreeObserver
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,10 +28,10 @@ import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentMapBinding
-import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.FacilityUIType
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
+import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.ext.isValid
@@ -76,6 +77,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var screenRect: BoundingBox
     private var familyMemProvider = FamilyMemProvider()
     private var familyPlaceProvider = FamilyPlaceProvider()
+    private var closeEmergencyInfoProvider = CloseEmergencyInfoProvider()
     private var familyList = mutableListOf<FamilyMemInfo>()
     private var familyPlaceList = mutableListOf<FamilyPlace>()
     private var familyMarkers = mutableListOf<Marker>()
@@ -103,32 +105,32 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var file: File
 
     // 타일 provider, 최소 줌 및 해상도 설정
-    val provider: String = "Mapnik"
+    private val provider: String = "Mapnik"
 
     // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-    val minZoom: Int = 7
-    val localMaxZoom = 15
-    val serverMaxZoom = 18
-    val pixel: Int = 256
+    private val minZoom: Int = 7
+    private val localMaxZoom = 15
+    private val serverMaxZoom = 18
+    private val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
-    val max = GeoPoint(38.6111, 131.8696)
-    val min = GeoPoint(33.1120, 124.6100)
-    val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
+    private val max = GeoPoint(38.6111, 131.8696)
+    private val min = GeoPoint(33.1120, 124.6100)
+    private val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
     // 마지막 위치 초기 설정 => 서울 시청
-    val sharedPref = GoodNewsApplication.preferences
-    var lastLat = sharedPref.getDouble("lastLat", 37.566535)
-    var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
+    private val sharedPref = GoodNewsApplication.preferences
+    private var lastLat = sharedPref.getDouble("lastLat", 37.566535)
+    private var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
 
     // 오프라인 지도 다운로드 확인 여부
-    var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
+    private var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentMapBinding.inflate(inflater, container, false)
         val preferencesUtil = GoodNewsApplication.preferences
@@ -188,11 +190,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
-        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
-        val mainActivity = requireActivity() as MainActivity
-
         mapView = view.findViewById(R.id.map) as MapView
 
         // 현재 내 위치 정보 제공자
@@ -200,7 +197,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         locationProvider.initLocationClient()
 
         // 오프라인 시설 정보 제공자
-        facilityProvider = FacilityProvider(requireContext())
+        facilityProvider = FacilityProvider(requireContext()) // ANR 발생하는 곳
 
         // 콜백 설정
         locationProvider.setLocationUpdateListener(this)
@@ -216,22 +213,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 serverMapTileArchivePath
             )
 
-        if (file.exists()) {
-            sharedPref.setBoolean("downloadedMap", true)
-        } else {
-            sharedPref.setBoolean("downloadedMap", false)
-        }
+        // 파일이 실제로 존재하고 sharedPreferences에도 있는 것으로 확인 되어야 서버 지도 로드
 
-        var tileSource: XYTileSource
-
-        if (downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
-            tileSource = XYTileSource(
+        val tileSource: XYTileSource = if (file.exists() && downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
+            XYTileSource(
                 provider,
                 minZoom, serverMaxZoom, pixel, ".png",
                 arrayOf("http://127.0.0.1")
             )
         } else {
-            tileSource = XYTileSource(
+            XYTileSource(
                 provider,
                 minZoom, localMaxZoom, pixel, ".png",
                 arrayOf("http://127.0.0.1")
@@ -305,19 +296,25 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
-                mainActivity.hideLoadingProgressBar()
             }
         })
 
         // 사용자가 터치할 때마다 경계 변경
         mapView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP) {
-                // 사용자가 화면을 터치하고 뗄 때마다 호출
-                screenRect = mapView.boundingBox
+                // 백그라운드 스레드에서 경계 변경 처리
+                lifecycleScope.launch(Dispatchers.IO) {
+                    // withContext 함수는 코루틴 블록 내에서 다른 디스패처로 전환할 때 사용하는데
+                    // 여기서 Dispatcher.Main은 안드로이드 UI 스레드에서 실행되는 디스패처임
+                    // 사용자의 경계 변경으로 UI가 업데이트 되는 것은 항상 메인 스레드에서 진행되어야 하기 때문
+                    withContext(Dispatchers.Main){
 
-                Log.v("screenRect", "$screenRect")
-
-                handleSelectedCategory(selectedCategory)
+                        // 사용자가 화면을 터치하고 뗄 때마다 호출
+                        screenRect = mapView.boundingBox
+                        Log.v("screenRect", "$screenRect")
+                        handleSelectedCategory(selectedCategory)
+                    }
+                }
             }
             false
         }
@@ -423,14 +420,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun getMapsFile(context: Context): File {
 
         // 서버에서 저장한 지도 파일
-        if (downloadedMap) {
+        // 파일이 실제로 존재하고 sharedPreferences에도 있는 것으로 확인 되어야 서버 지도 로드
+        if (file.exists() && downloadedMap) {
             Log.d("지도 출처", "서버에서 다운로드 받은 지도요")
 
-            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
-            if (!file.exists()) {
-                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
-
-            }
+//            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+//            if (!file.exists()) {
+//                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+//
+//            }
             return file
         } else { // 로컬에 존재하는 지도 파일
             Log.d("지도 출처", "로컬에 있는 지도요")
@@ -508,6 +506,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 isAntiAlias = true
             }
         }
+        // 시설 주변 100 미터 내 위험 정보 리스트 작업 위한 변수 선언
+        var closeInfo: MutableList<MapInstantInfo>
 
         // 오버레이 생성 및 클릭 리스너 설정
         val overlay = SimpleFastPointOverlay(pointTheme, opt).apply {
@@ -537,6 +537,25 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 val timeService = TimeService()
                 binding.facilityLastUpdateTime.text =
                     timeService.convertDateLongToString(lastConnection)
+
+                // 시설 좌표 기준 반경 100미터 위험 정보 리스트화
+                var centerLat = facility.latitude
+                var centerLon = facility.longitude
+
+                Log.v("시설 Lat", centerLat.toString())
+                Log.v("시설 Lon", centerLon.toString())
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    closeInfo = closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 200)
+
+                    // 위의 비동기 작업 완료 후 리스트 결과를 메인 스레드로 전달
+                    withContext(Dispatchers.Main) {
+                        Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
+                        // Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo[0].content)
+                        // UI 업데이트 작업
+                        // 메서드명(closeInfo)
+                    }
+                }
 
             }
         }
@@ -670,7 +689,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         if (category == FacilityUIType.SHELTER) {
             val subCategory = binding.subCategoryWrap
             subCategory.visibility = View.VISIBLE
-//            subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
+            // subCategory.check(R.id.radioAll) // 대피소 세부 카테고리 리셋 현상 방지
         } else {
             binding.subCategoryWrap.visibility = View.GONE
         }

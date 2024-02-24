@@ -1,11 +1,15 @@
 package com.saveurlife.goodnews.ble.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.databinding.ItemAroundListBinding
+import com.saveurlife.goodnews.map.MiniMapDialogFragment
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -34,6 +38,34 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
 
         holder.binding.aroundChatting.setOnClickListener {
             onChattingButtonClickListener?.onChattingButtonClick(user)
+        }
+        
+        // 연결된 사람의 채팅하기 버튼을 눌렀을 때 미니맵 띄우기
+        holder.binding.requestMinimapButton.setOnClickListener {
+            // 임시 미니맵
+            val miniMapFragment = MiniMapDialogFragment()
+            val otherUserLocation = Bundle()
+//            otherUserLocation.putDouble("latitude", user.latitude)
+//            otherUserLocation.putDouble("longitude", user.longitude)
+            otherUserLocation.putDouble("latitude", 36.321655)
+            otherUserLocation.putDouble("longitude", 127.378953)
+
+            miniMapFragment.arguments = otherUserLocation
+
+            // 다이얼로그를 보여주는 코드 추가 (테스트 필요)
+            val context = holder.itemView.context
+
+            if (context is Fragment) {
+                // Context가 Fragment일 경우
+                val fragmentManager = context.requireFragmentManager()
+                miniMapFragment.show(fragmentManager, "MiniMapDialogFragment")
+            } else if (context is FragmentActivity) {
+                // Context가 FragmentActivity일 경우
+                val fragmentManager = context.supportFragmentManager
+                miniMapFragment.show(fragmentManager, "MiniMapDialogFragment")
+            } else {
+                // 적절한 오류 처리 또는 로그를 추가할 수 있습니다.
+            }
         }
     }
 

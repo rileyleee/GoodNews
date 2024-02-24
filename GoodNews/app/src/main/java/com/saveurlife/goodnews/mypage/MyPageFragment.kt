@@ -29,6 +29,7 @@ import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.map.MapDownloader
+import com.saveurlife.goodnews.map.MiniMapDialogFragment
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -50,10 +51,6 @@ class MyPageFragment : Fragment() {
     private var selectedRh: String? = null
     private var selectedBlood: String? = null
     private var myAge by Delegates.notNull<Int>()
-
-
-//    private val config = RealmConfiguration.create(schema = setOf(Member::class, Location::class))
-//    private val realm: Realm = Realm.open(config)
 
     val realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private var items: RealmResults<Member> = realm.query<Member>().find()
@@ -91,7 +88,7 @@ class MyPageFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
 
         //Realm에서 내 정보 가져오기
@@ -146,8 +143,6 @@ class MyPageFragment : Fragment() {
             startMapFileDownload()
         }
 
-
-
         if(isFileExistInDirectory()){
             // 파일 존재할 경우
             binding.shareApp.text = "앱 공유"
@@ -163,6 +158,18 @@ class MyPageFragment : Fragment() {
             }else{
                 startAppAPKDownload()
             }
+        }
+
+        // (임시) 미니맵 띄우기
+        binding.minimapButton.setOnClickListener{
+            val miniMapFragment = MiniMapDialogFragment()
+            val otherUserLocation = Bundle()
+            otherUserLocation.putDouble("latitude", 36.321655)
+            otherUserLocation.putDouble("longitude", 127.378953)
+
+            miniMapFragment.arguments = otherUserLocation
+
+            miniMapFragment.show(childFragmentManager, "MiniMapDialogFragment")
         }
 
         //객체 만들기
@@ -222,7 +229,6 @@ class MyPageFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        mapDownloader.registerReceiver()
     }
 
     //myPageFragment에 정보 불러오기
@@ -635,14 +641,17 @@ class MyPageFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        mapDownloader.unregisterReceiver()
     }
 
     private fun startMapFileDownload() {
+        // 브로드캐스트 리시버 등록
+        mapDownloader.registerReceiver()
+
         Log.v("mypagefragment","지도 다운로드 함수 호출")
         val url = "https://saveurlife.kr/images/7_15_korea.sqlite"
         val fileName = "7_15_korea.sqlite"
 
+        // 지도 다운로드 함수 호출
         mapDownloader.downloadFile(url, fileName)
     }
 //shareApp

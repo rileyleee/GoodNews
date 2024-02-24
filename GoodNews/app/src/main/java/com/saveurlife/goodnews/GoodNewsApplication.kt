@@ -26,6 +26,7 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.InputStreamReader
 
 class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks {
@@ -34,9 +35,11 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 //        lateinit var userDeviceInfoService: UserDeviceInfoService
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
+        var isInitialized = false
     }
 
     var isInBackground = true
+
 
     override fun onCreate() {
 
@@ -44,6 +47,9 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
         preferences = PreferencesUtil(applicationContext)
+
+        // 앱 실행 시마다 지도 프래그먼트 로드 가능 여부는 false로 초기화
+        preferences.setBoolean("canLoadMapFragment", false)
 
         super.onCreate()
 
@@ -70,7 +76,6 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 OffMapFacility::class
             )
         )
-
 //         Realm.deleteRealm(realmConfiguration)
 
         val realm: Realm = Realm.open(realmConfiguration)
@@ -79,7 +84,6 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         //오프라인 지도 위 시설정보 초기 입력
         val csvReader =
             CSVReader(InputStreamReader(resources.openRawResource(R.raw.offmapfacilitydata)))
-//            CSVReader(InputStreamReader(resources.openRawResource(R.raw.testfacilitydata)))
         csvReader.readNext()  // 헤더 레코드를 읽고 무시
         val records = csvReader.readAll()
 
@@ -114,9 +118,90 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
                 }
 
                 realm.close()
+
+                FacilityDataManager.initializeDataIfNeeded{
+                    preferences.setBoolean("canLoadMapFragment", true)
+                }
             }
         } else {
-            Log.d("데이터 존재 여부", "시설 정보 있어요")
+            Log.d("데이터 존재 여부", "시설 정보 있으므로 추가 저장 불필요")
+            FacilityDataManager.initializeDataIfNeeded{
+                preferences.setBoolean("canLoadMapFragment", true)
+            }
+        }
+    }
+
+    object FacilityDataManager{
+//        private var isInitialized = false
+        val copiedAll = mutableListOf<OffMapFacility>()
+        val copiedShelter = mutableListOf<OffMapFacility>()
+        val copiedHospital = mutableListOf<OffMapFacility>()
+        val copiedGrocery = mutableListOf<OffMapFacility>()
+        val copiedMinbangwi = mutableListOf<OffMapFacility>()
+        val copiedEarthquake = mutableListOf<OffMapFacility>()
+
+        fun initializeDataIfNeeded(callback: () -> Unit) {
+            if (!isInitialized) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    loadDataFromRealm()
+                    isInitialized = true
+                    withContext(Dispatchers.Main) {
+                        Log.i("**Applcation레벨**","처음으로 시설 데이터 초기 리스트 작업 완료")
+                        callback.invoke()
+                    }
+                }
+            } else {
+                Log.i("**Applcation레벨**","이미 시설 데이터 초기 리스트 작업 완료")
+                callback.invoke()
+            }
+        }
+        private suspend fun loadDataFromRealm() {
+            withContext(Dispatchers.IO) {
+                val realm = Realm.open(realmConfiguration)
+                val facsDataAll = realm.query<OffMapFacility>().find()
+                val shelter = realm.query<OffMapFacility>("type = $0", "대피소").find()
+                val hospital =
+                    realm.query<OffMapFacility>("type = $0 OR type = $1", "약국", "병원").find()
+                val grocery =
+                    realm.query<OffMapFacility>("type = $0 OR type = $1", "편의점", "마트").find()
+                val minbangwi = realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "민방위").find()
+                val earthquake =
+                    realm.query<OffMapFacility>("addInfo CONTAINS[c] $0", "지진해일").find()
+
+                facsDataAll.forEach { fac ->
+                    copiedAll.add(copyFacsData(fac))
+                }
+                shelter.forEach { fac ->
+                    copiedShelter.add(copyFacsData(fac))
+                }
+                hospital.forEach { fac ->
+                    copiedHospital.add(copyFacsData(fac))
+                }
+                grocery.forEach { fac ->
+                    copiedGrocery.add(copyFacsData(fac))
+                }
+                minbangwi.forEach { fac ->
+                    copiedMinbangwi.add(copyFacsData(fac))
+                }
+                earthquake.forEach { fac ->
+                    copiedEarthquake.add(copyFacsData(fac))
+                }
+
+                realm.close()
+
+                Log.i("**Applcation레벨**","Realm에 접근하여 시설 데이터 초기 리스트 복사 완료")
+            }
+        }
+            fun copyFacsData(data: OffMapFacility): OffMapFacility {
+                return OffMapFacility().apply {
+                    this.id = data.id
+                    this.name = data.name
+                    this.type = data.type
+                    this.latitude = data.latitude
+                    this.longitude = data.longitude
+                    this.canUse = data.canUse
+                    this.addInfo = data.addInfo
+            }
         }
     }
 

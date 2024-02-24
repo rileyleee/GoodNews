@@ -27,7 +27,6 @@ class EmergencyAlarmProvider(private val context: Context) {
 
     private lateinit var realm: Realm
     private lateinit var userInfo:RealmResults<Member>
-    private lateinit var userSpecificInfo:Member
     private lateinit var targetInfo: RealmResults<MapInstantInfo>
     private var closeInfo = mutableListOf<MapInstantInfo>()
 
@@ -37,6 +36,7 @@ class EmergencyAlarmProvider(private val context: Context) {
 
 
         var mostRecentInfo: MapInstantInfo? = null
+
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -64,6 +64,7 @@ class EmergencyAlarmProvider(private val context: Context) {
                             )
                         }
                     }
+                    // 가까운 정보 중 가장 최신 정보를 추출
                     mostRecentInfo = closeInfo.maxByOrNull { it.time.epochSeconds }
                 }
             } catch (e: RealmException) {
@@ -113,6 +114,7 @@ class EmergencyAlarmProvider(private val context: Context) {
 
     // realm 객체에서 직접 작업 불가 -> 복사
     fun copyMapInstantInfo(info: MapInstantInfo): MapInstantInfo {
+
         return MapInstantInfo().apply {
             this.state = info.state
             this.latitude = info.latitude
