@@ -152,6 +152,11 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    // navController 반환 메서드의 이름 변경
+    fun provideNavController(): NavController {
+        return navController
+    }
+
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
