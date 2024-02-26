@@ -15,6 +15,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -553,7 +554,21 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                         Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
                         // Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo[0].content)
                         // UI 업데이트 작업
+//                        if (closeInfo.size > 0) {    // closeInfo가 0보다 크면, 해당 버튼을 보여준다.
+//                            binding.emergencyListInfoButton.visibility = View.VISIBLE
+//                            val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
+//                            binding.emergencyListInfoButton.startAnimation(startAnimation)
+//                        } else {    // 아닐 경우 해당 버튼을 안 보여준다.
+//                            binding.emergencyListInfoButton.visibility = View.GONE
+//                        }
+                        // 테스트 후 위 코드로 병합 (closeInfo 0보다 클 때만 적용되도록)
+                        binding.emergencyListInfoButton.visibility = View.VISIBLE
+                        val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
+                        binding.emergencyListInfoButton.startAnimation(startAnimation)
                         // 메서드명(closeInfo)
+                        binding.emergencyListInfoButton.setOnClickListener {
+                            Log.v("리스트를 보여줄 UI", closeInfo.size.toString())
+                        }
                     }
                 }
 
