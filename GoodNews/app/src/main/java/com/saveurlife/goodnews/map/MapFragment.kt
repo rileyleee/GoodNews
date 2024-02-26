@@ -877,7 +877,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famMarker.title = "${fam.name}"
                 famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
 
-                famMarker.setOnMarkerClickListener { thFamMarker, _ ->
+                famMarker.setOnMarkerClickListener { FamMarker, _ ->
                     // 가족 정보 다이얼로그 연결 위한 데이터 전송
                     showFamilyUserInfoDialog(fam)
 //                    Toast.makeText(
