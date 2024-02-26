@@ -160,7 +160,7 @@ class MyPageFragment : Fragment() {
             }
         }
 
-        // (임시) 미니맵 띄우기
+        // (임시) 미니맵 띄우기 // 임의로 값 넣어 놓은 것임
         binding.minimapButton.setOnClickListener{
             val miniMapFragment = MiniMapDialogFragment()
             val otherUserLocation = Bundle()

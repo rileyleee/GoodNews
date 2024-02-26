@@ -464,7 +464,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     // 현재 위치 마커로 찍기
-    fun updateCurrentLocation(geoPoint: GeoPoint) {
+    private fun updateCurrentLocation(geoPoint: GeoPoint) {
         // 이전 위치 오버레이가 있으면 지도에서 제거
         previousLocationOverlay?.let {
             Log.d("updateCurrentLocation", "이전 내 위치 마커를 삭제했습니다.")
@@ -493,16 +493,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val opt = SimpleFastPointOverlayOptions.getDefaultStyle().apply {
             algorithm = SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION
             symbol = SimpleFastPointOverlayOptions.Shape.SQUARE
-            setRadius(5.0f)
+            setRadius(7.0f)
             setIsClickable(true)
-            cellSize = 15
+            cellSize = 100
             // 텍스트 스타일 설정을 제거하거나 투명하게 설정
             textStyle = Paint().apply {
                 color = Color.TRANSPARENT
                 textSize = 0f
             }
             pointStyle = Paint().apply {
-                color = Color.YELLOW
+                color = Color.DKGRAY
                 style = Paint.Style.FILL
                 isAntiAlias = true
             }
@@ -540,8 +540,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     timeService.convertDateLongToString(lastConnection)
 
                 // 시설 좌표 기준 반경 100미터 위험 정보 리스트화
-                var centerLat = facility.latitude
-                var centerLon = facility.longitude
+                val centerLat = facility.latitude
+                val centerLon = facility.longitude
 
                 Log.v("시설 Lat", centerLat.toString())
                 Log.v("시설 Lon", centerLon.toString())
@@ -877,7 +877,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famMarker.title = "${fam.name}"
                 famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
 
-                famMarker.setOnMarkerClickListener { famMarker, _ ->
+                famMarker.setOnMarkerClickListener { thFamMarker, _ ->
                     // 가족 정보 다이얼로그 연결 위한 데이터 전송
                     showFamilyUserInfoDialog(fam)
 //                    Toast.makeText(
