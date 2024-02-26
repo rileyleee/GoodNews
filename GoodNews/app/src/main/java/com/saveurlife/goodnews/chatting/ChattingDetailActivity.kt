@@ -25,6 +25,7 @@ import com.saveurlife.goodnews.ble.message.ChatDatabaseManager
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
+import com.saveurlife.goodnews.map.MiniMapDialogFragment
 
 
 class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
@@ -105,6 +106,18 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
                 binding.chattingToolbar.chatDetailNameHeader.text = userName
                 //상대방 상태 업데이트
                 updateOtherStatus(healthStatus)
+
+                //상대방 위치 보기(미니맵)
+                binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
+                    val miniMapFragment = MiniMapDialogFragment()
+
+                    val otherUserLocation = Bundle()
+                    otherUserLocation.putDouble("latitude", lat)
+                    otherUserLocation.putDouble("longitude", lon)
+
+                    miniMapFragment.arguments = otherUserLocation
+                    miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
+                }
             }
         }
         //OneChattingFragment
