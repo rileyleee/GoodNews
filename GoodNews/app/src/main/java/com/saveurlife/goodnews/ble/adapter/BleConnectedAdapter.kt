@@ -45,10 +45,8 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
             // 임시 미니맵
             val miniMapFragment = MiniMapDialogFragment()
             val otherUserLocation = Bundle()
-//            otherUserLocation.putDouble("latitude", user.latitude)
-//            otherUserLocation.putDouble("longitude", user.longitude)
-            otherUserLocation.putDouble("latitude", 36.321655)
-            otherUserLocation.putDouble("longitude", 127.378953)
+            otherUserLocation.putDouble("latitude", user.lat)
+            otherUserLocation.putDouble("longitude", user.lon)
 
             miniMapFragment.arguments = otherUserLocation
 
