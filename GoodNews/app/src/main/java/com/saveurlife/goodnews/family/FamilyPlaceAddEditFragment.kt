@@ -94,6 +94,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 longitude = it.longitude,
                 canUse = it.canUse,
                 seq = it.seq,
+                lastUpdate = it.lastUpdate
             )
         }
         realm.close()
