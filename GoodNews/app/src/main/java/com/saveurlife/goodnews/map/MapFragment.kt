@@ -15,6 +15,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -105,32 +106,32 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private lateinit var file: File
 
     // 타일 provider, 최소 줌 및 해상도 설정
-    val provider: String = "Mapnik"
+    private val provider: String = "Mapnik"
 
     // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-    val minZoom: Int = 7
-    val localMaxZoom = 15
-    val serverMaxZoom = 18
-    val pixel: Int = 256
+    private val minZoom: Int = 7
+    private val localMaxZoom = 15
+    private val serverMaxZoom = 18
+    private val pixel: Int = 256
 
     // 스크롤 가능 범위: 한국의 위경도 범위
-    val max = GeoPoint(38.6111, 131.8696)
-    val min = GeoPoint(33.1120, 124.6100)
-    val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
+    private val max = GeoPoint(38.6111, 131.8696)
+    private val min = GeoPoint(33.1120, 124.6100)
+    private val box = BoundingBox(max.latitude, max.longitude, min.latitude, min.longitude)
 
     // 마지막 위치 초기 설정 => 서울 시청
-    val sharedPref = GoodNewsApplication.preferences
-    var lastLat = sharedPref.getDouble("lastLat", 37.566535)
-    var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
+    private val sharedPref = GoodNewsApplication.preferences
+    private var lastLat = sharedPref.getDouble("lastLat", 37.566535)
+    private var lastLon = sharedPref.getDouble("lastLon", 126.9779692)
 
     // 오프라인 지도 다운로드 확인 여부
-    var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
+    private var downloadedMap = sharedPref.getBoolean("downloadedMap", false)
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentMapBinding.inflate(inflater, container, false)
         val preferencesUtil = GoodNewsApplication.preferences
@@ -190,9 +191,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        // 로딩이 완료되었으니 MainActivity의 hideLoadingProgressBar() 호출
-//        val mainActivity = requireActivity() as MainActivity
-
         mapView = view.findViewById(R.id.map) as MapView
 
         // 현재 내 위치 정보 제공자
@@ -216,22 +214,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 serverMapTileArchivePath
             )
 
-        if (file.exists()) {
-            sharedPref.setBoolean("downloadedMap", true)
-        } else {
-            sharedPref.setBoolean("downloadedMap", false)
-        }
+        // 파일이 실제로 존재하고 sharedPreferences에도 있는 것으로 확인 되어야 서버 지도 로드
 
-        var tileSource: XYTileSource
-
-        if (downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
-            tileSource = XYTileSource(
+        val tileSource: XYTileSource = if (file.exists() && downloadedMap) { // 서버에서 다운로드 받은 파일이 있으면
+            XYTileSource(
                 provider,
                 minZoom, serverMaxZoom, pixel, ".png",
                 arrayOf("http://127.0.0.1")
             )
         } else {
-            tileSource = XYTileSource(
+            XYTileSource(
                 provider,
                 minZoom, localMaxZoom, pixel, ".png",
                 arrayOf("http://127.0.0.1")
@@ -305,7 +297,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("screenRect", "$screenRect")
 
                 handleSelectedCategory(selectedCategory)
-//                mainActivity.hideLoadingProgressBar()
             }
         })
 
@@ -430,14 +421,15 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private fun getMapsFile(context: Context): File {
 
         // 서버에서 저장한 지도 파일
-        if (downloadedMap) {
+        // 파일이 실제로 존재하고 sharedPreferences에도 있는 것으로 확인 되어야 서버 지도 로드
+        if (file.exists() && downloadedMap) {
             Log.d("지도 출처", "서버에서 다운로드 받은 지도요")
 
-            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
-            if (!file.exists()) {
-                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
-
-            }
+//            // 파일이 존재하는지 확인하고 존재하지 않으면 오류 메시지를 표시합니다.
+//            if (!file.exists()) {
+//                throw IOException("지도 파일이 존재하지 않습니다: ${file.absolutePath}")
+//
+//            }
             return file
         } else { // 로컬에 존재하는 지도 파일
             Log.d("지도 출처", "로컬에 있는 지도요")
@@ -472,7 +464,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     }
 
     // 현재 위치 마커로 찍기
-    fun updateCurrentLocation(geoPoint: GeoPoint) {
+    private fun updateCurrentLocation(geoPoint: GeoPoint) {
         // 이전 위치 오버레이가 있으면 지도에서 제거
         previousLocationOverlay?.let {
             Log.d("updateCurrentLocation", "이전 내 위치 마커를 삭제했습니다.")
@@ -501,16 +493,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         val opt = SimpleFastPointOverlayOptions.getDefaultStyle().apply {
             algorithm = SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION
             symbol = SimpleFastPointOverlayOptions.Shape.SQUARE
-            setRadius(5.0f)
+            setRadius(7.0f)
             setIsClickable(true)
-            cellSize = 15
+            cellSize = 100
             // 텍스트 스타일 설정을 제거하거나 투명하게 설정
             textStyle = Paint().apply {
                 color = Color.TRANSPARENT
                 textSize = 0f
             }
             pointStyle = Paint().apply {
-                color = Color.YELLOW
+                color = Color.DKGRAY
                 style = Paint.Style.FILL
                 isAntiAlias = true
             }
@@ -548,8 +540,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                     timeService.convertDateLongToString(lastConnection)
 
                 // 시설 좌표 기준 반경 100미터 위험 정보 리스트화
-                var centerLat = facility.latitude
-                var centerLon = facility.longitude
+                val centerLat = facility.latitude
+                val centerLon = facility.longitude
 
                 Log.v("시설 Lat", centerLat.toString())
                 Log.v("시설 Lon", centerLon.toString())
@@ -562,7 +554,21 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                         Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
                         // Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo[0].content)
                         // UI 업데이트 작업
+//                        if (closeInfo.size > 0) {    // closeInfo가 0보다 크면, 해당 버튼을 보여준다.
+//                            binding.emergencyListInfoButton.visibility = View.VISIBLE
+//                            val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
+//                            binding.emergencyListInfoButton.startAnimation(startAnimation)
+//                        } else {    // 아닐 경우 해당 버튼을 안 보여준다.
+//                            binding.emergencyListInfoButton.visibility = View.GONE
+//                        }
+                        // 테스트 후 위 코드로 병합 (closeInfo 0보다 클 때만 적용되도록)
+                        binding.emergencyListInfoButton.visibility = View.VISIBLE
+                        val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
+                        binding.emergencyListInfoButton.startAnimation(startAnimation)
                         // 메서드명(closeInfo)
+                        binding.emergencyListInfoButton.setOnClickListener {
+                            Log.v("리스트를 보여줄 UI", closeInfo.size.toString())
+                        }
                     }
                 }
 
@@ -871,7 +877,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 famMarker.title = "${fam.name}"
                 famMarker.snippet = "최종 연결 시각: ${fam.lastConnection}, 현재 상태: ${fam.state}"
 
-                famMarker.setOnMarkerClickListener { famMarker, _ ->
+                famMarker.setOnMarkerClickListener { FamMarker, _ ->
                     // 가족 정보 다이얼로그 연결 위한 데이터 전송
                     showFamilyUserInfoDialog(fam)
 //                    Toast.makeText(

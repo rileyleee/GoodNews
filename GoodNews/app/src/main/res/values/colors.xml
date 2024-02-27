@@ -49,6 +49,7 @@
 
     <!--  항상 같은 색  -->
     <color name="all_black">#FF000000</color>
+    <color name="all_white">#FFFFFFFF</color>
 
     <!--  하단바  -->
     <color name="navi_bar">#FFFFFFFF</color>

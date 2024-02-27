@@ -1,13 +1,17 @@
 package com.saveurlife.goodnews.ble.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.ble.BleMeshAdvertiseData
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ItemAroundAdvertiseListBinding
+import com.saveurlife.goodnews.map.MiniMapDialogFragment
 
 class BleAdvertiseAdapter (private var userList: List<BleMeshAdvertiseData>, private val sharedViewModel: SharedViewModel, private val bleService: BleService) : RecyclerView.Adapter<BleAdvertiseAdapter.Holder>() {
 

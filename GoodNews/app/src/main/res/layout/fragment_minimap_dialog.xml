@@ -25,12 +25,13 @@
             android:textSize="21sp"
             android:textStyle="bold" />
 
-        <!-- 임시로 넣어둔 구글맵 (수정 필요) -->
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/miniMapView"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_margin="5dp" />
+        <!-- 오에스엠로이드 미니맵 -->
+        <org.osmdroid.views.MapView
+            android:id="@+id/map"
+            android:layout_width="fill_parent"
+            android:layout_height="330dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/minimapClose"

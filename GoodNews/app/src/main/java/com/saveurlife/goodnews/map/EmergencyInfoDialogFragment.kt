@@ -16,8 +16,6 @@ import com.saveurlife.goodnews.models.MapInstantInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.sync.TimeService
 import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.RealmResults
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,13 +37,13 @@ class EmergencyInfoDialogFragment : DialogFragment() {
     // 위치 정보 초기화
     private var currLatitude: Double = 0.0
     private var currLongitude: Double = 0.0
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, userLocation: Bundle?) {
+        super.onViewCreated(view, userLocation)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        userLocation: Bundle?
     ): View? {
         binding = FragmentEmergencyInfoDialogBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
