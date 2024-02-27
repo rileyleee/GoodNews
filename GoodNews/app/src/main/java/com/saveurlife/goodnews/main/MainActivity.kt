@@ -265,22 +265,16 @@ class MainActivity : BaseActivity() {
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
 
+            // 이때부터 realm 삭제 시작합니다!
+            val deleteOldDataService = DeleteOldDataService.getInstance(this)
+            deleteOldDataService.cancelDelete()
+            deleteOldDataService.setDeleteManager()
+
             // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
             onBackPressedDispatcher.addCallback(this) {
                 // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
                 val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
                 stopService(intent)
-            }
-        // 이때부터 realm 삭제 시작합니다!
-        val deleteOldDataService = DeleteOldDataService.getInstance(this)
-        deleteOldDataService.cancelDelete()
-        deleteOldDataService.setDeleteManager()
-
-        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
-        onBackPressedDispatcher.addCallback(this) {
-            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
-            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
-            stopService(intent)
 
                 // 기본적인 뒤로 가기 동작 수행 (옵션)
                 finish()
