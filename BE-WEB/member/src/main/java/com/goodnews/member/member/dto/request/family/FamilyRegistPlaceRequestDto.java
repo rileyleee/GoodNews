@@ -11,5 +11,6 @@ public class FamilyRegistPlaceRequestDto {
     private Double lon;
     private int seq;
     private String address;
+    private String registerUser;
 
 }

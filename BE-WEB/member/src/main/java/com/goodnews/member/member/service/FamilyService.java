@@ -171,6 +171,7 @@ public class FamilyService {
                                 .family(familyId.get().getFamily())
                                 .seq(familyRegistPlaceRequestDto.getSeq())
                                 .address(familyRegistPlaceRequestDto.getAddress())
+                                .registerUser(familyRegistPlaceRequestDto.getRegisterUser())
                                 .build()))
                         .build())
                 .build();
@@ -196,6 +197,7 @@ public class FamilyService {
                                         .name(familyPlace.getName())
                                         .canuse(familyPlace.isCanuse())
                                         .seq(familyPlace.getSeq())
+                                        .createdDate(familyPlace.createdDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
                                         .build())
                         .collect(Collectors.toList())).build();
     }
