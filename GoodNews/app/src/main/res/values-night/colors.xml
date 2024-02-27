@@ -53,4 +53,8 @@
 
     <!--  하단바  -->
     <color name="navi_bar">#1A2227</color>
+
+    <!--  채팅창  -->
+    <color name="chatting">#FFFFE090</color>
+    <color name="other_chat">#1A2227</color>
 </resources>
