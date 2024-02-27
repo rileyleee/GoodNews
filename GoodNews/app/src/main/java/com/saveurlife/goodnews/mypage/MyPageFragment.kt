@@ -122,18 +122,10 @@ class MyPageFragment : Fragment() {
 //            preferencesUtil.setBoolean("darkMode", isChecked)
 //        }
 
-        // 내 위치 공개하기 기능 -> 기본 값 False?
-        val isMyLocation = preferencesUtil.getBoolean("myLocation", false)
+        // 내 위치 공개하기 기능 -> 기본 값 true
+        val isMyLocation = preferencesUtil.getBoolean("myLocation", true)
         binding.switchMyLocation.isChecked = isMyLocation
         binding.switchMyLocation.setOnCheckedChangeListener { _, isChecked ->
-            // 더 추가해줘야될 부분이 있다면 이 코드를 사용
-//            if (isChecked) {
-//                // 스위치가 켜졌을 때: 내 위치 공개하기
-//
-//            } else {
-//                // 스위치가 꺼졌을 때: 내 위치 공개하지 않기
-//
-//            }
             preferencesUtil.setBoolean("myLocation", isChecked)
         }
 
