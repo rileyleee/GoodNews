@@ -44,6 +44,9 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> <!-- 배터리 최적화 끄기 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+<!-- 주기적인 삭제 작업(alarm Manager) 사용을 위한 것-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:name=".GoodNewsApplication"
         android:allowBackup="false"
@@ -130,12 +133,11 @@
         </provider>
 
         <receiver
-            android:name=".sync.DeleteOldDataReciver"
+            android:name=".batch.DeleteOldDataReceiver"
             android:directBootAware="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
