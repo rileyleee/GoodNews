@@ -45,6 +45,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
             isBound = true
 
             observeChatRoomMessages()
+            getConnectedUsers()
         }
         //서비스 연결이 끊어졌을 때 호출
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -63,6 +64,8 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     private lateinit var chattingDetailAdapter: ChattingDetailAdapter
 
     private var page = 0
+    private val miniMapFragment = MiniMapDialogFragment()
+
 
     private fun observeChatRoomMessages() {
         if (::userId.isInitialized) {
@@ -74,6 +77,19 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
             // userId가 초기화되지 않았을 경우의 처리 로직
             Log.e("ChattingDetailActivity", "userId is not initialized.")
         }
+    }
+
+    private fun getConnectedUsers() {
+        Log.v("**채팅 뷰모델: ", "이거 호출되었나요")
+        sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(
+            this,
+            Observer {
+                    connectedDevicesMap ->
+
+            // connectedDevicesMap에서 필요한 데이터 추출
+            val users = connectedDevicesMap.flatMap { it.value.values }.toList()
+            Log.v("**채팅 뷰모델: ", users.size.toString())
+        })
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +122,15 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
                 binding.chattingToolbar.chatDetailNameHeader.text = userName
                 //상대방 상태 업데이트
                 updateOtherStatus(healthStatus)
+                //상대방 위치 보기 (미니맵)
+                binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
+                    val otherUserLocation = Bundle()
+                    otherUserLocation.putDouble("latitude", lat)
+                    otherUserLocation.putDouble("longitude", lon)
+
+                    miniMapFragment.arguments = otherUserLocation
+                    miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
+                }
             }
         }
         //OneChattingFragment
@@ -117,23 +142,26 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
                 binding.chattingToolbar.chatDetailNameHeader.text = userName
                 updateOtherStatus(chatOtherStatus)
+
+                // 상대방 위치 보기(미니맵)
+//                users.forEach{ user ->
+//                    Log.v("1) 채팅 ChattingDetailActivity", user.userId)
+//                    Log.v("2) 채팅 ChattingDetailActivity", userId)
+//                    if(user.userId.equals(userId)){
+//                        Log.v("채팅 ChattingDetailActivity", user.userId)
+//                        Log.v("채팅 ChattingDetailActivity", userId)
+//                        binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
+//                            val otherUserLocation = Bundle()
+//                            otherUserLocation.putDouble("latitude", user.lat)
+//                            otherUserLocation.putDouble("longitude", user.lon)
+//
+//                            miniMapFragment.arguments = otherUserLocation
+//                            miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
+//                        }
+//                    }
+//                }
             }
         }
-
-        //상대방 위치 보기(미니맵)
-        val userData= (intent.getSerializableExtra("chattingUser") as BleMeshConnectedUser).toString().split('/')
-        //if (userData.size >= 6) {
-        binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
-            val miniMapFragment = MiniMapDialogFragment()
-
-            val otherUserLocation = Bundle()
-            otherUserLocation.putDouble("latitude", userData[4].toDouble())
-            otherUserLocation.putDouble("longitude", userData[5].toDouble())
-
-            miniMapFragment.arguments = otherUserLocation
-            miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
-        }
-        //}
 
         //ble - 서비스 바인딩
         Intent(this, BleService::class.java).also { intent ->
