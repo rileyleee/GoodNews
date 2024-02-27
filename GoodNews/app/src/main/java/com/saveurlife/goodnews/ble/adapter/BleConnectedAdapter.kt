@@ -1,8 +1,11 @@
 package com.saveurlife.goodnews.ble.adapter
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
@@ -52,7 +55,21 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
             miniMapFragment.arguments = otherUserLocation
 
             // 다이얼로그를 보여주는 코드 추가 (테스트 필요)
-            miniMapFragment.show(holder.itemView.context as FragmentManager, "MiniMapDialogFragment")
+            val context = holder.itemView.context
+
+            if (context is Fragment) {
+                // Context가 Fragment일 경우
+                val fragmentManager = context.requireFragmentManager()
+                miniMapFragment.show(fragmentManager, "MiniMapDialogFragment")
+            } else if (context is FragmentActivity) {
+                // Context가 FragmentActivity일 경우
+                val fragmentManager = context.supportFragmentManager
+                miniMapFragment.show(fragmentManager, "MiniMapDialogFragment")
+            } else {
+                // 적절한 오류 처리 또는 로그를 추가할 수 있습니다.
+                Log.e("YourTag", "Context is not an instance of Fragment or FragmentActivity")
+            }
+
         }
     }
 

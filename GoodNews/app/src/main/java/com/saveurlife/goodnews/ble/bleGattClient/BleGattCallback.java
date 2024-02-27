@@ -83,6 +83,7 @@ public class BleGattCallback extends BluetoothGattCallback {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
+        Log.i("연결테스트", gatt.getDevice().getAddress()+"     "+status+"     "+newState);
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             Log.i("BLE", "Connected to GATT server.");
             Log.i("BLE", "Attempting to start service discovery:" + gatt.discoverServices());

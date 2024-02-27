@@ -286,6 +286,7 @@ public class BleService extends Service {
             return;
         }
         BluetoothGatt bluetoothGatt = device.connectGatt(this, false, bleGattCallback, BluetoothDevice.TRANSPORT_AUTO, BluetoothDevice.PHY_LE_CODED);
+        Log.i("연결기기", bluetoothGatt.getDevice().getAddress());
         deviceGattMap.put(device.getAddress(), bluetoothGatt);
     }
 
@@ -366,15 +367,17 @@ public class BleService extends Service {
 
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-            Log.i("onConnectionStateChange", "onConnectionStateChange");
             super.onConnectionStateChange(device, status, newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i("연결성공", "누가 나한테 연결함");
+
                 String deviceAddress = device.getAddress();
                 if (!bleConnectedDevicesArrayList.contains(deviceAddress)) {
                     bleConnectedDevicesArrayList.add(deviceAddress);
                     bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
 
                     if (!deviceGattMap.containsKey(deviceAddress)) {
+                        disconnect(device);
                         connectToDevice(device);
                     } else {
                         // 기존 BluetoothGatt 객체 재사용
@@ -805,11 +808,7 @@ public class BleService extends Service {
         sendMessageManager.createGroupInviteMessage(deviceGattMap, membersId, groupId, groupName);
     }
 
-
     public void createDangerInfoMessage(String dangerInfo){
         sendMessageManager.createDangerInfoMessage(deviceGattMap, dangerInfo);
     }
-
-
-
 }
