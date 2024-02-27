@@ -52,6 +52,7 @@ class DataSync (context: Context) {
     private val memberAPI: MemberAPI = MemberAPI()
 
     private val newTime = System.currentTimeMillis()
+    private val timeService = TimeService();
 
 
 //    val familyMemInfoUpdated = MutableLiveData<Boolean>()
@@ -196,14 +197,6 @@ class DataSync (context: Context) {
         }
 
         // 장소의 새로운 상태를 받아온다
-        // 어짜피 3개 밖에 없으므로 다 삭제후 넣는다.
-
-        GlobalScope.launch {
-            realm.writeBlocking {
-                query<FamilyPlace>().find()
-                    ?.also { delete(it) }
-            }
-        }
 
         // realm에 저장한다.
         familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
@@ -220,33 +213,84 @@ class DataSync (context: Context) {
                 )
 
                 result.forEach {
-                    familyAPI.getFamilyPlaceInfoDetail(
-                        it.placeId,
-                        object : FamilyAPI.FamilyPlaceDetailCallback {
-                            override fun onSuccess(result2: PlaceDetailInfo) {
-                                realm.writeBlocking {
-                                    copyToRealm(
-                                        FamilyPlace().apply {
-                                            placeId = result2.placeId
-                                            name = result2.name
-                                            address = result2.address
-                                            latitude = result2.lat
-                                            longitude = result2.lon
-                                            canUse = result2.canuse
-                                            seq = it.seq
-                                        }
-                                    )
-                                }
-                                familyPlaceUpdated.postValue(true)
-                                // family
-                                preferences.setLong("FamilySyncTime", newTime)
-                            }
+                    // id로 찾았을 때 없으면 -> 그냥 추가
+                    // 만약,시간이 같지 않다면 -> 추가
 
-                            override fun onFailure(error: String) {
-                                Log.e(TAG_ERR, "FamilyAPI Error : $error")
-                            }
+
+                    // 시간이 같다면 그냥 패스
+                    var res = realm.query<FamilyPlace>("placeId == $0", it.placeId).find().first()
+                    if(res != null){
+                        val serverUpdateTime = timeService.convertDateStrToLong(it.lastUpdate)
+                        var lastUpdateTime = timeService.realmInstantToLong(res.lastUpdate)
+
+                        if(serverUpdateTime != lastUpdateTime){
+                            // 변경이 필요한 경우
+                            familyAPI.getFamilyPlaceInfoDetail(
+                                it.placeId,
+                                object : FamilyAPI.FamilyPlaceDetailCallback {
+                                    override fun onSuccess(result2: PlaceDetailInfo) {
+
+                                        if(result2.canuse != res.canUse){
+                                            // 위험 정보가 변경
+                                        }
+                                        if(result2.address != res.address){
+                                            // 주소가 변경
+                                        }
+
+                                        realm.writeBlocking {
+                                            res.apply {
+                                                name = result2.name
+                                                address = result2.address
+                                                latitude = result2.lat
+                                                longitude = result2.lon
+                                                canUse = result2.canuse
+                                            }
+                                        }
+                                        familyPlaceUpdated.postValue(true)
+                                        // family
+                                        preferences.setLong("FamilySyncTime", newTime)
+                                    }
+
+                                    override fun onFailure(error: String) {
+                                        Log.e(TAG_ERR, "FamilyAPI Error : $error")
+                                    }
+                                }
+                            )
                         }
-                    )
+                    }else{
+                        // 새로 등록하는 경우
+                        familyAPI.getFamilyPlaceInfoDetail(
+                            it.placeId,
+                            object : FamilyAPI.FamilyPlaceDetailCallback {
+                                override fun onSuccess(result2: PlaceDetailInfo) {
+                                    realm.writeBlocking {
+                                        copyToRealm(
+                                            FamilyPlace().apply {
+                                                placeId = result2.placeId
+                                                name = result2.name
+                                                address = result2.address
+                                                latitude = result2.lat
+                                                longitude = result2.lon
+                                                canUse = result2.canuse
+                                                seq = it.seq
+                                            }
+                                        )
+                                    }
+                                    familyPlaceUpdated.postValue(true)
+                                    // family
+                                    preferences.setLong("FamilySyncTime", newTime)
+                                }
+
+                                override fun onFailure(error: String) {
+                                    Log.e(TAG_ERR, "FamilyAPI Error : $error")
+                                }
+                            }
+                        )
+                    }
+
+
+
+
                 }
             }
 
@@ -261,7 +305,6 @@ class DataSync (context: Context) {
     fun fetchDataMapInstantInfo() {
         // 마지막 시간 보다 변경시간이 작을 경우
         // 모두 보내서 반영한다. -> 수정 필요
-        val timeService = TimeService()
 
         val oldData = realm.query<MapInstantInfo>().find()
         // 시간 기준 필터링

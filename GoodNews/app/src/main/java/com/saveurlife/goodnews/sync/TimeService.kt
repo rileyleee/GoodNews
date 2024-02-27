@@ -89,6 +89,11 @@ class TimeService {
         return dateFormat.format(date)
     }
 
+    fun realmInstantToLong(realmInstant: RealmInstant): Long {
+        // realmInstant를 밀리초로 변환
+        return realmInstant.epochSeconds * 1000 + realmInstant.nanosecondsOfSecond
+    }
+
     // Long으로 된 ms 시간 -> RealmInstance 변경
     fun convertLongToRealmInstant(time:Long):RealmInstant{
         return RealmInstant.from(time / 1000, (time % 1000).toInt())
