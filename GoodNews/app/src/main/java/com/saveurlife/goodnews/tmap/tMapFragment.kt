@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.saveurlife.goodnews.BuildConfig.T_MAP_API_KEY
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.databinding.FragmentTMapBinding
 import com.saveurlife.goodnews.map.FacilityProvider
@@ -64,7 +65,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
 
         // 티맵 키 설정
-        tMapView.setSKTMapApiKey("NWfIKgnHFu42xCd4wBJ2I6X9FnVT2lt42PjTE2Ew")
+        tMapView.setSKTMapApiKey(T_MAP_API_KEY)
 
         binding.tmapViewContainer.addView(tMapView)
 
