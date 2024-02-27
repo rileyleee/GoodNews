@@ -6,6 +6,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 
 class DataSyncWorker (private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams){
+    // 백그라운드에서 인터넷 연결을 기다렸다가 동기화를 해야할 경우 사용!
 
     // 다른 곳에서 가져가서 사용할 경우 아래의 코드를 가져가서 실행해주세요!
     /*

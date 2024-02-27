@@ -21,6 +21,10 @@ class TimeService {
         return convertMillisToDateTime(millisecond, "yyyy-MM-dd HH:mm:ss")
     }
 
+    fun convertLongToStr(time : Long):String{
+        return convertMillisToDateTime(time, "yyyy-MM-dd HH:mm:ss")
+    }
+
     // 시간 형태 변환
     // "YYYY-MM-DDTHH:mm:ss" -> Long 형태
     // ex) "2023-11-13T03:12:02"
@@ -28,7 +32,13 @@ class TimeService {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
         val localDateTime = LocalDateTime.parse(oldTime, formatter)
 
-        return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        return localDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli()
+    }
+
+    // "YYYY-MM=DDTHH:mm:ss -> realmInstant
+    fun convertDateToRealmInstance(time: String): RealmInstant{
+        var longTime = convertDateStrToLong(time)
+        return convertLongToRealmInstant(longTime)
     }
 
     private fun convertMillisToDateTime(millis: Long, dateFormat: String, locale: Locale = Locale.getDefault()): String {
