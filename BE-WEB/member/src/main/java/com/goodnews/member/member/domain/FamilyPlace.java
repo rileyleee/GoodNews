@@ -7,8 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -31,6 +33,10 @@ public class FamilyPlace extends BaseEntity {
     private int seq;
 
     private String address;
+
+    @CreatedDate
+    public LocalDateTime createdDate;
+
     @Builder
     public FamilyPlace(String name, double lat, double lon, boolean canuse, Family family,int seq,String address) {
         this.name = name;
@@ -46,9 +52,11 @@ public class FamilyPlace extends BaseEntity {
         this.name = familyPlaceUpdateRequestDto.getName();
         this.lat = familyPlaceUpdateRequestDto.getLat();
         this.lon= familyPlaceUpdateRequestDto.getLon();
+        this.createdDate = LocalDateTime.now();
     }
 
     public void updatePlaceCanuse(FamilyPlaceCanuseDto familyPlaceCanuseDto) {
         this.canuse = familyPlaceCanuseDto.isCanuse();
+        this.createdDate = LocalDateTime.now();
     }
 }
