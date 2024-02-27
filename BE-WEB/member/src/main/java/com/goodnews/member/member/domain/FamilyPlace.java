@@ -37,8 +37,10 @@ public class FamilyPlace extends BaseEntity {
     @CreatedDate
     public LocalDateTime createdDate;
 
+    public String registerUser;
+
     @Builder
-    public FamilyPlace(String name, double lat, double lon, boolean canuse, Family family,int seq,String address) {
+    public FamilyPlace(String name, double lat, double lon, boolean canuse, Family family, int seq, String address, String registerUser) {
         this.name = name;
         this.lat = lat;
         this.lon = lon;
@@ -46,6 +48,7 @@ public class FamilyPlace extends BaseEntity {
         this.family = family;
         this.seq = seq;
         this.address = address;
+        this.registerUser = registerUser;
     }
 
     public void updatePlaceInfo(FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
@@ -53,10 +56,12 @@ public class FamilyPlace extends BaseEntity {
         this.lat = familyPlaceUpdateRequestDto.getLat();
         this.lon= familyPlaceUpdateRequestDto.getLon();
         this.createdDate = LocalDateTime.now();
+        this.registerUser = familyPlaceUpdateRequestDto.getRegisterUser();
     }
 
     public void updatePlaceCanuse(FamilyPlaceCanuseDto familyPlaceCanuseDto) {
         this.canuse = familyPlaceCanuseDto.isCanuse();
         this.createdDate = LocalDateTime.now();
+        this.registerUser = familyPlaceCanuseDto.getRegisterUser();
     }
 }
