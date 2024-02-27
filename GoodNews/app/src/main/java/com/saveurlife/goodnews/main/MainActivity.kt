@@ -228,8 +228,14 @@ class MainActivity : BaseActivity() {
                 R.id.mapFragment -> {
 
                     if (deviceStateService.isNetworkAvailable(this)) {
-                        println("!!!!여기에 와야지")
-                        navController.navigateSingleTop(R.id.tMapFragment)
+                        if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
+                            // canLoadMapFragment가 true일 때는 tMapFragment 로드
+                            navController.navigateSingleTop(R.id.tMapFragment)
+                        } else {
+                            // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
+                            Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
+                        }
+
                     } else {
                         if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
                             // canLoadMapFragment가 true일 때는 지도 Fragment 로드

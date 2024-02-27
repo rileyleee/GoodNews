@@ -6,6 +6,11 @@
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:onClick="onFamilyLocationFragmentClick"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
@@ -13,36 +18,52 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginStart="10dp"
-        android:src="@drawable/family_regist"
+        android:src="@drawable/location_alert_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
         android:id="@+id/alarmFamilyLocationText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:text="모임 장소의 상태가 변경되었습니다."
         android:textColor="@color/font_color"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/alarmFamilyLocationImg"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@id/alertFamilyGuide"
         app:layout_constraintStart_toEndOf="@+id/alarmFamilyLocationImg"
+        app:layout_constraintEnd_toEndOf="@id/alertFamilyGuide"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/alarmFamilyLocationTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:text="10초 전"
+        android:textSize="12sp"
         android:textColor="@color/gray"
-        app:layout_constraintBottom_toBottomOf="@+id/alarmFamilyLocationText"
-        app:layout_constraintStart_toEndOf="@id/alarmFamilyLocationText"
-        app:layout_constraintTop_toTopOf="@+id/alarmFamilyLocationText" />
+        app:layout_constraintStart_toStartOf="@id/alarmFamilyLocationText"
+        app:layout_constraintTop_toBottomOf="@id/alarmFamilyLocationText" />
 
+    <TextView
+        android:id="@+id/alarmFamilyLocationButton"
+        android:text="@string/alertButton"
+        android:textSize="14sp"
+        android:textColor="@color/gray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/alertFamilyGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,5 +24,6 @@
     <string name="seeLocation"><u>위치 보기</u></string>
     <string name="location"><u>위치</u></string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="alertButton"><u>바로가기</u></string>
 
 </resources>

@@ -34,11 +34,11 @@ class AlertRepository(private val alarmDatabaseManger: AlertDatabaseManager){
     }
 
     //가족 장소 알림 저장
-    fun editFamilyPlaceAlert(senderId: String, name: String, type: String) {
+    fun editFamilyPlaceAlert(senderId: String, name: String, content: String, type: String) {
         val currentTimeMillis = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(9)
         val realmInstant = RealmInstant.from(currentTimeMillis/1000, (currentTimeMillis%1000).toInt())
 
-        val alert = Alert(id = "$realmInstant$senderId", senderId=senderId, name = name, content = "멀쩡함", latitude = 0.0, longitude = 0.0, time = realmInstant, type= type)
+        val alert = Alert(id = "$realmInstant$senderId", senderId=senderId, name = name, content = content, latitude = 0.0, longitude = 0.0, time = realmInstant, type= type)
         alarmDatabaseManger.createAlarm(alert){
             updateAlertLiveData(alert)
         }
