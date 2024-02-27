@@ -171,6 +171,7 @@ public class FamilyService {
                                 .family(familyId.get().getFamily())
                                 .seq(familyRegistPlaceRequestDto.getSeq())
                                 .address(familyRegistPlaceRequestDto.getAddress())
+                                .registerUser(familyRegistPlaceRequestDto.getRegisterUser())
                                 .build()))
                         .build())
                 .build();
