@@ -2,8 +2,11 @@ package com.saveurlife.goodnews.sync
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.MutableLiveData
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.alert.AlertDatabaseManager
+import com.saveurlife.goodnews.alert.AlertRepository
 import com.saveurlife.goodnews.api.DurationFacilityState
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.FamilyInfo
@@ -40,6 +43,7 @@ class DataSync (context: Context) {
     private val syncTime = preferences.getLong("SyncTime", 0L)
     private val familySyncTime = preferences.getLong("FamilySyncTime", 0L)
     private val facilitySyncTime = preferences.getLong("FacilitySyncTime", 0L)
+    private val myName = preferences.getString("name", "가족")
 
     private val TAG_ERR = "SYNC ERROR"
 
@@ -52,6 +56,9 @@ class DataSync (context: Context) {
 
 //    val familyMemInfoUpdated = MutableLiveData<Boolean>()
 //    val familyPlaceUpdated = MutableLiveData<Boolean>()
+
+    private val alertDatabaseManager = AlertDatabaseManager()
+    private val alertRepository = AlertRepository(alertDatabaseManager)
 
 
 
@@ -201,6 +208,17 @@ class DataSync (context: Context) {
         // realm에 저장한다.
         familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
             override fun onSuccess(result: ArrayList<PlaceInfo>) {
+
+
+                println("dataSync에서 저장되는지?? - 되는데")
+
+                alertRepository.editFamilyPlaceAlert(
+                    phoneId,
+                    myName,
+                    "등록",
+                    "장소"
+                )
+
                 result.forEach {
                     familyAPI.getFamilyPlaceInfoDetail(
                         it.placeId,
