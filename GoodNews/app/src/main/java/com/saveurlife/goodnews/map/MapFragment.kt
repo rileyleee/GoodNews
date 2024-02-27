@@ -561,7 +561,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                             binding.emergencyListInfoButton.setOnClickListener {
                                 Log.v("리스트를 보여줄 UI", closeInfo.size.toString())
                                 Log.v("위험정보 내용 @@@", closeInfo[0].content)
-                                val dialogFragment = EmergencyListDialogFragment.newInstance(closeInfo)
+                                val dialogFragment = EmergencyListDialogFragment.newInstance(closeInfo, facility.name)
                                 dialogFragment.show(childFragmentManager, "EmergencyListDialogFragment")
                             }
                         } else {    // 아닐 경우 해당 버튼을 안 보여준다.
