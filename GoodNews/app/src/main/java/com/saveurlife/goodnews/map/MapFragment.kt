@@ -353,7 +353,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
             findLatestLocation()
         }
 
-
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
             showEmergencyDialog(currGeoPoint)
@@ -554,21 +553,22 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                         Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo.size.toString())
                         // Log.v("MapFragment에서 시설 클릭 시 작업", closeInfo[0].content)
                         // UI 업데이트 작업
-//                        if (closeInfo.size > 0) {    // closeInfo가 0보다 크면, 해당 버튼을 보여준다.
-//                            binding.emergencyListInfoButton.visibility = View.VISIBLE
-//                            val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
-//                            binding.emergencyListInfoButton.startAnimation(startAnimation)
-//                        } else {    // 아닐 경우 해당 버튼을 안 보여준다.
-//                            binding.emergencyListInfoButton.visibility = View.GONE
-//                        }
-                        // 테스트 후 위 코드로 병합 (closeInfo 0보다 클 때만 적용되도록)
-                        binding.emergencyListInfoButton.visibility = View.VISIBLE
-                        val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
-                        binding.emergencyListInfoButton.startAnimation(startAnimation)
-                        // 메서드명(closeInfo)
-                        binding.emergencyListInfoButton.setOnClickListener {
-                            Log.v("리스트를 보여줄 UI", closeInfo.size.toString())
+                        if (closeInfo.size > 0) {    // closeInfo가 0보다 크면, 해당 버튼을 보여준다.
+                            binding.emergencyListInfoButton.visibility = View.VISIBLE
+                            val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
+                            binding.emergencyListInfoButton.startAnimation(startAnimation)
+                            // 위험 정보 버튼 클릭했을 때
+                            binding.emergencyListInfoButton.setOnClickListener {
+                                Log.v("리스트를 보여줄 UI", closeInfo.size.toString())
+                                Log.v("위험정보 내용 @@@", closeInfo[0].content)
+                                val dialogFragment = EmergencyListDialogFragment.newInstance(closeInfo, facility.name)
+                                dialogFragment.show(childFragmentManager, "EmergencyListDialogFragment")
+                            }
+                        } else {    // 아닐 경우 해당 버튼을 안 보여준다.
+                            binding.emergencyListInfoButton.visibility = View.GONE
+                            binding.emergencyListInfoButton.clearAnimation()
                         }
+                        // 메서드명(closeInfo)
                     }
                 }
 
@@ -651,7 +651,6 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         mapView.onPause()
         locationProvider.stopLocationUpdates() // 위치 정보 업데이트 중지
     }
-
 
     private fun showEmergencyDialog(currGeoPoint: GeoPoint) {
         val dialogFragment = EmergencyInfoDialogFragment()

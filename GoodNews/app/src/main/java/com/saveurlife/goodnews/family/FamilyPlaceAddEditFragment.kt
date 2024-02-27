@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -135,6 +136,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             ?.apply {
                 hint = "주소를 검색해 주세요."
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                setHintTextColor(ContextCompat.getColor(requireContext(), R.color.hint_gray)) // 힌트 텍스트 색상 설정
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.font_color)) // 텍스트 색상 설정
             }
 
         // 토글버튼

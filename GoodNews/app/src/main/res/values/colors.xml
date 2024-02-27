@@ -56,4 +56,5 @@
 
     <!--  채팅창  -->
     <color name="chatting">#FFFFF0A0</color>
+    <color name="other_chat">#FFFFFFFF</color>
 </resources>
