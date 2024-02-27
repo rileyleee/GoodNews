@@ -130,7 +130,7 @@
         </provider>
 
         <receiver
-            android:name=".sync.deleteOldDataReciver"
+            android:name=".sync.DeleteOldDataReciver"
             android:directBootAware="true"
             android:exported="true">
             <intent-filter>

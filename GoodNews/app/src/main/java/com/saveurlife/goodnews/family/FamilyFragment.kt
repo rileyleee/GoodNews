@@ -49,7 +49,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     private var familyAPI: FamilyAPI = FamilyAPI()
     private lateinit var memberId:String
     private lateinit var syncService: SyncService
-    var familyMemberCheck = false
+    private var familyMemberCheck = false
 
     companion object{
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
@@ -64,6 +64,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     override fun onResume() {
         super.onResume()
 
+        familyMemberCheck = false
         syncService = SyncService(requireContext())
         val deviceStateService = DeviceStateService()
         // 인터넷 연결 시에만 실행함
@@ -86,9 +87,10 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         if(deviceStateService.isNetworkAvailable(requireContext())){
             // 초기에 갱신도 해야됨.
             syncService.fetchFamilyData()
+        }else{
+            addList()
+            addPlaceList()
         }
-        addList()
-        addPlaceList()
     }
 
     override fun onAttach(context: Context) {
@@ -257,46 +259,40 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     }
     private fun addList(){
         // 서버에서 가족들 + 신청 리스트 가져오자
-        if(!familyMemberCheck){
-            // 중복 실행 방지
-            familyMemberCheck = true
-            
-            if(deviceStateService.isNetworkAvailable(requireContext())){
-                val userDeviceInfoService = UserDeviceInfoService.getInstance(requireContext())
-                familyListAdapter.resetFamilyList()
+        if(deviceStateService.isNetworkAvailable(requireContext())){
+            val userDeviceInfoService = UserDeviceInfoService.getInstance(requireContext())
+            familyListAdapter.resetFamilyList()
 
-                // 신청 리스트 가져오기
-                familyAPI.getRegistFamily(userDeviceInfoService.deviceId, object : FamilyAPI.WaitListCallback {
-                    override fun onSuccess(result: ArrayList<WaitInfo>) {
-                        result.forEach{
-                            familyListAdapter.addFamilyWait(convertName(it.name), it.id)
-                            familyListAdapter.notifyDataSetChanged()
-                        }
-                    }
-
-                    override fun onFailure(error: String) {
-                        // 실패 시의 처리
-                        Log.d("Family", "Registration failed: $error")
-                    }
-                })
-
-            }
-            // 가족 리스트 가져오기
-            val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
-            val timeService = TimeService()
-
-            // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
-            if (resultRealm != null) {
-                resultRealm.forEach {
-                    if(it.state == null){
-                        familyListAdapter.addFamilyInfo(it.name, Status.NOT_SHOWN, timeService.realmInstantToString(it.lastConnection))
-                    }else{
-                        familyListAdapter.addFamilyInfo(it.name, numToStatus[it.state!!.toInt()]!!, timeService.realmInstantToString(it.lastConnection))
+            // 신청 리스트 가져오기
+            familyAPI.getRegistFamily(userDeviceInfoService.deviceId, object : FamilyAPI.WaitListCallback {
+                override fun onSuccess(result: ArrayList<WaitInfo>) {
+                    result.forEach{
+                        familyListAdapter.addFamilyWait(convertName(it.name), it.id)
+                        familyListAdapter.notifyDataSetChanged()
                     }
                 }
-            }
-            familyMemberCheck = false
-            familyListAdapter.notifyDataSetChanged()
+
+                override fun onFailure(error: String) {
+                    // 실패 시의 처리
+                    Log.d("Family", "Registration failed: $error")
+                }
+            })
+
         }
+        // 가족 리스트 가져오기
+        val resultRealm = FamilyFragment.realm.query<FamilyMemInfo>().find()
+        val timeService = TimeService()
+
+        // 페이지 오면 기존 realm에꺼 추가(이땐 이미 동기화 된 시점임)
+        if (resultRealm != null) {
+            resultRealm.forEach {
+                if(it.state == null){
+                    familyListAdapter.addFamilyInfo(it.name, Status.NOT_SHOWN, timeService.realmInstantToString(it.lastConnection))
+                }else{
+                    familyListAdapter.addFamilyInfo(it.name, numToStatus[it.state!!.toInt()]!!, timeService.realmInstantToString(it.lastConnection))
+                }
+            }
+        }
+        familyListAdapter.notifyDataSetChanged()
     }
 }

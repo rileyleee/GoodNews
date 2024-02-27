@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
+import okhttp3.internal.wait
 
 class FamilyListAdapter(private val listener: OnItemClickListener ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {

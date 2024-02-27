@@ -20,7 +20,7 @@ data class ResponsePlaceInfo(val success:Boolean, val message:String, val data:A
 data class ResponseAccept(val success: Boolean, val message: String, val data: ArrayList<WaitInfo>)
 
 data class PlaceDetailInfo(val placeId:Int, val name:String, val lat:Double, val lon:Double, val canuse:Boolean, val address: String, val registerUser:String)
-data class PlaceInfo(val placeId: Int, val name: String, val canuse: Boolean, val seq:Int, val lastUpdate:String)
+data class PlaceInfo(val placeId: Int, val name: String, val canuse: Boolean, val seq:Int, val createdDate:String)
 data class FamilyId(val familyId: String)
 data class FamilyInfo(val memberId: String, val phoneNumber: String, val name: String, val lastConnection:String, val state:String, val familyId: String)
 data class WaitInfo(val id:Int, val name:String, val phoneNumber: String)
