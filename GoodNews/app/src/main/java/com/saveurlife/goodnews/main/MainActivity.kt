@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -72,7 +73,11 @@ class MainActivity : BaseActivity() {
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "switchToMapAsLoadingEnd" && sharedPreferences.getBoolean(key, false)) {
-                navController.navigateSingleTop(R.id.mapFragment)
+                if (deviceStateService.isNetworkAvailable(this)) {
+                    navController.navigateSingleTop(R.id.tMapFragment)
+                }else{
+                    navController.navigateSingleTop(R.id.mapFragment)
+                }
                 // 이동 후 switchToMapAsLoadingEnd false로 초기화
                 sharedPreferences.setBoolean("switchToMapAsLoadingEnd", false)
                 // switchToMapAsLoadingEnd 변화 감지 리스너 해제 (메모리 누수 방지)
@@ -226,24 +231,14 @@ class MainActivity : BaseActivity() {
 
                 // 스피너 대신 sharedPreferences의 값 확인하여 데이터 초기 작업 완료 시에만 들어갈 수 있도록 처리
                 R.id.mapFragment -> {
-
-                    if (deviceStateService.isNetworkAvailable(this)) {
-                        if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
-                            // canLoadMapFragment가 true일 때는 tMapFragment 로드
-                            navController.navigateSingleTop(R.id.tMapFragment)
-                        } else {
-                            // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
-                            Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
-                        }
-
+                    if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
+                        // canLoadMapFragment가 true일 때는 지도 Fragment 로드
+                        navController.navigateSingleTop(menuItem.itemId)
                     } else {
-                        if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
-                            // canLoadMapFragment가 true일 때는 지도 Fragment 로드
-                            navController.navigateSingleTop(menuItem.itemId)
-                        } else {
-                            // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
-                            Toast.makeText(this, "잠시만 더 기다려주세요", Toast.LENGTH_SHORT).show()
-                        }
+                        // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
+                        initializeSharedPreferencesListener()
+                        // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
+                        showMapLoadFragment()
                     }
                     true
                 }
