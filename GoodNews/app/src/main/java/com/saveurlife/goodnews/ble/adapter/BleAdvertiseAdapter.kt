@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.ble.BleMeshAdvertiseData
 import com.saveurlife.goodnews.ble.service.BleService
@@ -36,22 +37,6 @@ class BleAdvertiseAdapter (private var userList: List<BleMeshAdvertiseData>, pri
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val user = userList[position]
         holder.bind(user)
-
-        // 연결되지 않은 사용자의 위치 보기 클릭 리스너 (미니맵 띄워줌)
-        holder.binding.requestMinimapButton.setOnClickListener {
-            // 임시 미니맵
-            val miniMapFragment = MiniMapDialogFragment()
-            val otherUserLocation = Bundle()
-//            otherUserLocation.putDouble("latitude", user.latitude)
-//            otherUserLocation.putDouble("longitude", user.longitude)
-            otherUserLocation.putDouble("latitude", 36.321655)
-            otherUserLocation.putDouble("longitude", 127.378953)
-
-            miniMapFragment.arguments = otherUserLocation
-
-            // 다이얼로그를 보여주는 코드 추가 (테스트 필요)
-            miniMapFragment.show(holder.itemView.context as FragmentManager, "MiniMapDialogFragment")
-        }
 
         // requestBleButton 클릭 리스너
         // 광고, 스캔하여 이사람과 연결되고 싶을 때 클릭

@@ -19,10 +19,13 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.MapsFragment
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.alert.AlertDatabaseManager
+import com.saveurlife.goodnews.alert.AlertRepository
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
+import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
@@ -110,12 +113,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         }
     }
 
+    private val alertDatabaseManager = AlertDatabaseManager()
+    private val alertRepository = AlertRepository(alertDatabaseManager)
+
+    private lateinit var preferencesUtil: PreferencesUtil
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentFamilyPlaceAddEditBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        preferencesUtil = PreferencesUtil(requireContext())
 
         // 구글 서치 박스 ui 변경
         val autocompleteFragment =
@@ -168,10 +178,23 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                     binding.meetingPlaceAddSubmit.text = "장소 수정"
                     binding.addEditContentWrap.visibility = View.VISIBLE
                     binding.readContentWrap.visibility = View.GONE
+
+
                 }
 
                 Mode.ADD -> {
                     if(deviceStateService.isNetworkAvailable(requireContext())){
+
+                        //알림 저장
+//                        val memberId = getMemberId()
+//                        val name = preferencesUtil.getString("name", "가족")
+//
+//                        alertRepository.editFamilyPlaceAlert(
+//                            memberId,
+//                            name,
+//                            "장소"
+//                        )
+
                         addNewPlace(seqNumber)
                         dismiss()
                     }else{

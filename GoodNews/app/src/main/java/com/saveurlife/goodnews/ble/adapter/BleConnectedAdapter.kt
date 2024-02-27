@@ -1,12 +1,10 @@
 package com.saveurlife.goodnews.ble.adapter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser
@@ -47,10 +45,8 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
             // 임시 미니맵
             val miniMapFragment = MiniMapDialogFragment()
             val otherUserLocation = Bundle()
-//            otherUserLocation.putDouble("latitude", user.latitude)
-//            otherUserLocation.putDouble("longitude", user.longitude)
-            otherUserLocation.putDouble("latitude", 36.321655)
-            otherUserLocation.putDouble("longitude", 127.378953)
+            otherUserLocation.putDouble("latitude", user.lat)
+            otherUserLocation.putDouble("longitude", user.lon)
 
             miniMapFragment.arguments = otherUserLocation
 
@@ -67,9 +63,7 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
                 miniMapFragment.show(fragmentManager, "MiniMapDialogFragment")
             } else {
                 // 적절한 오류 처리 또는 로그를 추가할 수 있습니다.
-                Log.e("YourTag", "Context is not an instance of Fragment or FragmentActivity")
             }
-
         }
     }
 

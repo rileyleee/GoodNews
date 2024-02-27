@@ -17,6 +17,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -29,6 +30,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -42,18 +44,18 @@ import androidx.navigation.ui.setupWithNavController
 import com.saveurlife.goodnews.BaseActivity
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
-import com.saveurlife.goodnews.alarm.AlarmActivity
+import com.saveurlife.goodnews.alert.AlertActivity
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
 import com.saveurlife.goodnews.family.FamilyFragment
 import com.saveurlife.goodnews.map.MaploadDialogFragment
 import com.saveurlife.goodnews.models.FamilyMemInfo
+import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.LocationTrackingService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
-
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -71,7 +73,11 @@ class MainActivity : BaseActivity() {
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "switchToMapAsLoadingEnd" && sharedPreferences.getBoolean(key, false)) {
-                navController.navigateSingleTop(R.id.mapFragment)
+                if (deviceStateService.isNetworkAvailable(this)) {
+                    navController.navigateSingleTop(R.id.tMapFragment)
+                }else{
+                    navController.navigateSingleTop(R.id.mapFragment)
+                }
                 // 이동 후 switchToMapAsLoadingEnd false로 초기화
                 sharedPreferences.setBoolean("switchToMapAsLoadingEnd", false)
                 // switchToMapAsLoadingEnd 변화 감지 리스너 해제 (메모리 누수 방지)
@@ -97,6 +103,9 @@ class MainActivity : BaseActivity() {
 
     //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
     private var isBound = false
+
+    // DeviceStateService 인스턴스 생성
+    private val deviceStateService = DeviceStateService()
 
     private val connection = object : ServiceConnection {
         //Service가 연결되었을 때 호출
@@ -152,6 +161,11 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    // navController 반환 메서드의 이름 변경
+    fun provideNavController(): NavController {
+        return navController
+    }
+
     @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -201,7 +215,8 @@ class MainActivity : BaseActivity() {
                 R.id.myPageFragment,
                 R.id.flashlightFragment,
                 R.id.chattingFragment,
-                R.id.chooseGroupMemberFragment
+                R.id.chooseGroupMemberFragment,
+                R.id.tMapFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -222,7 +237,7 @@ class MainActivity : BaseActivity() {
                     } else {
                         // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
                         initializeSharedPreferencesListener()
-                        // canLoadMapFragment가 false일 때는 로딩 프래그먼트 실행
+                        // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
                         showMapLoadFragment()
                     }
                     true
@@ -231,33 +246,44 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
-        supportFragmentManager.addOnBackStackChangedListener {
-            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
-            if (supportFragmentManager.backStackEntryCount == 0) {
-                binding.toolbar.visibility = View.VISIBLE
-                binding.navigationView.visibility = View.VISIBLE
-                binding.bottomAppBar.visibility = View.VISIBLE
-                binding.mainCircleAddButton.visibility = View.VISIBLE
+            // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
+            supportFragmentManager.addOnBackStackChangedListener {
+                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+                if (supportFragmentManager.backStackEntryCount == 0) {
+                    binding.toolbar.visibility = View.VISIBLE
+                    binding.navigationView.visibility = View.VISIBLE
+                    binding.bottomAppBar.visibility = View.VISIBLE
+                    binding.mainCircleAddButton.visibility = View.VISIBLE
+                }
             }
-        }
 
-        binding.mainCircleAddButton.setOnClickListener {
-            showDialog()
-        }
+            binding.mainCircleAddButton.setOnClickListener {
+                showDialog()
+            }
 
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
 
-        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
-        onBackPressedDispatcher.addCallback(this) {
-            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
-            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
-            stopService(intent)
+            // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+            onBackPressedDispatcher.addCallback(this) {
+                // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+                val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
+                stopService(intent)
 
-            // 기본적인 뒤로 가기 동작 수행 (옵션)
-            finish()
-        }
+                // 기본적인 뒤로 가기 동작 수행 (옵션)
+                finish()
+            }
+
+            //알림 activity에서 가족 fragment로 이동 - 되는지 확인해봐야함
+            val action = intent.action
+            if (action == "showFamilyFragmentByAlert") {
+                navController.navigateSingleTop(R.id.familyFragment)
+                true
+//            supportFragmentManager.beginTransaction()
+//                .replace(R.id.familyFragment, FamilyFragment())
+//                .commit()
+            }
+
     }
 
     private fun startAdvertiseAndScan() {
@@ -363,7 +389,7 @@ class MainActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
-                val intent = Intent(this, AlarmActivity::class.java)
+                val intent = Intent(this, AlertActivity::class.java)
                 startActivity(intent)
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                 true

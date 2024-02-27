@@ -25,6 +25,7 @@ import com.saveurlife.goodnews.ble.message.ChatDatabaseManager
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityChattingDetailBinding
+import com.saveurlife.goodnews.map.MiniMapDialogFragment
 
 
 class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
@@ -118,6 +119,21 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
                 updateOtherStatus(chatOtherStatus)
             }
         }
+
+        //상대방 위치 보기(미니맵)
+        val userData= (intent.getSerializableExtra("chattingUser") as BleMeshConnectedUser).toString().split('/')
+        //if (userData.size >= 6) {
+        binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
+            val miniMapFragment = MiniMapDialogFragment()
+
+            val otherUserLocation = Bundle()
+            otherUserLocation.putDouble("latitude", userData[4].toDouble())
+            otherUserLocation.putDouble("longitude", userData[5].toDouble())
+
+            miniMapFragment.arguments = otherUserLocation
+            miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
+        }
+        //}
 
         //ble - 서비스 바인딩
         Intent(this, BleService::class.java).also { intent ->

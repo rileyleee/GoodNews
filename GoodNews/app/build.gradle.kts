@@ -124,4 +124,8 @@ dependencies {
 
     // 구글 place 추가 (map api)
     implementation("com.google.android.libraries.places:places:3.2.0")
+
+    //tmap
+    implementation(files("libs/vsm-tmap-sdk-v2-android-1.6.60.aar"))
+    implementation(files("libs/tmap-sdk-1.0.aar"))
 }

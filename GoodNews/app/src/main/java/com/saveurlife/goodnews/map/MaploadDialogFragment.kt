@@ -9,7 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.FragmentMaploadDialogBinding
+import com.saveurlife.goodnews.main.MainActivity
 
 class MaploadDialogFragment : DialogFragment() {
 
@@ -33,6 +35,8 @@ class MaploadDialogFragment : DialogFragment() {
 
         // 맵 로딩 중 닫기 버튼 눌렀을 때
         binding.maploadClose.setOnClickListener {
+            // MainActivity에서 NavController를 얻어와서 homeFragment로 이동하도록 설정
+            (requireActivity() as MainActivity).provideNavController().navigate(R.id.homeFragment)
             dismiss()
         }
 
