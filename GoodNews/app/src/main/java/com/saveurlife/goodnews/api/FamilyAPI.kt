@@ -2,6 +2,8 @@ package com.saveurlife.goodnews.api
 
 import android.util.Log
 import com.google.gson.Gson
+import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.main.PreferencesUtil
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
@@ -78,7 +80,9 @@ class FamilyAPI {
     // 가족 모임장소 수정
     fun getFamilyUpdatePlaceInfo(placeId:Int, name: String, lat: Double, lon: Double){
         // request
-        val data = RequestPlaceInfo(name, lat, lon)
+        val preferences: PreferencesUtil = GoodNewsApplication.preferences
+        val registerUser = preferences.getString("name","없음")
+        val data = RequestPlaceInfo(registerUser, name, lat, lon)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -180,7 +184,9 @@ class FamilyAPI {
     // 가족 모임 장소 등록
     fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, seq:Int, address:String, callback:RegistFamilyCallback){
         // request
-        val data = RequestPlaceDetailInfo(memberId, name, lat, lon, seq, address)
+        val preferences: PreferencesUtil = GoodNewsApplication.preferences
+        val registerUser = preferences.getString("name","없음")
+        val data = RequestPlaceDetailInfo(memberId, name, lat, lon, seq, address, registerUser)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
