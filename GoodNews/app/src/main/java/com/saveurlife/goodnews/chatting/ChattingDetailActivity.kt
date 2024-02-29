@@ -34,6 +34,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     private val sharedViewModel: SharedViewModel by viewModels()
 
     lateinit var bleService: BleService
+
     //서비스가 현재 바인드 되었는지 여부를 나타내는 변수
     private var isBound = false
     private val connection = object : ServiceConnection {
@@ -47,6 +48,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
             observeChatRoomMessages()
             getConnectedUsers()
         }
+
         //서비스 연결이 끊어졌을 때 호출
         override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
@@ -56,9 +58,12 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     //채팅 저장소
     private lateinit var chatDatabaseManager: ChatDatabaseManager
     private lateinit var chatRepository: ChatRepository
+
     //상대방 Id
     private lateinit var userId: String
     private lateinit var userName: String
+    private var userLat: Double = 0.0
+    private var userLon: Double = 0.0
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chattingDetailAdapter: ChattingDetailAdapter
@@ -80,16 +85,21 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     }
 
     private fun getConnectedUsers() {
+        Log.v("값 넣기 전 lat:  ", userLat.toString())
+        Log.v("값 넣기 전 lon: ", userLon.toString())
+        // 초기값 설정
         Log.v("**채팅 뷰모델: ", "이거 호출되었나요")
-        sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(
-            this,
-            Observer {
-                    connectedDevicesMap ->
+        if (bleService.getBleMeshConnectedUser(userId) == null) {
+            Log.v("연결되지 않은 사용자: ", "null입니다.")
 
-            // connectedDevicesMap에서 필요한 데이터 추출
-            val users = connectedDevicesMap.flatMap { it.value.values }.toList()
-            Log.v("**채팅 뷰모델: ", users.size.toString())
-        })
+        } else {
+            // 연결되어 있는 경우에만 위경도 값 갱신
+            userLat = bleService.getBleMeshConnectedUser(userId).lat
+            userLon = bleService.getBleMeshConnectedUser(userId).lon
+            Log.v("연결된 사용자: ", userLat.toString())
+            Log.v("연결된 사용자: ", userLon.toString())
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,8 +114,8 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         recyclerView.layoutManager = LinearLayoutManager(this)
 
 
-        //MainAroundListFragment
-        if(page == 1){
+        //MainAroundListFragment(BLE 연결된 사용자 리스트 화면에서 연결)
+        if (page == 1) {
             val user = intent.getSerializableExtra("chattingUser") as BleMeshConnectedUser
             val userData = user.toString().split('/')
             if (userData.size >= 6) {
@@ -133,33 +143,32 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
                 }
             }
         }
-        //OneChattingFragment
-        else if(page == 2){
-            userId = intent.getStringExtra("chatRoomId") ?: throw IllegalStateException("userId not found in Intent")
+        //OneChattingFragment(채팅 목록에서 연결)
+        else if (page == 2) {
+            Log.v("다른 건 업데이트 된건가: ", "else if 직후")
+            userId = intent.getStringExtra("chatRoomId")
+                ?: throw IllegalStateException("userId not found in Intent")
             if (extras != null) {
                 userName = extras.getString("chatName", "")
                 val chatOtherStatus = extras.getString("chatOtherStatus", "")
 
                 binding.chattingToolbar.chatDetailNameHeader.text = userName
                 updateOtherStatus(chatOtherStatus)
-
+                Log.v("다른 건 업데이트 된건가: ", "미니맵 직전")
                 // 상대방 위치 보기(미니맵)
-//                users.forEach{ user ->
-//                    Log.v("1) 채팅 ChattingDetailActivity", user.userId)
-//                    Log.v("2) 채팅 ChattingDetailActivity", userId)
-//                    if(user.userId.equals(userId)){
-//                        Log.v("채팅 ChattingDetailActivity", user.userId)
-//                        Log.v("채팅 ChattingDetailActivity", userId)
-//                        binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
-//                            val otherUserLocation = Bundle()
-//                            otherUserLocation.putDouble("latitude", user.lat)
-//                            otherUserLocation.putDouble("longitude", user.lon)
-//
-//                            miniMapFragment.arguments = otherUserLocation
-//                            miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
-//                        }
-//                    }
-//                }
+                binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
+                if (userLat == 0.0 && userLon == 0.0) {
+                    Log.v("연결되지 않은 사용자: ", "미니맵 볼 수 없습니다")
+                } else {
+
+                        val otherUserLocation = Bundle()
+                        otherUserLocation.putDouble("latitude", userLat)
+                        otherUserLocation.putDouble("longitude", userLon)
+
+                        miniMapFragment.arguments = otherUserLocation
+                        miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
+                    }
+                }
             }
         }
 
@@ -167,8 +176,6 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         Intent(this, BleService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
-
-
 
         chattingDetailAdapter = ChattingDetailAdapter(emptyList(), userId)
         recyclerView.adapter = chattingDetailAdapter
@@ -229,7 +236,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
     //상태 초기화
     private fun updateOtherStatus(chatOtherStatus: String?) {
-        when(chatOtherStatus){
+        when (chatOtherStatus) {
             "safe" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_safe_circle)
             "injury" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_injury_circle)
             "death" -> binding.chattingToolbar.chatDetailStatus.setBackgroundResource(R.drawable.my_status_death_circle)
@@ -273,10 +280,12 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     override fun onDown(e: MotionEvent): Boolean {
         return false
     }
+
     override fun onShowPress(e: MotionEvent) {}
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         return false
     }
+
     override fun onScroll(
         e1: MotionEvent?,
         e2: MotionEvent,
@@ -285,6 +294,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     ): Boolean {
         return false
     }
+
     override fun onLongPress(e: MotionEvent) {}
 
     override fun onDestroy() {
