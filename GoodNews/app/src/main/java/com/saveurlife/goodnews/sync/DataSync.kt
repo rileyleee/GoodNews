@@ -52,7 +52,6 @@ class DataSync (context: Context) {
 
 
 
-
     // 개인 정보 관련
 
     fun fetchDataMember() {
@@ -134,7 +133,6 @@ class DataSync (context: Context) {
                         localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
 
                     if(findMem.size != 0){
-                        Log.i("tessss", "이미 있어요")
                         var res = findMem.first()
                         // 이미 가족이 연결이 되었던 경우 -> 변경
                         memberAPI.findMemberInfo(it.memberId, object : MemberAPI.MemberCallback {
@@ -160,7 +158,6 @@ class DataSync (context: Context) {
                             }
                         })
                     }else{
-                        Log.d("testt", "새로 추가요")
                         // 가족이 연결되지 않았을 경우 -> 새로 추가
                         memberAPI.findMemberInfo(it.memberId, object : MemberAPI.MemberCallback {
                             override fun onSuccess(result2: MemberInfo) {
@@ -220,7 +217,6 @@ class DataSync (context: Context) {
                 result.forEach {
                     // id로 찾았을 때 없으면 -> 그냥 추가
                     // 만약,시간이 같지 않다면 -> 추가
-
 
                     // 시간이 같다면 그냥 패스
                     var findPlace = realm.query<FamilyPlace>("placeId == $0", it.placeId).find()
@@ -341,10 +337,6 @@ class DataSync (context: Context) {
                             }
                         )
                     }
-
-
-
-
                 }
             }
 

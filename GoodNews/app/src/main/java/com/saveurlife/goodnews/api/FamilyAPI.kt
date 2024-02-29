@@ -131,7 +131,7 @@ class FamilyAPI {
     }
 
     // 가족 신청 수락
-    fun updateRegistFamily(familyMemberId:Int, refuse:Boolean){
+    fun updateRegistFamily(familyMemberId:Int, refuse:Boolean, callback:RegistFamilyCallback){
         // request
         val data = RequestAccept(familyMemberId, refuse)
         val json = gson.toJson(data)
@@ -150,8 +150,7 @@ class FamilyAPI {
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
 
-
-
+                        callback.onSuccess()
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -182,7 +181,7 @@ class FamilyAPI {
     }
 
     // 가족 모임 장소 등록
-    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, seq:Int, address:String, callback:RegistFamilyCallback){
+    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, seq:Int, address:String, callback:RegistFamilyPlaceCallback){
         // request
         val preferences: PreferencesUtil = GoodNewsApplication.preferences
         val registerUser = preferences.getString("name","없음")
@@ -521,6 +520,11 @@ class FamilyAPI {
             }
         })
     }
+
+    interface RegistFamilyCallback{
+        fun onSuccess()
+        fun onFailure(error: String)
+    }
     interface FamilyRegistrationCallback {
         fun onSuccess(result: String)
         fun onFailure(error: String)
@@ -539,7 +543,7 @@ class FamilyAPI {
         fun onSuccess(result: ArrayList<PlaceInfo>)
         fun onFailure(error:String)
     }
-    interface RegistFamilyCallback {
+    interface RegistFamilyPlaceCallback {
         fun onSuccess(result: PlaceDetailInfo)
         fun onFailure(error:String)
     }
