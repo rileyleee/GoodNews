@@ -39,19 +39,12 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
     //나침반 클릭하면 바로 직전 저장했던 위치 불러오기 위함
     private var lastKnownLocation: Location? = null
 
-//    private var copiedAll: List<OffMapFacility> = emptyList()
-//    private var copiedShelter: List<OffMapFacility> = emptyList()
-//    private var copiedHospital: List<OffMapFacility> = emptyList()
-//    private var copiedGrocery: List<OffMapFacility> = emptyList()
-//    private var copiedMinbangwi: List<OffMapFacility> = emptyList()
-//    private var copiedEarthquake: List<OffMapFacility> = emptyList()
-//
-//    private var loadedAll = GoodNewsApplication.FacilityDataManager.copiedAll
-//    private var loadedShelter = GoodNewsApplication.FacilityDataManager.copiedShelter
-//    private var loadedHospital = GoodNewsApplication.FacilityDataManager.copiedHospital
-//    private var loadedGrocery = GoodNewsApplication.FacilityDataManager.copiedGrocery
-//    private var loadedMinbangwi = GoodNewsApplication.FacilityDataManager.copiedMinbangwi
-//    private var loadedEarthquake = GoodNewsApplication.FacilityDataManager.copiedEarthquake
+    private var loadedAll = GoodNewsApplication.FacilityDataManager.copiedAll
+    private var loadedShelter = GoodNewsApplication.FacilityDataManager.copiedShelter
+    private var loadedHospital = GoodNewsApplication.FacilityDataManager.copiedHospital
+    private var loadedGrocery = GoodNewsApplication.FacilityDataManager.copiedGrocery
+    private var loadedMinbangwi = GoodNewsApplication.FacilityDataManager.copiedMinbangwi
+    private var loadedEarthquake = GoodNewsApplication.FacilityDataManager.copiedEarthquake
 
 
     override fun onCreateView(
@@ -59,14 +52,10 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentTMapBinding.inflate(inflater, container, false)
-
         tMapView = TMapView(requireContext())
-
-
 
         // 티맵 키 설정
         tMapView.setSKTMapApiKey(T_MAP_API_KEY)
-
         binding.tmapViewContainer.addView(tMapView)
 
         //gps
@@ -87,32 +76,38 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             handleFindMyLocationButtonClick()
         }
 
-//        setFacilityData(loadedAll, loadedShelter, loadedHospital, loadedGrocery, loadedMinbangwi, loadedEarthquake)
+        tMapView.enableClustering = true
+
 
         tMapView.setOnMapReadyListener {
-            val pointList = ArrayList<TMapPoint>()
-            pointList.add(TMapPoint(36.69055, 127.4037395))
-            pointList.add(TMapPoint(36.6874198, 127.4056281))
-            pointList.add(TMapPoint(36.6774198, 127.409))
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.IO) {
+
+                    tMapView.setClusteringIcon(BitmapFactory.decodeResource(resources, R.drawable.ic_notification_overlay))
 
 
-            for ((index, point) in pointList.withIndex()) {
-                val marker = TMapMarkerItem()
-                marker.id = "marker${index}"
-                marker.setTMapPoint(point.latitude, point.longitude)
-                marker.icon = BitmapFactory.decodeResource(resources, R.drawable.ic_notification_overlay) // 마커 아이콘 설정
+//                    loadedShelter.forEachIndexed { index, point ->
+//                        val marker = TMapMarkerItem()
+//                        marker.id = "marker${index}"
+//                        marker.setTMapPoint(point.latitude, point.longitude)
+//                        marker.icon = BitmapFactory.decodeResource(resources, R.drawable.ic_notification_overlay)
+//
+//                        // 비동기적으로 마커를 지도에 추가
+//                        withContext(Dispatchers.Main) {
+//                            tMapView.addTMapMarkerItem(marker)
+//
+//                            println("등록 마커 ${point.id} ${point.latitude}, ${point.longitude}")
+//                        }
+//                    }
 
-                // 마커를 지도에 추가
-                tMapView.addTMapMarkerItem(marker)
-                println("등록 마커 ${point.latitude}, ${point.longitude}")
+                    loadedShelter.forEachIndexed { index, point ->
+                            println("등록 마커 ${point.id} ${point.latitude}, ${point.longitude}")
+                    }
+                }
             }
 
 
-
-
-
-
-
+            //길 찾기
             val tMapPointStart = TMapPoint(36.69055, 127.4037395)
 
             val startPoint = TMapPoint(36.69055, 127.4037395)
@@ -165,22 +160,22 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 //        }
 //    }
 
-//    private fun showMarkers() {
-//        // copiedAll 데이터에 대한 마커 표시
-//        for ((index, facility) in loadedEarthquake.withIndex()) {
-//
-//            val marker = TMapMarkerItem()
-//            marker.id = "marker${index}"
-//            marker.setTMapPoint(facility.latitude, facility.longitude)
-//            marker.icon = BitmapFactory.decodeResource(resources, R.drawable.ic_notification_overlay) // 마커 아이콘 설정
-//            // 마커 설정 등의 코드 작성
-//            tMapView.addTMapMarkerItem(marker)
-//        }
-//
-//        // copiedShelter, copiedHospital 등에 대해서도 마커 표시 작업을 반복
-//
-//        // 필요에 따라 마커의 아이콘, 색상, 정보 표시 등의 설정 수행
-//    }
+    private fun showMarkers() {
+        // copiedAll 데이터에 대한 마커 표시
+        for ((index, facility) in loadedEarthquake.withIndex()) {
+
+            val marker = TMapMarkerItem()
+            marker.id = "marker${index}"
+            marker.setTMapPoint(facility.latitude, facility.longitude)
+            marker.icon = BitmapFactory.decodeResource(resources, R.drawable.ic_notification_overlay) // 마커 아이콘 설정
+            // 마커 설정 등의 코드 작성
+            tMapView.addTMapMarkerItem(marker)
+        }
+
+        // copiedShelter, copiedHospital 등에 대해서도 마커 표시 작업을 반복
+
+        // 필요에 따라 마커의 아이콘, 색상, 정보 표시 등의 설정 수행
+    }
 
     private fun handleFindMyLocationButtonClick() {
         CoroutineScope(Dispatchers.IO).launch {

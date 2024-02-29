@@ -234,7 +234,11 @@ class MainActivity : BaseActivity() {
                 R.id.mapFragment -> {
                     if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
                         // canLoadMapFragment가 true일 때는 지도 Fragment 로드
-                        navController.navigateSingleTop(menuItem.itemId)
+                        if (deviceStateService.isNetworkAvailable(this)) {
+                            navController.navigateSingleTop(R.id.tMapFragment)
+                        }else{
+                            navController.navigateSingleTop(R.id.mapFragment)
+                        }
                     } else {
                         // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
                         initializeSharedPreferencesListener()
