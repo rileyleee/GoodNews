@@ -27,6 +27,7 @@ import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
 import com.saveurlife.goodnews.main.PreferencesUtil
+import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
@@ -52,13 +53,6 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         super.onCreate(savedInstanceState)
         arguments?.let {
             mode = it.getSerializable("mode") as Mode
-            seqNumber = it.getInt("seq")
-
-            when (mode) {
-                Mode.READ -> loadDataAndDisplay(seqNumber)
-                Mode.EDIT -> loadDataForEdit(seqNumber)
-                else -> {} // ADD 모드
-            }
         }
     }
 
@@ -111,7 +105,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             }
         } else {
             // binding이 초기화되지 않은 경우에 대한 처리
-            Log.e("MyFragment", "Binding is not initialized.")
+            Log.e("Binding", "바인딩이 초기화되지 않았음")
         }
     }
 
@@ -158,19 +152,22 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
         // 등록 버튼 눌렀을 때
         binding.meetingPlaceAddSubmit.setOnClickListener {
-            // 닉네임 설정
+            val loadedData = loadData(seqNumber)
+
             val nickname = binding.meetingPlaceNickname.text.toString()
             tempFamilyPlace?.name = nickname
 
-            if (nickname.isEmpty()) {
-                Toast.makeText(context, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener // 함수 실행 중단
-            }
+//            if (nickname.isEmpty()) {
+//                Toast.makeText(context, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
+//                return@setOnClickListener // 함수 실행 중단
+//            }
 
-            if (tempFamilyPlace?.address.isNullOrEmpty() && tempFamilyPlace?.name.isNullOrEmpty()) {
-                Toast.makeText(context, "주소를 선택해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            // 기존 주소 설정
+//            tempFamilyPlace?.address = loadedData?.address ?: ""
+//            if (tempFamilyPlace?.address.isNullOrEmpty()) {
+//                Toast.makeText(context, "주소를 선택해주세요.", Toast.LENGTH_SHORT).show()
+//                return@setOnClickListener
+//            }
 
             // 모드에 따라 바뀜
             when (mode) {
@@ -180,10 +177,31 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
                     // EDIT 모드에 맞게 UI 업데이트
                     binding.meetingPlaceAddSubmit.text = "장소 수정"
+                    binding.meetingPlaceMapView.visibility = View.VISIBLE
                     binding.addEditContentWrap.visibility = View.VISIBLE
                     binding.readContentWrap.visibility = View.GONE
 
 
+                    // 기존 장소의 이름과 주소를 가져와 UI에 설정
+                    loadedData?.let { familyPlace ->
+                        binding.meetingPlaceNickname.setText(familyPlace.name)
+
+                        // 맵에 기존 위치 표시
+                        mapsFragment.setLocation(familyPlace.latitude, familyPlace.longitude)
+
+                        // AutocompleteSupportFragment에 기존 장소의 정보 설정
+                        val autocompleteFragment =
+                            childFragmentManager.findFragmentById(R.id.meetingPlaceAutocompleteFragment) as AutocompleteSupportFragment
+                        autocompleteFragment.setPlaceFields(
+                            listOf(
+                                Place.Field.ID,
+                                Place.Field.NAME,
+                                Place.Field.ADDRESS,
+                                Place.Field.LAT_LNG
+                            )
+                        )
+                        autocompleteFragment.setText(familyPlace.address) // 기존 주소 설정
+                    }
                 }
 
                 Mode.ADD -> {
@@ -208,7 +226,24 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
                 Mode.EDIT -> {
                     if(deviceStateService.isNetworkAvailable(requireContext())){
-                        updatePlace(seqNumber)
+                        // 사용자가 변경한 값들을 tempFamilyPlace에 업데이트
+                        tempFamilyPlace?.apply {
+                            name = nickname
+
+                            if (address.isEmpty()) {
+                                address = loadedData?.address ?: ""
+                            }
+                            // 위도와 경도는 변경되지 않은 경우에만 이전 값으로 유지
+                            if (latitude == 0.0 && longitude == 0.0) {
+                                latitude = loadedData?.latitude ?: 0.0
+                                longitude = loadedData?.longitude ?: 0.0
+                            }
+                            // seq가 비어 있는 경우에만 이전 값으로 유지
+                            if (seq == 0) {
+                                seq = loadedData?.seq ?: 0
+                            }
+                        }
+                        updatePlace(loadedData?.placeId)
                         dismiss()
                     }else{
                         Toast.makeText(context, "인터넷 연결이 불안정합니다.", Toast.LENGTH_SHORT).show()
@@ -230,16 +265,40 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     }
 
     // 장소 정보 업데이트 (EDIT 모드)
-    private fun updatePlace(seq: Int?) {
-        val memberId = getMemberId()
+    private fun updatePlace(placeId: Int?) {
+        Log.e("tempFamilyPlace", tempFamilyPlace.toString())
+        Log.e("placeId를 확인해보겠습니다", placeId.toString())
 
         //업데이트 로직 구현
-        seq.let {
-            tempFamilyPlace?.let { familyPlace ->
-//                familyAPI.getFamilyUpdatePlaceInfo(
+        // tempFamilyPlace가 null이 아닌 경우에만 API 요청을 보냄
+        tempFamilyPlace?.let { place ->
+            val idToUpdate = placeId ?: place.placeId // placeId가 null인 경우 place.placeId를 사용
+            // getFamilyUpdatePlaceInfo 함수 호출
+            familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, object : FamilyAPI.FamilyPlaceInfoCallback{
+                override fun onSuccess() {
+                    Log.i("성공적으로 됐어용", "성공적으로 됐어용(장소업데이트)")
+                    Log.i("성공적으로 됐어용 + name", place.name)
+                    Log.i("성공적으로 됐어용 + address", place.address)
+                    Log.i("성공적으로 됐어용 + latitude", place.latitude.toString())
+                    Log.i("성공적으로 됐어용 + longitude", place.longitude.toString())
+                    Log.i("성공적으로 됐어용 + seq", place.seq.toString())
+                    // 여기에서 Realm 업데이트를 해줘야 함
+                    updateFamilyPlaceToRealm(
+                        idToUpdate,
+                        place.name,
+                        place.address,
+                        place.latitude,
+                        place.longitude,
+                        place.seq,
+                    )
+                    // 저장 뒤 업데이트 요청
+                    familyFragment.fetchAll()
+                }
 
-//                )
-            }
+                override fun onFailure(error: String) {
+                    Log.d("Family", "EDIT MODE failed: $error")
+                }
+            })
         }
 
     }
@@ -318,9 +377,40 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         realm.close()
     }
 
+    // Realm에 업데이트하는 코드 (EDIT 모드)
+    private fun updateFamilyPlaceToRealm(
+        originalPlaceId: Int,
+        name: String,
+        address: String,
+        lat: Double,
+        lon: Double,
+        seq: Int
+    ) {
+        // Realm 인스턴스 열기
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        realm.writeBlocking {
+            // 기존 placeId로 해당 데이터를 찾음
+            var findPlace = realm.query<FamilyPlace>("placeId == $0", originalPlaceId).find().first()
+            // 찾은 데이터가 없으면 종료
+            if (findPlace == null) {
+                Log.e("Realm Update", "해당 placeId의 데이터를 찾을 수 없습니다.")
+                return@writeBlocking
+            }
+            // 찾은 데이터의 속성만 업데이트
+            findPlace.apply {
+                this.name = name
+                this.address = address
+                this.latitude = lat
+                this.longitude = lon
+                this.seq = seq
+            }
+        }
+        realm.close()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        seqNumber = requireArguments().getInt("seq")
         mapsFragment = MapsFragment()
         childFragmentManager.beginTransaction().apply {
             add(R.id.meetingPlaceMapView, mapsFragment)
@@ -344,6 +434,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 binding.meetingPlaceMapView.visibility = View.VISIBLE
                 binding.addEditContentWrap.visibility = View.VISIBLE
                 binding.readContentWrap.visibility = View.GONE
+                loadDataForEdit(seqNumber)
             }
 
             else -> { // READ 모드
@@ -351,6 +442,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 binding.meetingPlaceMapView.visibility = View.GONE
                 binding.addEditContentWrap.visibility = View.GONE
                 binding.readContentWrap.visibility = View.VISIBLE
+                loadDataAndDisplay(seqNumber)
             }
         }
 
