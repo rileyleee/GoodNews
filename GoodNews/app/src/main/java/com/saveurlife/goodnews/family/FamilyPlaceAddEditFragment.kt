@@ -258,7 +258,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                     place.latitude,
                     place.longitude,
                     seq,
-                    place.address, object : FamilyAPI.RegistFamilyCallback {
+                    place.address, object : FamilyAPI.RegistFamilyPlaceCallback {
                         override fun onSuccess(result: PlaceDetailInfo) {
                             Log.i("placeId", result.toString())
                             saveFamilyPlaceToRealm(
