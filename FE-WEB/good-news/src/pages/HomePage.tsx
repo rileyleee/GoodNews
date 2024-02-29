@@ -46,7 +46,7 @@ const HomePage: React.FC = () => {
         <StyledSection><SubIntro2 /></StyledSection>
         <StyledSection><SubIntro3 /></StyledSection>
         <StyledSection><SubIntro4 /></StyledSection>
-        {/* <StyledSection><MapIntro /></StyledSection> */}
+        <StyledSection><MapIntro /></StyledSection>
         <StyledSection><DownloadIntro /></StyledSection>
       </StyledSectionContainer>
     </>
