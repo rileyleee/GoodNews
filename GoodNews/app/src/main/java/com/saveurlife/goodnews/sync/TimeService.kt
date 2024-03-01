@@ -28,6 +28,7 @@ class TimeService {
     // 시간 형태 변환
     // "YYYY-MM-DDTHH:mm:ss" -> Long 형태
     // ex) "2023-11-13T03:12:02"
+    // 이걸 사용하는 것은 서버 -> 앱 밖에 없으므로 시간대가 서울 시간대에서 변경임.
     fun convertDateStrToLong(oldTime: String): Long {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
         val localDateTime = LocalDateTime.parse(oldTime, formatter)
