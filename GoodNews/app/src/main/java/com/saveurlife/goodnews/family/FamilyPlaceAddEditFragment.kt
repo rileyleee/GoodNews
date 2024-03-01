@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.family
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -10,6 +11,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -292,7 +295,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                         place.seq,
                     )
                     // 저장 뒤 업데이트 요청
-                    familyFragment.fetchAll()
+//                    familyFragment.fetchAll()
+                    familyFragment.addPlaceList()
                 }
 
                 override fun onFailure(error: String) {
@@ -410,6 +414,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // meetingPlaceNickname에서 엔터 입력했을 때, 키보드 숨기기
+        binding.meetingPlaceNickname.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // 키보드 숨기기
+                val inputMethodManager = requireContext().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+                true
+            } else {
+                false
+            }
+        }
+
         seqNumber = requireArguments().getInt("seq")
         mapsFragment = MapsFragment()
         childFragmentManager.beginTransaction().apply {

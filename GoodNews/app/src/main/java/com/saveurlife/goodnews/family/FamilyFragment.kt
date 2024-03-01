@@ -277,7 +277,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     fun fetchAll(){
         syncService.fetchFamilyData()
     }
-    private fun addPlaceList(){
+    fun addPlaceList(){
         val resultRealm2 = realm.query<FamilyPlace>().find()
         if(resultRealm2 != null){
             familyPlace.value = realm.copyFromRealm(resultRealm2)
