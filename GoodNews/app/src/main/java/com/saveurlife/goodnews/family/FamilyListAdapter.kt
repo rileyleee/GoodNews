@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
-import okhttp3.internal.wait
 
 class FamilyListAdapter(private val listener: OnItemClickListener ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -93,7 +92,6 @@ class FamilyListAdapter(private val listener: OnItemClickListener ) :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = familyList[position]
 
-
         when (item.type) {
             FamilyType.ACCEPT -> {
                 val acceptViewHolder = holder as AcceptViewHolder
@@ -132,13 +130,21 @@ class FamilyListAdapter(private val listener: OnItemClickListener ) :
 
     fun addFamilyWait(name:String, acceptNumber:Int){
         familyList.add(FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
+        notifyItemInserted(familyList.size)
     }
     fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
+        notifyItemInserted(familyList.size)
     }
 
     fun resetFamilyList(){
-        familyList = mutableListOf()
+        familyList.clear()
+        notifyDataSetChanged()
+    }
+
+    fun deleteFamilyList(position: Int){
+        familyList.remove(familyList[position])
+        notifyItemRemoved(position)
     }
 
 }

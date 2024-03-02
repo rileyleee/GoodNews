@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.ble.adapter
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -46,7 +47,9 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
             val miniMapFragment = MiniMapDialogFragment()
             val otherUserLocation = Bundle()
             otherUserLocation.putDouble("latitude", user.lat)
+            Log.v("BLECONNECTEDSERVICE: 사용자 lat", user.lat.toString())
             otherUserLocation.putDouble("longitude", user.lon)
+            Log.v("BLECONNECTEDSERVICE: 사용자 lat", user.lon.toString())
 
             miniMapFragment.arguments = otherUserLocation
 
