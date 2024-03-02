@@ -99,8 +99,6 @@ class OneChattingFragment : Fragment() {
             setupRecyclerView(binding)
             loadChatRooms(adapter)
         }
-        // 그래서 여기서 어댑터가 초기화 되지 않기 때문에 터짐
-        // Log.v("없다 있다 어떻게 구분",adapter.toString())
     }
 
     private fun setupRecyclerView(binding: FragmentOneChattingBinding) {
