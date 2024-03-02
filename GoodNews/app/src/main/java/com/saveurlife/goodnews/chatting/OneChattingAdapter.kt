@@ -59,7 +59,7 @@ class OneChattingAdapter(private val chattingList: List<OnechattingData>, privat
             if(isUserConnected){
                 binding.root.setBackgroundColor(Color.WHITE)
             }else{
-                binding.root.setBackgroundColor(Color.DKGRAY)
+                binding.root.setBackgroundColor(Color.GRAY)
             }
         }
 

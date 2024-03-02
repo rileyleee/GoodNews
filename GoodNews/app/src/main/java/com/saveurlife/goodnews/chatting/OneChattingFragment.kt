@@ -17,17 +17,16 @@ import com.saveurlife.goodnews.databinding.FragmentOneChattingBinding
 class OneChattingFragment : Fragment() {
     val sharedViewModel: SharedViewModel by activityViewModels()
     private val chatDataList = mutableListOf<OnechattingData>()
-    private lateinit var users: List<BleMeshConnectedUser>
+    private var users: List<BleMeshConnectedUser> = emptyList()
     private lateinit var adapter : OneChattingAdapter
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         var binding = FragmentOneChattingBinding.inflate(inflater, container, false)
 
         // 연결된 사용자 리스트 가져오기
         getChattingListsWhenConnected(binding)
-
         return binding.root
     }
 
@@ -84,7 +83,7 @@ class OneChattingFragment : Fragment() {
         sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(
             viewLifecycleOwner,
             Observer { connectedDevicesMap ->
-                Log.v("OneChattingFragment","옵저버 가넝~")
+                Log.v("OneChattingFragment","옵저버 가능")
                 // 중첩된 맵에서 BleMeshConnectedUser 추출
                 users = connectedDevicesMap.flatMap { it.value.values }.toList()
                 Log.v("연결된 사용자 수: ", users.size.toString())
@@ -93,6 +92,13 @@ class OneChattingFragment : Fragment() {
                 loadChatRooms(adapter)
 
             })
+
+        if(users.isEmpty()){
+            Log.v("연결된 사용자가 없어서 기존꺼 로드해요: ", users.size.toString())
+            adapter = OneChattingAdapter(chatDataList, users)
+            setupRecyclerView(binding)
+            loadChatRooms(adapter)
+        }
         // 그래서 여기서 어댑터가 초기화 되지 않기 때문에 터짐
         // Log.v("없다 있다 어떻게 구분",adapter.toString())
     }
