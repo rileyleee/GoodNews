@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -19,10 +20,13 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.MapsFragment
 import com.saveurlife.goodnews.R
+import com.saveurlife.goodnews.alert.AlertDatabaseManager
+import com.saveurlife.goodnews.alert.AlertRepository
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
+import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
@@ -90,6 +94,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 longitude = it.longitude,
                 canUse = it.canUse,
                 seq = it.seq,
+                lastUpdate = it.lastUpdate
             )
         }
         realm.close()
@@ -110,12 +115,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         }
     }
 
+    private val alertDatabaseManager = AlertDatabaseManager()
+    private val alertRepository = AlertRepository(alertDatabaseManager)
+
+    private lateinit var preferencesUtil: PreferencesUtil
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentFamilyPlaceAddEditBinding.inflate(inflater, container, false)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        preferencesUtil = PreferencesUtil(requireContext())
 
         // 구글 서치 박스 ui 변경
         val autocompleteFragment =
@@ -125,6 +137,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             ?.apply {
                 hint = "주소를 검색해 주세요."
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                setHintTextColor(ContextCompat.getColor(requireContext(), R.color.hint_gray)) // 힌트 텍스트 색상 설정
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.font_color)) // 텍스트 색상 설정
             }
 
         // 토글버튼
@@ -168,10 +182,23 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                     binding.meetingPlaceAddSubmit.text = "장소 수정"
                     binding.addEditContentWrap.visibility = View.VISIBLE
                     binding.readContentWrap.visibility = View.GONE
+
+
                 }
 
                 Mode.ADD -> {
                     if(deviceStateService.isNetworkAvailable(requireContext())){
+
+                        //알림 저장
+//                        val memberId = getMemberId()
+//                        val name = preferencesUtil.getString("name", "가족")
+//
+//                        alertRepository.editFamilyPlaceAlert(
+//                            memberId,
+//                            name,
+//                            "장소"
+//                        )
+
                         addNewPlace(seqNumber)
                         dismiss()
                     }else{
@@ -231,7 +258,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                     place.latitude,
                     place.longitude,
                     seq,
-                    place.address, object : FamilyAPI.RegistFamilyCallback {
+                    place.address, object : FamilyAPI.RegistFamilyPlaceCallback {
                         override fun onSuccess(result: PlaceDetailInfo) {
                             Log.i("placeId", result.toString())
                             saveFamilyPlaceToRealm(

@@ -2,6 +2,8 @@ package com.saveurlife.goodnews.api
 
 import android.util.Log
 import com.google.gson.Gson
+import com.saveurlife.goodnews.GoodNewsApplication
+import com.saveurlife.goodnews.main.PreferencesUtil
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
@@ -78,7 +80,9 @@ class FamilyAPI {
     // 가족 모임장소 수정
     fun getFamilyUpdatePlaceInfo(placeId:Int, name: String, lat: Double, lon: Double){
         // request
-        val data = RequestPlaceInfo(name, lat, lon)
+        val preferences: PreferencesUtil = GoodNewsApplication.preferences
+        val registerUser = preferences.getString("name","없음")
+        val data = RequestPlaceInfo(registerUser, name, lat, lon)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -127,7 +131,7 @@ class FamilyAPI {
     }
 
     // 가족 신청 수락
-    fun updateRegistFamily(familyMemberId:Int, refuse:Boolean){
+    fun updateRegistFamily(familyMemberId:Int, refuse:Boolean, callback:RegistFamilyCallback){
         // request
         val data = RequestAccept(familyMemberId, refuse)
         val json = gson.toJson(data)
@@ -146,8 +150,7 @@ class FamilyAPI {
                         val data = responseBody.data
                         // 원하는 작업을 여기에 추가해 주세요.
 
-
-
+                        callback.onSuccess()
                     }else{
                         Log.d("API ERROR", "값이 안왔음.")
                     }
@@ -178,9 +181,11 @@ class FamilyAPI {
     }
 
     // 가족 모임 장소 등록
-    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, seq:Int, address:String, callback:RegistFamilyCallback){
+    fun registFamilyPlace(memberId: String, name: String, lat: Double, lon: Double, seq:Int, address:String, callback:RegistFamilyPlaceCallback){
         // request
-        val data = RequestPlaceDetailInfo(memberId, name, lat, lon, seq, address)
+        val preferences: PreferencesUtil = GoodNewsApplication.preferences
+        val registerUser = preferences.getString("name","없음")
+        val data = RequestPlaceDetailInfo(memberId, name, lat, lon, seq, address, registerUser)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
@@ -515,6 +520,11 @@ class FamilyAPI {
             }
         })
     }
+
+    interface RegistFamilyCallback{
+        fun onSuccess()
+        fun onFailure(error: String)
+    }
     interface FamilyRegistrationCallback {
         fun onSuccess(result: String)
         fun onFailure(error: String)
@@ -533,7 +543,7 @@ class FamilyAPI {
         fun onSuccess(result: ArrayList<PlaceInfo>)
         fun onFailure(error:String)
     }
-    interface RegistFamilyCallback {
+    interface RegistFamilyPlaceCallback {
         fun onSuccess(result: PlaceDetailInfo)
         fun onFailure(error:String)
     }

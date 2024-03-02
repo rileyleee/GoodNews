@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/alarmStatusChangeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="김싸피님의 상태가 변경되었습니다."
+        android:textSize="16sp"
+        android:textColor="@color/font_color"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/alarmStatusChangeTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="10초 전"
+        android:textSize="9sp"
+        android:textColor="@color/gray"
+        app:layout_constraintBottom_toBottomOf="@+id/alarmStatusChangeText"
+        app:layout_constraintStart_toEndOf="@id/alarmStatusChangeText"
+        app:layout_constraintTop_toTopOf="@+id/alarmStatusChangeText" />
+
+    <ImageView
+        android:id="@+id/alarmStatusChangeMessage"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/alarm_chatting"
+        app:layout_constraintStart_toEndOf="@id/alarmStatusChangeGuide"
+        app:layout_constraintBottom_toBottomOf="@id/alarmStatusChangeText"
+        app:layout_constraintEnd_toStartOf="@+id/alarmStatusChangeLocation"
+        app:layout_constraintTop_toTopOf="@id/alarmStatusChangeText" />
+
+    <ImageView
+        android:id="@+id/alarmStatusChangeLocation"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/alarm_location"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintTop_toTopOf="@id/alarmStatusChangeText"
+        app:layout_constraintBottom_toBottomOf="@id/alarmStatusChangeText"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/alarmStatusChangeGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

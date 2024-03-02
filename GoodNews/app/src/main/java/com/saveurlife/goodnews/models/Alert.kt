@@ -13,8 +13,9 @@ class Alert(): RealmObject {
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     var time: RealmInstant = RealmInstant.from(0,0)
+    var type: String = ""
 
-    constructor(id: String, senderId: String, name: String, content: String, latitude: Double, longitude: Double, time: RealmInstant): this(){
+    constructor(id: String, senderId: String, name: String, content: String, latitude: Double, longitude: Double, time: RealmInstant, type: String): this(){
         this.id = id
         this.senderId = senderId
         this.name = name
@@ -22,5 +23,6 @@ class Alert(): RealmObject {
         this.latitude = latitude
         this.longitude = longitude
         this.time = time
+        this.type = type
     }
 }

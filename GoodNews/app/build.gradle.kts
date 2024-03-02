@@ -22,6 +22,7 @@ android {
 
         // api key 추가
         buildConfigField("String", "GOOGLE_MAPS_API_KEY", getApiKey("GOOGLE_MAPS_API_KEY"))
+        buildConfigField("String", "T_MAP_API_KEY", getApiKey("T_MAP_API_KEY"))
     }
 
     buildTypes {
@@ -124,4 +125,8 @@ dependencies {
 
     // 구글 place 추가 (map api)
     implementation("com.google.android.libraries.places:places:3.2.0")
+
+    //tmap
+    implementation(files("libs/vsm-tmap-sdk-v2-android-1.6.60.aar"))
+    implementation(files("libs/tmap-sdk-1.0.aar"))
 }
