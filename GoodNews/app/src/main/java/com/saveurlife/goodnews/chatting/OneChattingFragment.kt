@@ -26,7 +26,7 @@ class OneChattingFragment : Fragment() {
         var binding = FragmentOneChattingBinding.inflate(inflater, container, false)
 
         // 연결된 사용자 리스트 가져오기
-        getChattingListsWhenConnected(binding)
+        getChattingLists(binding)
         return binding.root
     }
 
@@ -77,9 +77,9 @@ class OneChattingFragment : Fragment() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun getChattingListsWhenConnected(binding: FragmentOneChattingBinding) {
+    private fun getChattingLists(binding: FragmentOneChattingBinding) {
 
-        // BLE로 연결된 이용자가 없으면 작동하지 않음
+        // BLE로 연결된 사용자에 변동이 있으면 observer가 작동 후 배경색 반영
         sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(
             viewLifecycleOwner,
             Observer { connectedDevicesMap ->
@@ -90,9 +90,9 @@ class OneChattingFragment : Fragment() {
                 adapter = OneChattingAdapter(chatDataList, users)
                 setupRecyclerView(binding)
                 loadChatRooms(adapter)
-
             })
 
+        // BLE로 연결된 이용자가 없으면 옵저버가 작동하지 않으므로 users가 비어있음
         if(users.isEmpty()){
             Log.v("연결된 사용자가 없어서 기존꺼 로드해요: ", users.size.toString())
             adapter = OneChattingAdapter(chatDataList, users)
