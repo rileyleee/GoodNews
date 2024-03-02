@@ -371,22 +371,6 @@
             app:layout_constraintStart_toStartOf="@id/guidelineVertical"
             app:layout_constraintTop_toBottomOf="@+id/mapDownloadButton" />
 
-        <!--(임시) 미니맵 띄우는 버튼-->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/minimapButton"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/btn_match_parent"
-            android:text="미니맵"
-            android:textColor="@color/white"
-            android:textSize="21sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@id/shareApp"
-            app:layout_constraintStart_toStartOf="@id/guidelineVertical"
-            app:layout_constraintTop_toBottomOf="@id/shareApp" />
-
-
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineVertical"
             android:layout_width="wrap_content"
