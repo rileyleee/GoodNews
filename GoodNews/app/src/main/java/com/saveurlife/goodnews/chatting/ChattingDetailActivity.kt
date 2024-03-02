@@ -32,6 +32,7 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     private lateinit var binding: ActivityChattingDetailBinding
     private lateinit var gestureDetector: GestureDetector
     private val sharedViewModel: SharedViewModel by viewModels()
+    //private var users: List<BleMeshConnectedUser> = emptyList() //옵저빙위한 변수
 
     lateinit var bleService: BleService
 
@@ -52,6 +53,10 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         //서비스 연결이 끊어졌을 때 호출
         override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
+            // 상대방 위치 및 채팅 입력 창 감추기
+            binding.chattingToolbar.chatDetailUserLocation.visibility = View.GONE
+            binding.chatDetailInput.visibility = View.GONE
+            binding.chatDetailSpend.visibility = View.GONE
         }
     }
 
@@ -89,7 +94,8 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
         Log.v("값 넣기 전 lon: ", userLon.toString())
         // 초기값 설정
         Log.v("**채팅 뷰모델: ", "이거 호출되었나요")
-        if (bleService.getBleMeshConnectedUser(userId) == null) {
+
+        if(bleService.getBleMeshConnectedUser(userId) == null) {
             Log.v("연결되지 않은 사용자: ", "null입니다.")
 
         } else {
@@ -100,10 +106,19 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
             Log.v("연결된 사용자: ", userLon.toString())
         }
 
+        // 상대방 위치 및 채팅 입력 창 감추기
+        if (userLat == 0.0 && userLon == 0.0) {
+            Log.v("연결되지 않은 사용자: ", "미니맵/채팅 불가")
+            binding.chattingToolbar.chatDetailUserLocation.visibility = View.GONE
+            binding.chatDetailInput.visibility = View.GONE
+            binding.chatDetailSpend.visibility = View.GONE
+        }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityChattingDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -112,6 +127,14 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
         recyclerView = binding.recyclerViewChatting
         recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // 지도 상 옵저버 수정 이후 추후 반영 예정
+//        sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(
+//            this,
+//            Observer{ connectedDevicesMap ->
+//                Log.v("**ChattingDetailActivity","옵저버 가능")
+//                Log.v("**개별 채팅화면 연결된 기기 수: ",connectedDevicesMap.size.toString())
+//            })
 
 
         //MainAroundListFragment(BLE 연결된 사용자 리스트 화면에서 연결)
@@ -154,20 +177,16 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
                 binding.chattingToolbar.chatDetailNameHeader.text = userName
                 updateOtherStatus(chatOtherStatus)
-                Log.v("다른 건 업데이트 된건가: ", "미니맵 직전")
+
                 // 상대방 위치 보기(미니맵)
                 binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
-                if (userLat == 0.0 && userLon == 0.0) {
-                    Log.v("연결되지 않은 사용자: ", "미니맵 볼 수 없습니다")
-                } else {
 
-                        val otherUserLocation = Bundle()
-                        otherUserLocation.putDouble("latitude", userLat)
-                        otherUserLocation.putDouble("longitude", userLon)
+                    val otherUserLocation = Bundle()
+                    otherUserLocation.putDouble("latitude", userLat)
+                    otherUserLocation.putDouble("longitude", userLon)
 
-                        miniMapFragment.arguments = otherUserLocation
-                        miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
-                    }
+                    miniMapFragment.arguments = otherUserLocation
+                    miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
                 }
             }
         }
