@@ -10,40 +10,28 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.saveurlife.goodnews.ble.BleMeshConnectedUser
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.FragmentOneChattingBinding
 
 class OneChattingFragment : Fragment() {
     val sharedViewModel: SharedViewModel by activityViewModels()
     private val chatDataList = mutableListOf<OnechattingData>()
+    private var users: List<BleMeshConnectedUser> = emptyList()
+    private lateinit var adapter : OneChattingAdapter
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+
         var binding = FragmentOneChattingBinding.inflate(inflater, container, false)
 
-        val adapter = OneChattingAdapter(chatDataList)
-        val recyclerView = binding.recyclerViewChatting
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = adapter
-
-        loadChatRooms(adapter)
-
-
-        adapter.listener = object : OneChattingAdapter.OnItemClickListener {
-            override fun onItemClick(chatData: OnechattingData) {
-                val intent = Intent(context, ChattingDetailActivity::class.java).apply {
-                        putExtra("chatRoomId", chatData.chatRoomId)
-                        putExtra("chatName", chatData.otherName)
-                        putExtra("chatOtherStatus", chatData.otherStatus)
-                        putExtra("page",2)
-                    }
-                startActivity(intent)
-            }
-        }
+        // 연결된 사용자 리스트 가져오기
+        getChattingLists(binding)
         return binding.root
     }
 
     private fun loadChatRooms(adapter: OneChattingAdapter) {
+
         sharedViewModel.bleService.value?.let { bleService ->
             bleService.allChatRoomIds.observe(viewLifecycleOwner, Observer { chatRoomIds ->
                 Log.i("check", chatRoomIds.toString())
@@ -88,5 +76,48 @@ class OneChattingFragment : Fragment() {
         chatDataList.add(chatData)
         adapter.notifyDataSetChanged()
     }
+
+    private fun getChattingLists(binding: FragmentOneChattingBinding) {
+
+        // BLE로 연결된 사용자에 변동이 있으면 observer가 작동 후 배경색 반영
+        sharedViewModel.bleMeshConnectedDevicesMapLiveData.observe(
+            viewLifecycleOwner,
+            Observer { connectedDevicesMap ->
+                Log.v("OneChattingFragment","옵저버 가능")
+                // 중첩된 맵에서 BleMeshConnectedUser 추출
+                users = connectedDevicesMap.flatMap { it.value.values }.toList()
+                Log.v("연결된 사용자 수: ", users.size.toString())
+                adapter = OneChattingAdapter(chatDataList, users)
+                setupRecyclerView(binding)
+                loadChatRooms(adapter)
+            })
+
+        // BLE로 연결된 이용자가 없으면 옵저버가 작동하지 않으므로 users가 비어있음
+        if(users.isEmpty()){
+            Log.v("연결된 사용자가 없어서 기존꺼 로드해요: ", users.size.toString())
+            adapter = OneChattingAdapter(chatDataList, users)
+            setupRecyclerView(binding)
+            loadChatRooms(adapter)
+        }
+    }
+
+    private fun setupRecyclerView(binding: FragmentOneChattingBinding) {
+        val recyclerView = binding.recyclerViewChatting
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = adapter
+
+        adapter.listener = object : OneChattingAdapter.OnItemClickListener {
+            override fun onItemClick(chatData: OnechattingData) {
+                val intent = Intent(context, ChattingDetailActivity::class.java).apply {
+                    putExtra("chatRoomId", chatData.chatRoomId)
+                    putExtra("chatName", chatData.otherName)
+                    putExtra("chatOtherStatus", chatData.otherStatus)
+                    putExtra("page",2)
+                }
+                startActivity(intent)
+            }
+        }
+    }
+
 
 }
