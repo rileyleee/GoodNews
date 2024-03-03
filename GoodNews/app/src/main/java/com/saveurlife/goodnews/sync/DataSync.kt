@@ -47,7 +47,7 @@ class DataSync (context: Context) {
     private val familyAPI: FamilyAPI = FamilyAPI()
     private val memberAPI: MemberAPI = MemberAPI()
 
-    private val newTime = System.currentTimeMillis()
+    private val newTime = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(9) // 글자 상으로 대한민국 날짜 들어갈 것임
     private val timeService = TimeService();
 
     private lateinit var familyPlaceList:MutableList<PlaceInfo>
@@ -279,12 +279,7 @@ class DataSync (context: Context) {
                                 newFamilyInfoList.add(it)
                                 newFamilyList.add(result2)
 
-
-                                // 여기 들어갈 정보는 나중에 바꿔야 할듯!
-                                var tempTime = it.lastConnection
-                                val localDateTime = LocalDateTime.parse(tempTime, formatter)
-                                val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-
+                                // 여기 정보 논의 후 바꾸기
                                 alertList.add(
                                     Alert(
                                         id = "FF${result2.memberId}",
@@ -293,7 +288,7 @@ class DataSync (context: Context) {
                                         content = result2.name,
                                         latitude = 0.0,
                                         longitude = 0.0,
-                                        time = timeService.convertLongToRealmInstant(milliseconds),
+                                        time = timeService.convertLongToRealmInstant(newTime),
                                         type = "멤버"
                                     )
                                 )
@@ -402,8 +397,6 @@ class DataSync (context: Context) {
         // realm에 저장한다.
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
-
-
         familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
             override fun onSuccess(result: ArrayList<PlaceInfo>) {
                 var cnt = 0
@@ -443,10 +436,6 @@ class DataSync (context: Context) {
                                         familyPlaceInfoList.add(result2)
                                         cnt++
 
-                                        var tempTime = it.createdDate
-                                        val localDateTime = LocalDateTime.parse(tempTime, formatter)
-                                        val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-
                                         var alertCheck = false
                                         var alertMsg = "${findPlace.seq}/"
 
@@ -479,7 +468,7 @@ class DataSync (context: Context) {
                                                     content = alertMsg,
                                                     latitude = 0.0,
                                                     longitude = 0.0,
-                                                    time = timeService.convertLongToRealmInstant(milliseconds),
+                                                    time = timeService.convertLongToRealmInstant(newTime),
                                                     type = "장소"
                                                 )
                                             )
