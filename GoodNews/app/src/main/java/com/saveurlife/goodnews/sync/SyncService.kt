@@ -21,6 +21,7 @@ class SyncService(private val context: Context) {
     val familyPlaceUpdated = MutableLiveData<Boolean>()
 
     fun fetchAllData(){
+        dataSync.init()
         dataSync.fetchDataMember()
         dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdatedInit)
         dataSync.fetchDataFamilyPlace(familyPlaceUpdatedInit)
@@ -29,21 +30,25 @@ class SyncService(private val context: Context) {
 
     // 전체 변경일 경우
     fun fetchFamilyData(){
+        dataSync.init()
         dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdated)
         dataSync.fetchDataFamilyPlace(familyPlaceUpdated)
     }
 
     // 일부만 변경일 경우
     fun fetchFamilyNewData(){
+        dataSync.init()
         dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdatedOne)
         dataSync.fetchDataFamilyPlace(familyPlaceUpdatedOne)
     }
 
     fun fetchFacilityData(){
+        dataSync.init()
         dataSync.fetchDataMapInstantInfo()
     }
 
     fun backGroundSync(){
+        dataSync.init()
         // WorkManager
         val workManager = WorkManager.getInstance(context)
 
