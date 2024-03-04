@@ -62,20 +62,13 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     // 데이터 로드 및 표시 (READ 모드)
     private fun loadDataAndDisplay(seq: Int) {
         val data = loadData(seq)
-        Log.e("뭐가잘못된거", data?.address.toString())
-        Log.e("이건 이름", data?.name.toString())
-        Log.e("이건 이름", data?.latitude.toString())
-        Log.e("이건 이름", data?.longitude.toString())
         displayData(data)
-    }
 
-    // 데이터 로드 (EDIT 모드)
-    //    private fun loadDataForEdit(seq: Int?) {
-    //        seq?.let {
-    //            val data = loadData(it)
-    //            // 데이터를 편집할 수 있는 방식으로 UI 구성
-    //        }
-    //    }
+        // canUse 값을 사용해 토글 설정
+        if (data != null) {
+            binding.placeStatusSwitch.isChecked = data.canUse
+        }
+    }
 
     // Realm에서 데이터 로드 (seq에 맞는 데이터)
     private fun loadData(seq: Int): FamilyPlace? {
@@ -102,12 +95,12 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     // 데이터 UI에 표시 (READ 모드)
     private fun displayData(data: FamilyPlace?) {
-            data?.let {
-                // 데이터 UI에 적용
-                Log.i("뭐지???", it.address)
-                binding.readModeNickname.text = it.name
-                binding.readModeAddress.text = it.address
-            }
+        data?.let {
+            // 데이터 UI에 적용
+            Log.i("뭐지???", it.address)
+            binding.readModeNickname.text = it.name
+            binding.readModeAddress.text = it.address
+        }
     }
 
     private val alertDatabaseManager = AlertDatabaseManager()
@@ -267,8 +260,6 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     // 장소 정보 업데이트 (EDIT 모드)
     private fun updatePlace(placeId: Int?) {
-        Log.e("tempFamilyPlace", tempFamilyPlace.toString())
-        Log.e("placeId를 확인해보겠습니다", placeId.toString())
 
         //업데이트 로직 구현
         // tempFamilyPlace가 null이 아닌 경우에만 API 요청을 보냄
@@ -277,21 +268,6 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             // getFamilyUpdatePlaceInfo 함수 호출
             familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, place.address, object : FamilyAPI.FamilyPlaceInfoCallback{
                 override fun onSuccess() {
-                    Log.i("성공적으로 됐어용", "성공적으로 됐어용(장소업데이트)")
-                    Log.i("성공적으로 됐어용 + name", place.name)
-                    Log.i("성공적으로 됐어용 + address", place.address)
-                    Log.i("성공적으로 됐어용 + latitude", place.latitude.toString())
-                    Log.i("성공적으로 됐어용 + longitude", place.longitude.toString())
-                    Log.i("성공적으로 됐어용 + seq", place.seq.toString())
-                    // 여기에서 Realm 업데이트를 해줘야 함
-//                    updateFamilyPlacesToRealm(
-//                        idToUpdate,
-//                        place.name,
-//                        place.address,
-//                        place.latitude,
-//                        place.longitude,
-//                        place.seq,
-//                    )
                     // 여러 FamilyPlace를 한 번에 업데이트하는 함수 호출
                     val familyPlacesToUpdate = listOf(place) // 업데이트할 FamilyPlace 객체들을 리스트로 묶음
                     updateFamilyPlacesToRealm(familyPlacesToUpdate)
@@ -452,11 +428,6 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             }
 
             else -> {    // EDIT 모드?
-//                binding.meetingPlaceAddSubmit.text = "장소 수정"
-//                binding.meetingPlaceMapView.visibility = View.VISIBLE
-//                binding.addEditContentWrap.visibility = View.VISIBLE
-//                binding.readContentWrap.visibility = View.GONE
-//                loadDataForEdit(seqNumber)
             }
         }
 
@@ -490,6 +461,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 Log.i("AutocompleteError", "An error occurred: $status")
             }
         })
+
+        // 토글버튼 (장소 이용가능여부)
+        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
+            // 토글 상태에 따라 가족 모임장소의 사용 여부를 수정하는 요청을 보냅니다.
+            val placeId = tempFamilyPlace?.placeId ?: 0 // tempFamilyPlace가 null이 아닌 경우에만 placeId를 가져옵니다.
+            if (placeId != 0) {
+                // placeId가 유효한 경우에만 요청을 보냅니다.
+                familyAPI.getFamilyUpdatePlaceCanUse(placeId, isChecked)
+            } else {
+                Log.e("API ERROR", "Invalid placeId")
+            }
+        }
+
     }
 
 }
