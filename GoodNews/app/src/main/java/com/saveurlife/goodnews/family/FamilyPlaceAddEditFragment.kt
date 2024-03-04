@@ -284,17 +284,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                     Log.i("성공적으로 됐어용 + longitude", place.longitude.toString())
                     Log.i("성공적으로 됐어용 + seq", place.seq.toString())
                     // 여기에서 Realm 업데이트를 해줘야 함
-                    updateFamilyPlaceToRealm(
-                        idToUpdate,
-                        place.name,
-                        place.address,
-                        place.latitude,
-                        place.longitude,
-                        place.seq,
-                    )
+//                    updateFamilyPlacesToRealm(
+//                        idToUpdate,
+//                        place.name,
+//                        place.address,
+//                        place.latitude,
+//                        place.longitude,
+//                        place.seq,
+//                    )
+                    // 여러 FamilyPlace를 한 번에 업데이트하는 함수 호출
+                    val familyPlacesToUpdate = listOf(place) // 업데이트할 FamilyPlace 객체들을 리스트로 묶음
+                    updateFamilyPlacesToRealm(familyPlacesToUpdate)
                     // 저장 뒤 업데이트 요청
-//                    familyFragment.fetchAll()
-//                    familyFragment.addPlaceList()
+                    familyFragment.fetchAll()
                 }
 
                 override fun onFailure(error: String) {
@@ -380,31 +382,27 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     }
 
     // Realm에 업데이트하는 코드 (EDIT 모드)
-    private fun updateFamilyPlaceToRealm(
-        originalPlaceId: Int,
-        name: String,
-        address: String,
-        lat: Double,
-        lon: Double,
-        seq: Int
-    ) {
+    private fun updateFamilyPlacesToRealm(familyPlaces: List<FamilyPlace>) {
         // Realm 인스턴스 열기
         val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         realm.writeBlocking {
-            // 기존 placeId로 해당 데이터를 찾음
-            var findPlace = realm.query<FamilyPlace>("placeId == $0", originalPlaceId).find().first()
-            // 찾은 데이터가 없으면 종료
-            if (findPlace == null) {
-                Log.e("Realm Update", "해당 placeId의 데이터를 찾을 수 없습니다.")
-                return@writeBlocking
-            }
-            // 찾은 데이터의 속성만 업데이트
-            findPlace.apply {
-                this.name = name
-                this.address = address
-                this.latitude = lat
-                this.longitude = lon
-                this.seq = seq
+            // 리스트에 있는 각 FamilyPlace 객체를 업데이트
+            for (place in familyPlaces) {
+                // 기존 placeId로 해당 데이터를 찾음
+                val findPlace = realm.query<FamilyPlace>("placeId == $0", place.placeId).find().firstOrNull()
+                // 찾은 데이터가 없으면 다음 객체로 넘어감
+                if (findPlace == null) {
+                    Log.e("Realm Update", "해당 placeId의 데이터를 찾을 수 없습니다.")
+                    continue
+                }
+                // 찾은 데이터의 속성만 업데이트
+                findPlace.apply {
+                    this.name = place.name
+                    this.address = place.address
+                    this.latitude = place.latitude
+                    this.longitude = place.longitude
+                    this.seq = place.seq
+                }
             }
         }
         realm.close()
