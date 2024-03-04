@@ -48,8 +48,8 @@ class AuthorityActivity : AppCompatActivity() {
             } else {
                 val i = Intent(this, MainActivity::class.java)
 
-                val syncService = SyncService(applicationContext)
-                syncService.backGroundSync()
+//                val syncService = SyncService(applicationContext)
+//                syncService.backGroundSync()
 
                 startActivity(i)
                 finish()

@@ -39,7 +39,7 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
         holder.binding.aroundChatting.setOnClickListener {
             onChattingButtonClickListener?.onChattingButtonClick(user)
         }
-        
+
         // 연결된 사람의 채팅하기 버튼을 눌렀을 때 미니맵 띄우기
         holder.binding.requestMinimapButton.setOnClickListener {
             // 임시 미니맵

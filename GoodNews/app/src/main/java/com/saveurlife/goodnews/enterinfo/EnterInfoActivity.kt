@@ -386,10 +386,10 @@ class EnterInfoActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
 
             val deviceStateService = DeviceStateService()
-            if(deviceStateService.isNetworkAvailable(applicationContext)){
-                val syncService = SyncService(applicationContext)
-                syncService.fetchAllData()
-            }
+//            if(deviceStateService.isNetworkAvailable(applicationContext)){
+//                val syncService = SyncService(applicationContext)
+//                syncService.fetchAllData()
+//            }
 
             startActivity(intent)
         }

@@ -34,7 +34,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
 
     private lateinit var familyListRecyclerView: RecyclerView
     private lateinit var binding: FragmentFamilyBinding
-    private lateinit var realm: Realm
+//    private lateinit var realm: Realm
     lateinit var familyListAdapter: FamilyListAdapter
 
     // 클래스 레벨 변수로 장소 데이터 저장
@@ -62,8 +62,6 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     override fun onResume() {
         // 처음 시작할 때
         super.onResume()
-
-        realm = Realm.open(GoodNewsApplication.realmConfiguration)
         familyMemberCheck = false
         syncService = SyncService(requireContext())
 
@@ -277,12 +275,14 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     fun fetchAll(){
         syncService.fetchFamilyData()
     }
-    fun addPlaceList(){
+    private fun addPlaceList(){
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         val resultRealm2 = realm.query<FamilyPlace>().find()
         if(resultRealm2 != null){
             familyPlace.value = realm.copyFromRealm(resultRealm2)
             updatedUIWithFamilyPlaces()
         }
+        realm.close()
     }
     private fun addRegistList(){
         // 신청 요청이 들어왔을 경우 실행하는 로직
@@ -306,9 +306,9 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
     }
     private fun addList(){
         // db에서 가져와서 가족 리스트를 띄운다.
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
         val resultRealm = realm.query<FamilyMemInfo>().find()
         val timeService = TimeService()
-
         if (resultRealm != null) {
             resultRealm.forEach {
                 if(it.state == null){
@@ -318,5 +318,6 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
                 }
             }
         }
+        realm.close()
     }
 }

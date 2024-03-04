@@ -296,7 +296,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                     )
                     // 저장 뒤 업데이트 요청
 //                    familyFragment.fetchAll()
-                    familyFragment.addPlaceList()
+//                    familyFragment.addPlaceList()
                 }
 
                 override fun onFailure(error: String) {
