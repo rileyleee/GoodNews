@@ -61,19 +61,21 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     // 데이터 로드 및 표시 (READ 모드)
     private fun loadDataAndDisplay(seq: Int) {
-        seq.let {
-            val data = loadData(seq)
-            displayData(data)
-        }
+        val data = loadData(seq)
+        Log.e("뭐가잘못된거", data?.address.toString())
+        Log.e("이건 이름", data?.name.toString())
+        Log.e("이건 이름", data?.latitude.toString())
+        Log.e("이건 이름", data?.longitude.toString())
+        displayData(data)
     }
 
     // 데이터 로드 (EDIT 모드)
-    private fun loadDataForEdit(seq: Int?) {
-        seq?.let {
-            val data = loadData(it)
-            // 데이터를 편집할 수 있는 방식으로 UI 구성
-        }
-    }
+    //    private fun loadDataForEdit(seq: Int?) {
+    //        seq?.let {
+    //            val data = loadData(it)
+    //            // 데이터를 편집할 수 있는 방식으로 UI 구성
+    //        }
+    //    }
 
     // Realm에서 데이터 로드 (seq에 맞는 데이터)
     private fun loadData(seq: Int): FamilyPlace? {
@@ -100,16 +102,12 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     // 데이터 UI에 표시 (READ 모드)
     private fun displayData(data: FamilyPlace?) {
-        if (::binding.isInitialized) {
             data?.let {
                 // 데이터 UI에 적용
+                Log.i("뭐지???", it.address)
                 binding.readModeNickname.text = it.name
                 binding.readModeAddress.text = it.address
             }
-        } else {
-            // binding이 초기화되지 않은 경우에 대한 처리
-            Log.e("Binding", "바인딩이 초기화되지 않았음")
-        }
     }
 
     private val alertDatabaseManager = AlertDatabaseManager()
@@ -230,9 +228,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 Mode.EDIT -> {
                     if(deviceStateService.isNetworkAvailable(requireContext())){
                         // 사용자가 변경한 값들을 tempFamilyPlace에 업데이트
-                        tempFamilyPlace?.apply {
-                            name = nickname
-
+                        tempFamilyPlace = FamilyPlace().apply {
+                            this.name = nickname
                             if (address.isEmpty()) {
                                 address = loadedData?.address ?: ""
                             }
@@ -246,6 +243,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                                 seq = loadedData?.seq ?: 0
                             }
                         }
+
                         updatePlace(loadedData?.placeId)
                         dismiss()
                     }else{
@@ -277,7 +275,7 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         tempFamilyPlace?.let { place ->
             val idToUpdate = placeId ?: place.placeId // placeId가 null인 경우 place.placeId를 사용
             // getFamilyUpdatePlaceInfo 함수 호출
-            familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, object : FamilyAPI.FamilyPlaceInfoCallback{
+            familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, place.address, object : FamilyAPI.FamilyPlaceInfoCallback{
                 override fun onSuccess() {
                     Log.i("성공적으로 됐어용", "성공적으로 됐어용(장소업데이트)")
                     Log.i("성공적으로 됐어용 + name", place.name)
@@ -446,20 +444,21 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
             }
 
-            Mode.EDIT -> {
-                binding.meetingPlaceAddSubmit.text = "장소 수정"
-                binding.meetingPlaceMapView.visibility = View.VISIBLE
-                binding.addEditContentWrap.visibility = View.VISIBLE
-                binding.readContentWrap.visibility = View.GONE
-                loadDataForEdit(seqNumber)
-            }
-
-            else -> { // READ 모드
+            Mode.READ -> { // READ 모드
+                Log.e("seqnumber", seqNumber.toString())
                 binding.meetingPlaceAddSubmit.text = "수정하기"
                 binding.meetingPlaceMapView.visibility = View.GONE
                 binding.addEditContentWrap.visibility = View.GONE
                 binding.readContentWrap.visibility = View.VISIBLE
                 loadDataAndDisplay(seqNumber)
+            }
+
+            else -> {    // EDIT 모드?
+//                binding.meetingPlaceAddSubmit.text = "장소 수정"
+//                binding.meetingPlaceMapView.visibility = View.VISIBLE
+//                binding.addEditContentWrap.visibility = View.VISIBLE
+//                binding.readContentWrap.visibility = View.GONE
+//                loadDataForEdit(seqNumber)
             }
         }
 

@@ -78,7 +78,7 @@ class FamilyAPI {
     }
 
     // 가족 모임장소 수정
-    fun getFamilyUpdatePlaceInfo(placeId:Int, name: String, lat: Double, lon: Double, callback:FamilyPlaceInfoCallback){
+    fun getFamilyUpdatePlaceInfo(placeId:Int, name: String, lat: Double, lon: Double, address:String, callback:FamilyPlaceInfoCallback){
         // request
         val preferences: PreferencesUtil = GoodNewsApplication.preferences
         val registerUser = preferences.getString("name","없음")
