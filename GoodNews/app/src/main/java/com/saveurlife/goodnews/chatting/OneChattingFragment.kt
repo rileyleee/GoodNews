@@ -22,7 +22,6 @@ class OneChattingFragment : Fragment() {
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?
     ): View {
-
         var binding = FragmentOneChattingBinding.inflate(inflater, container, false)
 
         // 연결된 사용자 리스트 가져오기
@@ -31,7 +30,6 @@ class OneChattingFragment : Fragment() {
     }
 
     private fun loadChatRooms(adapter: OneChattingAdapter) {
-
         sharedViewModel.bleService.value?.let { bleService ->
             bleService.allChatRoomIds.observe(viewLifecycleOwner, Observer { chatRoomIds ->
                 Log.i("check", chatRoomIds.toString())
@@ -118,6 +116,5 @@ class OneChattingFragment : Fragment() {
             }
         }
     }
-
 
 }

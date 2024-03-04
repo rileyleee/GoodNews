@@ -90,30 +90,43 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
     }
 
     private fun getConnectedUsers() {
-        Log.v("값 넣기 전 lat:  ", userLat.toString())
-        Log.v("값 넣기 전 lon: ", userLon.toString())
-        // 초기값 설정
-        Log.v("**채팅 뷰모델: ", "이거 호출되었나요")
 
-        if(bleService.getBleMeshConnectedUser(userId) == null) {
-            Log.v("연결되지 않은 사용자: ", "null입니다.")
+        if(page==2) {
+            Log.v("값 넣기 전 lat:  ", userLat.toString())
+            Log.v("값 넣기 전 lon: ", userLon.toString())
+            // 초기값 설정
+            Log.v("**채팅 뷰모델: ", "이거 호출되었나요")
 
-        } else {
-            // 연결되어 있는 경우에만 위경도 값 갱신
-            userLat = bleService.getBleMeshConnectedUser(userId).lat
-            userLon = bleService.getBleMeshConnectedUser(userId).lon
-            Log.v("연결된 사용자: ", userLat.toString())
-            Log.v("연결된 사용자: ", userLon.toString())
+            if (bleService.getBleMeshConnectedUser(userId) == null) {
+                Log.v("연결되지 않은 사용자: ", "null입니다.")
+
+            } else {
+                // 연결되어 있는 경우에만 위경도 값 갱신
+                userLat = bleService.getBleMeshConnectedUser(userId).lat
+                userLon = bleService.getBleMeshConnectedUser(userId).lon
+                Log.v("연결된 사용자: ", userLat.toString())
+                Log.v("연결된 사용자: ", userLon.toString())
+            }
+
+            // 상대방 위치 및 채팅 입력 창 감추기
+            if (userLat == 0.0 && userLon == 0.0) {
+                Log.v("연결되지 않은 사용자: ", "미니맵/채팅 불가")
+                binding.chattingToolbar.chatDetailUserLocation.visibility = View.GONE
+                binding.chatDetailInput.visibility = View.GONE
+                binding.chatDetailSpend.visibility = View.GONE
+            }
+
+            // 상대방 위치 보기(미니맵)
+            binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
+
+                val otherUserLocation = Bundle()
+                otherUserLocation.putDouble("latitude", userLat)
+                otherUserLocation.putDouble("longitude", userLon)
+
+                miniMapFragment.arguments = otherUserLocation
+                miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
+            }
         }
-
-        // 상대방 위치 및 채팅 입력 창 감추기
-        if (userLat == 0.0 && userLon == 0.0) {
-            Log.v("연결되지 않은 사용자: ", "미니맵/채팅 불가")
-            binding.chattingToolbar.chatDetailUserLocation.visibility = View.GONE
-            binding.chatDetailInput.visibility = View.GONE
-            binding.chatDetailSpend.visibility = View.GONE
-        }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,17 +190,6 @@ class ChattingDetailActivity : AppCompatActivity(), GestureDetector.OnGestureLis
 
                 binding.chattingToolbar.chatDetailNameHeader.text = userName
                 updateOtherStatus(chatOtherStatus)
-
-                // 상대방 위치 보기(미니맵)
-                binding.chattingToolbar.chatDetailUserLocation.setOnClickListener {
-
-                    val otherUserLocation = Bundle()
-                    otherUserLocation.putDouble("latitude", userLat)
-                    otherUserLocation.putDouble("longitude", userLon)
-
-                    miniMapFragment.arguments = otherUserLocation
-                    miniMapFragment.show(supportFragmentManager, "MiniMapDialogFragment")
-                }
             }
         }
 

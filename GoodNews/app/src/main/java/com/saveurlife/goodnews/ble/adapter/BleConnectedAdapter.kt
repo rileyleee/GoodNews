@@ -1,7 +1,6 @@
 package com.saveurlife.goodnews.ble.adapter
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -40,16 +39,14 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
         holder.binding.aroundChatting.setOnClickListener {
             onChattingButtonClickListener?.onChattingButtonClick(user)
         }
-        
+
         // 연결된 사람의 채팅하기 버튼을 눌렀을 때 미니맵 띄우기
         holder.binding.requestMinimapButton.setOnClickListener {
             // 임시 미니맵
             val miniMapFragment = MiniMapDialogFragment()
             val otherUserLocation = Bundle()
             otherUserLocation.putDouble("latitude", user.lat)
-            Log.v("BLECONNECTEDSERVICE: 사용자 lat", user.lat.toString())
             otherUserLocation.putDouble("longitude", user.lon)
-            Log.v("BLECONNECTEDSERVICE: 사용자 lat", user.lon.toString())
 
             miniMapFragment.arguments = otherUserLocation
 
