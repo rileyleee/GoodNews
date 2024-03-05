@@ -55,6 +55,7 @@ public class FamilyPlace extends BaseEntity {
         this.name = familyPlaceUpdateRequestDto.getName();
         this.lat = familyPlaceUpdateRequestDto.getLat();
         this.lon= familyPlaceUpdateRequestDto.getLon();
+        this.address = familyPlaceUpdateRequestDto.getAddress();
         this.createdDate = LocalDateTime.now();
         this.registerUser = familyPlaceUpdateRequestDto.getRegisterUser();
     }

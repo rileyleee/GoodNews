@@ -9,4 +9,5 @@ public class FamilyPlaceUpdateRequestDto {
     private String name;
     private Double lat;
     private Double lon;
+    private String address;
 }
