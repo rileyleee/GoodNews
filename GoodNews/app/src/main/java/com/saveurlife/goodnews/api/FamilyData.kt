@@ -2,7 +2,7 @@ package com.saveurlife.goodnews.api
 
 // request
 data class RequestPlaceCanUse(val canuse:Boolean)
-data class RequestPlaceInfo(val registerUser:String, val name:String, val lat:Double, val lon:Double)
+data class RequestPlaceInfo(val registerUser:String, val name:String, val lat:Double, val lon:Double, val address:String)
 data class RequestPlaceId(val placeId:Int)
 data class RequestFamilyRegist(val memberId:String, val otherPhone:String)
 data class RequestPlaceDetailInfo(val memberId:String, val name:String, val lat:Double, val lon:Double, val seq :Int, val address:String, val registerUser: String)

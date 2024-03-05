@@ -82,7 +82,7 @@ class FamilyAPI {
         // request
         val preferences: PreferencesUtil = GoodNewsApplication.preferences
         val registerUser = preferences.getString("name","없음")
-        val data = RequestPlaceInfo(registerUser, name, lat, lon)
+        val data = RequestPlaceInfo(registerUser, name, lat, lon, address)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
         Log.d("getFamilyUp", requestBody.toString())
