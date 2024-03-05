@@ -57,7 +57,7 @@ public class FamilyController {
         return familyService.getFamilyPlaceInfoDetail(familyPlaceRequestDto.getPlaceId());
     }
 
-    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도) 수정")
+    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도, 주소) 수정")
     @PutMapping("/placeinfo/{placeId}")
     private BaseResponseDto getFamilyUpdatePlaceInfo(@PathVariable int placeId,@RequestBody FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
         return familyService.getFamilyPlaceInfoUpdate(placeId,familyPlaceUpdateRequestDto);
