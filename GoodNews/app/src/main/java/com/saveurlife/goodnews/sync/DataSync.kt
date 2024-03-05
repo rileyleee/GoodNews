@@ -353,11 +353,11 @@ class DataSync (context: Context) {
                     var res = findLatest(t)
 
                     if(res!=null && res.placeId == familyPlace.placeId){
-                            res.name = familyPlaceInfo.name
-                            res.address = familyPlaceInfo.address
-                            res.latitude = familyPlaceInfo.lat
-                            res.longitude = familyPlaceInfo.lon
-                            res.canUse = familyPlaceInfo.canuse
+                        res.name = familyPlaceInfo.name
+                        res.address = familyPlaceInfo.address
+                        res.latitude = familyPlaceInfo.lat
+                        res.longitude = familyPlaceInfo.lon
+                        res.canUse = familyPlaceInfo.canuse
                     }
                 }
             }

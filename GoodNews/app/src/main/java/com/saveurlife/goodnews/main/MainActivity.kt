@@ -251,48 +251,48 @@ class MainActivity : BaseActivity() {
             }
         }
 
-            // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
-            supportFragmentManager.addOnBackStackChangedListener {
-                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
-                if (supportFragmentManager.backStackEntryCount == 0) {
-                    binding.toolbar.visibility = View.VISIBLE
-                    binding.navigationView.visibility = View.VISIBLE
-                    binding.bottomAppBar.visibility = View.VISIBLE
-                    binding.mainCircleAddButton.visibility = View.VISIBLE
-                }
+        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
+        supportFragmentManager.addOnBackStackChangedListener {
+            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                binding.toolbar.visibility = View.VISIBLE
+                binding.navigationView.visibility = View.VISIBLE
+                binding.bottomAppBar.visibility = View.VISIBLE
+                binding.mainCircleAddButton.visibility = View.VISIBLE
             }
+        }
 
-            binding.mainCircleAddButton.setOnClickListener {
-                showDialog()
-            }
+        binding.mainCircleAddButton.setOnClickListener {
+            showDialog()
+        }
 
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
 
-            // 이때부터 realm 삭제 시작합니다!
-            val deleteOldDataService = DeleteOldDataService.getInstance(this)
-            deleteOldDataService.cancelDelete()
-            deleteOldDataService.setDeleteManager()
+        // 이때부터 realm 삭제 시작합니다!
+        val deleteOldDataService = DeleteOldDataService.getInstance(this)
+        deleteOldDataService.cancelDelete()
+        deleteOldDataService.setDeleteManager()
 
-            // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
-            onBackPressedDispatcher.addCallback(this) {
-                // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
-                val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
-                stopService(intent)
+        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+        onBackPressedDispatcher.addCallback(this) {
+            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
+            stopService(intent)
 
-                // 기본적인 뒤로 가기 동작 수행 (옵션)
-                finish()
-            }
+            // 기본적인 뒤로 가기 동작 수행 (옵션)
+            finish()
+        }
 
-            //알림 activity에서 가족 fragment로 이동 - 되는지 확인해봐야함
-            val action = intent.action
-            if (action == "showFamilyFragmentByAlert") {
-                navController.navigateSingleTop(R.id.familyFragment)
-                true
+        //알림 activity에서 가족 fragment로 이동 - 되는지 확인해봐야함
+        val action = intent.action
+        if (action == "showFamilyFragmentByAlert") {
+            navController.navigateSingleTop(R.id.familyFragment)
+            true
 //            supportFragmentManager.beginTransaction()
 //                .replace(R.id.familyFragment, FamilyFragment())
 //                .commit()
-            }
+        }
 
     }
 

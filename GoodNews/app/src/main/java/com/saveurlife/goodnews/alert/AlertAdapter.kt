@@ -250,18 +250,58 @@
             private val timeService: TimeService = TimeService()
 
             fun bindFamilyPlace(alert: Alert) {
+
                 if(alert.content == "등록"){
-                    binding.alarmFamilyLocationText.text = "${alert.name}님이 가족 모임 장소를 등록했습니다."
-                }else if(alert.content == "변경"){
-                    binding.alarmFamilyLocationText.text = "${alert.name}님이 가족 모임 장소를 변경했습니다."
-                }else if(alert.content == "안전"){
-                    binding.alarmFamilyLocationText.text = "${alert.name}님이 가족 모임 장소의 상태를 안전으로 변경했습니다."
-                }else if(alert.content == "위험"){
-                    binding.alarmFamilyLocationText.text = "${alert.name}님이 가족 모임 장소의 상태를 위험으로 변경했습니다."
+                    var changeSeq: String = ""
+                    if(alert.id[1] == '1'){
+                        changeSeq = "첫번째"
+                    }else if(alert.id[1] == '2'){
+                        changeSeq = "두번째"
+                    }else if(alert.id[1] == '3'){
+                        changeSeq = "세번째"
+                    }
+                    binding.alarmFamilyLocationText.text = "${alert.name}님이 $changeSeq 모임 장소를 등록했습니다."
+                }else{
+                    var temp = alert.content.split("/")
+                    //temp[0] = 1, 2, 3 -> 몇 번째 장소 변경인지
+                    //temp[1] = 주소, - -> 주소 변경이라면 주소를, 변경되지 않았다면 -
+                    //temp[2] = 안전, 위험, -
+
+                    var changeSeq: String = ""
+                    var changeAddress: String = ""
+                    var changeSafe: String = ""
+
+                    if(temp[0] == "1"){
+                        changeSeq = "첫번째"
+                    }else if(temp[0] == "2"){
+                        changeSeq = "두번째"
+                    }else if(temp[0] == "3"){
+                        changeSeq = "세번째"
+                    }
+
+                    if(temp[1] == "주소"){
+                        changeAddress = "주소"
+                    }
+
+                    if(temp[2] == "안전"){
+                        changeSafe = "안전"
+                    }else if(temp[2] == "위험"){
+                        changeSafe = "위험"
+                    }
+
+                    if(changeAddress == "주소" && changeSafe.isEmpty()){
+                        binding.alarmFamilyLocationText.text = "${alert.name}님이 $changeSeq 모임 장소를 변경했습니다."
+                    }else if(changeAddress.isEmpty() && changeSafe.isNotEmpty()){
+                        binding.alarmFamilyLocationText.text = "${alert.name}님이 $changeSeq 모임 장소의 상태를 ${changeSafe}으로 변경했습니다."
+                    }else if(changeAddress.isNotEmpty() && changeSafe.isNotEmpty()){
+                        binding.alarmFamilyLocationText.text = "${alert.name}님이 $changeSeq 모임 장소 변경 및 상태를 ${changeSafe}으로 변경했습니다."
+                    }
+
                 }
 
-                binding.alarmFamilyLocationTime.text = TimeUtils.calculationTime(dateTimeToMillSec(timeService.realmInstantToString(alert.time)))
 
+
+                binding.alarmFamilyLocationTime.text = TimeUtils.calculationTime(dateTimeToMillSec(timeService.realmInstantToString(alert.time)))
 
 
                 binding.alarmFamilyLocationButton.setOnClickListener {
@@ -269,7 +309,6 @@
                     val intent = Intent(it.context, MainActivity::class.java)
                     intent.action = "showFamilyFragmentByAlert"
                     it.context.startActivity(intent)
-                    println("가겠니 ??????")
                 }
             }
         }
