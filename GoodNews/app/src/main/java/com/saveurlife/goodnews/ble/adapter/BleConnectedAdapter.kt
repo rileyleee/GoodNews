@@ -3,6 +3,7 @@ package com.saveurlife.goodnews.ble.adapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -39,7 +40,9 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
         holder.binding.aroundChatting.setOnClickListener {
             onChattingButtonClickListener?.onChattingButtonClick(user)
         }
-        
+
+        holder.binding.requestMinimapButton.isVisible = user.lat!=0.0
+
         // 연결된 사람의 채팅하기 버튼을 눌렀을 때 미니맵 띄우기
         holder.binding.requestMinimapButton.setOnClickListener {
             // 임시 미니맵
@@ -94,18 +97,13 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
             }
         }
         private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-            println("두 좌표의 값은 ???? $lat1, $lon1, $lat2, $lon2")
             val earthRadius = 6371000.0 // 지구 반지름 (미터 단위)
 
             val dLat = Math.toRadians(lat2 - lat1)
             val dLon = Math.toRadians(lon2 - lon1)
-            println("위도 경도 차이 : $dLat , $dLon")
 
             val a = sin(dLat / 2).pow(2) + cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).pow(2)
-            println("a의 값은 ?? $a")
             val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-            println("c의 값은 ?? $c")
-            println("리턴 값은 ? ${earthRadius*c}")
 
             return earthRadius * c
         }

@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 public class AdvertiseManager {
     private static AdvertiseManager instance;
     private boolean isAdvertising = false;
+
+    private AdvertisingSetCallback bleAdvertisingSetCallback;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
 
@@ -74,7 +76,7 @@ public class AdvertiseManager {
             //            AdvertisingSetCallback bleAdvertisingSetCallback = new BleAdvertisingSetCallback();
             AdvertiseData scanResponse = new AdvertiseData.Builder().build();
 
-            AdvertisingSetCallback bleAdvertisingSetCallback = new AdvertisingSetCallback() {
+            bleAdvertisingSetCallback = new AdvertisingSetCallback() {
                 @Override
                 public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower, int status) {
                     super.onAdvertisingSetStarted(advertisingSet, txPower, status);
@@ -134,7 +136,7 @@ public class AdvertiseManager {
             return; // 광고 중이 아니면 여기서 리턴
         }
         if (mBluetoothLeAdvertiser != null) {
-            mBluetoothLeAdvertiser.stopAdvertisingSet(null);
+            mBluetoothLeAdvertiser.stopAdvertisingSet(bleAdvertisingSetCallback);
             Log.i(TAG, "Bluetooth advertising stopped.");
         }
         isAdvertising = false; // 광고 상태를 '광고 중지'로 변경
