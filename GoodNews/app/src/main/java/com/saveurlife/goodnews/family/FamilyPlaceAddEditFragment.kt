@@ -67,6 +67,11 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         // canUse 값을 사용해 토글 설정
         if (data != null) {
             binding.placeStatusSwitch.isChecked = data.canUse
+            // placeId 값이 있다면 토글 버튼에 설정
+            data.placeId.let { placeId ->
+                // 해당 placeId로 설정
+                binding.placeStatusSwitch.tag = placeId
+            }
         }
     }
 
@@ -130,17 +135,17 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             }
 
         // 토글버튼
-        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // 토글 버튼이 꺼진 상태 (안전 상태)
-                binding.dangerTextView.visibility = View.GONE
-                binding.safeTextView.visibility = View.VISIBLE
-            } else {
-                // 토글 버튼이 켜진 상태 (위험 상태)
-                binding.dangerTextView.visibility = View.VISIBLE
-                binding.safeTextView.visibility = View.GONE
-            }
-        }
+//        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
+//            if (isChecked) {
+//                // 토글 버튼이 꺼진 상태 (안전 상태)
+//                binding.dangerTextView.visibility = View.GONE
+//                binding.safeTextView.visibility = View.VISIBLE
+//            } else {
+//                // 토글 버튼이 켜진 상태 (위험 상태)
+//                binding.dangerTextView.visibility = View.VISIBLE
+//                binding.safeTextView.visibility = View.GONE
+//            }
+//        }
 
         val deviceStateService = DeviceStateService()
 
@@ -465,7 +470,17 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         // 토글버튼 (장소 이용가능여부)
         binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
             // 토글 상태에 따라 가족 모임장소의 사용 여부를 수정하는 요청을 보냅니다.
-            val placeId = tempFamilyPlace?.placeId ?: 0 // tempFamilyPlace가 null이 아닌 경우에만 placeId를 가져옵니다.
+            val placeId = binding.placeStatusSwitch.tag as? Int ?: 0 // 토글 버튼에 설정된 placeId 가져오기
+            Log.e("placeId입니다!!!", placeId.toString())
+            if (isChecked) {
+                // 토글 버튼이 꺼진 상태 (안전 상태)
+                binding.dangerTextView.visibility = View.GONE
+                binding.safeTextView.visibility = View.VISIBLE
+            } else {
+                // 토글 버튼이 켜진 상태 (위험 상태)
+                binding.dangerTextView.visibility = View.VISIBLE
+                binding.safeTextView.visibility = View.GONE
+            }
             if (placeId != 0) {
                 // placeId가 유효한 경우에만 요청을 보냅니다.
                 familyAPI.getFamilyUpdatePlaceCanUse(placeId, isChecked)
