@@ -30,7 +30,9 @@ class FamilyAPI {
     // 가족 모임장소 사용 여부 수정
     fun getFamilyUpdatePlaceCanUse(placeId:Int, canUse: Boolean){
         // request
-        val data = RequestPlaceCanUse(canUse)
+        val preferences: PreferencesUtil = GoodNewsApplication.preferences
+        val registerUser = preferences.getString("name","없음")
+        val data = RequestPlaceCanUse(registerUser, canUse)
         val json = gson.toJson(data)
         val requestBody = json.toRequestBody(mediaType)
 
