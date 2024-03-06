@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.tmap
 
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ItemCategoryFacilityBinding
-import com.saveurlife.goodnews.map.FacilityCategoryAdapter
-import com.saveurlife.goodnews.models.FacilityUIType
 
 class TMapFacilityCategoryAdapter (private val categories: List<TMapFacilityUiType>,
                                    private val onCategorySelected: (TMapFacilityUiType) -> Unit) :  RecyclerView.Adapter<TMapFacilityCategoryAdapter.ViewHolder>(){
