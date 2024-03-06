@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
@@ -28,12 +29,19 @@ public class LocationService {
     }
 
     public String getLastKnownLocation() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (lastKnownLocation != null) {
-                return lastKnownLocation.getLatitude() + "/" + lastKnownLocation.getLongitude();
-            }
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 권한이 없을 경우 로그 출력
+            Log.e("LocationService", "ACCESS_FINE_LOCATION permission not granted");
+            return "0/0";
         }
-        return "0/0";
+
+        Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastKnownLocation != null) {
+            return lastKnownLocation.getLatitude() + "/" + lastKnownLocation.getLongitude();
+        } else {
+            // 위치 정보를 가져오지 못했을 경우 로그 출력
+            Log.e("LocationService", "Last known location is null");
+            return "0/0";
+        }
     }
 }
