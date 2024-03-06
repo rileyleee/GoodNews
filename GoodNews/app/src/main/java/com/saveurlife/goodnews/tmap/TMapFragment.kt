@@ -17,14 +17,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.BuildConfig.T_MAP_API_KEY
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.databinding.FragmentTMapBinding
-import com.saveurlife.goodnews.main.FamilyAlarmFragment
-import com.saveurlife.goodnews.map.FacilityProvider
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.skt.tmap.TMapGpsManager
 import com.skt.tmap.TMapPoint
 import com.skt.tmap.TMapView
 import com.skt.tmap.TMapView.OnDisableScrollWithZoomLevelCallback
-import com.skt.tmap.TMapView.OnMapReadyListener
 import com.skt.tmap.overlay.TMapMarkerItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,14 +42,14 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
     private lateinit var tMapView: TMapView
     private lateinit var gps: TMapGpsManager
-    private lateinit var facilityProvider: FacilityProvider
+    private lateinit var tMapFacilityProvider: TMapFacilityProvider
     private var markerItem = TMapMarkerItem()
 
     private lateinit var categoryRecyclerView: RecyclerView
     private lateinit var categoryAdapter: TMapFacilityCategoryAdapter
     private var selectedCategory: TMapFacilityUiType = TMapFacilityUiType.ALL
 
-    private val uniqueLocations = HashSet<Location>()
+    private val uniqueLocations = HashSet<tMapFacilityData>()
 
 //    private lateinit var clusteringIcon: Bitmap
 
@@ -84,7 +81,11 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
     private var loadedMinbangwi = GoodNewsApplication.FacilityDataManager.copiedMinbangwi
     private var loadedEarthquake = GoodNewsApplication.FacilityDataManager.copiedEarthquake
 
+    private var selectedFacility = GoodNewsApplication.FacilityDataManager.copiedAll
+
     private lateinit var application: GoodNewsApplication
+
+    private var marker = TMapMarkerItem()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,11 +93,13 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
     ): View? {
         binding = FragmentTMapBinding.inflate(inflater, container, false)
 
-        //FamilyMemInfo 객체 데이터베이스가 비어있을 때만 가족 모달창 띄우기
+        //tMapDialog Fragment 띄우기
         if (!sharedPreferences.getBoolean("tMapDialogIgnore", false)) {
             val dialog = TMapDialogFragment()
             dialog.show(childFragmentManager, "TMapDialogFragment")
         }
+
+        tMapFacilityProvider = TMapFacilityProvider(requireContext())
 
         tMapView = TMapView(requireContext())
 //        tMapView.setUserScrollZoomEnable(true)
@@ -104,7 +107,6 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         // 티맵 키 설정
         tMapView.setSKTMapApiKey(T_MAP_API_KEY)
         binding.tmapViewContainer.addView(tMapView)
-
 
         //gps
         application = requireActivity().application as GoodNewsApplication
@@ -116,8 +118,6 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         gps.openGps()
         gps.provider = TMapGpsManager.PROVIDER_NETWORK //네트워크 기반의 위치탐색
         gps.openGps()
-
-
 
         val point: TMapPoint? = tMapView.locationPoint
         Log.i("초기값", point.toString()) //37.566474, 126.985022 SKT 타워 - 맨 처음에는 default 값으로 초기화되는 것 같음
@@ -143,10 +143,9 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                 previousRightBottom = tMapView.rightBottomPoint
                 Log.i("최초 우하단 위경도", rightBottom.toString())
 
-                // 추가로 실행할 코드...
-
+                Log.i("displayNAme", selectedCategory.displayName)
                 // 예시: FacilityAroundMe 메서드 호출
-                facilityAroundMe(lastLat, lastLon, leftTop, rightBottom, "first")
+                facilityAroundMe(selectedCategory.displayName, selectedFacility, lastLat, lastLon, leftTop, rightBottom, "first")
             }
 
 
@@ -156,8 +155,6 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 //            val rightBottom: TMapPoint = tMapView.rightBottomPoint
 //            previousRightBottom = tMapView.rightBottomPoint
 //            Log.i("최초 우하단 위경도", rightBottom.toString())
-
-
 
 
             binding.locationTextView.text = "위도: $lastLat, 경도: $lastLon"
@@ -172,7 +169,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             tMapView.addTMapMarkerItem(markerItem)
 
             //주변 시설 위치
-//            facilityAroundMe(lastLat, lastLon, leftTop, rightBottom, "first")
+//            facilityAroundMe(selectedFacility, lastLat, lastLon, leftTop, rightBottom, "first")
 
 
             //길 찾기
@@ -266,7 +263,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 //            previousRightBottom = rightBottom
 
             // 이전 좌표와 현재 좌표를 이용하여 마커 표시
-            facilityAroundMe(nowLat, nowLon, leftTop, rightBottom, "zoom")
+            facilityAroundMe(selectedCategory.displayName, selectedFacility, nowLat, nowLon, leftTop, rightBottom, "zoom")
         })
 
 
@@ -354,7 +351,21 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         }
     }
 
-    private fun facilityAroundMe(nowLat: Double, nowLon: Double, leftTop: TMapPoint, rightBottom: TMapPoint, type: String) {
+    private fun facilityAroundMe(selectedCategoryName: String, selectedFacility: MutableList<OffMapFacility>, nowLat: Double, nowLon: Double, leftTop: TMapPoint, rightBottom: TMapPoint, type: String) {
+//        clusteringIcon = BitmapFactory.decodeResource(resources, android.R.drawable.alert_dark_frame)
+//        tMapView.setClusteringIcon(clusteringIcon)
+        Log.i("사이즈 확인하기", selectedFacility.size.toString())
+        tMapView.removeAllTMapMarkerItem()
+
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.presence_online)
+        markerItem.id = "myMarker"
+        markerItem.icon = bitmap
+        markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+        markerItem.setTMapPoint(lastLat, lastLon)
+        markerItem.name = "내 위치" // 마커의 타이틀 지정
+        tMapView.addTMapMarkerItem(markerItem)
+
+
         CoroutineScope(Dispatchers.Main).launch {
             withContext(Dispatchers.IO) {
 
@@ -362,24 +373,31 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                 currentLocation.latitude = nowLat // 현재 위도 설정
                 currentLocation.longitude = nowLon // 현재 경도 설정
 
-                val nearbyPoints: List<Location>
+                val nearbyPoints: HashSet<tMapFacilityData>
                 if(type == "first"){
                     Log.i("첫번째 값", "$leftTop $rightBottom $currentLocation")
-                        nearbyPoints = filterPointsInVisibleArea(currentLocation, loadedGrocery, leftTop, rightBottom, 20.0)
+                        nearbyPoints = filterPointsInVisibleArea(currentLocation, selectedFacility, leftTop, rightBottom, 20.0)
                     Log.i("first로 들어옴", nearbyPoints.size.toString())
                 }else{
-                    nearbyPoints = zoomFilterPointsInVisibleArea(currentLocation, loadedGrocery, leftTop, rightBottom, 20.0)
+                    nearbyPoints = zoomFilterPointsInVisibleArea(selectedCategoryName, currentLocation, selectedFacility, leftTop, rightBottom, 20.0)
                     Log.i("zoom", nearbyPoints.size.toString())
                 }
 
                 total += nearbyPoints.size
                 Log.i("지도에 띄워진 전체 시설", total.toString())
-                Log.i("크기", uniqueLocations.size.toString())
+                Log.i("전체 크기", uniqueLocations.size.toString())
+                Log.i("필터링된 크기", nearbyPoints.size.toString())
+                nearbyPoints.forEach {
+                    Log.i("타입", it.type)
+                }
+                Log.i("selectedCategoryName", selectedCategoryName)
 
-                nearbyPoints.forEachIndexed { _, point ->
-                    var marker = TMapMarkerItem()
+                nearbyPoints
+                    .filter { selectedCategoryName == "전체" || it.type == selectedCategoryName } // 필터링: 선택된 카테고리와 일치하는 항목만 남김 //선택된 카테고리가 "전체"이면 it.type == "전체"가 항상 참이 되므로, 모든 항목이 추가
+                    .forEachIndexed { _, point ->
+                    marker = TMapMarkerItem()
                     marker.id = "m${num++}"
-                    marker.setTMapPoint(point.latitude, point.longitude)
+                    marker.setTMapPoint(point.location.latitude, point.location.longitude)
 
                     val iconBitmap = BitmapFactory.decodeResource(resources, R.drawable.editbox_dropdown_dark_frame)
                     val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 20, 20, false)
@@ -388,7 +406,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                     // 비동기적으로 마커를 지도에 추가
                     withContext(Dispatchers.Main) {
                         tMapView.addTMapMarkerItem(marker)
-                        println("등록 마커 ${marker.id} ${point.latitude}, ${point.longitude}")
+                        println("등록 마커 ${marker.id} ${point.location.latitude}, ${point.location.longitude}")
                     }
                 }
             }
@@ -398,35 +416,54 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
     //현재 표시되는 지도 안에 있는 시설 데이터 리스트에 저장하기
     private fun filterPointsInVisibleArea(currentLocation: Location, facilities: MutableList<OffMapFacility>,
-        leftTop: TMapPoint, rightBottom: TMapPoint, radius: Double): List<Location> {
-        return facilities
-            .filter { facility ->
-                val facilityLocation = facility.toLocation()
-                val distance = calculateDistance(currentLocation, facilityLocation)
+        leftTop: TMapPoint, rightBottom: TMapPoint, radius: Double): HashSet<tMapFacilityData> {
 
-                if(distance <= radius && boundingBox(facilityLocation, leftTop, rightBottom)){
-                    Log.i("두 지점간의 거리", distance.toString())
-                    uniqueLocations.add(facilityLocation)
-                }
-
-                distance <= radius && // 원하는 반경
-                boundingBox(facilityLocation, leftTop, rightBottom)
-            }
-            .map { it.toLocation() }
-    }
-
-    private fun zoomFilterPointsInVisibleArea(currentLocation: Location, facilities: MutableList<OffMapFacility>,
-        leftTop: TMapPoint, rightBottom: TMapPoint, radius: Double): List<Location> {
-        val uniqueLocationsList = mutableListOf<Location>()
+        val uniqueFacilitiesList = mutableListOf<tMapFacilityData>()
 
         facilities.forEach { facility ->
             val facilityLocation = facility.toLocation()
             val distance = calculateDistance(currentLocation, facilityLocation)
 
-            if (distance <= radius && !uniqueLocations.contains(facilityLocation) && boundingBox(facilityLocation, leftTop, rightBottom)) {
+            if(distance <= radius && boundingBox(facilityLocation, leftTop, rightBottom)){
+                Log.i("두 지점간의 거리", distance.toString())
+
+                val facilityData = tMapFacilityData(
+                    location = facilityLocation,
+                    type = facility.type,  // 예시로 가정한 필드명
+                    name = facility.name  // 예시로 가정한 필드명
+                )
+                uniqueFacilitiesList.add(facilityData)
+                uniqueLocations.add(facilityData)
+            }
+
+//            distance <= radius && // 원하는 반경
+//            boundingBox(facilityLocation, leftTop, rightBottom)
+        }
+        return uniqueLocations
+    }
+
+    private fun zoomFilterPointsInVisibleArea(selectedCategoryName: String, currentLocation: Location, facilities: MutableList<OffMapFacility>,
+        leftTop: TMapPoint, rightBottom: TMapPoint, radius: Double): HashSet<tMapFacilityData> {
+        val uniqueLocationsList = hashSetOf<tMapFacilityData>()
+
+        facilities.forEach { facility ->
+            val facilityLocation = facility.toLocation()
+            val distance = calculateDistance(currentLocation, facilityLocation)
+
+            if (distance <= radius && boundingBox(facilityLocation, leftTop, rightBottom)) {
+//                if(selectedCategoryName == "전체" || selectedCategoryName == facility.type){
+                    val facilityData = tMapFacilityData(
+                        location = facilityLocation,
+                        type = facility.type,  // 예시로 가정한 필드명
+                        name = facility.name  // 예시로 가정한 필드명
+                    )
+
+                    uniqueLocationsList.add(facilityData)
+                    uniqueLocations.add(facilityData)
+//                }
                 Log.i("두 지점간의 거리", "$distance $facilityLocation")
-                uniqueLocationsList.add(facilityLocation)
-                uniqueLocations.add(facilityLocation)
+
+
             }
         }
         // 중복이 제거된 목록을 반환
@@ -536,6 +573,21 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         } else {
             binding.tMapSubCategoryWrap.visibility = View.GONE
         }
+        addFacilitiesToMap(category)
+    }
+
+    private fun addFacilitiesToMap(category: TMapFacilityUiType) {
+        selectedFacility = tMapFacilityProvider.getFilteredFacilities(category)
+
+        val leftTop: TMapPoint = tMapView.leftTopPoint
+        Log.i("좌상단 위경도", leftTop.toString())
+        val rightBottom: TMapPoint = tMapView.rightBottomPoint
+        Log.i("우하단 위경도", rightBottom.toString())
+
+        Log.i("현재 선택된 카테고리", category.displayName)
+
+        // 이전 좌표와 현재 좌표를 이용하여 마커 표시
+        facilityAroundMe(category.displayName, selectedFacility, nowLat, nowLon, leftTop, rightBottom, "zoom")
     }
 
     //TMapFacilityUiType에 있는 값들을 리스트로 반환
