@@ -177,7 +177,7 @@ public class ScanManager {
 
             for (Map<String, BleMeshConnectedUser> bleMeshConnectedUserMap : bleMeshConnectedDevicesMap.values()) {
                 if (bleMeshConnectedUserMap.containsKey(deviceId)) {
-                    return;
+//                    return;
                 }
             }
 
