@@ -5,6 +5,7 @@ import com.goodnews.member.common.exception.message.FamilyErrorEnum;
 import com.goodnews.member.member.domain.Family;
 import com.goodnews.member.member.domain.FamilyMember;
 import com.goodnews.member.member.domain.FamilyPlace;
+import com.goodnews.member.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ import java.util.Optional;
 @Component
 public class FamilyValidator {
 
-    public void checkRegistFamily(Optional<FamilyMember> findMember, String familyId) {
+    public void checkRegistFamily(Optional<FamilyMember> findMember, int familyId) {
         if (findMember.isPresent()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
@@ -39,7 +40,7 @@ public class FamilyValidator {
 
     }
 
-    public void checkApproveFamily(Optional<FamilyMember> findMember, String familyId) {
+    public void checkApproveFamily(Optional<FamilyMember> findMember, int familyId) {
         if(!findMember.get().isApprove()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
@@ -51,7 +52,7 @@ public class FamilyValidator {
     }
 
 
-    public void checkRegistOtherFamily(Optional<Family> findFamily, Optional<FamilyMember> findMember, String familyId) {
+    public void checkRegistOtherFamily(Optional<Family> findFamily, Optional<FamilyMember> findMember, int familyId) {
 
         if (findMember.isPresent()&&findFamily.isEmpty()) {
             throw CustomException.builder()
@@ -63,12 +64,12 @@ public class FamilyValidator {
 
     }
 
-    public void checkFamily(Optional<FamilyMember> findMember, String familyId) {
+    public void checkFamily(Optional<FamilyMember> findMember, String memberId) {
         if (findMember.isEmpty()) {
             throw CustomException.builder()
                     .status(HttpStatus.BAD_REQUEST)
                     .code(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getCode())
-                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + familyId)
+                    .message(FamilyErrorEnum.INVALID_FAMILY_MEMBER.getMessage() + memberId)
                     .build();
         }
     }
@@ -109,6 +110,19 @@ public class FamilyValidator {
                     .code(FamilyErrorEnum.INVALID_FAMILY_PLACE_SIZE.getCode())
                     .message(FamilyErrorEnum.INVALID_FAMILY_PLACE_SIZE.getMessage()+memberId)
                     .build();
+        }
+    }
+
+
+    public void checkSameFamily(Optional<Member> sender, Optional<Member> receiver){
+        if(sender.get().getFamily() != null && receiver.get().getFamily() !=null){
+            if(sender.get().getFamily().getFamilyId() == receiver.get().getFamily().getFamilyId()){
+                throw CustomException.builder()
+                        .status(HttpStatus.BAD_REQUEST)
+                        .code(FamilyErrorEnum.INVALID_FAMILY_REQUEST.getCode())
+                        .message(FamilyErrorEnum.INVALID_FAMILY_REQUEST.getMessage())
+                        .build();
+            }
         }
     }
 }

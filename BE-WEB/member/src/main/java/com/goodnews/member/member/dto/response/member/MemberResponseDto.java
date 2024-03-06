@@ -12,10 +12,10 @@ public class MemberResponseDto {
     private String name;
     private String lastConnection;
     private String state;
-    private String familyId;
+    private int familyId;
 
     @Builder
-    public MemberResponseDto(String memberId,String phoneNumber, String name, String lastConnection,String state,String familyId) {
+    public MemberResponseDto(String memberId,String phoneNumber, String name, String lastConnection,String state, int familyId) {
         this.memberId = memberId;
         this.phoneNumber = phoneNumber;
         this.name = name;
