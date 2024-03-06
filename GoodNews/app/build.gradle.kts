@@ -22,6 +22,7 @@ android {
 
         // api key 추가
         buildConfigField("String", "GOOGLE_MAPS_API_KEY", getApiKey("GOOGLE_MAPS_API_KEY"))
+        buildConfigField("String", "T_MAP_API_KEY", getApiKey("T_MAP_API_KEY"))
     }
 
     buildTypes {

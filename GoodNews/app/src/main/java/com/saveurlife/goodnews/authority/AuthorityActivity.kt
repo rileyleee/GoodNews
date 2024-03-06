@@ -20,6 +20,7 @@ import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.main.PermissionsUtil
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.sync.DataSyncWorker
+import com.saveurlife.goodnews.sync.SyncService
 import com.saveurlife.goodnews.tutorial.TutorialActivity
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -30,16 +31,10 @@ class AuthorityActivity : AppCompatActivity() {
     private lateinit var permissionsUtil: PermissionsUtil
     private val sharedPreferences = GoodNewsApplication.preferences
 
-
-    // WorkManager
-    private lateinit var workManager: WorkManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAuthorityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        workManager = WorkManager.getInstance(applicationContext)
 
         binding.authButton.setOnClickListener {
             Toast.makeText(this, "권한 설정", Toast.LENGTH_SHORT).show()
@@ -53,17 +48,8 @@ class AuthorityActivity : AppCompatActivity() {
             } else {
                 val i = Intent(this, MainActivity::class.java)
 
-                val constraints = Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-
-                // request 생성
-                val updateRequest = OneTimeWorkRequest.Builder(DataSyncWorker::class.java)
-                    .setConstraints(constraints)
-                    .build()
-
-                // 실행
-                workManager.enqueue(updateRequest)
+//                val syncService = SyncService(applicationContext)
+//                syncService.backGroundSync()
 
                 startActivity(i)
                 finish()

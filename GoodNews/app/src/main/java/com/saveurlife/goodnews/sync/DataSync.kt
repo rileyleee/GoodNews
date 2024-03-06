@@ -2,11 +2,8 @@ package com.saveurlife.goodnews.sync
 
 import android.content.Context
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.MutableLiveData
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.alert.AlertDatabaseManager
-import com.saveurlife.goodnews.alert.AlertRepository
 import com.saveurlife.goodnews.api.DurationFacilityState
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.FamilyInfo
@@ -17,6 +14,7 @@ import com.saveurlife.goodnews.api.MemberInfo
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.api.PlaceInfo
 import com.saveurlife.goodnews.main.PreferencesUtil
+import com.saveurlife.goodnews.models.Alert
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.MapInstantInfo
@@ -25,17 +23,15 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates
 
 class DataSync (context: Context) {
     private val userDeviceInfoService: UserDeviceInfoService =
         UserDeviceInfoService.getInstance(context)
-    private val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
     private val preferences: PreferencesUtil = GoodNewsApplication.preferences
     private val phoneId: String = userDeviceInfoService.deviceId
     private val phoneNumber : String = userDeviceInfoService.phoneNumber
@@ -51,21 +47,49 @@ class DataSync (context: Context) {
     private val familyAPI: FamilyAPI = FamilyAPI()
     private val memberAPI: MemberAPI = MemberAPI()
 
-    private val newTime = System.currentTimeMillis()
+    private val newTime = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(9) // 글자 상으로 대한민국 날짜 들어갈 것임
+    private val timeService = TimeService();
+
+    private lateinit var familyPlaceList:MutableList<PlaceInfo>
+    private lateinit var familyPlaceInfoList:MutableList<PlaceDetailInfo>
+
+    private lateinit var newFamilyPlaceList:MutableList<PlaceInfo>
+    private lateinit var newFamilyPlaceInfoList:MutableList<PlaceDetailInfo>
+
+    private lateinit var familyInfoList:MutableList<FamilyInfo>
+    private lateinit var familyList:MutableList<MemberInfo>
+
+    private lateinit var newFamilyInfoList:MutableList<FamilyInfo>
+    private lateinit var newFamilyList:MutableList<MemberInfo>
+
+    private lateinit var alertList: MutableList<Alert>
 
 
-//    val familyMemInfoUpdated = MutableLiveData<Boolean>()
-//    val familyPlaceUpdated = MutableLiveData<Boolean>()
-
-    private val alertDatabaseManager = AlertDatabaseManager()
-    private val alertRepository = AlertRepository(alertDatabaseManager)
-
-
+    private var alertSaveFlag by Delegates.notNull<Int>()
 
     // 개인 정보 관련
 
+    fun init(){
+        alertList = mutableListOf()
+
+        familyPlaceList = mutableListOf()
+        familyPlaceInfoList = mutableListOf()
+
+        newFamilyPlaceList = mutableListOf()
+        newFamilyPlaceInfoList = mutableListOf()
+
+        familyInfoList = mutableListOf()
+        familyList = mutableListOf()
+
+        newFamilyInfoList = mutableListOf()
+        newFamilyList = mutableListOf()
+
+        alertSaveFlag = 0
+    }
+
     fun fetchDataMember() {
         // 현재의 정보를 서버로 보낸다
+        val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
         val result = realm.query<Member>().first().find()
 
         if (result != null) {
@@ -121,59 +145,171 @@ class DataSync (context: Context) {
                 }
             }
         }
+        realm.close()
     }
 
+    fun saveFamilyMemInfo(familyMemInfoUpdated:MutableLiveData<Boolean>){
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
+
+        var realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        var findMem = realm.query<FamilyMemInfo>()
+
+        for(i in 0..< familyInfoList.size) {
+            val familyInfo = familyInfoList[i]
+            val familyDetail = familyList[i]
+
+            var tempTime = familyInfo.lastConnection
+            val localDateTime = LocalDateTime.parse(tempTime, formatter)
+            val milliseconds =
+                localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+
+            for (t in findMem.find()) {
+                realm.writeBlocking {
+                    var res = findLatest(t)
+                    if (res != null && res.id == familyInfo.memberId) {
+                        res.name = familyInfo.name
+                        res.phone = familyInfo.phoneNumber
+                        res.lastConnection = RealmInstant.from(
+                            milliseconds / 1000,
+                            (milliseconds % 1000).toInt()
+                        )
+                        res.state = familyInfo.state
+                        res.latitude = familyDetail!!.lat
+                        res.longitude = familyDetail!!.lon
+                        res.familyId = familyInfo.familyId
+                    }
+
+                }
+            }
+        }
+
+
+        for(i in 0..< newFamilyInfoList.size){
+            val familyInfo = newFamilyInfoList[i]
+            val familyDetail = newFamilyList[i]
+
+            var tempTime = familyInfo.lastConnection
+
+            val localDateTime = LocalDateTime.parse(tempTime, formatter)
+            val milliseconds =
+                localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+
+
+            var realm = Realm.open(GoodNewsApplication.realmConfiguration)
+            realm.writeBlocking {
+                copyToRealm(
+                    FamilyMemInfo().apply {
+                        id = familyInfo.memberId
+                        name = familyInfo.name
+                        phone = familyInfo.phoneNumber
+                        lastConnection = RealmInstant.from(
+                            milliseconds / 1000,
+                            (milliseconds % 1000).toInt()
+                        )
+                        state = familyInfo.state
+                        latitude = familyDetail!!.lat
+                        longitude = familyDetail!!.lon
+                        familyId = familyInfo.familyId
+                    }
+                )
+            }
+        }
+        familyMemInfoUpdated.postValue(true)
+    }
     // 가족 관련
     // 1) 가족 구성원 정보
     fun fetchDataFamilyMemInfo(familyMemInfoUpdated:MutableLiveData<Boolean>) {
         // 온라인 일때만 수정 하도록 만들면 될 것 같다.
 
-        GlobalScope.launch {
-            realm.writeBlocking {
-                query<FamilyMemInfo>().find()
-                    ?.also { delete(it) }
-            }
-        }
         // 가족 정보를 받아와 realm을 수정한다.
+        // 변경한 경우에만 realm을 수정해야 한다.
+
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
         familyAPI.getFamilyMemberInfo(phoneId, object : FamilyAPI.FamilyCallback {
             override fun onSuccess(result: ArrayList<FamilyInfo>) {
+                var cnt = 0
                 result.forEach {
-                    var tempTime = it.lastConnection
-                    val localDateTime = LocalDateTime.parse(tempTime, formatter)
-                    val milliseconds =
-                        localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
-                    memberAPI.findMemberInfo(it.memberId, object : MemberAPI.MemberCallback {
+                    val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+                    var data = realm.query<FamilyMemInfo>("id == $0", it.memberId).first().find()
 
-                        override fun onSuccess(result2: MemberInfo) {
-                            realm.writeBlocking {
-                                copyToRealm(
-                                    FamilyMemInfo().apply {
-                                        id = it.memberId
-                                        name = it.name
-                                        phone = it.phoneNumber
-                                        lastConnection = RealmInstant.from(
-                                            milliseconds / 1000,
-                                            (milliseconds % 1000).toInt()
-                                        )
-                                        state = it.state
-                                        latitude = result2!!.lat
-                                        longitude = result2!!.lon
-                                        familyId = it.familyId
-                                    })
+                    var findMem:FamilyMemInfo? = data?.let {
+                        var state = "";
+                        if(it.state != null){
+                            state = it.state!!
+                        }
+                        FamilyMemInfo(
+                            id = it.id,
+                            name = it.name,
+                            phone =it.phone,
+                            lastConnection = it.lastConnection,
+                            state = state,
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            familyId  = it.familyId
+                        )
+                    }
+                    realm.close()
+
+
+                    if(findMem != null){
+                        // 이미 가족이 연결이 되었던 경우 -> 변경
+                        memberAPI.findMemberInfo(it.memberId, object : MemberAPI.MemberCallback {
+                            override fun onSuccess(result2: MemberInfo) {
+                                familyInfoList.add(it)
+                                familyList.add(result2)
+                                cnt++
+                                if(cnt == result.size){
+                                    saveFamilyMemInfo(familyMemInfoUpdated)
+                                    alertSaveFlag += 1
+                                    if(alertSaveFlag == 2){
+                                        saveAlertList()
+                                    }
+                                }
                             }
-                            familyMemInfoUpdated.postValue(true)
-                        }
+                            override fun onFailure(error: String) {
+                                Log.e(TAG_ERR, "Family Sync Error : $error")
+                            }
+                        })
+                    }else{
+                        // 가족이 연결되지 않았을 경우 -> 새로 추가
+                        memberAPI.findMemberInfo(it.memberId, object : MemberAPI.MemberCallback {
+                            override fun onSuccess(result2: MemberInfo) {
+                                newFamilyInfoList.add(it)
+                                newFamilyList.add(result2)
 
-                        override fun onFailure(error: String) {
-                            Log.e(TAG_ERR, "Family Sync Error : $error")
-                        }
-                    })
+                                // 여기 정보 논의 후 바꾸기
+                                alertList.add(
+                                    Alert(
+                                        id = "FF${result2.memberId}",
+                                        senderId = "",
+                                        name = result2.name,
+                                        content = result2.name,
+                                        latitude = 0.0,
+                                        longitude = 0.0,
+                                        time = timeService.convertLongToRealmInstant(newTime),
+                                        type = "멤버"
+                                    )
+                                )
+                                cnt++
+
+                                if(cnt == result.size){
+                                    saveFamilyMemInfo(familyMemInfoUpdated)
+                                    alertSaveFlag += 1
+                                    if(alertSaveFlag == 2){
+                                        saveAlertList()
+                                    }
+                                }
+                            }
+                            override fun onFailure(error: String) {
+                                Log.e(TAG_ERR, "Family Sync Error : $error")
+                            }
+                        })
+                    }
+                    realm.close()
                 }
             }
-
             override fun onFailure(error: String) {
                 // 실패 시의 처리
                 Log.e(TAG_ERR, "Registration Failed: $error")
@@ -181,75 +317,219 @@ class DataSync (context: Context) {
         })
     }
 
-    // 가족 모임 장소
-    fun fetchDataFamilyPlace(familyPlaceUpdated:MutableLiveData<Boolean>) {
-        // 내가 변경한 장소 수정
-        val allData = realm.query<FamilyPlace>().find()
-        allData.forEach {
-            familyAPI.getFamilyUpdatePlaceCanUse(it.placeId, it.canUse)
-            familyAPI.getFamilyUpdatePlaceInfo(
-                it.placeId,
-                it.name,
-                it.latitude,
-                it.longitude
-            )
-        }
-
-        // 장소의 새로운 상태를 받아온다
-        // 어짜피 3개 밖에 없으므로 다 삭제후 넣는다.
-
-        GlobalScope.launch {
+    fun saveAlertList(){
+        Log.d("동기화 알림 저장", alertList.size.toString()+"개의 알림이 저장되었습니다.")
+        alertList.forEach {
+            var realm = Realm.open(GoodNewsApplication.realmConfiguration)
             realm.writeBlocking {
-                query<FamilyPlace>().find()
-                    ?.also { delete(it) }
+                copyToRealm(
+                    Alert().apply {
+                        id = it.id
+                        senderId = it.senderId
+                        name = it.name
+                        content = it.content
+                        latitude = it.latitude
+                        longitude = it.longitude
+                        time = it.time
+                        type = it.type
+                    }
+                )
             }
         }
+    }
 
-        // realm에 저장한다.
-        familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
-            override fun onSuccess(result: ArrayList<PlaceInfo>) {
+    fun saveFamilyPlace(familyPlaceUpdated:MutableLiveData<Boolean>){
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+        var realm = Realm.open(GoodNewsApplication.realmConfiguration)
 
 
-                println("dataSync에서 저장되는지?? - 되는데")
+        var findPlace = realm.query<FamilyPlace>()
+        for(i in 0..<familyPlaceList.size){
+            val familyPlace = familyPlaceList[i]
+            val familyPlaceInfo = familyPlaceInfoList[i]
 
-                alertRepository.editFamilyPlaceAlert(
-                    phoneId,
-                    myName,
-                    "등록",
-                    "장소"
-                )
+            for(t in findPlace.find()){
+                realm.writeBlocking {
+                    var res = findLatest(t)
 
-                result.forEach {
-                    familyAPI.getFamilyPlaceInfoDetail(
-                        it.placeId,
-                        object : FamilyAPI.FamilyPlaceDetailCallback {
-                            override fun onSuccess(result2: PlaceDetailInfo) {
-                                realm.writeBlocking {
-                                    copyToRealm(
-                                        FamilyPlace().apply {
-                                            placeId = result2.placeId
-                                            name = result2.name
-                                            address = result2.address
-                                            latitude = result2.lat
-                                            longitude = result2.lon
-                                            canUse = result2.canuse
-                                            seq = it.seq
-                                        }
-                                    )
-                                }
-                                familyPlaceUpdated.postValue(true)
-                                // family
-                                preferences.setLong("FamilySyncTime", newTime)
-                            }
-
-                            override fun onFailure(error: String) {
-                                Log.e(TAG_ERR, "FamilyAPI Error : $error")
-                            }
-                        }
-                    )
+                    if(res!=null && res.placeId == familyPlace.placeId){
+                            res.name = familyPlaceInfo.name
+                            res.address = familyPlaceInfo.address
+                            res.latitude = familyPlaceInfo.lat
+                            res.longitude = familyPlaceInfo.lon
+                            res.canUse = familyPlaceInfo.canuse
+                    }
                 }
             }
+        }
+        for(i in 0..<newFamilyPlaceInfoList.size){
+            val familyPlace = newFamilyPlaceList[i]
+            val familyPlaceInfo = newFamilyPlaceInfoList[i]
 
+            var tempTime = familyPlace.createdDate
+            val localDateTime = LocalDateTime.parse(tempTime, formatter)
+            val milliseconds = localDateTime.atZone(ZoneId.of("UTC")).toInstant().toEpochMilli()
+
+            var realm = Realm.open(GoodNewsApplication.realmConfiguration)
+            realm.writeBlocking {
+                copyToRealm(
+                    FamilyPlace().apply {
+                        placeId = familyPlaceInfo.placeId
+                        name = familyPlaceInfo.name
+                        address = familyPlaceInfo.address
+                        latitude = familyPlaceInfo.lat
+                        longitude = familyPlaceInfo.lon
+                        canUse = familyPlaceInfo.canuse
+                        seq = familyPlace.seq
+                        lastUpdate = timeService.convertLongToRealmInstant(milliseconds)
+                    }
+                )
+            }
+        }
+
+        familyPlaceUpdated.postValue(true)
+        preferences.setLong("FamilySyncTime", newTime)
+    }
+
+    // 가족 모임 장소
+    fun fetchDataFamilyPlace(familyPlaceUpdated:MutableLiveData<Boolean>) {
+        // 장소의 새로운 상태를 받아온다
+        // realm에 저장한다.
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+        familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
+            override fun onSuccess(result: ArrayList<PlaceInfo>) {
+                var cnt = 0
+                result.forEach { placeInfo ->
+                    // id로 찾았을 때 없으면 -> 그냥 추가
+                    // 만약,시간이 같지 않다면 -> 추가
+
+                    // 시간이 같다면 그냥 패스
+                    val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
+                    var data = realm.query<FamilyPlace>("placeId == $0", placeInfo.placeId).first().find()
+                    var findPlace:FamilyPlace? = data?.let {
+                        FamilyPlace(
+                            placeId = it.placeId,
+                            name = it.name,
+                            address = it.address,
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            canUse = it.canUse,
+                            seq = it.seq,
+                            lastUpdate = it.lastUpdate
+                        )
+                    }
+                    realm.close()
+
+
+                    if(findPlace!= null){
+                        val serverUpdateTime = timeService.convertDateStrToLong(placeInfo.createdDate)
+                        var lastUpdateTime = timeService.realmInstantToLong(findPlace.lastUpdate)
+
+                        if(serverUpdateTime != lastUpdateTime){
+                            // 변경이 필요한 경우
+                            familyAPI.getFamilyPlaceInfoDetail(
+                                placeInfo.placeId,
+                                object : FamilyAPI.FamilyPlaceDetailCallback {
+                                    override fun onSuccess(result2: PlaceDetailInfo) {
+                                        familyPlaceList.add(placeInfo)
+                                        familyPlaceInfoList.add(result2)
+                                        cnt++
+
+                                        var alertCheck = false
+                                        var alertMsg = "${findPlace.seq}/"
+
+                                        if ((findPlace.address != result2.address) || (findPlace.name != result2.name)) {
+                                            // 주소가 변경
+                                            alertMsg += "주소/"
+                                            alertCheck = true
+                                        } else {
+                                            alertMsg += "-/"
+                                        }
+
+                                        if (findPlace.canUse != result2.canuse) {
+                                            // 위험 정보가 변경
+                                            alertCheck = true
+                                            if (result2.canuse) {
+                                                alertMsg += "안전"
+                                            } else {
+                                                alertMsg += "위험"
+                                            }
+                                        } else {
+                                            alertMsg += "-"
+                                        }
+
+                                        if(alertCheck){
+                                            var tempTime = newTime.minus(TimeUnit.HOURS.toMillis(9))
+                                            alertList.add(
+                                                Alert(
+                                                    id = "P${findPlace.seq}/${timeService.convertLongToStr(tempTime)}",
+                                                    senderId = "",
+                                                    name = result2.registerUser,
+                                                    content = alertMsg,
+                                                    latitude = 0.0,
+                                                    longitude = 0.0,
+                                                    time = timeService.convertLongToRealmInstant(newTime),
+                                                    type = "장소"
+                                                )
+                                            )
+                                        }
+
+                                        if(cnt == result.size){
+                                            saveFamilyPlace(familyPlaceUpdated)
+                                            alertSaveFlag += 1
+                                            if(alertSaveFlag == 2){
+                                                saveAlertList()
+                                            }
+                                        }
+                                    }
+                                    override fun onFailure(error: String) {
+                                        Log.e(TAG_ERR, "FamilyAPI Error : $error")
+                                    }
+                                }
+                            )
+                        }
+                    }else{
+                        // 새로 등록하는 경우
+                        familyAPI.getFamilyPlaceInfoDetail(
+                            placeInfo.placeId,
+                            object : FamilyAPI.FamilyPlaceDetailCallback {
+                                override fun onSuccess(result2: PlaceDetailInfo) {
+                                    newFamilyPlaceList.add(placeInfo)
+                                    newFamilyPlaceInfoList.add(result2)
+                                    cnt++
+                                    var tempTime = newTime.minus(TimeUnit.HOURS.toMillis(9))
+
+                                    alertList.add(
+                                        Alert(
+                                            id = "P${placeInfo.seq}/${timeService.convertLongToStr(tempTime)}",
+                                            senderId = "",
+                                            name = result2.registerUser,
+                                            content = result2.name,
+                                            latitude = 0.0,
+                                            longitude = 0.0,
+                                            time = timeService.convertLongToRealmInstant(newTime),
+                                            type = "추가"
+                                        )
+                                    )
+
+                                    if(cnt == result.size){
+                                        saveFamilyPlace(familyPlaceUpdated)
+                                        alertSaveFlag += 1
+                                        if(alertSaveFlag == 2) {
+                                            saveAlertList()
+                                        }
+                                    }
+                                }
+
+                                override fun onFailure(error: String) {
+                                    Log.e(TAG_ERR, "FamilyAPI Error : $error")
+                                }
+                            }
+                        )
+                    }
+                }
+            }
             override fun onFailure(error: String) {
                 Log.e(TAG_ERR, "FamilyAPI Error : $error")
             }
@@ -261,13 +541,12 @@ class DataSync (context: Context) {
     fun fetchDataMapInstantInfo() {
         // 마지막 시간 보다 변경시간이 작을 경우
         // 모두 보내서 반영한다. -> 수정 필요
-        val timeService = TimeService()
-
+        val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
         val oldData = realm.query<MapInstantInfo>().find()
         // 시간 기준 필터링
         val result: List<MapInstantInfo> =
             oldData.filter { it.time > timeService.convertLongToRealmInstant(syncTime) }
-
+        realm.close()
         // 마지막 연결 시각 이후 변경된 리스트 불러오기
 
         if (result != null) {
@@ -306,6 +585,7 @@ class DataSync (context: Context) {
             timeService.convertDateLongToString(startTime),
             object : MapAPI.FacilityStateDurationCallback {
                 override fun onSuccess(result: ArrayList<DurationFacilityState>) {
+                    val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
                     result.forEach {
                         val vaildCheck = realm.query<MapInstantInfo>("id == $0", it.id).find()
                         if(vaildCheck == null) {
@@ -337,7 +617,7 @@ class DataSync (context: Context) {
                             }
                         }
                     }
-
+                    realm.close()
                     // 시간 변경
                     preferences.setLong("FacilitySyncTime", newTime)
                 }
@@ -345,6 +625,8 @@ class DataSync (context: Context) {
                 override fun onFailure(error: String) {
                     Log.e(TAG_ERR, "Facility Error : $error" )
                 }
-            })
+            }
+        )
+
     }
 }

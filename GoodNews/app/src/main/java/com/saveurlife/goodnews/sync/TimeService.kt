@@ -21,14 +21,25 @@ class TimeService {
         return convertMillisToDateTime(millisecond, "yyyy-MM-dd HH:mm:ss")
     }
 
+    fun convertLongToStr(time : Long):String{
+        return convertMillisToDateTime(time, "yyyy-MM-dd HH:mm:ss")
+    }
+
     // 시간 형태 변환
     // "YYYY-MM-DDTHH:mm:ss" -> Long 형태
     // ex) "2023-11-13T03:12:02"
+    // 이걸 사용하는 것은 서버 -> 앱 밖에 없으므로 시간대가 서울 시간대에서 변경임.
     fun convertDateStrToLong(oldTime: String): Long {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
         val localDateTime = LocalDateTime.parse(oldTime, formatter)
 
-        return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        return localDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant().toEpochMilli()
+    }
+
+    // "YYYY-MM=DDTHH:mm:ss -> realmInstant
+    fun convertDateToRealmInstance(time: String): RealmInstant{
+        var longTime = convertDateStrToLong(time)
+        return convertLongToRealmInstant(longTime)
     }
 
     private fun convertMillisToDateTime(millis: Long, dateFormat: String, locale: Locale = Locale.getDefault()): String {
@@ -87,6 +98,11 @@ class TimeService {
         // SimpleDateFormat을 사용하여 문자열로 포맷팅
         val dateFormat = SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss", Locale.getDefault())
         return dateFormat.format(date)
+    }
+
+    fun realmInstantToLong(realmInstant: RealmInstant): Long {
+        // realmInstant를 밀리초로 변환
+        return realmInstant.epochSeconds * 1000 + realmInstant.nanosecondsOfSecond
     }
 
     // Long으로 된 ms 시간 -> RealmInstance 변경

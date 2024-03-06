@@ -11,33 +11,44 @@ class SyncService(private val context: Context) {
 
     private val dataSync : DataSync = DataSync(context)
 
+    val familyMemInfoUpdatedInit = MutableLiveData<Boolean>()
+    val familyPlaceUpdatedInit = MutableLiveData<Boolean>()
+
+    val familyMemInfoUpdatedOne = MutableLiveData<Boolean>()
+    val familyPlaceUpdatedOne = MutableLiveData<Boolean>()
 
     val familyMemInfoUpdated = MutableLiveData<Boolean>()
     val familyPlaceUpdated = MutableLiveData<Boolean>()
 
     fun fetchAllData(){
+        dataSync.init()
         dataSync.fetchDataMember()
-        dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdated)
-        dataSync.fetchDataFamilyPlace(familyPlaceUpdated)
+        dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdatedInit)
+        dataSync.fetchDataFamilyPlace(familyPlaceUpdatedInit)
         dataSync.fetchDataMapInstantInfo()
-
-        familyMemInfoUpdated.postValue(true)
-        familyPlaceUpdated.postValue(true)
     }
 
+    // 전체 변경일 경우
     fun fetchFamilyData(){
+        dataSync.init()
         dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdated)
         dataSync.fetchDataFamilyPlace(familyPlaceUpdated)
+    }
 
-        familyMemInfoUpdated.postValue(true)
-        familyPlaceUpdated.postValue(true)
+    // 일부만 변경일 경우
+    fun fetchFamilyNewData(){
+        dataSync.init()
+        dataSync.fetchDataFamilyMemInfo(familyMemInfoUpdatedOne)
+        dataSync.fetchDataFamilyPlace(familyPlaceUpdatedOne)
     }
 
     fun fetchFacilityData(){
+        dataSync.init()
         dataSync.fetchDataMapInstantInfo()
     }
 
     fun backGroundSync(){
+        dataSync.init()
         // WorkManager
         val workManager = WorkManager.getInstance(context)
 

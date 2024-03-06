@@ -45,6 +45,7 @@ import com.saveurlife.goodnews.BaseActivity
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alert.AlertActivity
+import com.saveurlife.goodnews.batch.DeleteOldDataService
 import com.saveurlife.goodnews.ble.service.BleService
 import com.saveurlife.goodnews.common.SharedViewModel
 import com.saveurlife.goodnews.databinding.ActivityMainBinding
@@ -263,6 +264,11 @@ class MainActivity : BaseActivity() {
 
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
+
+            // 이때부터 realm 삭제 시작합니다!
+            val deleteOldDataService = DeleteOldDataService.getInstance(this)
+            deleteOldDataService.cancelDelete()
+            deleteOldDataService.setDeleteManager()
 
             // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
             onBackPressedDispatcher.addCallback(this) {

@@ -29,7 +29,6 @@ import com.saveurlife.goodnews.databinding.DialogMypageLayoutBinding
 import com.saveurlife.goodnews.databinding.FragmentMyPageBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.map.MapDownloader
-import com.saveurlife.goodnews.map.MiniMapDialogFragment
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -122,18 +121,10 @@ class MyPageFragment : Fragment() {
 //            preferencesUtil.setBoolean("darkMode", isChecked)
 //        }
 
-        // 내 위치 공개하기 기능 -> 기본 값 False?
-        val isMyLocation = preferencesUtil.getBoolean("myLocation", false)
+        // 내 위치 공개하기 기능 -> 기본 값 true
+        val isMyLocation = preferencesUtil.getBoolean("myLocation", true)
         binding.switchMyLocation.isChecked = isMyLocation
         binding.switchMyLocation.setOnCheckedChangeListener { _, isChecked ->
-            // 더 추가해줘야될 부분이 있다면 이 코드를 사용
-//            if (isChecked) {
-//                // 스위치가 켜졌을 때: 내 위치 공개하기
-//
-//            } else {
-//                // 스위치가 꺼졌을 때: 내 위치 공개하지 않기
-//
-//            }
             preferencesUtil.setBoolean("myLocation", isChecked)
         }
 
@@ -158,18 +149,6 @@ class MyPageFragment : Fragment() {
             }else{
                 startAppAPKDownload()
             }
-        }
-
-        // (임시) 미니맵 띄우기 // 임의로 값 넣어 놓은 것임
-        binding.minimapButton.setOnClickListener{
-            val miniMapFragment = MiniMapDialogFragment()
-            val otherUserLocation = Bundle()
-            otherUserLocation.putDouble("latitude", 36.321655)
-            otherUserLocation.putDouble("longitude", 127.378953)
-
-            miniMapFragment.arguments = otherUserLocation
-
-            miniMapFragment.show(childFragmentManager, "MiniMapDialogFragment")
         }
 
         //객체 만들기

@@ -6,8 +6,11 @@ import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +19,7 @@ import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.MemberAPI
+import com.saveurlife.goodnews.batch.DeleteOldDataService
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -67,6 +71,17 @@ class EnterInfoActivity : AppCompatActivity() {
             phoneEditText1.isEnabled = false
             phoneEditText2.isEnabled = false
             phoneEditText3.isEnabled = false
+        }
+
+        // 이름 박스에서 엔터
+        binding.nameEditText.setOnEditorActionListener { textView, actionId, keyEvent ->
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL || keyEvent?.action == KeyEvent.ACTION_DOWN && keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                // 키보드를 숨깁니다.
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(textView.windowToken, 0)
+                return@setOnEditorActionListener true
+            }
+            false
         }
 
         initGenderSelection() // 성별 선택
@@ -364,14 +379,17 @@ class EnterInfoActivity : AppCompatActivity() {
             memberAPI.updateMember(setMemberId, loc[0].toDouble(), loc[1].toDouble())
 
             Log.i("저장", "저장완료")
+
+
+
             // 메인으로 이동
             val intent = Intent(this, MainActivity::class.java)
 
             val deviceStateService = DeviceStateService()
-            if(deviceStateService.isNetworkAvailable(applicationContext)){
-                val syncService = SyncService(applicationContext)
-                syncService.fetchAllData()
-            }
+//            if(deviceStateService.isNetworkAvailable(applicationContext)){
+//                val syncService = SyncService(applicationContext)
+//                syncService.fetchAllData()
+//            }
 
             startActivity(intent)
         }
