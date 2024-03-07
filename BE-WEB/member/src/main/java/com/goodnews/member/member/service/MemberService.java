@@ -4,8 +4,7 @@ import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.common.dto.LoginDto;
 import com.goodnews.member.common.dto.TokenDto;
 import com.goodnews.member.common.exception.validator.FacilityValidator;
-import com.goodnews.member.member.domain.FamilyMember;
-import com.goodnews.member.member.domain.LocalPopulation;
+import com.goodnews.member.member.domain.*;
 import com.goodnews.member.member.dto.request.facility.MapPopulationRequestDto;
 import com.goodnews.member.member.dto.request.member.*;
 import com.goodnews.member.member.dto.response.facility.MapPopulationResponseDto;
@@ -15,10 +14,7 @@ import com.goodnews.member.common.exception.CustomException;
 import com.goodnews.member.common.exception.validator.MemberValidator;
 import com.goodnews.member.common.exception.validator.TokenValidator;
 import com.goodnews.member.jwt.JwtTokenProvider;
-import com.goodnews.member.member.domain.Member;
-import com.goodnews.member.member.repository.FamilyMemberRepository;
-import com.goodnews.member.member.repository.LocalPopulationRepository;
-import com.goodnews.member.member.repository.MemberRepository;
+import com.goodnews.member.member.repository.*;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,6 +41,8 @@ public class MemberService {
     private final RedisTemplate<String, String> redisTemplate;
     private final LocalPopulationRepository localPopulationRepository;
     private final FacilityValidator mapValidator;
+    private final FamilyPlaceRepository familyPlaceRepository;
+    private final FamilyRepository familyRepository;
 
     @Transactional
     public BaseResponseDto registMemberInfo(MemberRegistRequestDto memberRegistRequestDto) {
@@ -260,5 +259,47 @@ public class MemberService {
                 .build();
     }
 
+    public BaseResponseDto deleteUser(MemberFirstLoginRequestDto memberFirstLoginRequestDto){
 
+        Optional<Member> findMember = memberRepository.findById(memberFirstLoginRequestDto.getMemberId());
+        memberValidator.checkMember(findMember, findMember.get().getId());
+
+        Optional<FamilyMember> familyMember = familyMemberRepository.findByMemberIdAndApproveIsTrue(memberFirstLoginRequestDto.getMemberId()) ;
+
+        if(familyMember.isPresent()){
+            List<FamilyMember> familyMemberList = familyMemberRepository.findByFamilyFamilyId(familyMember.get().getFamily().getFamilyId());
+
+            if(familyMemberList.size() > 2){
+                // 멤버 정보 family 삭제
+                familyMember.get().getMember().updateFamily(null);
+                // 가족 리스트 삭제
+                familyMemberRepository.delete(familyMember.get());
+
+            }else{
+                Family family = familyMember.get().getFamily();
+                // 가족 장소 모두 삭제
+                List<FamilyPlace> familyPlaceList = familyPlaceRepository.findByFamilyFamilyId(familyMember.get().getFamily().getFamilyId());
+                familyPlaceRepository.deleteAll(familyPlaceList);
+
+                List<Member> memberList = memberRepository.findByFamilyFamilyId(family.getFamilyId());
+                // 멤버 정보 family 삭제
+                memberList.forEach(member -> {
+                    member.updateFamily(null);
+                });
+
+                // 가족 리스트 모두 삭제
+                familyMemberRepository.deleteAll(familyMemberList);
+
+                // 가족 삭제
+                familyRepository.delete(family);
+            }
+        }
+        memberRepository.delete(findMember.get());
+
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("회원 탈퇴가 완료되었습니다.")
+                .build();
+    }
 }

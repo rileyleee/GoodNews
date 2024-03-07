@@ -74,4 +74,16 @@ public class FamilyController {
 
         return familyService.getRegistFamily(memberFirstLoginRequestDto);
     }
+
+    @Operation(summary = "현재 가족 탈퇴", description = "현재 가족 탈퇴, memberId 입력")
+    @DeleteMapping("/leavefamily")
+    private BaseResponseDto leaveFamily(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
+        return familyService.leaveFamily(memberFirstLoginRequestDto);
+    }
+
+    @Operation(summary = "가족 장소 삭제", description = "등록된 가족 장소를 삭제, placeId 입력")
+    @DeleteMapping("/deletefamilyplace")
+    private BaseResponseDto deleteFamilyPlace(@RequestBody FamilyPlaceRequestDto familyPlaceRequestDto) {
+        return familyService.deleteFamilyPlace(familyPlaceRequestDto);
+    }
 }
