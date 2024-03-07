@@ -6,7 +6,9 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -27,7 +29,9 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates
 
@@ -96,7 +100,13 @@ class BackgroundLocationProvider(private val context: Context) {
         if (ContextCompat.checkSelfPermission(
                 context,
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && isGPSEnabled()
         ) {
             fusedLocationProviderClient.requestLocationUpdates(
                 locationRequest,
@@ -104,11 +114,34 @@ class BackgroundLocationProvider(private val context: Context) {
                 Looper.getMainLooper()
             )
         } else {
-            // 권한 없을 경우 안내하기 (우리는 권한 없을 경우 앱을 아예 사용할 수 없는데 꼭 사용해야 할까)
-            Toast.makeText(context, "백그라운드 위치 권한을 허용해주세요", Toast.LENGTH_SHORT).show()
-            val i = Intent(context, AuthorityActivity::class.java)
-            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            context.startActivity(i)
+            if (!isGPSEnabled()) {
+                MainScope().launch {
+                    withContext(Dispatchers.Main) {
+
+                        Toast.makeText(context, "GPS 사용을 허용하시기 바랍니다", Toast.LENGTH_LONG).show()
+
+                        // GPS 허용 위해 이동
+                        Log.v("백그라운드 위치 제공자", "GPS 허용 안되었다")
+                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+
+                        // FLAG_ACTIVITY_NEW_TASK 플래그 추가
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        context.startActivity(intent)
+                    }
+                }
+                // 다시 GPS를 켜도 바로 활성화 되지 않으며 인터넷을 연결해야 되는 상황
+                // 모든 권한은 허용되어 있으나 설정이 잘 안됨에 따라 지도에서 위치 기능 전부 일정 시간 동작 안하고 위험정보에서 오류 발생
+            } else {
+                MainScope().launch {
+                    withContext(Dispatchers.Main) {
+                        // 권한 없을 경우 안내하기 (우리는 권한 없을 경우 앱을 아예 사용할 수 없는데 꼭 사용해야 할까)
+                        Toast.makeText(context, "백그라운드 위치 권한을 허용해주세요", Toast.LENGTH_SHORT).show()
+                        val i = Intent(context, AuthorityActivity::class.java)
+                        i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        context.startActivity(i)
+                    }
+                }
+            }
         }
     }
 
@@ -156,7 +189,10 @@ class BackgroundLocationProvider(private val context: Context) {
     private fun onLocationUpdated(location: Location) {
 
         // 로그에 위치 정보 기록
-        Log.d("BackgroundLocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
+        Log.d(
+            "BackgroundLocationUpdate",
+            "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}"
+        )
 
         // 사용자의 위치에 따른 위험 정보 근접 알림
         emergencyAlarmProvider.getAlarmInfo()
@@ -179,6 +215,16 @@ class BackgroundLocationProvider(private val context: Context) {
     // MainActivity 공유하기 위한 클래스 간 통신
     fun setLocationUpdateListener(listener: LocationUpdateListener) {
         this.locationUpdateListener = listener
+    }
+
+    // 안드로이드 GPS 허용 여부 확인
+    fun isGPSEnabled(): Boolean {
+        Log.d("지도프래그먼트", "GPS 확인해요")
+        val locationManager =
+            context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        // GPS 프로바이더 상태 확인
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
 }
