@@ -24,20 +24,35 @@ class TMapFacilityProvider(private val context: Context) {
             }
 
             TMapFacilityUiType.GROCERY -> {
-                //Log.v("copiedGrocery", "copiedGrocery.size: ${copiedGrocery.size}")
-                //Log.v("copiedGrocery","${copiedGrocery[1].name}/${copiedGrocery[1].type}")
                 copiedGrocery
             }
             TMapFacilityUiType.SHELTER ->{
-                //Log.v("copiedShelter", "copiedShelter.size: ${copiedShelter.size}")
-                //Log.v("copiedShelter","${copiedShelter[1].name}/${copiedShelter[1].type}")
                 copiedShelter
             }
 
             else -> {
-                //Log.v("copiedAll", "copiedAll.size: ${copiedAll.size}")
-                //Log.v("copiedAll","${copiedAll[1].name}/${copiedAll[1].type}")
                 copiedAll
+            }
+        }
+    }
+
+    // 오프라인 시설 정보 반환(소분류)
+    fun getFilteredFacilitiesBySubCategory(subCategory: String): MutableList<OffMapFacility> {
+        return when (subCategory) {
+            "민방위" -> {
+                copiedMinbangwi
+            }
+
+            "지진해일" -> {
+                copiedEarthquake
+            }
+
+            "전체" -> {
+                copiedShelter
+            }
+
+            else -> {
+                copiedShelter
             }
         }
     }

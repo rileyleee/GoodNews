@@ -29,6 +29,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.osmdroid.util.GeoPoint
 import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.cos
@@ -200,6 +201,15 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 ////                tMapView.zoomLevel = info.zoom
 //                tMapView.setCenterPoint(info.point.latitude, info.point.longitude)
 //            }
+        }
+
+        // 서브 카테고리 선택 처리
+        binding.tMapSubCategoryWrap.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                com.saveurlife.goodnews.R.id.tMapRadioAll -> addSubFacilitiesToTMap("전체")
+                com.saveurlife.goodnews.R.id.tMapRadioCivilDefense -> addSubFacilitiesToTMap("민방위")
+                com.saveurlife.goodnews.R.id.tMapRadioTsunami -> addSubFacilitiesToTMap("지진해일")
+            }
         }
 
 
@@ -393,7 +403,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                 Log.i("selectedCategoryName", selectedCategoryName)
 
                 nearbyPoints
-                    .filter { selectedCategoryName == "전체" || it.type == selectedCategoryName } // 필터링: 선택된 카테고리와 일치하는 항목만 남김 //선택된 카테고리가 "전체"이면 it.type == "전체"가 항상 참이 되므로, 모든 항목이 추가
+//                    .filter { selectedCategoryName == "전체" || selectedCategoryName == it.type || (it.type == "약국" && selectedCategoryName == "병원")} // 필터링: 선택된 카테고리와 일치하는 항목만 남김 //선택된 카테고리가 "전체"이면 it.type == "전체"가 항상 참이 되므로, 모든 항목이 추가
                     .forEachIndexed { _, point ->
                     marker = TMapMarkerItem()
                     marker.id = "m${num++}"
@@ -573,10 +583,10 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         } else {
             binding.tMapSubCategoryWrap.visibility = View.GONE
         }
-        addFacilitiesToMap(category)
+        addFacilitiesToTMap(category)
     }
 
-    private fun addFacilitiesToMap(category: TMapFacilityUiType) {
+    private fun addFacilitiesToTMap(category: TMapFacilityUiType) {
         selectedFacility = tMapFacilityProvider.getFilteredFacilities(category)
 
         val leftTop: TMapPoint = tMapView.leftTopPoint
@@ -588,6 +598,26 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
         // 이전 좌표와 현재 좌표를 이용하여 마커 표시
         facilityAroundMe(category.displayName, selectedFacility, nowLat, nowLon, leftTop, rightBottom, "zoom")
+    }
+
+    private fun updateFacilitiesBySubCategory(subCategory: String) {
+        // 지도 마커 및 하단 리스트
+        addSubFacilitiesToTMap(subCategory)
+    }
+
+    private fun addSubFacilitiesToTMap(subCategory: String) {
+        // 마커로 찍을 시설 목록 필터링
+        selectedFacility = tMapFacilityProvider.getFilteredFacilitiesBySubCategory(subCategory)
+
+        val leftTop: TMapPoint = tMapView.leftTopPoint
+        Log.i("좌상단 위경도", leftTop.toString())
+        val rightBottom: TMapPoint = tMapView.rightBottomPoint
+        Log.i("우하단 위경도", rightBottom.toString())
+
+        Log.i("현재 선택된 카테고리", subCategory)
+
+        // 이전 좌표와 현재 좌표를 이용하여 마커 표시
+        facilityAroundMe(subCategory, selectedFacility, nowLat, nowLon, leftTop, rightBottom, "zoom")
     }
 
     //TMapFacilityUiType에 있는 값들을 리스트로 반환
