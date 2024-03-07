@@ -77,13 +77,16 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
 
         val observer2 = Observer<Boolean>{
             if(it){
-//                addRegistList()
+                familyListAdapter.resetFamilyList()
+                addRegistList()
                 addList()
                 syncService.familyMemInfoUpdated.value = false
             }
         }
+
         syncService.familyPlaceUpdated.observe(this, observer1)
         syncService.familyMemInfoUpdated.observe(this, observer2)
+        familyListAdapter.resetFamilyList()
         addRegistList()
 
         if(deviceStateService.isNetworkAvailable(requireContext())){
@@ -273,6 +276,7 @@ class FamilyFragment : Fragment(), FamilyListAdapter.OnItemClickListener {
         return covName
     }
     fun fetchAll(){
+        familyListAdapter.resetFamilyList()
         syncService.fetchFamilyData()
     }
     private fun addPlaceList(){
