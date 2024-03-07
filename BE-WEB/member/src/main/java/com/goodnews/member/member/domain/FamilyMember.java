@@ -20,7 +20,7 @@ public class FamilyMember {
     private String sendMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receivedMember")
+    @JoinColumn(name = "received_member")
     private Member member;
 
 

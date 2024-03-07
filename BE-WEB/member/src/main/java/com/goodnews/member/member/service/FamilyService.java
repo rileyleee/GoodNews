@@ -2,9 +2,7 @@ package com.goodnews.member.member.service;
 
 import com.goodnews.member.common.dto.BaseResponseDto;
 import com.goodnews.member.common.exception.validator.FamilyValidator;
-import com.goodnews.member.member.dto.request.family.FamilyPlaceCanuseDto;
-import com.goodnews.member.member.dto.request.family.FamilyPlaceUpdateRequestDto;
-import com.goodnews.member.member.dto.request.family.FamilyRegistRequestDto;
+import com.goodnews.member.member.dto.request.family.*;
 import com.goodnews.member.member.dto.response.family.FamilyInviteResponseDto;
 import com.goodnews.member.member.dto.response.family.FamilyPlaceDetailResponseDto;
 import com.goodnews.member.member.dto.response.family.FamilyPlaceInfoResponseDto;
@@ -15,7 +13,6 @@ import com.goodnews.member.member.domain.Family;
 import com.goodnews.member.member.domain.FamilyMember;
 import com.goodnews.member.member.domain.FamilyPlace;
 import com.goodnews.member.member.domain.Member;
-import com.goodnews.member.member.dto.request.family.FamilyRegistPlaceRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberFirstLoginRequestDto;
 import com.goodnews.member.member.dto.request.member.MemberRegistFamilyRequestDto;
 import com.goodnews.member.member.dto.response.member.MemberRegistFamilyResposneDto;
@@ -324,6 +321,57 @@ public class FamilyService {
                 .success(true)
                 .message("가족 수락 요청 리스트를 조회했습니다")
                 .data(responseDtoList)
+                .build();
+    }
+
+    @Transactional
+    public BaseResponseDto leaveFamily(MemberFirstLoginRequestDto memberFirstLoginRequestDto){
+        Optional<FamilyMember> familyMember = familyMemberRepository.findByMemberIdAndApproveIsTrue(memberFirstLoginRequestDto.getMemberId()) ;
+        familyValidator.checkFamily(familyMember, memberFirstLoginRequestDto.getMemberId());
+
+        List<FamilyMember> familyMemberList = familyMemberRepository.findByFamilyFamilyId(familyMember.get().getFamily().getFamilyId());
+
+        if(familyMemberList.size() > 2){
+            // 멤버 정보 family 삭제
+            familyMember.get().getMember().updateFamily(null);
+            // 가족 리스트 삭제
+            familyMemberRepository.delete(familyMember.get());
+
+        }else{
+            Family family = familyMember.get().getFamily();
+            // 가족 장소 모두 삭제
+            List<FamilyPlace> familyPlaceList = familyPlaceRepository.findByFamilyFamilyId(familyMember.get().getFamily().getFamilyId());
+            familyPlaceRepository.deleteAll(familyPlaceList);
+
+            List<Member> memberList = memberRepository.findByFamilyFamilyId(family.getFamilyId());
+            // 멤버 정보 family 삭제
+            memberList.forEach(member -> {
+                member.updateFamily(null);
+            });
+
+            // 가족 리스트 모두 삭제
+            familyMemberRepository.deleteAll(familyMemberList);
+
+            // 가족 삭제
+            familyRepository.delete(family);
+        }
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 탈퇴를 완료했습니다.")
+                .build();
+    }
+
+
+    @Transactional
+    public BaseResponseDto deleteFamilyPlace(FamilyPlaceRequestDto familyPlaceRequestDto){
+        Optional<FamilyPlace> familyPlace = familyPlaceRepository.findById(familyPlaceRequestDto.getPlaceId());
+        familyValidator.checkFamilyPlace(familyPlace);
+
+        familyPlaceRepository.delete(familyPlace.get());
+
+        return BaseResponseDto.builder()
+                .success(true)
+                .message("가족 장소 삭제를 완료했습니다.")
                 .build();
     }
 }
