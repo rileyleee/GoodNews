@@ -17,21 +17,28 @@ public class FamilyMember {
     private int id;
     private boolean approve;
 
+    private String sendMember;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "phone")
+    @JoinColumn(name = "receivedMember")
     private Member member;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "family_id")
     private Family family;
 
     @Builder
-    public FamilyMember(Member member, Family family) {
+    public FamilyMember(Member member, String sendMember, Family family) {
         this.member = member;
+        this.sendMember = sendMember;
         this.family = family;
     }
 
-    public void updateApprove(boolean approve) {
+    public void updateApprove() {
         this.approve = true;
+    }
+    public void updateFamily(Family family){
+        this.family = family;
     }
 }

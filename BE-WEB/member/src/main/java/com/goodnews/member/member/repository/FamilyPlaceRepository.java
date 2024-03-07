@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface FamilyPlaceRepository extends JpaRepository<FamilyPlace, Integer> {
 
-    List<FamilyPlace> findByFamilyFamilyId(String familyId);
+    List<FamilyPlace> findByFamilyFamilyId(int familyId);
 }

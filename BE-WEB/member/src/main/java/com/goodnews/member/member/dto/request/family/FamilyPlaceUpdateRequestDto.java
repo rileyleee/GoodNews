@@ -5,7 +5,9 @@ import lombok.Getter;
 @Getter
 public class FamilyPlaceUpdateRequestDto {
 
+    private String registerUser;
     private String name;
     private Double lat;
     private Double lon;
+    private String address;
 }

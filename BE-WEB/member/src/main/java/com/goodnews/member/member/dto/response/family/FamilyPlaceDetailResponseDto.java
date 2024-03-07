@@ -13,6 +13,7 @@ public class FamilyPlaceDetailResponseDto {
     private Double lon;
     private boolean canuse;
     private String address;
+    private String registerUser;
 
     @Builder
     public FamilyPlaceDetailResponseDto(FamilyPlace familyPlace) {
@@ -22,5 +23,6 @@ public class FamilyPlaceDetailResponseDto {
         this.lon = familyPlace.getLon();
         this.canuse = familyPlace.isCanuse();
         this.address = familyPlace.getAddress();
+        this.registerUser = familyPlace.getRegisterUser();
     }
 }
