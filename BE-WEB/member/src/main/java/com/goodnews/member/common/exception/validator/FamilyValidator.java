@@ -2,6 +2,7 @@ package com.goodnews.member.common.exception.validator;
 
 import com.goodnews.member.common.exception.CustomException;
 import com.goodnews.member.common.exception.message.FamilyErrorEnum;
+import com.goodnews.member.common.exception.message.MemberErrorEnum;
 import com.goodnews.member.member.domain.Family;
 import com.goodnews.member.member.domain.FamilyMember;
 import com.goodnews.member.member.domain.FamilyPlace;

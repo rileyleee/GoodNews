@@ -23,7 +23,7 @@ public class MemberAppController {
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
 
-    @Operation(summary = "추가 정보 등록", description = "멤버 추가 정보(기기번호,전화번호,이름,생년월일,성별,혈액형,특이사항) 등록")
+    @Operation(summary = "추가 정보 등록(회원 가입)", description = "멤버 추가 정보(기기번호,전화번호,이름,생년월일,성별,혈액형,특이사항) 등록")
     @PostMapping("/registinfo")
     private BaseResponseDto registMemberInfo(@RequestBody MemberRegistRequestDto memberRegistRequestDto) {
 
@@ -73,9 +73,12 @@ public class MemberAppController {
     @Operation(summary = "전화번호 입력시 해당 회원 이름 조회", description = "멤버 이름 조회 ")
     @PostMapping("/get/phone")
     private BaseResponseDto getPhone(@RequestBody MemberPhoneRequestDto memberPhoneRequestDto) {
-
-
         return memberService.getPhoneNumber(memberPhoneRequestDto.getPhoneNumber());
     }
 
+    @Operation(summary = "회원가입 탈퇴", description = "회원 탈퇴")
+    @DeleteMapping("/deleteUser")
+    private BaseResponseDto deleteUser(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto){
+        return memberService.deleteUser(memberFirstLoginRequestDto);
+    }
 }
