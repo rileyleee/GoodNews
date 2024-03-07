@@ -8,10 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -31,6 +28,10 @@ public class Member extends BaseConnectEntity {
     private Double lat;
     private Double lon;
     private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "family_id")
+    private Family family;
 
     @LastModifiedDate
     private LocalDateTime locationTime;
@@ -97,5 +98,9 @@ public class Member extends BaseConnectEntity {
         this.lon = member.getLon();
         this.locationTime = LocalDateTime.now();
         this.lastConnection = LocalDateTime.now();
+    }
+
+    public void updateFamily(Family family){
+        this.family = family;
     }
 }
