@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.main.PreferencesUtil;
 import com.saveurlife.goodnews.service.LocationService;
@@ -36,7 +38,7 @@ public class SendMessageManager {
 
 
    private SendMessageManager(UUID serviceUUID, UUID characteristicUUID,
-                              UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
+                              @NonNull UserDeviceInfoService userDeviceInfoService, LocationService locationService, PreferencesUtil preferencesUtil, String myName) {
         this.serviceUUID = serviceUUID;
         this.characteristicUUID = characteristicUUID;
         this.userDeviceInfoService = userDeviceInfoService;

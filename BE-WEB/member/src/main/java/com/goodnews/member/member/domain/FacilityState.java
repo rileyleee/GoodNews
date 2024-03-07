@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 public class FacilityState extends BaseEntity {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     private Boolean buttonType;
     private String text;

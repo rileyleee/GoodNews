@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 public class MemberRegistFamilyResposneDto {
 
-    private String familyId;
+    private int familyId;
 
     @Builder
-    public MemberRegistFamilyResposneDto(String familyId) {
+    public MemberRegistFamilyResposneDto(int familyId) {
         this.familyId = familyId;
     }
 }

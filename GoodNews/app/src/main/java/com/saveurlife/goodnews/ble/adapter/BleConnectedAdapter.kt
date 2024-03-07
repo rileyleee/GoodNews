@@ -3,6 +3,7 @@ package com.saveurlife.goodnews.ble.adapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +40,8 @@ class BleConnectedAdapter(private val userList: List<BleMeshConnectedUser>) : Re
         holder.binding.aroundChatting.setOnClickListener {
             onChattingButtonClickListener?.onChattingButtonClick(user)
         }
+
+        holder.binding.requestMinimapButton.isVisible = user.lat!=0.0
 
         // 연결된 사람의 채팅하기 버튼을 눌렀을 때 미니맵 띄우기
         holder.binding.requestMinimapButton.setOnClickListener {

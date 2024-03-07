@@ -86,6 +86,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private boolean isOn=false;
+    private static BluetoothManager bluetoothManager;
     private BleNotification bleNotification;
 
     private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
@@ -97,7 +99,6 @@ public class BleService extends Service {
 
     private String nowChatRoomID = "";
     private PreferencesUtil preferencesUtil;
-    private int alter = 1;
     private final IBinder binder = new LocalBinder();
 
     public class LocalBinder extends Binder {
@@ -167,6 +168,8 @@ public class BleService extends Service {
     }
 
 
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -198,13 +201,8 @@ public class BleService extends Service {
         bleMeshConnectedDevicesMap = new HashMap<>();
 
 
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        mGattServer = bluetoothManager.openGattServer(this, mGattServerCallback);
+        bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 
-        BluetoothGattService service = new BluetoothGattService(SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PROPERTY_WRITE, BluetoothGattCharacteristic.PERMISSION_WRITE);
-        service.addCharacteristic(characteristic);
-        mGattServer.addService(service);
 
 
         sendMessageManager = SendMessageManager.getInstance(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
@@ -220,13 +218,68 @@ public class BleService extends Service {
     }
 
     // 블루투스 시작 버튼
-    public void startAdvertiseAndScanAndAuto() {
-        advertiseManager.startAdvertising();
-        scanManager.startScanning();
-        startAutoSendMessage();
+    public boolean startAdvertiseAndScanAndAuto() {
+        if(!isOn){
+            isOn=true;
+            mGattServer = bluetoothManager.openGattServer(this, mGattServerCallback);
 
-        familyMemProvider.updateAllFamilyMemIds();
-        familyMemIds = familyMemProvider.getAllFamilyMemIds();
+            BluetoothGattService service = new BluetoothGattService(SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
+            BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PROPERTY_WRITE, BluetoothGattCharacteristic.PERMISSION_WRITE);
+            service.addCharacteristic(characteristic);
+            mGattServer.addService(service);
+
+
+            advertiseManager.startAdvertising();
+            scanManager.startScanning();
+            startAutoSendMessage();
+
+            familyMemProvider.updateAllFamilyMemIds();
+            familyMemIds = familyMemProvider.getAllFamilyMemIds();
+        }
+        else{
+            isOn=false;
+            EndCommand();
+        }
+        return isOn;
+    }
+
+    public void EndCommand(){// 광고 중지 로직
+        advertiseManager.stopAdvertising();
+        scanManager.stopScanning();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+
+        // HandlerThread 종료
+        if (handlerThread != null) {
+            handlerThread.quitSafely();
+            handlerThread = null;
+        }
+
+        // BluetoothGattServer 연결 닫기
+        if (mGattServer != null) {
+            mGattServer.close();
+            mGattServer = null;
+        }
+
+        // 모든 BluetoothGatt 연결 닫기
+        for (BluetoothGatt gatt : deviceGattMap.values()) {
+            if (gatt != null) {
+                gatt.close();
+            }
+        }
+
+        deviceGattMap.clear();
+        EventBus.getDefault().unregister(this);
+
+        bluetoothDevices.clear();
+        deviceArrayList.clear();
+        deviceArrayListName.clear();
+        deviceArrayListNameLiveData.postValue(deviceArrayListName);
+        bleConnectedDevicesArrayList.clear();
+        bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
+        bleMeshConnectedDevicesMap.clear();
+        bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
     }
 
 
@@ -303,6 +356,7 @@ public class BleService extends Service {
             return;
         }
         BluetoothGatt bluetoothGatt = device.connectGatt(this, false, bleGattCallback, BluetoothDevice.TRANSPORT_AUTO, BluetoothDevice.PHY_LE_CODED);
+        Log.i("연결기기", bluetoothGatt.getDevice().getAddress());
         deviceGattMap.put(device.getAddress(), bluetoothGatt);
     }
 
@@ -383,15 +437,17 @@ public class BleService extends Service {
 
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-            Log.i("onConnectionStateChange", "onConnectionStateChange");
             super.onConnectionStateChange(device, status, newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i("연결성공", "누가 나한테 연결함");
+
                 String deviceAddress = device.getAddress();
                 if (!bleConnectedDevicesArrayList.contains(deviceAddress)) {
                     bleConnectedDevicesArrayList.add(deviceAddress);
                     bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
 
                     if (!deviceGattMap.containsKey(deviceAddress)) {
+                        disconnect(device);
                         connectToDevice(device);
                     } else {
                         // 기존 BluetoothGatt 객체 재사용
@@ -889,11 +945,7 @@ public class BleService extends Service {
         sendMessageManager.createGroupInviteMessage(deviceGattMap, membersId, groupId, groupName);
     }
 
-
     public void createDangerInfoMessage(String dangerInfo){
         sendMessageManager.createDangerInfoMessage(deviceGattMap, dangerInfo);
     }
-
-
-
 }

@@ -13,9 +13,9 @@ class FamilyMemInfo(): RealmObject {
     var state: String? = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
-    var familyId: String = ""
+    var familyId: Int = 0
 
-    constructor(id: String, name:String, phone: String, lastConnection:RealmInstant, state:String, latitude: Double, longitude: Double, familyId: String): this(){
+    constructor(id: String, name:String, phone: String, lastConnection:RealmInstant, state:String, latitude: Double, longitude: Double, familyId: Int): this(){
         this.id = id
         this.name = name
         this.phone = phone

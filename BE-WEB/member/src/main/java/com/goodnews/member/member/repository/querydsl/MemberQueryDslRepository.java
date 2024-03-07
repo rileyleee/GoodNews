@@ -29,7 +29,7 @@ public class MemberQueryDslRepository {
 
     }
 
-    public List<Member> findFamilyMemberList(String familyId, String memberId) {
+    public List<Member> findFamilyMemberList(int familyId, String memberId) {
 
         return  queryFactory
                 .select(member)
@@ -39,7 +39,6 @@ public class MemberQueryDslRepository {
                 .where(family.familyId.eq(familyId).and(familyMember.approve.eq(true))
                         .and(member.id.ne(memberId)))
                 .fetch();
-
     }
 
     public Optional<FamilyMember> findFamilyId(String memberId){
@@ -51,7 +50,7 @@ public class MemberQueryDslRepository {
 
 
 
-    public List<FamilyPlace> findALlFamilyPlace(String memberId) {
+    public List<FamilyPlace> findAllFamilyPlace(int familyId) {
 
         return queryFactory
                 .selectFrom(familyPlace)
@@ -59,7 +58,7 @@ public class MemberQueryDslRepository {
                 .on(familyPlace.family.familyId.eq(familyMember.family.familyId))
                 .innerJoin(family)
                 .on(family.familyId.eq(familyMember.family.familyId))
-                .where(familyMember.member.id.eq(memberId))
+                .where(familyMember.family.familyId.eq(familyId))
                 .fetch();
     }
 

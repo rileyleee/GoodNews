@@ -17,10 +17,10 @@ public class MemberInfoResponseDto {
     private String state;
     private Double lat;
     private Double lon;
-    private String familyId;
+    private int familyId;
 
     @Builder
-    public MemberInfoResponseDto(Member member,String familyId) {
+    public MemberInfoResponseDto(Member member, int familyId) {
         this.memberId = member.getId();
         this.phoneNumber = member.getPhoneNumber();
         this.name = member.getName();

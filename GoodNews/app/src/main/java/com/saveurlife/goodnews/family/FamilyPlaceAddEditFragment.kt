@@ -1,5 +1,6 @@
 package com.saveurlife.goodnews.family
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -10,6 +11,8 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -27,6 +30,7 @@ import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
 import com.saveurlife.goodnews.main.PreferencesUtil
+import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
@@ -52,29 +56,31 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         super.onCreate(savedInstanceState)
         arguments?.let {
             mode = it.getSerializable("mode") as Mode
-            seqNumber = it.getInt("seq")
-
-            when (mode) {
-                Mode.READ -> loadDataAndDisplay(seqNumber)
-                Mode.EDIT -> loadDataForEdit(seqNumber)
-                else -> {} // ADD 모드
-            }
         }
     }
 
     // 데이터 로드 및 표시 (READ 모드)
     private fun loadDataAndDisplay(seq: Int) {
-        seq.let {
-            val data = loadData(seq)
-            displayData(data)
-        }
-    }
+        val data = loadData(seq)
+        displayData(data)
 
-    // 데이터 로드 (EDIT 모드)
-    private fun loadDataForEdit(seq: Int?) {
-        seq?.let {
-            val data = loadData(it)
-            // 데이터를 편집할 수 있는 방식으로 UI 구성
+        // canUse 값을 사용해 토글 설정
+        if (data != null) {
+            binding.placeStatusSwitch.isChecked = data.canUse
+            // placeId 값이 있다면 토글 버튼에 설정
+            data.placeId.let { placeId ->
+                // 해당 placeId로 설정
+                binding.placeStatusSwitch.tag = placeId
+            }
+        }
+        if (data?.canUse == true) {
+            // 토글 버튼이 꺼진 상태 (안전 상태)
+            binding.dangerTextView.visibility = View.GONE
+            binding.safeTextView.visibility = View.VISIBLE
+        } else {
+            // 토글 버튼이 켜진 상태 (위험 상태)
+            binding.dangerTextView.visibility = View.VISIBLE
+            binding.safeTextView.visibility = View.GONE
         }
     }
 
@@ -103,15 +109,11 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     // 데이터 UI에 표시 (READ 모드)
     private fun displayData(data: FamilyPlace?) {
-        if (::binding.isInitialized) {
-            data?.let {
-                // 데이터 UI에 적용
-                binding.readModeNickname.text = it.name
-                binding.readModeAddress.text = it.address
-            }
-        } else {
-            // binding이 초기화되지 않은 경우에 대한 처리
-            Log.e("MyFragment", "Binding is not initialized.")
+        data?.let {
+            // 데이터 UI에 적용
+            Log.i("뭐지???", it.address)
+            binding.readModeNickname.text = it.name
+            binding.readModeAddress.text = it.address
         }
     }
 
@@ -142,35 +144,38 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             }
 
         // 토글버튼
-        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // 토글 버튼이 꺼진 상태 (안전 상태)
-                binding.dangerTextView.visibility = View.GONE
-                binding.safeTextView.visibility = View.VISIBLE
-            } else {
-                // 토글 버튼이 켜진 상태 (위험 상태)
-                binding.dangerTextView.visibility = View.VISIBLE
-                binding.safeTextView.visibility = View.GONE
-            }
-        }
+//        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
+//            if (isChecked) {
+//                // 토글 버튼이 꺼진 상태 (안전 상태)
+//                binding.dangerTextView.visibility = View.GONE
+//                binding.safeTextView.visibility = View.VISIBLE
+//            } else {
+//                // 토글 버튼이 켜진 상태 (위험 상태)
+//                binding.dangerTextView.visibility = View.VISIBLE
+//                binding.safeTextView.visibility = View.GONE
+//            }
+//        }
 
         val deviceStateService = DeviceStateService()
 
         // 등록 버튼 눌렀을 때
         binding.meetingPlaceAddSubmit.setOnClickListener {
-            // 닉네임 설정
+            val loadedData = loadData(seqNumber)
+
             val nickname = binding.meetingPlaceNickname.text.toString()
             tempFamilyPlace?.name = nickname
 
-            if (nickname.isEmpty()) {
-                Toast.makeText(context, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener // 함수 실행 중단
-            }
+//            if (nickname.isEmpty()) {
+//                Toast.makeText(context, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
+//                return@setOnClickListener // 함수 실행 중단
+//            }
 
-            if (tempFamilyPlace?.address.isNullOrEmpty() && tempFamilyPlace?.name.isNullOrEmpty()) {
-                Toast.makeText(context, "주소를 선택해주세요.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            // 기존 주소 설정
+//            tempFamilyPlace?.address = loadedData?.address ?: ""
+//            if (tempFamilyPlace?.address.isNullOrEmpty()) {
+//                Toast.makeText(context, "주소를 선택해주세요.", Toast.LENGTH_SHORT).show()
+//                return@setOnClickListener
+//            }
 
             // 모드에 따라 바뀜
             when (mode) {
@@ -180,10 +185,31 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
                     // EDIT 모드에 맞게 UI 업데이트
                     binding.meetingPlaceAddSubmit.text = "장소 수정"
+                    binding.meetingPlaceMapView.visibility = View.VISIBLE
                     binding.addEditContentWrap.visibility = View.VISIBLE
                     binding.readContentWrap.visibility = View.GONE
 
 
+                    // 기존 장소의 이름과 주소를 가져와 UI에 설정
+                    loadedData?.let { familyPlace ->
+                        binding.meetingPlaceNickname.setText(familyPlace.name)
+
+                        // 맵에 기존 위치 표시
+                        mapsFragment.setLocation(familyPlace.latitude, familyPlace.longitude)
+
+                        // AutocompleteSupportFragment에 기존 장소의 정보 설정
+                        val autocompleteFragment =
+                            childFragmentManager.findFragmentById(R.id.meetingPlaceAutocompleteFragment) as AutocompleteSupportFragment
+                        autocompleteFragment.setPlaceFields(
+                            listOf(
+                                Place.Field.ID,
+                                Place.Field.NAME,
+                                Place.Field.ADDRESS,
+                                Place.Field.LAT_LNG
+                            )
+                        )
+                        autocompleteFragment.setText(familyPlace.address) // 기존 주소 설정
+                    }
                 }
 
                 Mode.ADD -> {
@@ -208,7 +234,24 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
                 Mode.EDIT -> {
                     if(deviceStateService.isNetworkAvailable(requireContext())){
-                        updatePlace(seqNumber)
+                        // 사용자가 변경한 값들을 tempFamilyPlace에 업데이트
+                        tempFamilyPlace = FamilyPlace().apply {
+                            this.name = nickname
+                            if (address.isEmpty()) {
+                                address = loadedData?.address ?: ""
+                            }
+                            // 위도와 경도는 변경되지 않은 경우에만 이전 값으로 유지
+                            if (latitude == 0.0 && longitude == 0.0) {
+                                latitude = loadedData?.latitude ?: 0.0
+                                longitude = loadedData?.longitude ?: 0.0
+                            }
+                            // seq가 비어 있는 경우에만 이전 값으로 유지
+                            if (seq == 0) {
+                                seq = loadedData?.seq ?: 0
+                            }
+                        }
+
+                        updatePlace(loadedData?.placeId)
                         dismiss()
                     }else{
                         Toast.makeText(context, "인터넷 연결이 불안정합니다.", Toast.LENGTH_SHORT).show()
@@ -230,16 +273,26 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     }
 
     // 장소 정보 업데이트 (EDIT 모드)
-    private fun updatePlace(seq: Int?) {
-        val memberId = getMemberId()
+    private fun updatePlace(placeId: Int?) {
 
         //업데이트 로직 구현
-        seq.let {
-            tempFamilyPlace?.let { familyPlace ->
-//                familyAPI.getFamilyUpdatePlaceInfo(
+        // tempFamilyPlace가 null이 아닌 경우에만 API 요청을 보냄
+        tempFamilyPlace?.let { place ->
+            val idToUpdate = placeId ?: place.placeId // placeId가 null인 경우 place.placeId를 사용
+            // getFamilyUpdatePlaceInfo 함수 호출
+            familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, place.address, object : FamilyAPI.FamilyPlaceInfoCallback{
+                override fun onSuccess() {
+                    // 여러 FamilyPlace를 한 번에 업데이트하는 함수 호출
+                    val familyPlacesToUpdate = listOf(place) // 업데이트할 FamilyPlace 객체들을 리스트로 묶음
+                    updateFamilyPlacesToRealm(familyPlacesToUpdate)
+                    // 저장 뒤 업데이트 요청
+                    familyFragment.fetchAll()
+                }
 
-//                )
-            }
+                override fun onFailure(error: String) {
+                    Log.d("Family", "EDIT MODE failed: $error")
+                }
+            })
         }
 
     }
@@ -318,9 +371,49 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
         realm.close()
     }
 
+    // Realm에 업데이트하는 코드 (EDIT 모드)
+    private fun updateFamilyPlacesToRealm(familyPlaces: List<FamilyPlace>) {
+        // Realm 인스턴스 열기
+        val realm = Realm.open(GoodNewsApplication.realmConfiguration)
+        realm.writeBlocking {
+            // 리스트에 있는 각 FamilyPlace 객체를 업데이트
+            for (place in familyPlaces) {
+                // 기존 placeId로 해당 데이터를 찾음
+                val findPlace = realm.query<FamilyPlace>("placeId == $0", place.placeId).find().firstOrNull()
+                // 찾은 데이터가 없으면 다음 객체로 넘어감
+                if (findPlace == null) {
+                    Log.e("Realm Update", "해당 placeId의 데이터를 찾을 수 없습니다.")
+                    continue
+                }
+                // 찾은 데이터의 속성만 업데이트
+                findPlace.apply {
+                    this.name = place.name
+                    this.address = place.address
+                    this.latitude = place.latitude
+                    this.longitude = place.longitude
+                    this.seq = place.seq
+                }
+            }
+        }
+        realm.close()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // meetingPlaceNickname에서 엔터 입력했을 때, 키보드 숨기기
+        binding.meetingPlaceNickname.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                // 키보드 숨기기
+                val inputMethodManager = requireContext().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+                true
+            } else {
+                false
+            }
+        }
+
+        seqNumber = requireArguments().getInt("seq")
         mapsFragment = MapsFragment()
         childFragmentManager.beginTransaction().apply {
             add(R.id.meetingPlaceMapView, mapsFragment)
@@ -339,18 +432,16 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
             }
 
-            Mode.EDIT -> {
-                binding.meetingPlaceAddSubmit.text = "장소 수정"
-                binding.meetingPlaceMapView.visibility = View.VISIBLE
-                binding.addEditContentWrap.visibility = View.VISIBLE
-                binding.readContentWrap.visibility = View.GONE
-            }
-
-            else -> { // READ 모드
+            Mode.READ -> { // READ 모드
+                Log.e("seqnumber", seqNumber.toString())
                 binding.meetingPlaceAddSubmit.text = "수정하기"
                 binding.meetingPlaceMapView.visibility = View.GONE
                 binding.addEditContentWrap.visibility = View.GONE
                 binding.readContentWrap.visibility = View.VISIBLE
+                loadDataAndDisplay(seqNumber)
+            }
+
+            else -> {    // EDIT 모드?
             }
         }
 
@@ -384,6 +475,31 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 Log.i("AutocompleteError", "An error occurred: $status")
             }
         })
+
+        // 토글버튼 (장소 이용가능여부)
+        binding.placeStatusSwitch.setOnCheckedChangeListener { _, isChecked ->
+            // 토글 상태에 따라 가족 모임장소의 사용 여부를 수정하는 요청을 보냅니다.
+            val placeId = binding.placeStatusSwitch.tag as? Int ?: 0 // 토글 버튼에 설정된 placeId 가져오기
+            Log.e("placeId입니다!!!", placeId.toString())
+            if (isChecked) {
+                // 토글 버튼이 꺼진 상태 (안전 상태)
+                binding.dangerTextView.visibility = View.GONE
+                binding.safeTextView.visibility = View.VISIBLE
+            } else {
+                // 토글 버튼이 켜진 상태 (위험 상태)
+                binding.dangerTextView.visibility = View.VISIBLE
+                binding.safeTextView.visibility = View.GONE
+            }
+            if (placeId != 0) {
+                // placeId가 유효한 경우에만 요청을 보냅니다.
+                familyAPI.getFamilyUpdatePlaceCanUse(placeId, isChecked)
+                // 저장 뒤 업데이트 요청 (수정 필요)
+                familyFragment.fetchAll()
+            } else {
+                Log.e("API ERROR", "Invalid placeId")
+            }
+        }
+
     }
 
 }

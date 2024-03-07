@@ -4,6 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class FamilyPlaceCanuseDto {
-
+    private String registerUser;
     private boolean canuse;
 }

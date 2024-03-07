@@ -400,13 +400,13 @@ class DataSync (context: Context) {
         familyAPI.getFamilyPlaceInfo(phoneId, object : FamilyAPI.FamilyPlaceCallback {
             override fun onSuccess(result: ArrayList<PlaceInfo>) {
                 var cnt = 0
-                result.forEach {
+                result.forEach { placeInfo ->
                     // id로 찾았을 때 없으면 -> 그냥 추가
                     // 만약,시간이 같지 않다면 -> 추가
 
                     // 시간이 같다면 그냥 패스
                     val realm: Realm = Realm.open(GoodNewsApplication.realmConfiguration)
-                    var data = realm.query<FamilyPlace>("placeId == $0", it.placeId).first().find()
+                    var data = realm.query<FamilyPlace>("placeId == $0", placeInfo.placeId).first().find()
                     var findPlace:FamilyPlace? = data?.let {
                         FamilyPlace(
                             placeId = it.placeId,
@@ -423,16 +423,16 @@ class DataSync (context: Context) {
 
 
                     if(findPlace!= null){
-                        val serverUpdateTime = timeService.convertDateStrToLong(it.createdDate)
+                        val serverUpdateTime = timeService.convertDateStrToLong(placeInfo.createdDate)
                         var lastUpdateTime = timeService.realmInstantToLong(findPlace.lastUpdate)
 
                         if(serverUpdateTime != lastUpdateTime){
                             // 변경이 필요한 경우
                             familyAPI.getFamilyPlaceInfoDetail(
-                                it.placeId,
+                                placeInfo.placeId,
                                 object : FamilyAPI.FamilyPlaceDetailCallback {
                                     override fun onSuccess(result2: PlaceDetailInfo) {
-                                        familyPlaceList.add(it)
+                                        familyPlaceList.add(placeInfo)
                                         familyPlaceInfoList.add(result2)
                                         cnt++
 
@@ -460,9 +460,10 @@ class DataSync (context: Context) {
                                         }
 
                                         if(alertCheck){
+                                            var tempTime = newTime.minus(TimeUnit.HOURS.toMillis(9))
                                             alertList.add(
                                                 Alert(
-                                                    id = "P${findPlace.seq}/${timeService.convertLongToStr(newTime)}",
+                                                    id = "P${findPlace.seq}/${timeService.convertLongToStr(tempTime)}",
                                                     senderId = "",
                                                     name = result2.registerUser,
                                                     content = alertMsg,
@@ -491,12 +492,27 @@ class DataSync (context: Context) {
                     }else{
                         // 새로 등록하는 경우
                         familyAPI.getFamilyPlaceInfoDetail(
-                            it.placeId,
+                            placeInfo.placeId,
                             object : FamilyAPI.FamilyPlaceDetailCallback {
                                 override fun onSuccess(result2: PlaceDetailInfo) {
-                                    newFamilyPlaceList.add(it)
+                                    newFamilyPlaceList.add(placeInfo)
                                     newFamilyPlaceInfoList.add(result2)
                                     cnt++
+                                    var tempTime = newTime.minus(TimeUnit.HOURS.toMillis(9))
+
+                                    alertList.add(
+                                        Alert(
+                                            id = "P${placeInfo.seq}/${timeService.convertLongToStr(tempTime)}",
+                                            senderId = "",
+                                            name = result2.registerUser,
+                                            content = result2.name,
+                                            latitude = 0.0,
+                                            longitude = 0.0,
+                                            time = timeService.convertLongToRealmInstant(newTime),
+                                            type = "추가"
+                                        )
+                                    )
+
                                     if(cnt == result.size){
                                         saveFamilyPlace(familyPlaceUpdated)
                                         alertSaveFlag += 1

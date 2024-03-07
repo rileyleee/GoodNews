@@ -18,7 +18,7 @@ public class FamilyController {
 
     private final FamilyService familyService;
 
-    @Operation(summary = "가족 신청 요청", description = "가족 신청 요청하기 familyId는 상대방 전화번호")
+    @Operation(summary = "가족 신청 요청", description = "내 기기 ID와 상대방 전화 번호 입력, return : FamilyId")
     @PostMapping("/registfamily")
     private BaseResponseDto registFamily(@RequestBody MemberRegistFamilyRequestDto memberRegistFamilyRequestDto) {
 
@@ -26,26 +26,26 @@ public class FamilyController {
     }
 
 
-    @Operation(summary = "가족 신청 수락 및 거절", description = "가족 신청 수락 approve 수정 거절 시 삭제 refuse: false or true")
+    @Operation(summary = "가족 신청 수락 및 거절", description = "가족 신청 수락, family_member 등록 번호, refuse: false/true")
     @PutMapping("/acceptfamily")
     private BaseResponseDto updateRegistFamily(@RequestBody FamilyRegistRequestDto familyRegistRequestDto) {
 
         return familyService.updateFamilyMember(familyRegistRequestDto);
     }
 
-    @Operation(summary = "가족 구성원 조회", description = "가족 구성원 정보(전화번호,가족id,수락상태,상태,마지막 연결 시각), familyId 조회")
+    @Operation(summary = "가족 구성원 조회", description = "memberId 요청, 가족 구성원 정보 조회(이름, 전화번호, 가족id, 건강 상태, 마지막 연결 시각, 가족 id)")
     @PostMapping("/familyinfo")
     private BaseResponseDto getFamilyMemberInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         return familyService.getFamilyMemberInfo(memberFirstLoginRequestDto.getMemberId());
     }
 
-    @Operation(summary = "가족 모임 장소 등록", description = "가족 모임 장소(장소명,경도,위도) 등록")
+    @Operation(summary = "가족 모임 장소 등록", description = "가족 모임 장소(장소명,경도,위도,우선순위,주소,등록인) 등록")
     @PostMapping("/registplace")
     private BaseResponseDto registFamilyPlace(@RequestBody FamilyRegistPlaceRequestDto familyRegistPlaceRequestDto) {
         return familyService.registFamilyPlace(familyRegistPlaceRequestDto);
     }
 
-    @Operation(summary = "가족 모임장소 조회", description = "가족 모임장소 정보(장소id,명칭,사용가능여부,순서(1,2,3)) 조회")
+    @Operation(summary = "가족 모임장소 조회", description = "가족 모임장소 정보(장소id,명칭,사용가능여부,순서(1,2,3), 변경일 (yyyy-MM-ddTHH:mm:ss)) 조회")
     @PostMapping("/allplaceinfo")
     private BaseResponseDto getFamilyPlaceInfo(@RequestBody MemberFirstLoginRequestDto memberFirstLoginRequestDto) {
         return familyService.getFamilyPlaceInfo(memberFirstLoginRequestDto.getMemberId());
@@ -57,7 +57,7 @@ public class FamilyController {
         return familyService.getFamilyPlaceInfoDetail(familyPlaceRequestDto.getPlaceId());
     }
 
-    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도) 수정")
+    @Operation(summary = "가족 모임장소 수정", description = "가족 모임장소 수정(명칭,경도,위도,주소,등록인) 수정")
     @PutMapping("/placeinfo/{placeId}")
     private BaseResponseDto getFamilyUpdatePlaceInfo(@PathVariable int placeId,@RequestBody FamilyPlaceUpdateRequestDto familyPlaceUpdateRequestDto) {
         return familyService.getFamilyPlaceInfoUpdate(placeId,familyPlaceUpdateRequestDto);

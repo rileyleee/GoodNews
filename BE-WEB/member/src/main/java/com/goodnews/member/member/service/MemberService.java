@@ -16,9 +16,9 @@ import com.goodnews.member.common.exception.validator.MemberValidator;
 import com.goodnews.member.common.exception.validator.TokenValidator;
 import com.goodnews.member.jwt.JwtTokenProvider;
 import com.goodnews.member.member.domain.Member;
+import com.goodnews.member.member.repository.FamilyMemberRepository;
 import com.goodnews.member.member.repository.LocalPopulationRepository;
 import com.goodnews.member.member.repository.MemberRepository;
-import com.goodnews.member.member.repository.querydsl.MemberQueryDslRepository;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
-    private final MemberQueryDslRepository memberQueryDslRepository;
+    private final FamilyMemberRepository familyMemberRepository;
     private final MemberRepository memberRepository;
     private final TokenValidator tokenValidator;
     private final MemberValidator memberValidator;
@@ -120,14 +120,14 @@ public class MemberService {
     public BaseResponseDto getMemberInfo(String memberId) {
         Optional<Member> findMember = memberRepository.findById(memberId);
         memberValidator.checkMember(findMember, memberId);
-        Optional<FamilyMember> findFamily = memberQueryDslRepository.findFamilyId(memberId);
+        Optional<FamilyMember> findFamily = familyMemberRepository.findByMemberIdAndApproveIsTrue(memberId);
         if (findFamily.isEmpty()) {
             return BaseResponseDto.builder()
                     .success(true)
                     .message("회원 정보 조회를 성공했습니다")
                     .data(MemberInfoResponseDto.builder()
                             .member(findMember.get())
-                            .familyId(null)
+                            .familyId(0)
                             .build()
                     ).build();
         }
