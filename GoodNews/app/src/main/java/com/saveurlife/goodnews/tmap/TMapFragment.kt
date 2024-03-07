@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.saveurlife.goodnews.BuildConfig.T_MAP_API_KEY
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.databinding.FragmentTMapBinding
+import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.skt.tmap.TMapGpsManager
 import com.skt.tmap.TMapPoint
@@ -111,7 +112,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
         //gps
         application = requireActivity().application as GoodNewsApplication
-        gps = GoodNewsApplication.gps
+        gps = MainActivity.gps
 //        gps = TMapGpsManager(requireContext())
         gps.minTime = 1000 //위치 인식 변경 최소 시간 - 0.5초
         gps.minDistance = 0.01f //위치 인식 변경 인식 최소 거리 - 0.01 미터

@@ -31,31 +31,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStreamReader
 
-class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks, TMapGpsManager.OnLocationChangedListener {
-
-    private var first: Boolean = true
+class GoodNewsApplication : Application(), Application.ActivityLifecycleCallbacks {
 
     companion object {
 //        lateinit var userDeviceInfoService: UserDeviceInfoService
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
         var isInitialized = false
-        lateinit var gps: TMapGpsManager
     }
 
     var isInBackground = true
 
-
     override fun onCreate() {
-
-        gps = TMapGpsManager(applicationContext)
-        gps.minTime = 1000 //위치 인식 변경 최소 시간 - 0.5초
-        gps.minDistance = 0.01f //위치 인식 변경 인식 최소 거리 - 0.01 미터
-        gps.provider = TMapGpsManager.PROVIDER_GPS //위성기반의 위치탐색
-        gps.openGps()
-        gps.provider = TMapGpsManager.PROVIDER_NETWORK //네트워크 기반의 위치탐색
-        gps.openGps()
-
         var userDeviceInfoService = UserDeviceInfoService.getInstance(applicationContext)
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
@@ -243,30 +230,5 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
 
     override fun onActivityDestroyed(activity: Activity) {
 
-    }
-
-    override fun onLocationChange(location: Location) {
-        val tMapLa = preferences.getString("tMapLat", "-1")
-        val tMapLo = preferences.getString("tMapLon", "-1")
-//        val tMapLa = preferences.getDouble("tMapLat", -1.0)
-//        val tMapLo = preferences.getDouble("tMapLon", -1.0)
-        Log.i("어디로 들어오는지 체크","onLocationChange로 들어옴")
-        if(tMapLa == "-1" && tMapLo == "-1"){
-            Log.i("어디로 들어오는지 체크","key가 없음")
-            if(first) {
-                Log.i("어디로 들어오는지 체크","아예 처음")
-                preferences.setDouble("tMapLat", location.latitude)
-                preferences.setDouble("tMapLon", location.longitude)
-                first = false
-            }
-        }else{
-            Log.i("어디로 들어오는지 체크","있고 변경된 값 저장")
-            val editor = preferences.preferences.edit()
-            editor.putString("tMapLat", location.latitude.toString())
-            editor.putString("tMapLon", location.longitude.toString())
-            editor.apply()
-//            preferences.setDouble("tMapLat", location.latitude)
-//            preferences.setDouble("tMapLon", location.longitude)
-        }
     }
 }
