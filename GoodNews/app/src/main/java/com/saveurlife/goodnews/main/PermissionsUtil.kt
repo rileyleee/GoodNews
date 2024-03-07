@@ -51,31 +51,6 @@ class PermissionsUtil(private val activity: Activity) {
     // 앱 사용 위한 권한 요청(백그라운드 위치 정보 액세스 권한은 별도로 처리)
     fun requestAllPermissions() {
 
-//        allPermissions = mutableListOf(
-//            android.Manifest.permission.ACCESS_FINE_LOCATION,
-//            android.Manifest.permission.ACCESS_COARSE_LOCATION,
-//            android.Manifest.permission.READ_PHONE_STATE,
-//            android.Manifest.permission.READ_SMS,
-//            android.Manifest.permission.READ_PHONE_NUMBERS
-//        )
-//
-//        // 안드로이드 12 스노우콘 (API 레벨 31)부터 명시적 권한 요청 필요
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            allPermissions.add(android.Manifest.permission.BLUETOOTH_SCAN)
-//            allPermissions.add(android.Manifest.permission.BLUETOOTH_CONNECT)
-//            allPermissions.add(android.Manifest.permission.BLUETOOTH_ADMIN)
-//            allPermissions.add(android.Manifest.permission.BLUETOOTH_ADVERTISE)
-//
-//        }
-//        // 안드로이드 13 티라미수 (API 레벨 33)부터 명시적 권한 요청 필요
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            allPermissions.add(android.Manifest.permission.NEARBY_WIFI_DEVICES)
-//        }
-//
-//        val permissionsToRequest = allPermissions.filter {
-//            ContextCompat.checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
-//        }
-
         // 권한 리스트화 하기
         listingPermissions()
 
@@ -103,7 +78,7 @@ class PermissionsUtil(private val activity: Activity) {
 
     fun permissionDialog(activity: Activity) {
         var builder = AlertDialog.Builder(activity)
-        builder.setTitle("백그라운드 위치 권한을 위해 항상 허용으로 설정해주세요")
+        builder.setTitle("위험 시 활용할 수 있도록 백그라운드 위치 권한을 항상 허용으로 설정해주세요")
 
         var listener = DialogInterface.OnClickListener { _, p1 ->
             when (p1) {
