@@ -73,6 +73,15 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 binding.placeStatusSwitch.tag = placeId
             }
         }
+        if (data?.canUse == true) {
+            // 토글 버튼이 꺼진 상태 (안전 상태)
+            binding.dangerTextView.visibility = View.GONE
+            binding.safeTextView.visibility = View.VISIBLE
+        } else {
+            // 토글 버튼이 켜진 상태 (위험 상태)
+            binding.dangerTextView.visibility = View.VISIBLE
+            binding.safeTextView.visibility = View.GONE
+        }
     }
 
     // Realm에서 데이터 로드 (seq에 맞는 데이터)
@@ -484,6 +493,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             if (placeId != 0) {
                 // placeId가 유효한 경우에만 요청을 보냅니다.
                 familyAPI.getFamilyUpdatePlaceCanUse(placeId, isChecked)
+                // 저장 뒤 업데이트 요청 (수정 필요)
+                familyFragment.fetchAll()
             } else {
                 Log.e("API ERROR", "Invalid placeId")
             }
