@@ -757,6 +757,12 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 )
                 Log.i("setCenter", "지도 중심 좌표 재 설정")
                 mapView.controller.setZoom(13.0)
+
+                // 화면 경계 재설정 및 시설 좌표 렌더링
+                screenRect = mapView.boundingBox
+                Log.v("screenRect", "$screenRect")
+                handleSelectedCategory(selectedCategory)
+
                 mapView.invalidate()
             }
         }
