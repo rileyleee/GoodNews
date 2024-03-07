@@ -129,8 +129,8 @@ class FamilyListAdapter(private val listener: OnItemClickListener ) :
     }
 
     fun addFamilyWait(name:String, acceptNumber:Int){
-        familyList.add(FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
-        notifyItemInserted(familyList.size)
+        familyList.add(0, FamilyData(name,Status.NOT_SHOWN,"" ,FamilyType.WAIT, acceptNumber))
+        notifyItemInserted(0)
     }
     fun addFamilyInfo(name:String, status: Status, lastAccessTime: String){
         familyList.add(FamilyData(name, status, lastAccessTime, FamilyType.ACCEPT))
