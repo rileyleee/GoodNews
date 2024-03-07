@@ -43,8 +43,8 @@ class FamilyAddFragment(private var familyFragment: FamilyFragment) : DialogFrag
 
             // 신청 요청
             var result = familyAPI.registFamily(memberId, FamilyFragment.familyEditText.text.toString() , object : FamilyAPI.FamilyRegistrationCallback {
-                override fun onSuccess(result: String) {
-                    Log.d("Family", result)
+                override fun onSuccess(result: Int) {
+                    Log.d("Family", result.toString())
                     dismiss()
                 }
 

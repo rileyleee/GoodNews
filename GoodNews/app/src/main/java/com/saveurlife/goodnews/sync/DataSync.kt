@@ -47,7 +47,7 @@ class DataSync (context: Context) {
     private val familyAPI: FamilyAPI = FamilyAPI()
     private val memberAPI: MemberAPI = MemberAPI()
 
-    private val newTime = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(9) // 글자 상으로 대한민국 날짜 들어갈 것임
+    private var newTime by Delegates.notNull<Long>()
     private val timeService = TimeService();
 
     private lateinit var familyPlaceList:MutableList<PlaceInfo>
@@ -71,6 +71,7 @@ class DataSync (context: Context) {
 
     fun init(){
         alertList = mutableListOf()
+        newTime = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(9) // 글자 상으로 대한민국 날짜 들어갈 것임
 
         familyPlaceList = mutableListOf()
         familyPlaceInfoList = mutableListOf()
