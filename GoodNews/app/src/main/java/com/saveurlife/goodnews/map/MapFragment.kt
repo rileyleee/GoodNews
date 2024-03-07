@@ -109,7 +109,7 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
     private val provider: String = "Mapnik"
 
     // 지도 파일 변경 시 수정2 (Mapnik: OSM에서 가져온 거 또는 4uMaps: MOBAC에서 가져온 거 // => sqlite 파일의 provider 값)
-    private val minZoom: Int = 7
+    private val minZoom: Int = 9
     private val localMaxZoom = 15
     private val serverMaxZoom = 18
     private val pixel: Int = 256
