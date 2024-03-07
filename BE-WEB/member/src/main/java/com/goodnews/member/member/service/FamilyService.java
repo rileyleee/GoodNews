@@ -302,7 +302,7 @@ public class FamilyService {
         List<FamilyMember> findFamilyMember = familyMemberRepository.findByMemberIdAndApproveIsFalse(memberFirstLoginRequestDto.getMemberId());
 
         for (FamilyMember familyMember : findFamilyMember) {
-            Optional<Member> findMember = memberRepository.findById(familyMember.getMember().getId());
+            Optional<Member> findMember = memberRepository.findById(familyMember.getSendMember());
 
             findMember.ifPresent(member -> {
                 // 여기서 FamilyInviteResponseDto를 생성하고 필요한 정보를 설정한다.
