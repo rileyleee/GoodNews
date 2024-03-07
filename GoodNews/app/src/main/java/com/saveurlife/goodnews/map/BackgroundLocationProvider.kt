@@ -19,7 +19,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.LoadingActivity
 import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -95,9 +94,6 @@ class BackgroundLocationProvider(private val context: Context) {
 
         // 위치 업데이트 요청 시작(실시간 위치 수신)
         if (ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
                 context,
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED

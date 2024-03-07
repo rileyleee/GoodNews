@@ -45,7 +45,8 @@
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="true" /> <!-- 포어그라운드 서비스 권한 -->
+        android:required="true" />
+    <!-- 포어그라운드 서비스 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 외부 저장소에 쓰고 읽기 권한 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -90,6 +91,15 @@
             android:enabled="true"
             android:exported="true" />
         <service android:name=".ble.service.BleService" />
+        <service
+            android:name=".map.LocationProvider"
+            android:foregroundServiceType="location"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".map.BackgroundLocationProvider"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity
             android:name=".chatting.ChattingDetailActivity"
