@@ -10,7 +10,6 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -20,7 +19,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.saveurlife.goodnews.GoodNewsApplication
-import com.saveurlife.goodnews.LoadingActivity
 import com.saveurlife.goodnews.authority.AuthorityActivity
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.UserDeviceInfoService
@@ -39,7 +37,6 @@ class BackgroundLocationProvider(private val context: Context) {
     private val memberId = userDeviceInfoService.deviceId
     private var currentTime by Delegates.notNull<Long>()
     private val emergencyAlarmProvider = EmergencyAlarmProvider(context)
-    var loadingActivity = LoadingActivity()
 
 
     interface LocationUpdateListener {
@@ -98,9 +95,6 @@ class BackgroundLocationProvider(private val context: Context) {
         // 위치 업데이트 요청 시작(실시간 위치 수신)
         if (ContextCompat.checkSelfPermission(
                 context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                context,
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
@@ -145,12 +139,12 @@ class BackgroundLocationProvider(private val context: Context) {
                         member.latitude = location.latitude
                         member.longitude = location.longitude
                         member.lastUpdate = latestUpdate
-                        Log.d("LocationProvider", "위치 정보 realm에 업데이트 완료")
+                        Log.d("BackgroundLocationProvider", "위치 정보 realm에 업데이트 완료")
                     }
                 }
             } catch (e: Exception) {
                 // 예외 처리
-                Log.e("LocationProvider", "위치 정보 업데이트 중 오류 발생", e)
+                Log.e("BackgroundLocationProvider", "위치 정보 업데이트 중 오류 발생", e)
             } finally {
                 // 작업 완료 후 Realm 인스턴스 닫기
                 realm.close()
@@ -162,7 +156,7 @@ class BackgroundLocationProvider(private val context: Context) {
     private fun onLocationUpdated(location: Location) {
 
         // 로그에 위치 정보 기록
-        Log.d("LocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
+        Log.d("BackgroundLocationUpdate", "위치 업데이트: Lat=${location.latitude}, Lon=${location.longitude}")
 
         // 사용자의 위치에 따른 위험 정보 근접 알림
         emergencyAlarmProvider.getAlarmInfo()
@@ -182,7 +176,7 @@ class BackgroundLocationProvider(private val context: Context) {
         }
     }
 
-    // MapFragment와 공유하기 위한 클래스 간 통신
+    // MainActivity 공유하기 위한 클래스 간 통신
     fun setLocationUpdateListener(listener: LocationUpdateListener) {
         this.locationUpdateListener = listener
     }

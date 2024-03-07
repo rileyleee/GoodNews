@@ -73,6 +73,8 @@ class ChattingDetailAdapter(private var messages: List<ChatMessage>, private val
             if (chatMessage.senderId != chatMessage.chatRoomId) {
                 binding.chatDetailContext.backgroundTintList =
                     ContextCompat.getColorStateList(binding.chatDetailContext.context, R.color.chatting)
+                // chatDetailContext의 텍스트 색상을 변경
+                binding.chatDetailContext.setTextColor(ContextCompat.getColor(binding.chatDetailContext.context, R.color.all_black))
                 layoutParams.endToEnd = R.id.chatDetailGuideEnd
                 layoutParams.startToStart = ConstraintLayout.LayoutParams.UNSET
                 binding.chatDetailContext.layoutParams = layoutParams
@@ -84,7 +86,7 @@ class ChattingDetailAdapter(private var messages: List<ChatMessage>, private val
                 binding.chatDetailName.visibility = View.GONE
             } else {
                 binding.chatDetailContext.backgroundTintList =
-                    ContextCompat.getColorStateList(binding.chatDetailContext.context, R.color.white)
+                    ContextCompat.getColorStateList(binding.chatDetailContext.context, R.color.other_chat)
                 layoutParams.startToStart = R.id.chatDetailGuide
                 layoutParams.endToEnd = ConstraintLayout.LayoutParams.UNSET
                 binding.chatDetailContext.layoutParams = layoutParams

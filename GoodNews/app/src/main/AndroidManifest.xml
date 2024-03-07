@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- 인터넷, 네트워크, 와이파이 관련 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -12,13 +13,20 @@
 
     <uses-feature
         android:name="android.hardware.wifi.direct"
-        android:required="true" /> <!-- (포어그라운드) 지도에 사용자의 위치를 표시하거나 사용자의 위치 정보를 얻기 위해 필요함: 위험권한 -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 네트워크 이용 -->
+        android:required="true" />
+
+    <!-- (포어그라운드) 지도에 사용자의 위치를 표시하거나 사용자의 위치 정보를 얻기 위해 필요함: 위험권한 -->
+    <!-- 네트워크 이용 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- GPS 이용 -->
     <uses-permission
         android:name="android.permission.ACCESS_FINE_LOCATION"
-        tools:ignore="CoarseFineLocation" /> <!-- GPS 이용 -->
+        tools:ignore="CoarseFineLocation" />
+
     <!-- (백그라운드) 안드로이드 10 (API 레벨 29) 이상에서 필요한 백그라운드 위치 정보 접근 권한 -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- 기기정보 확인 위한 권한 -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- 기기정보 확인 위한 권한 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
@@ -37,12 +45,16 @@
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="true" /> <!-- 포어그라운드 서비스 권한 -->
+        android:required="true" />
+    <!-- 포어그라운드 서비스 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 외부 저장소에 쓰고 읽기 권한 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> <!-- 배터리 최적화 끄기 -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+<!-- 주기적인 삭제 작업(alarm Manager) 사용을 위한 것-->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".GoodNewsApplication"
@@ -50,11 +62,12 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="희소식"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GoodNews"
-        tools:targetApi="31">
+        tools:targetApi="31"
+        tools:replace="android:allowBackup">
         <activity
             android:name=".authority.AuthorityActivity"
             android:exported="false" />
@@ -78,13 +91,22 @@
             android:enabled="true"
             android:exported="true" />
         <service android:name=".ble.service.BleService" />
+        <service
+            android:name=".map.LocationProvider"
+            android:foregroundServiceType="location"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".map.BackgroundLocationProvider"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity
             android:name=".chatting.ChattingDetailActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".alarm.AlarmActivity"
+            android:name=".alert.AlertActivity"
             android:exported="false" />
         <activity
             android:name=".LoadingActivity"
@@ -129,12 +151,11 @@
         </provider>
 
         <receiver
-            android:name=".sync.deleteOldDataReciver"
+            android:name=".batch.DeleteOldDataReceiver"
             android:directBootAware="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 

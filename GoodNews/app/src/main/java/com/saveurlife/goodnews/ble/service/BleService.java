@@ -23,12 +23,20 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -40,6 +48,8 @@ import androidx.lifecycle.Observer;
 
 import com.saveurlife.goodnews.GoodNewsApplication;
 import com.saveurlife.goodnews.R;
+import com.saveurlife.goodnews.alert.AlertDatabaseManager;
+import com.saveurlife.goodnews.alert.AlertRepository;
 import com.saveurlife.goodnews.ble.BleMeshConnectedUser;
 import com.saveurlife.goodnews.ble.ChatRepository;
 import com.saveurlife.goodnews.ble.CurrentActivityEvent;
@@ -66,14 +76,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BleService extends Service {
+    private boolean isOn=false;
+    private static BluetoothManager bluetoothManager;
     private BleNotification bleNotification;
 
     private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
@@ -85,7 +99,6 @@ public class BleService extends Service {
 
     private String nowChatRoomID = "";
     private PreferencesUtil preferencesUtil;
-    private int alter = 1;
     private final IBinder binder = new LocalBinder();
 
     public class LocalBinder extends Binder {
@@ -136,6 +149,11 @@ public class BleService extends Service {
     private Handler handler;
     private static final int INTERVAL = 10000; // 30 seconds
 
+    //구조요청
+    private AlertDatabaseManager alertDatabaseManager = new AlertDatabaseManager();
+    private AlertRepository alertRepository = new AlertRepository(alertDatabaseManager);
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -148,6 +166,8 @@ public class BleService extends Service {
         }
         return START_STICKY;
     }
+
+
 
 
     @Override
@@ -181,13 +201,8 @@ public class BleService extends Service {
         bleMeshConnectedDevicesMap = new HashMap<>();
 
 
-        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        mGattServer = bluetoothManager.openGattServer(this, mGattServerCallback);
+        bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
 
-        BluetoothGattService service = new BluetoothGattService(SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PROPERTY_WRITE, BluetoothGattCharacteristic.PERMISSION_WRITE);
-        service.addCharacteristic(characteristic);
-        mGattServer.addService(service);
 
 
         sendMessageManager = SendMessageManager.getInstance(SERVICE_UUID, CHARACTERISTIC_UUID, userDeviceInfoService, locationService, preferencesUtil, myName);
@@ -203,13 +218,68 @@ public class BleService extends Service {
     }
 
     // 블루투스 시작 버튼
-    public void startAdvertiseAndScanAndAuto() {
-        advertiseManager.startAdvertising();
-        scanManager.startScanning();
-        startAutoSendMessage();
+    public boolean startAdvertiseAndScanAndAuto() {
+        if(!isOn){
+            isOn=true;
+            mGattServer = bluetoothManager.openGattServer(this, mGattServerCallback);
 
-        familyMemProvider.updateAllFamilyMemIds();
-        familyMemIds = familyMemProvider.getAllFamilyMemIds();
+            BluetoothGattService service = new BluetoothGattService(SERVICE_UUID, BluetoothGattService.SERVICE_TYPE_PRIMARY);
+            BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(CHARACTERISTIC_UUID, BluetoothGattCharacteristic.PROPERTY_WRITE, BluetoothGattCharacteristic.PERMISSION_WRITE);
+            service.addCharacteristic(characteristic);
+            mGattServer.addService(service);
+
+
+            advertiseManager.startAdvertising();
+            scanManager.startScanning();
+            startAutoSendMessage();
+
+            familyMemProvider.updateAllFamilyMemIds();
+            familyMemIds = familyMemProvider.getAllFamilyMemIds();
+        }
+        else{
+            isOn=false;
+            EndCommand();
+        }
+        return isOn;
+    }
+
+    public void EndCommand(){// 광고 중지 로직
+        advertiseManager.stopAdvertising();
+        scanManager.stopScanning();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
+
+        // HandlerThread 종료
+        if (handlerThread != null) {
+            handlerThread.quitSafely();
+            handlerThread = null;
+        }
+
+        // BluetoothGattServer 연결 닫기
+        if (mGattServer != null) {
+            mGattServer.close();
+            mGattServer = null;
+        }
+
+        // 모든 BluetoothGatt 연결 닫기
+        for (BluetoothGatt gatt : deviceGattMap.values()) {
+            if (gatt != null) {
+                gatt.close();
+            }
+        }
+
+        deviceGattMap.clear();
+        EventBus.getDefault().unregister(this);
+
+        bluetoothDevices.clear();
+        deviceArrayList.clear();
+        deviceArrayListName.clear();
+        deviceArrayListNameLiveData.postValue(deviceArrayListName);
+        bleConnectedDevicesArrayList.clear();
+        bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
+        bleMeshConnectedDevicesMap.clear();
+        bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
     }
 
 
@@ -286,6 +356,7 @@ public class BleService extends Service {
             return;
         }
         BluetoothGatt bluetoothGatt = device.connectGatt(this, false, bleGattCallback, BluetoothDevice.TRANSPORT_AUTO, BluetoothDevice.PHY_LE_CODED);
+        Log.i("연결기기", bluetoothGatt.getDevice().getAddress());
         deviceGattMap.put(device.getAddress(), bluetoothGatt);
     }
 
@@ -366,15 +437,17 @@ public class BleService extends Service {
 
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
-            Log.i("onConnectionStateChange", "onConnectionStateChange");
             super.onConnectionStateChange(device, status, newState);
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i("연결성공", "누가 나한테 연결함");
+
                 String deviceAddress = device.getAddress();
                 if (!bleConnectedDevicesArrayList.contains(deviceAddress)) {
                     bleConnectedDevicesArrayList.add(deviceAddress);
                     bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
 
                     if (!deviceGattMap.containsKey(deviceAddress)) {
+                        disconnect(device);
                         connectToDevice(device);
                     } else {
                         // 기존 BluetoothGatt 객체 재사용
@@ -403,6 +476,22 @@ public class BleService extends Service {
                         // 여기서 가족 연결 끊어짐 알람
                         Log.i("가족 연결 끊어짐 알람", removedUserId);
                         bleNotification.foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+
+                        // 각 키에 해당하는 값을 가져옴
+                        String valueString = removedUsers.get(removedUserId).toString();
+
+                        String[] values = valueString.split("/");
+//                        43847dbf130eae8a/나여니20/240220225449/4/0.0/0.0
+
+                        String name = values[1];
+                        String status1 = values[3];
+                        Double latitude = Double.valueOf(values[4]);
+                        Double longitude = Double.valueOf(values[5]);
+                        String time = values[2];
+                        String type = "가족끊김";
+
+                        //직접 연결
+                        alertRepository.addFamilyAlert(removedUserId, name, status1, latitude, longitude, time, type);
                     }
                 }
                 bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
@@ -465,6 +554,23 @@ public class BleService extends Service {
                                 // 여기서 가족 연결 알람
                                 Log.i("가족 연결 알람", data[1]);
                                 bleNotification.foresendFamilyNotification(data[1], true);
+                                Log.i("가족 연결 알람 - 직접", data[1]);
+
+//                                data 형식임
+//                                [43847dbf130eae8a, 나여니20, 240220223837, 4, 0.0, 0.0]
+//                                parts 형식
+//                                [init, 43847dbf130eae8a, 1, 1, 43847dbf130eae8a-나여니20-240220224140-4-0.0-0.0]
+
+
+                                String name = data[1];
+                                String status = data[3];
+                                Double latitude = Double.valueOf(data[4]);
+                                Double longitude = Double.valueOf(data[5]);
+                                String time = parts[3];
+                                String type = "가족";
+
+                                //직접 연결
+                                alertRepository.addFamilyAlert(senderId, name, status, latitude, longitude, time, type);
                             }
                         }
 
@@ -504,6 +610,17 @@ public class BleService extends Service {
                 }
                 else if (messageType.equals("help")) {
                     GoodNewsApplication goodNewsApplication = (GoodNewsApplication) getApplicationContext();
+
+                    String name = parts[2];
+                    String content = "상태";
+                    Double latitude = 1.0;
+                    Double longitude = 1.0;
+                    String time = parts[3];
+                    String type = "구조";
+
+                    alertRepository.addSaveAlert(senderId, name, content, latitude, longitude, time, type);
+
+
                     if (!goodNewsApplication.isInBackground()) {
                         bleNotification.foresendNotification(parts);
                     } else {
@@ -591,6 +708,18 @@ public class BleService extends Service {
                             // 여기서 가족 연결 끊어짐 알람
                             Log.i("가족 연결 끊어짐 알람", removedUserId);
                             bleNotification.foresendFamilyNotification(removedUsers.get(removedUserId).getUserName(), false);
+
+                            Log.i("parts", Arrays.toString(parts));
+
+                            String name = parts[2];
+                            String status = "상태";
+                            Double latitude = 1.0;
+                            Double longitude = 1.0;
+                            String time = parts[3];
+                            String type = "가족끊김";
+
+                            //간접 연결인지 확인 필요
+                            alertRepository.addFamilyAlert(senderId, name, status, latitude, longitude, time, type);
                         }
                     }
 
@@ -634,6 +763,17 @@ public class BleService extends Service {
                                 // 여기서 가족 연결 알람
                                 Log.i("가족 연결 알람", dataId);
                                 bleNotification.foresendFamilyNotification(data[1], true);
+                                Log.i("가족 연결 알람 - 간접?", dataId);
+
+                                String name = data[1];
+                                String status = data[3];
+                                Double latitude = Double.valueOf(data[4]);
+                                Double longitude = Double.valueOf(data[5]);
+                                String time = parts[3];
+                                String type = "가족";
+
+                                //간접연결인지 확인 필요
+                                alertRepository.addFamilyAlert(senderId, name, status, latitude, longitude, time, type);
                             }
                         }
 
@@ -805,11 +945,7 @@ public class BleService extends Service {
         sendMessageManager.createGroupInviteMessage(deviceGattMap, membersId, groupId, groupName);
     }
 
-
     public void createDangerInfoMessage(String dangerInfo){
         sendMessageManager.createDangerInfoMessage(deviceGattMap, dangerInfo);
     }
-
-
-
 }
