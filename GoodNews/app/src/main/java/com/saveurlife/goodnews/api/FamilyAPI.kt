@@ -533,7 +533,7 @@ class FamilyAPI {
         fun onFailure(error: String)
     }
     interface FamilyRegistrationCallback {
-        fun onSuccess(result: String)
+        fun onSuccess(result: Int)
         fun onFailure(error: String)
     }
 

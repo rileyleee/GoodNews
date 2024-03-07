@@ -33,7 +33,7 @@ class ChatDatabaseManager {
                             state = "safe",
                             latitude = 37.7749,
                             longitude = -122.4194,
-                            familyId = "family123"
+                            familyId = 0
                         )
                         copyToRealm(familyMemInfo)
                     }
