@@ -2,6 +2,7 @@ package com.saveurlife.goodnews.map
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -65,6 +66,9 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+import android.location.LocationManager
+import android.provider.Settings
+import android.widget.Toast
 
 
 class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
@@ -355,7 +359,14 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         // 정보 공유 버튼 클릭했을 때
         binding.emergencyAddButton.setOnClickListener {
+            if (isGPSEnabled(requireContext())) {
                 showEmergencyDialog(currGeoPoint)
+            } else {
+                Toast.makeText(requireContext(), "GPS 사용을 허용하시기 바랍니다", Toast.LENGTH_LONG).show()
+
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                context.startActivity(intent)
+            }
         }
 
         // BottomSheetBehavior 설정
@@ -540,7 +551,8 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                 Log.v("시설 Lon", centerLon.toString())
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    closeInfo = closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 200)
+                    closeInfo =
+                        closeEmergencyInfoProvider.getCloseEmergencyInfo(centerLat, centerLon, 200)
 
                     // 위의 비동기 작업 완료 후 리스트 결과를 메인 스레드로 전달
                     withContext(Dispatchers.Main) {
@@ -548,14 +560,21 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
                         // UI 업데이트 작업
                         if (closeInfo.size > 0) {    // closeInfo가 0보다 크면, 해당 버튼을 보여준다.
                             binding.emergencyListInfoButton.visibility = View.VISIBLE
-                            val startAnimation = AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
+                            val startAnimation =
+                                AnimationUtils.loadAnimation(context, R.anim.blinking_animation)
                             binding.emergencyListInfoButton.startAnimation(startAnimation)
                             // 위험 정보 버튼 클릭했을 때
                             binding.emergencyListInfoButton.setOnClickListener {
                                 Log.v("리스트를 보여줄 UI", closeInfo.size.toString())
                                 Log.v("위험정보 내용 @@@", closeInfo[0].content)
-                                val dialogFragment = EmergencyListDialogFragment.newInstance(closeInfo, facility.name)
-                                dialogFragment.show(childFragmentManager, "EmergencyListDialogFragment")
+                                val dialogFragment = EmergencyListDialogFragment.newInstance(
+                                    closeInfo,
+                                    facility.name
+                                )
+                                dialogFragment.show(
+                                    childFragmentManager,
+                                    "EmergencyListDialogFragment"
+                                )
                             }
                         } else {    // 아닐 경우 해당 버튼을 안 보여준다.
                             binding.emergencyListInfoButton.visibility = View.GONE
@@ -829,7 +848,10 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
 
         famUserInfo.putString("userName", famUser.name)
         famUserInfo.putString("userStatus", famUser.state)
-        famUserInfo.putString("userUpdateTime", timeService.realmInstantToString(famUser.lastConnection))
+        famUserInfo.putString(
+            "userUpdateTime",
+            timeService.realmInstantToString(famUser.lastConnection)
+        )
 
         dialogFragment.arguments = famUserInfo
 
@@ -932,6 +954,16 @@ class MapFragment : Fragment(), LocationProvider.LocationUpdateListener {
         }
         familyPlaceMarkers.clear()
         mapView.invalidate()
+    }
+
+    // 안드로이드 GPS 허용 여부 확인
+    fun isGPSEnabled(context: Context): Boolean {
+        Log.d("지도프래그먼트", "GPS 확인해요")
+        val locationManager =
+            context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        // GPS 프로바이더 상태 확인
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 }
 
