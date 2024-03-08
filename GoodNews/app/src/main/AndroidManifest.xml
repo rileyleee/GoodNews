@@ -88,16 +88,13 @@
 
         <service
             android:name=".service.LocationTrackingService"
+            android:foregroundServiceType="location"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service android:name=".ble.service.BleService" />
         <service
             android:name=".map.LocationProvider"
             android:foregroundServiceType="location"
-            android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".map.BackgroundLocationProvider"
             android:enabled="true"
             android:exported="false" />
 
