@@ -345,6 +345,10 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             }
         })
 
+        binding.tMapFacilityBox.setOnClickListener {
+            binding.tMapFacilityBox.visibility = VISIBLE
+        }
+
 
         return binding.root
     }
@@ -391,10 +395,12 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             markerItem.setTMapPoint(nowLat, nowLon)
             markerItem.name = "내 위치" // 마커의 타이틀 지정
             tMapView.addTMapMarkerItem(markerItem)
+
+            binding.locationTextView.text = "위도: $nowLat, 경도: $nowLon"
         }
 
 
-        binding.locationTextView.text = "위도: $nowLat, 경도: $nowLon"
+
 
         //좌상단 위경도 val leftTop: TMapPoint = tMapView.leftTopPoint
         //우하단 위경도 val rightBottom: TMapPoint = tMapView.rightBottomPoint
