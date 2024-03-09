@@ -12,7 +12,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +20,7 @@ import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.databinding.FragmentTMapBinding
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.models.OffMapFacility
+import com.skt.tmap.TMapData
 import com.skt.tmap.TMapGpsManager
 import com.skt.tmap.TMapPoint
 import com.skt.tmap.TMapView
@@ -96,6 +96,15 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
     private var markerClick = false
 
+    private var selectedMarkerLat: Double = 0.0
+    private var selectedMarkerLon: Double = 0.0
+
+    private var isFindingRoute: Boolean = false
+    private var selectedFacilityName: String = ""
+
+    private var myMarker = TMapMarkerItem()
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -169,41 +178,14 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
             //현재 위치 마커
             val bitmap = BitmapFactory.decodeResource(resources, R.drawable.presence_online)
-            markerItem.id = "myMarker"
-            markerItem.icon = bitmap
-            markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
-            markerItem.setTMapPoint(lastLat, lastLon)
-            markerItem.name = "내 위치" // 마커의 타이틀 지정
-            tMapView.addTMapMarkerItem(markerItem)
+            myMarker.id = "myMarker"
+            myMarker.icon = bitmap
+            myMarker.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+            myMarker.setTMapPoint(lastLat, lastLon)
+            myMarker.name = "내 위치" // 마커의 타이틀 지정
+            tMapView.addTMapMarkerItem(myMarker)
 
-            //길 찾기
-//            val tMapPointStart = TMapPoint(36.69055, 127.4037395)
-//
-//            val startPoint = TMapPoint(36.69055, 127.4037395)
-//            val endPoint = TMapPoint(36.6874198, 127.4056281)
-//
-//            //findPathDataWithType 함수를 사용하여 도보 경로를 검색하고, 람다 표현식을 통해 즉시 결과를 처리
-//            val tMapData = TMapData()
-//            tMapData.findPathDataWithType(
-//                TMapData.TMapPathType.PEDESTRIAN_PATH, startPoint, endPoint
-//            ) { polyLine -> tMapView.addTMapPolyLine(polyLine) }
-//
-//            //findPathData 함수를 사용하여 경로를 검색하고, 경로를 받아와서 직접 처리하는 방식
-//            TMapData().findPathData(
-//                startPoint, endPoint
-//            ) { tMapPolyLine ->
-//                tMapPolyLine.lineWidth = 2f
-//                tMapPolyLine.lineColor = Color.GREEN
-//                tMapPolyLine.lineAlpha = 255
-//                tMapPolyLine.outLineWidth = 5f
-//                tMapPolyLine.outLineColor = Color.RED
-//                tMapPolyLine.outLineAlpha = 255
-//                TMapData.TMapPathType.PEDESTRIAN_PATH
-//                tMapView.addTMapPolyLine(tMapPolyLine)
-//                val info = tMapView.getDisplayTMapInfo(tMapPolyLine.linePointList)
-////                tMapView.zoomLevel = info.zoom
-//                tMapView.setCenterPoint(info.point.latitude, info.point.longitude)
-//            }
+            tMapView.bringMarkerToFront(myMarker)
         }
 
         // 서브 카테고리 선택 처리
@@ -282,7 +264,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
             //그냥 지도 클릭할 때도 마커 새롭게 그려져서 좌상단, 우하단 위경도 값으로 비교해서 단순 지도 클릭인지
             //줌인아웃인지 확인
-            if(leftTop.latitude != previousLeftTop?.latitude && leftTop.longitude != previousLeftTop?.longitude
+            if(!isFindingRoute && leftTop.latitude != previousLeftTop?.latitude && leftTop.longitude != previousLeftTop?.longitude
                 && rightBottom.latitude != previousRightBottom?.latitude && rightBottom.longitude != previousRightBottom?.latitude){
                 facilityAroundMe(selectedCategory.displayName, selectedFacility, nowLat, nowLon, leftTop, rightBottom, "zoom")
             }else{
@@ -309,7 +291,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             override fun onPressDown(markerlist: java.util.ArrayList<TMapMarkerItem>, poilist: java.util.ArrayList<TMapPOIItem>,
                 point: TMapPoint, pointf: PointF) {
                 if (markerlist != null) {
-                    Toast.makeText(requireContext(), "onPressDown${markerlist.size}", Toast.LENGTH_LONG).show()
+//                    Toast.makeText(requireContext(), "onPressDown${markerlist.size}", Toast.LENGTH_LONG).show()
                 }
                 Log.i("클릭이벤트발생onPressDown", markerlist.toString())
                 Log.i("클릭이벤트발생onPressDown", point.toString())
@@ -319,28 +301,34 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             override fun onPressUp(markerlist: java.util.ArrayList<TMapMarkerItem>, poilist: java.util.ArrayList<TMapPOIItem>,
                 point: TMapPoint, pointf: PointF) {
                 if (markerlist != null) {
-                    Toast.makeText(requireContext(), "onPressUp${markerlist.size}", Toast.LENGTH_LONG).show()
+//                    Toast.makeText(requireContext(), "onPressUp${markerlist.size}", Toast.LENGTH_LONG).show()
                 }
                 Log.i("클릭이벤트발생onPressUp", markerlist.toString())
                 Log.i("클릭이벤트발생onPressUp", point.toString())
 
-
-                if(markerlist.size != 0){
-                    if (markerlist[0].id != "myMarker") {
-                        binding.tMapFacilityBox.visibility = VISIBLE
-                        var (name, type) = markerlist[0].name.split(",")
-                        binding.tMapFacilityNameTextView.text = name
-                        binding.tMapFacilityTypeTextView.text = type
-                        val iconRes = when (type) {
-                            "대피소" -> com.saveurlife.goodnews.R.drawable.ic_shelter
-                            "병원", "약국" -> com.saveurlife.goodnews.R.drawable.ic_hospital
-                            "편의점", "마트" -> com.saveurlife.goodnews.R.drawable.ic_grocery
-                            else -> com.saveurlife.goodnews.R.drawable.ic_pin
+                if(!isFindingRoute){
+                    if(markerlist.size != 0){
+                        if (markerlist[0].id != "myMarker") {
+                            selectedMarkerLat = markerlist[0].tMapPoint.latitude
+                            selectedMarkerLon = markerlist[0].tMapPoint.longitude
+                            binding.tMapFacilityBox.visibility = VISIBLE
+                            var (name, type) = markerlist[0].name.split(",")
+                            binding.tMapFacilityNameTextView.text = name
+                            selectedFacilityName = name
+                            binding.tMapFacilityTypeTextView.text = type
+                            val iconRes = when (type) {
+                                "대피소" -> com.saveurlife.goodnews.R.drawable.ic_shelter
+                                "병원", "약국" -> com.saveurlife.goodnews.R.drawable.ic_hospital
+                                "편의점", "마트" -> com.saveurlife.goodnews.R.drawable.ic_grocery
+                                else -> com.saveurlife.goodnews.R.drawable.ic_pin
+                            }
+                            binding.tMapFacilityIconType.setBackgroundResource(iconRes)
                         }
-                        binding.tMapFacilityIconType.setBackgroundResource(iconRes)
+                    }else{
+                        if(!isFindingRoute){
+                            binding.tMapFacilityBox.visibility = INVISIBLE
+                        }
                     }
-                }else{
-                    binding.tMapFacilityBox.visibility = INVISIBLE
                 }
             }
         })
@@ -349,8 +337,98 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             binding.tMapFacilityBox.visibility = VISIBLE
         }
 
+        binding.tMapFindRouteButton.setOnClickListener {
+            if(isFindingRoute){
+                removeRoute()
+                binding.tMapFindRouteButton.setBackgroundResource(com.saveurlife.goodnews.R.drawable.btn_match_parent)
+                binding.tMapFindRouteTextView.text = "길 찾기"
+            }else{
+                val dialog = TMapRouteGuideDialogFragment.newInstance(selectedFacilityName)
+                dialog.show(requireActivity().supportFragmentManager, "TMapRouteGuideDialogFragment")
 
+//                CustomToast(requireContext(), "${selectedFacilityName}로 가는 길 안내를 시작합니다.")
+
+                findFacilityRoute()
+                binding.tMapFindRouteButton.setBackgroundResource(com.saveurlife.goodnews.R.drawable.btn_quit)
+                binding.tMapFindRouteTextView.text = "종료하기"
+            }
+            isFindingRoute = !isFindingRoute
+        }
         return binding.root
+    }
+
+    private fun removeRoute() {
+        tMapView.removeTMapMarkerItem("start")
+        tMapView.removeTMapMarkerItem("end")
+        tMapView.removeAllTMapPolyLine()
+    }
+
+    //시설 길 찾기
+    private fun findFacilityRoute() {
+        val startPoint = TMapPoint(nowLat, nowLon)
+        val endPoint = TMapPoint(selectedMarkerLat, selectedMarkerLon)
+
+//        tMapView.zoomToTMapPoint(endPoint, startPoint)
+        var latSpan = abs(startPoint.latitude - endPoint.latitude) - 0.1
+        val lonSpan = abs(startPoint.longitude - endPoint.longitude) - 0.1
+
+//        var latSpan = (startPoint.latitude + endPoint.latitude) / 2 - 0.0001
+//        var lonSpan = (startPoint.longitude + endPoint.longitude) / 2 - 0.0001
+
+        tMapView.setCenterPoint((startPoint.latitude + endPoint.latitude) / 2, (startPoint.longitude + endPoint.longitude) / 2)
+        tMapView.zoomToSpan(latSpan, lonSpan)
+
+//        tMapView.zoomToTMapPoint(startPoint, endPoint)
+
+        //findPathDataWithType 함수를 사용하여 도보 경로를 검색하고, 람다 표현식을 통해 즉시 결과를 처리
+        val tMapData = TMapData()
+        tMapData.findPathDataWithType(
+            TMapData.TMapPathType.PEDESTRIAN_PATH, startPoint, endPoint
+        ) { polyLine ->
+            polyLine.lineWidth = 2f
+            polyLine.lineColor = Color.GRAY
+            polyLine.lineAlpha = 255
+            polyLine.outLineWidth = 5f
+            polyLine.outLineColor = Color.BLUE
+            polyLine.outLineAlpha = 255
+            tMapView.addTMapPolyLine(polyLine) }
+
+        //findPathData 함수를 사용하여 경로를 검색하고, 경로를 받아와서 직접 처리하는 방식
+//        TMapData().findPathData(
+//            startPoint, endPoint
+//        ) { tMapPolyLine ->
+//            tMapPolyLine.lineWidth = 2f
+//            tMapPolyLine.lineColor = Color.GREEN
+//            tMapPolyLine.lineAlpha = 255
+//            tMapPolyLine.outLineWidth = 5f
+//            tMapPolyLine.outLineColor = Color.RED
+//            tMapPolyLine.outLineAlpha = 255
+//            TMapData.TMapPathType.PEDESTRIAN_PATH
+//            tMapView.addTMapPolyLine(tMapPolyLine)
+//            val info = tMapView.getDisplayTMapInfo(tMapPolyLine.linePointList)
+////                tMapView.zoomLevel = info.zoom
+//            tMapView.setCenterPoint(info.point.latitude, info.point.longitude)
+//        }
+
+        //출발, 도착 마커 찍기
+        val bitmapStart = BitmapFactory.decodeResource(resources, com.skt.tmap.R.drawable.start)
+        val startMarkerItem = TMapMarkerItem()
+        startMarkerItem.id = "start"
+        startMarkerItem.icon = bitmapStart
+        startMarkerItem.setTMapPoint(nowLat, nowLon)
+        startMarkerItem.name = "출발 위치" // 마커의 타이틀 지정
+        tMapView.addTMapMarkerItem(startMarkerItem)
+
+        val bitmapEnd = BitmapFactory.decodeResource(resources, com.skt.tmap.R.drawable.end)
+        val endMarkerItem = TMapMarkerItem()
+        endMarkerItem.id = "end"
+        endMarkerItem.icon = bitmapEnd
+        endMarkerItem.setTMapPoint(selectedMarkerLat, selectedMarkerLon)
+        endMarkerItem.name = "도착 위치" // 마커의 타이틀 지정
+        tMapView.addTMapMarkerItem(endMarkerItem)
+
+        tMapView.bringMarkerToFront(myMarker)
+
     }
 
     //ui 업데이트
@@ -376,7 +454,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         Log.i("변경되는 값", "$nowLat $nowLon")
 
         //처음에 1번만 내 위치로 변경
-        if(first && nowLat != null && nowLon != null){
+        if(first && nowLat != null && nowLon != null && tMapView != null){
             tMapView.setCenterPoint(nowLat, nowLon)
             first = false
             val leftTop: TMapPoint = tMapView.leftTopPoint
@@ -389,12 +467,15 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
             //현재 위치 마커
             val bitmap = BitmapFactory.decodeResource(resources, R.drawable.presence_online)
-            markerItem.id = "myMarker"
-            markerItem.icon = bitmap
-            markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
-            markerItem.setTMapPoint(nowLat, nowLon)
-            markerItem.name = "내 위치" // 마커의 타이틀 지정
-            tMapView.addTMapMarkerItem(markerItem)
+//            var myMarker = TMapMarkerItem()
+            myMarker.id = "myMarker"
+            myMarker.icon = bitmap
+            myMarker.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+            myMarker.setTMapPoint(nowLat, nowLon)
+            myMarker.name = "내 위치" // 마커의 타이틀 지정
+            tMapView.addTMapMarkerItem(myMarker)
+
+            tMapView.bringMarkerToFront(myMarker)
 
             binding.locationTextView.text = "위도: $nowLat, 경도: $nowLon"
         }
@@ -491,6 +572,9 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                         println("등록 마커 ${markerItem.id} ${point.location.latitude}, ${point.location.longitude}")
                     }
                 }
+
+                tMapView.bringMarkerToFront(myMarker)
+
             }
             Log.i("marker 전체 표시", "완료")
         }

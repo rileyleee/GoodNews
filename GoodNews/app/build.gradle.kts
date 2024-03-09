@@ -50,6 +50,9 @@ android {
             assets {
                 srcDirs("src\\main\\assets", "src\\main\\assets")
             }
+            res{
+                srcDirs("src\\main\\res", "libs_module\\src\\main\\res")
+            }
         }
     }
 }
@@ -128,5 +131,5 @@ dependencies {
 
     //tmap
     implementation(files("libs/vsm-tmap-sdk-v2-android-1.6.60.aar"))
-    implementation(files("libs/tmap-sdk-1.0.aar"))
+    implementation(files("libs/tmap-sdk-1.2.aar"))
 }

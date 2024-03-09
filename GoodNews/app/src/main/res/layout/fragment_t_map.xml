@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tMapFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".tmap.TMapFragment">
@@ -90,6 +91,7 @@
         android:layout_width="0dp"
         android:layout_height="120dp"
         android:layout_marginBottom="6dp"
+        android:visibility="gone"
         android:background="@drawable/rounded_background_with_shadow"
         android:padding="20dp"
 
@@ -159,6 +161,7 @@
                 app:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
+                android:id="@+id/tMapFindRouteTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="길찾기"
