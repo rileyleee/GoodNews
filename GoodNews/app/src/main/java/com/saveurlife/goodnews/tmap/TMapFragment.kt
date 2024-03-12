@@ -184,15 +184,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
             binding.locationTextView.text = "위도: $lastLat, 경도: $lastLon"
 
             //현재 위치 마커
-            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.presence_online)
-            myMarker.id = "myMarker"
-            myMarker.icon = bitmap
-            myMarker.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
-            myMarker.setTMapPoint(lastLat, lastLon)
-            myMarker.name = "내 위치" // 마커의 타이틀 지정
-            tMapView.addTMapMarkerItem(myMarker)
-
-            tMapView.bringMarkerToFront(myMarker)
+            myMarkerDisplay()
         }
 
         // 서브 카테고리 선택 처리
@@ -326,8 +318,9 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                             tMapView.removeTMapMarkerItem(clickMarkerId)
 
                             markerItem.id = clickMarkerId
-                            val iconBitmap = BitmapFactory.decodeResource(resources,R.drawable.btn_star_big_on)
-                            markerItem.icon = iconBitmap
+                            val iconBitmap = BitmapFactory.decodeResource(resources, com.saveurlife.goodnews.R.drawable.marker_selected_icon)
+                            val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 53, 53, false)
+                            markerItem.icon = resizedBitmap
                             markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
                             markerItem.setTMapPoint(clickMarkerLat, clickMarkerLon)
                             markerItem.name = clickMarkerName
@@ -390,13 +383,14 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
     private fun restorationClickMarker() {
         tMapView.removeTMapMarkerItem(clickMarkerId)
         markerItem.id = clickMarkerId
-        val iconBitmap = BitmapFactory.decodeResource(resources, R.drawable.editbox_dropdown_dark_frame)
-        val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 25, 25, false)
+        val iconBitmap = BitmapFactory.decodeResource(resources, com.saveurlife.goodnews.R.drawable.marker_icon)
+        val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 50, 50, false)
         markerItem.icon = resizedBitmap
         markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
         markerItem.setTMapPoint(clickMarkerLat, clickMarkerLon)
         markerItem.name = clickMarkerName
         tMapView.addTMapMarkerItem(markerItem)
+        tMapView.bringMarkerToFront(myMarker)
     }
 
     private fun removeRoute() {
@@ -510,16 +504,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
 
             //현재 위치 마커
-            val bitmap = BitmapFactory.decodeResource(resources, R.drawable.presence_online)
-//            var myMarker = TMapMarkerItem()
-            myMarker.id = "myMarker"
-            myMarker.icon = bitmap
-            myMarker.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
-            myMarker.setTMapPoint(nowLat, nowLon)
-            myMarker.name = "내 위치" // 마커의 타이틀 지정
-            tMapView.addTMapMarkerItem(myMarker)
-
-            tMapView.bringMarkerToFront(myMarker)
+            myMarkerDisplay()
 
             binding.locationTextView.text = "위도: $nowLat, 경도: $nowLon"
         }
@@ -562,13 +547,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         Log.i("사이즈 확인하기", selectedFacility.size.toString())
         tMapView.removeAllTMapMarkerItem()
 
-        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.presence_online)
-        markerItem.id = "myMarker"
-        markerItem.icon = bitmap
-        markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
-        markerItem.setTMapPoint(lastLat, lastLon)
-        markerItem.name = "내 위치" // 마커의 타이틀 지정
-        tMapView.addTMapMarkerItem(markerItem)
+        myMarkerDisplay()
 
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -606,22 +585,35 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                         markerItem.setTMapPoint(point.location.latitude, point.location.longitude)
 //                        markerItem.calloutLeftImage = BitmapFactory.decodeResource(resources, R.drawable.editbox_dropdown_dark_frame)
 
-                    val iconBitmap = BitmapFactory.decodeResource(resources, R.drawable.editbox_dropdown_dark_frame)
-                    val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 25, 25, false)
+                    val iconBitmap = BitmapFactory.decodeResource(resources, com.saveurlife.goodnews.R.drawable.marker_icon)
+                    val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 50, 50, false)
                         markerItem.icon = resizedBitmap
 
                     // 비동기적으로 마커를 지도에 추가
                     withContext(Dispatchers.Main) {
                         tMapView.addTMapMarkerItem(markerItem)
+                        tMapView.bringMarkerToFront(myMarker)
                         println("등록 마커 ${markerItem.id} ${point.location.latitude}, ${point.location.longitude}")
                     }
                 }
-
                 tMapView.bringMarkerToFront(myMarker)
 
             }
             Log.i("marker 전체 표시", "완료")
         }
+    }
+
+    private fun myMarkerDisplay() {
+        val bitmap = BitmapFactory.decodeResource(resources, com.skt.tmap.R.drawable.test_marker)
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 50, 50, false)
+        markerItem.id = "myMarker"
+        markerItem.icon = resizedBitmap
+        markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+        markerItem.setTMapPoint(lastLat, lastLon)
+        markerItem.name = "내 위치" // 마커의 타이틀 지정
+        tMapView.addTMapMarkerItem(markerItem)
+
+        tMapView.bringMarkerToFront(myMarker)
     }
 
     //현재 표시되는 지도 안에 있는 시설 데이터 리스트에 저장하기
