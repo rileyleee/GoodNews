@@ -11,6 +11,7 @@ import android.content.ServiceConnection
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Location
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -54,11 +55,12 @@ import com.saveurlife.goodnews.map.MaploadDialogFragment
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.LocationTrackingService
+import com.skt.tmap.TMapGpsManager
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
     private lateinit var binding: ActivityMainBinding
 
     private val sharedPreferences = GoodNewsApplication.preferences
@@ -89,8 +91,10 @@ class MainActivity : BaseActivity() {
     companion object {
         var checkFlash: Boolean = false
         var sharedPreferencesListenerInitialized = false
+        lateinit var gps: TMapGpsManager
     }
 
+    private var first: Boolean = true
 
     // MediaPlayer 객체를 클래스 레벨 변수로 선언
     private var mediaPlayer: MediaPlayer? = null
@@ -190,6 +194,15 @@ class MainActivity : BaseActivity() {
             realm.close()
         }
 
+
+        gps = TMapGpsManager(this)
+        gps.minTime = 1000 //위치 인식 변경 최소 시간 - 0.5초
+        gps.minDistance = 0.01f //위치 인식 변경 인식 최소 거리 - 0.01 미터
+        gps.provider = TMapGpsManager.PROVIDER_GPS //위성기반의 위치탐색
+        gps.openGps()
+        gps.provider = TMapGpsManager.PROVIDER_NETWORK //네트워크 기반의 위치탐색
+        gps.openGps()
+
         // 다시 보지 않기 여부에 따라 다이얼로그 띄워주기
         if (!sharedPreferences.getBoolean("mapDownloadIgnore", false)) {
             val dialog = MapAlarmFragment()
@@ -234,7 +247,11 @@ class MainActivity : BaseActivity() {
                 R.id.mapFragment -> {
                     if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
                         // canLoadMapFragment가 true일 때는 지도 Fragment 로드
-                        navController.navigateSingleTop(menuItem.itemId)
+                        if (deviceStateService.isNetworkAvailable(this)) {
+                            navController.navigateSingleTop(R.id.tMapFragment)
+                        }else{
+                            navController.navigateSingleTop(R.id.mapFragment)
+                        }
                     } else {
                         // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
                         initializeSharedPreferencesListener()
@@ -247,48 +264,49 @@ class MainActivity : BaseActivity() {
             }
         }
 
-            // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
-            supportFragmentManager.addOnBackStackChangedListener {
-                // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
-                if (supportFragmentManager.backStackEntryCount == 0) {
-                    binding.toolbar.visibility = View.VISIBLE
-                    binding.navigationView.visibility = View.VISIBLE
-                    binding.bottomAppBar.visibility = View.VISIBLE
-                    binding.mainCircleAddButton.visibility = View.VISIBLE
-                }
+        // 알림창 갔다가 다시 돌아올 때 toolbar, navigationBottom 원래대로 표시
+        supportFragmentManager.addOnBackStackChangedListener {
+            // 프래그먼트 스택에 프래그먼트가 없을 때 Toolbar와 BottomNavigationView 표시
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                binding.toolbar.visibility = View.VISIBLE
+                binding.navigationView.visibility = View.VISIBLE
+                binding.bottomAppBar.visibility = View.VISIBLE
+                binding.mainCircleAddButton.visibility = View.VISIBLE
             }
+        }
 
-            binding.mainCircleAddButton.setOnClickListener {
-                showDialog()
-            }
+        binding.mainCircleAddButton.setOnClickListener {
+            showDialog()
+        }
 
         // 위치 정보 사용 함수 호출
         callLocationTrackingService()
 
-            // 이때부터 realm 삭제 시작합니다!
-            val deleteOldDataService = DeleteOldDataService.getInstance(this)
-            deleteOldDataService.cancelDelete()
-            deleteOldDataService.setDeleteManager()
+        // 이때부터 realm 삭제 시작합니다!
+        val deleteOldDataService = DeleteOldDataService.getInstance(this)
+        deleteOldDataService.cancelDelete()
+        deleteOldDataService.setDeleteManager()
 
-            // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
-            onBackPressedDispatcher.addCallback(this) {
-                // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
-                val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
-                stopService(intent)
+        // 뒤로가기 버튼 눌렀을 경우에 위치 정보 사용 함수 종료 및 앱 종료 콜백 등록
+        onBackPressedDispatcher.addCallback(this) {
+            // 사용자가 뒤로 가기 버튼을 눌렀을 때 실행할 코드
+            val intent = Intent(this@MainActivity, LocationTrackingService::class.java)
+            stopService(intent)
 
-                // 기본적인 뒤로 가기 동작 수행 (옵션)
-                finish()
-            }
+            // 기본적인 뒤로 가기 동작 수행 (옵션)
+            finish()
+        }
 
-            //알림 activity에서 가족 fragment로 이동 - 되는지 확인해봐야함
-            val action = intent.action
-            if (action == "showFamilyFragmentByAlert") {
-                navController.navigateSingleTop(R.id.familyFragment)
-                true
+        //알림 activity에서 가족 fragment로 이동 - 되는지 확인해봐야함
+        val action = intent.action
+        if (action == "showFamilyFragmentByAlert") {
+            navController.navigateSingleTop(R.id.familyFragment)
+            true
 //            supportFragmentManager.beginTransaction()
 //                .replace(R.id.familyFragment, FamilyFragment())
 //                .commit()
-            }
+        }
+
 
     }
 
@@ -580,6 +598,31 @@ class MainActivity : BaseActivity() {
     private fun destroySharedPreferencesListener() {
         sharedPreferences.preferences.unregisterOnSharedPreferenceChangeListener(listener)
         sharedPreferencesListenerInitialized = false
+    }
+
+    override fun onLocationChange(location: Location) {
+        val tMapLa = GoodNewsApplication.preferences.getString("tMapLat", "-1")
+        val tMapLo = GoodNewsApplication.preferences.getString("tMapLon", "-1")
+//        val tMapLa = preferences.getDouble("tMapLat", -1.0)
+//        val tMapLo = preferences.getDouble("tMapLon", -1.0)
+        Log.i("어디로 들어오는지 체크","onLocationChange로 들어옴")
+        if(tMapLa == "-1" && tMapLo == "-1"){
+            Log.i("어디로 들어오는지 체크","key가 없음")
+            if(first) {
+                Log.i("어디로 들어오는지 체크","아예 처음")
+                GoodNewsApplication.preferences.setDouble("tMapLat", location.latitude)
+                GoodNewsApplication.preferences.setDouble("tMapLon", location.longitude)
+                first = false
+            }
+        }else{
+            Log.i("어디로 들어오는지 체크","있고 변경된 값 저장")
+            val editor = GoodNewsApplication.preferences.preferences.edit()
+            editor.putString("tMapLat", location.latitude.toString())
+            editor.putString("tMapLon", location.longitude.toString())
+            editor.apply()
+//            preferences.setDouble("tMapLat", location.latitude)
+//            preferences.setDouble("tMapLon", location.longitude)
+        }
     }
 }
 

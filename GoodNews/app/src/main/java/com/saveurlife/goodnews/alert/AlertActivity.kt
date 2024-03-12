@@ -2,24 +2,34 @@ package com.saveurlife.goodnews.alert
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.GestureDetector
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityAlertBinding
 import com.saveurlife.goodnews.models.Alert
 import com.saveurlife.goodnews.service.LocationTrackingService
+import com.saveurlife.goodnews.tmap.CustomToast
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.RealmResults
 import io.realm.kotlin.query.Sort
+
 
 class AlertActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
     private lateinit var binding: ActivityAlertBinding
@@ -27,6 +37,7 @@ class AlertActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var alertAdapter: AlertAdapter
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,8 +101,75 @@ class AlertActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
 //        realm.close()
 
+        showCustomSnackbar()
     }
 
+    @SuppressLint("RestrictedApi")
+    private fun showCustomSnackbar() {
+
+
+
+//        val coordinatorLayout = CoordinatorLayout(this)
+//
+//        val snackbar = Snackbar.make(coordinatorLayout, "Custom Notification", Snackbar.LENGTH_INDEFINITE)
+//
+//        // Snackbar 레이아웃의 View 가져오기
+//        val snackbarView: View = snackbar.view
+//
+//
+//        val params = snackbarView.layoutParams as CoordinatorLayout.LayoutParams
+//
+////        params.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+//
+//        // 스와이프로 닫기 기능 추가
+//        snackbar.setAction("Dismiss") {
+//            // 닫기 버튼을 눌렀을 때의 동작을 처리
+//            snackbar.dismiss()
+//        }
+//
+//        // 3초 후에 자동으로 사라지도록 설정
+////        Handler().postDelayed({
+////            if (snackbar.isShown) {
+////                snackbar.dismiss()
+////            }
+////        }, 3000)
+//
+//        // Snackbar 표시
+//        snackbar.show()
+
+
+//        val inflater = LayoutInflater.from(applicationContext)
+//        val customNotificationView = inflater.inflate(R.layout.custom_notification_layout, null)
+//
+//        val parentLayout: View = customNotificationView.findViewById(R.id.myCorrdinatorLayout) // 알림을 표시할 부모 레이아웃
+//
+//        // Snackbar 생성
+//        val snackbar = Snackbar.make(parentLayout, "Custom Notification", Snackbar.LENGTH_INDEFINITE)
+//
+//        // Snackbar 레이아웃의 View 가져오기
+//        val snackbarView: View = snackbar.view
+//
+//        // Snackbar 레이아웃의 파라미터 가져오기
+//        val params = snackbarView.layoutParams as CoordinatorLayout.LayoutParams
+//
+//        params.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+//
+//        // 스와이프로 닫기 기능 추가
+//        snackbar.setAction("Dismiss") {
+//            // 닫기 버튼을 눌렀을 때의 동작을 처리
+//            snackbar.dismiss()
+//        }
+//
+//        // 3초 후에 자동으로 사라지도록 설정
+//        Handler().postDelayed({
+//            if (snackbar.isShown) {
+//                snackbar.dismiss()
+//            }
+//        }, 3000)
+//
+//        // Snackbar 표시
+//        snackbar.show()
+    }
     //onFling - 사용자가 빠르게 화면을 스와이프했을 때 호출
     override fun onFling(
         e1: MotionEvent?, //스와이프의 시작 지점에 대한 이벤트 정보

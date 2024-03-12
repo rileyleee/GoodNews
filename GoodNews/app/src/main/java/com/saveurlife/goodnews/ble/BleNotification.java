@@ -120,6 +120,7 @@ public class BleNotification {
 
                 // 커스텀 레이아웃의 뷰에 접근하여 설정
                 TextView senderName = layout.findViewById(R.id.toast_family);
+                TextView time = layout.findViewById(R.id.toast_family_time);
                 if(isConnect){
                     String content = "가족 " + name + "님이 연결되었습니다.";
                     senderName.setText(content);
@@ -127,6 +128,9 @@ public class BleNotification {
                     String content = "가족 " + name + "님과 연결이 끊겼습니다.";
                     senderName.setText(content);
                 }
+
+                String currentTime = new SimpleDateFormat("a hh:mm", Locale.KOREA).format(Calendar.getInstance().getTime());
+                time.setText(currentTime);
 
 
 

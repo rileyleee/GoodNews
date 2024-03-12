@@ -2,6 +2,7 @@ package com.saveurlife.goodnews
 
 import android.app.Activity
 import android.app.Application
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import com.google.android.libraries.places.api.Places
@@ -20,6 +21,7 @@ import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.models.MorseCode
 import com.saveurlife.goodnews.models.OffMapFacility
 import com.saveurlife.goodnews.service.UserDeviceInfoService
+import com.skt.tmap.TMapGpsManager
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
@@ -36,13 +38,12 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
         var isInitialized = false
+        lateinit var instance: GoodNewsApplication
     }
 
     var isInBackground = true
 
-
     override fun onCreate() {
-
         var userDeviceInfoService = UserDeviceInfoService.getInstance(applicationContext)
 
         // 앱 전역에서 활용하기 위해 싱글톤 패턴으로 SharedPreference 구현
@@ -204,7 +205,6 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
             }
         }
     }
-
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
 
     }

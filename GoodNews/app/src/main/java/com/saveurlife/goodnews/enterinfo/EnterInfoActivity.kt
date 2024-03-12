@@ -19,7 +19,6 @@ import androidx.work.WorkManager
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.api.MemberAPI
-import com.saveurlife.goodnews.batch.DeleteOldDataService
 import com.saveurlife.goodnews.main.MainActivity
 import com.saveurlife.goodnews.databinding.ActivityEnterInfoBinding
 import com.saveurlife.goodnews.main.PreferencesUtil
@@ -29,7 +28,6 @@ import com.saveurlife.goodnews.service.UserDeviceInfoService;
 import com.saveurlife.goodnews.main.PermissionsUtil
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.LocationService
-import com.saveurlife.goodnews.sync.SyncService
 import com.saveurlife.goodnews.sync.TimeService
 import java.util.Calendar
 

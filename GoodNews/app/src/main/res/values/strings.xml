@@ -25,5 +25,6 @@
     <string name="location"><u>위치</u></string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="alertButton"><u>바로가기</u></string>
+    <string name="DontSeeAgain"><u>다시 보지 않기</u></string>
 
 </resources>
