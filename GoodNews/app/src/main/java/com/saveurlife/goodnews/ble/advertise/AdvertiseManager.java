@@ -30,9 +30,7 @@ public class AdvertiseManager {
 
     public static AdvertiseManager getInstance(BluetoothAdapter mBluetoothAdapter, BluetoothLeAdvertiser mBluetoothLeAdvertiser,
                                                String myId, String myName) {
-        if (instance == null) {
-            instance = new AdvertiseManager(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
-        }
+        instance = new AdvertiseManager(mBluetoothAdapter, mBluetoothLeAdvertiser, myId, myName);
         return instance;
     }
 
@@ -63,17 +61,28 @@ public class AdvertiseManager {
                 .build();
 
         if (mBluetoothAdapter.isLeExtendedAdvertisingSupported()) { // Check if extended advertising is supported (Bluetooth 5.1+)
-            AdvertisingSetParameters advertisingSetParameters = new AdvertisingSetParameters.Builder()
-                    .setLegacyMode(false)
-                    .setConnectable(true)
-                    .setInterval(AdvertisingSetParameters.INTERVAL_MIN)
-                    .setTxPowerLevel(AdvertisingSetParameters.TX_POWER_MAX)
-                    .setPrimaryPhy(BluetoothDevice.PHY_LE_CODED)
-                    .setSecondaryPhy(BluetoothDevice.PHY_LE_CODED)
+            AdvertisingSetParameters advertisingSetParameters;
+            if(mBluetoothAdapter.isLeCodedPhySupported()){
+                advertisingSetParameters = new AdvertisingSetParameters.Builder()
+                        .setLegacyMode(false)
+                        .setConnectable(true)
+                        .setInterval(AdvertisingSetParameters.INTERVAL_MIN)
+                        .setTxPowerLevel(AdvertisingSetParameters.TX_POWER_MAX)
+                        .setPrimaryPhy(BluetoothDevice.PHY_LE_CODED)
+                        .setSecondaryPhy(BluetoothDevice.PHY_LE_CODED)
+                        .build();
+            }
+            else{
+                advertisingSetParameters = new AdvertisingSetParameters.Builder()
+                        .setLegacyMode(false)
+                        .setConnectable(true)
+                        .setInterval(AdvertisingSetParameters.INTERVAL_MIN)
+                        .setTxPowerLevel(AdvertisingSetParameters.TX_POWER_MAX)
+                        .setPrimaryPhy(BluetoothDevice.PHY_LE_1M)
+                        .setSecondaryPhy(BluetoothDevice.PHY_LE_1M)
+                        .build();
+            }
 
-                    .build();
-
-            //            AdvertisingSetCallback bleAdvertisingSetCallback = new BleAdvertisingSetCallback();
             AdvertiseData scanResponse = new AdvertiseData.Builder().build();
 
             bleAdvertisingSetCallback = new AdvertisingSetCallback() {
