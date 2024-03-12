@@ -82,7 +82,7 @@
                 android:layout_height="match_parent"
                 android:text="@string/DontSeeAgain"
                 android:textSize="17sp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/all_white"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

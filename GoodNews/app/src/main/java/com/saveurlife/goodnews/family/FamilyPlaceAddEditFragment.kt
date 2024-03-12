@@ -24,18 +24,19 @@ import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.MapsFragment
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.alert.AlertDatabaseManager
+import com.saveurlife.goodnews.alert.AlertNotification
 import com.saveurlife.goodnews.alert.AlertRepository
 import com.saveurlife.goodnews.api.FamilyAPI
 import com.saveurlife.goodnews.api.PlaceDetailInfo
 import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
 import com.saveurlife.goodnews.family.FamilyFragment.Mode
 import com.saveurlife.goodnews.main.PreferencesUtil
-import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.models.FamilyPlace
 import com.saveurlife.goodnews.models.Member
 import com.saveurlife.goodnews.service.DeviceStateService
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
+
 
 // 가족 신청 추가
 class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, private val context: Context) : DialogFragment() {
@@ -51,6 +52,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     private var mode: Mode? = null
     private var seqNumber: Int = 0
+
+    private lateinit var alertNotification: AlertNotification
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,6 +134,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
         preferencesUtil = PreferencesUtil(requireContext())
 
+        alertNotification = AlertNotification(requireContext())
+
         // 구글 서치 박스 ui 변경
         val autocompleteFragment =
             childFragmentManager.findFragmentById(R.id.meetingPlaceAutocompleteFragment) as AutocompleteSupportFragment
@@ -165,6 +170,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
             val nickname = binding.meetingPlaceNickname.text.toString()
             tempFamilyPlace?.name = nickname
 
+            var items = preferencesUtil.getString("name", "이름 없음")
+
 //            if (nickname.isEmpty()) {
 //                Toast.makeText(context, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
 //                return@setOnClickListener // 함수 실행 중단
@@ -182,6 +189,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 Mode.READ -> {
                     // EDIT 모드로 전환
                     mode = Mode.EDIT
+
+                    alertNotification.foresendFamilyPlaceUpdateNotification("2/주소/안전", items)
 
                     // EDIT 모드에 맞게 UI 업데이트
                     binding.meetingPlaceAddSubmit.text = "장소 수정"
@@ -227,6 +236,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
                         addNewPlace(seqNumber)
                         dismiss()
+
+                        alertNotification.foresendFamilyPlaceRegistNotification(seqNumber, items)
                     }else{
                         Toast.makeText(context, "인터넷 연결이 불안정합니다.", Toast.LENGTH_SHORT).show()
                     }
@@ -253,6 +264,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
                         updatePlace(loadedData?.placeId)
                         dismiss()
+
+                        alertNotification.foresendFamilyPlaceUpdateNotification("2/주소/안전", items)
                     }else{
                         Toast.makeText(context, "인터넷 연결이 불안정합니다.", Toast.LENGTH_SHORT).show()
                     }

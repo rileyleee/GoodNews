@@ -251,7 +251,8 @@
 
             fun bindFamilyPlace(alert: Alert) {
 
-                if(alert.content == "등록"){
+                //가족 등록
+                if(alert.content == "추가"){
                     var changeSeq: String = ""
                     if(alert.id[1] == '1'){
                         changeSeq = "첫번째"
@@ -296,10 +297,7 @@
                     }else if(changeAddress.isNotEmpty() && changeSafe.isNotEmpty()){
                         binding.alarmFamilyLocationText.text = "${alert.name}님이 $changeSeq 모임 장소 변경 및 상태를 ${changeSafe}으로 변경했습니다."
                     }
-
                 }
-
-
 
                 binding.alarmFamilyLocationTime.text = TimeUtils.calculationTime(dateTimeToMillSec(timeService.realmInstantToString(alert.time)))
 

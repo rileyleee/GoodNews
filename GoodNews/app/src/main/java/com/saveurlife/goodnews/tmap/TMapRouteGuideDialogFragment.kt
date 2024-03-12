@@ -31,15 +31,15 @@ class TMapRouteGuideDialogFragment() : DialogFragment() {
         binding = FragmentTMapRouteGuideDialogBinding.inflate(inflater, container, false)
 
         val selectedFacilityName = arguments?.getString("selectedFacilityName")
-        binding.tMapDialogTextView.text = "${selectedFacilityName}(으)로 가는 길 안내를 시작합니다."
+        binding.tMapDialogTextView.text = "${selectedFacilityName}(으)로 \n가는 길 안내를 시작합니다."
 
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        // 2초 후에 다이얼로그를 닫기 위한 Handler
+        // 3초 후에 다이얼로그를 닫기 위한 Handler
         val handler = Handler(Looper.getMainLooper())
 
-        // 2000 밀리초 (2초) 후에 다이얼로그를 닫기
-        val delayMillis = 2000
+        // 3000 밀리초 (3초) 후에 다이얼로그를 닫기
+        val delayMillis = 3000
         handler.postDelayed({
             dismiss()
         }, delayMillis.toLong())

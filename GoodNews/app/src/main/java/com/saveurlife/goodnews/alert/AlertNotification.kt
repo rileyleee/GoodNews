@@ -33,7 +33,16 @@ class AlertNotification(private val context: Context) {
             val content = layout.findViewById<TextView>(R.id.toast_family_place)
             val time = layout.findViewById<TextView>(R.id.toast_family_place_time)
 
-            content.text = "${name}님이 $seq 모임 장소를 등록했습니다."
+            var seqKor = ""
+            if(seq == 1){
+                seqKor = "첫번째"
+            }else if(seq == 2){
+                seqKor = "두번째"
+            }else if(seq == 3){
+                seqKor == "세번째"
+            }
+
+            content.text = "${name}님이 $seqKor 모임 장소를 등록했습니다."
 
             val currentTime = SimpleDateFormat("a hh:mm", Locale.KOREA)
                 .format(Calendar.getInstance().time)

@@ -1,226 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/tMapFragment"
+    android:id="@+id/tMapFragmentCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".tmap.TMapFragment">
 
-    <FrameLayout
-        android:id="@+id/tmapViewContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/locationTextView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="안녕"/>
+        android:id="@+id/tMapFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/tMapFacilityTypeList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- 서브 카테고리 -->
-    <RadioGroup
-        android:id="@+id/tMapSubCategoryWrap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tMapFacilityTypeList">
-
-        <RadioButton
-            android:id="@+id/tMapRadioAll"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/facility_sub_color_selector"
-            android:button="@drawable/facility_sub_color_selector"
-            android:paddingStart="12dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="8dp"
-            android:text="전체"
-            android:textColor="@drawable/facility_text_color_selector" />
-
-        <RadioButton
-            android:id="@+id/tMapRadioCivilDefense"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/facility_sub_color_selector"
-            android:button="@drawable/facility_sub_color_selector"
-            android:paddingStart="12dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="8dp"
-            android:text="민방위"
-            android:textColor="@drawable/facility_text_color_selector" />
-
-        <RadioButton
-            android:id="@+id/tMapRadioTsunami"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/facility_sub_color_selector"
-            android:button="@drawable/facility_sub_color_selector"
-            android:paddingStart="12dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="8dp"
-            android:text="지진해일"
-            android:textColor="@drawable/facility_text_color_selector" />
-    </RadioGroup>
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/tMapFacilityBox"
-        android:layout_width="0dp"
-        android:layout_height="120dp"
-        android:layout_marginBottom="6dp"
-        android:visibility="gone"
-        android:background="@drawable/rounded_background_with_shadow"
-        android:padding="20dp"
-
-        app:layout_constraintBottom_toTopOf="@id/findMyLocationButton"
-        app:layout_constraintEnd_toEndOf="@id/tMapguidelineVerticalEnd"
-        app:layout_constraintStart_toStartOf="@id/tMapGuidelineVertical">
 
         <FrameLayout
-            android:id="@+id/tMapFacilityIconWrap"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/facility_color_selector"
+            android:id="@+id/tmapViewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="안녕"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tMapFacilityTypeList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 서브 카테고리 -->
+        <RadioGroup
+            android:id="@+id/tMapSubCategoryWrap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/tMapFacilityTypeList">
 
-            <View
-                android:id="@+id/tMapFacilityIconType"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center" />
-        </FrameLayout>
+            <RadioButton
+                android:id="@+id/tMapRadioAll"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/facility_sub_color_selector"
+                android:button="@drawable/facility_sub_color_selector"
+                android:paddingStart="12dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
+                android:text="전체"
+                android:textColor="@drawable/facility_text_color_selector" />
 
-        <TextView
-            android:id="@+id/tMapFacilityNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="ㅇㅇ대피소"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/tMapFacilityIconWrap"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/tMapFacilityTypeTextView"
-            />
+            <RadioButton
+                android:id="@+id/tMapRadioCivilDefense"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/facility_sub_color_selector"
+                android:button="@drawable/facility_sub_color_selector"
+                android:paddingStart="12dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
+                android:text="민방위"
+                android:textColor="@drawable/facility_text_color_selector" />
 
-        <TextView
-            android:id="@+id/tMapFacilityTypeTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="대피소"
-            android:textColor="@color/hint_gray"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@id/tMapFacilityNameTextView"
-            app:layout_constraintTop_toBottomOf="@id/tMapFacilityNameTextView"
-            app:layout_constraintBottom_toBottomOf="parent"
-           />
+            <RadioButton
+                android:id="@+id/tMapRadioTsunami"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/facility_sub_color_selector"
+                android:button="@drawable/facility_sub_color_selector"
+                android:paddingStart="12dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
+                android:text="지진해일"
+                android:textColor="@drawable/facility_text_color_selector" />
+        </RadioGroup>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/tMapFindRouteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/btn_match_parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:padding="10dp">
+            android:id="@+id/tMapFacilityBox"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/rounded_background_with_shadow"
+            android:padding="20dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/findMyLocationButton"
+            app:layout_constraintEnd_toEndOf="@id/tMapguidelineVerticalEnd"
+            app:layout_constraintStart_toStartOf="@id/tMapGuidelineVertical">
 
-            <ImageView
-                android:id="@+id/tMapFindRouteImage"
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:background="@drawable/t_map_find_route"
-                app:layout_constraintTop_toTopOf="parent"
+            <FrameLayout
+                android:id="@+id/tMapFacilityIconWrap"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/facility_color_selector"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <View
+                    android:id="@+id/tMapFacilityIconType"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center" />
+            </FrameLayout>
 
             <TextView
-                android:id="@+id/tMapFindRouteTextView"
+                android:id="@+id/tMapFacilityNameTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="ㅇㅇ대피소"
+                android:textColor="@color/black"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:layout_constraintBaseline_toBaselineOf="@id/tMapGuideLineBox"
+                app:layout_constraintStart_toEndOf="@id/tMapFacilityIconWrap"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tMapGuideLineBox"
+                />
+
+            <TextView
+                android:id="@+id/tMapFacilityTypeTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="길찾기"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@id/tMapFindRouteImage"
+                android:text="대피소"
+                android:textColor="@color/hint_gray"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/tMapFacilityNameTextView"
+                app:layout_constraintTop_toBottomOf="@id/tMapFacilityNameTextView"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/tMapFindRouteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/btn_match_parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginStart="10dp"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                android:padding="10dp">
 
+                <ImageView
+                    android:id="@+id/tMapFindRouteImage"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:background="@drawable/t_map_find_route"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
 
+                <TextView
+                    android:id="@+id/tMapFindRouteTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="길찾기"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toEndOf="@id/tMapFindRouteImage"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="10dp"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--        <androidx.appcompat.widget.AppCompatButton-->
+    <!--            android:id="@+id/tMapFindRouteButton"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="40dp"-->
+    <!--            android:background="@drawable/btn_match_parent"-->
+    <!--            android:text="길 찾기"-->
+    <!--            android:textColor="@color/white"-->
+    <!--            app:layout_constraintTop_toTopOf="parent"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"/>-->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/tMapGuideLineBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.7" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-<!--        <androidx.appcompat.widget.AppCompatButton-->
-<!--            android:id="@+id/tMapFindRouteButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="40dp"-->
-<!--            android:background="@drawable/btn_match_parent"-->
-<!--            android:text="길 찾기"-->
-<!--            android:textColor="@color/white"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/tMapGuidelineVertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/tMapguidelineVerticalEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="20dp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/findMyLocationButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="30dp"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/facility_color_selector"
+            android:gravity="center"
+            android:src="@drawable/baseline_my_location_24"
+            android:tint="@color/main"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tMapGuideLine" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/tMapGuideLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/tMapGuidelineVertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="20dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/tMapguidelineVerticalEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="20dp" />
-
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/findMyLocationButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:padding="30dp"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/facility_color_selector"
-        android:gravity="center"
-        android:src="@drawable/baseline_my_location_24"
-        android:tint="@color/main"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/tMapGuideLine" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/tMapGuideLine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.05"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

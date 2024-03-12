@@ -38,6 +38,7 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         lateinit var preferences: PreferencesUtil
         lateinit var realmConfiguration: RealmConfiguration
         var isInitialized = false
+        lateinit var instance: GoodNewsApplication
     }
 
     var isInBackground = true

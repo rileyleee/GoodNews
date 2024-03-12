@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/toast_shape"
-        android:paddingRight="30dp"
-        android:paddingLeft="30dp"
+        android:paddingRight="60dp"
+        android:paddingLeft="60dp"
         android:paddingTop="40dp"
         android:paddingBottom="40dp">
 

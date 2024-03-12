@@ -1,6 +1,7 @@
 package com.saveurlife.goodnews.tmap
 
 import android.R
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -104,6 +105,12 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
     private var myMarker = TMapMarkerItem()
 
+    private val applicationContext: Context? = context?.applicationContext
+
+    private var clickMarkerId = " "
+    private var clickMarkerName = " "
+    private var clickMarkerLon = 0.0
+    private var clickMarkerLat = 0.0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -286,6 +293,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 //
 //        }
 
+
         //클릭 이벤트
         tMapView.setOnClickListenerCallback(object : OnClickListenerCallback {
             override fun onPressDown(markerlist: java.util.ArrayList<TMapMarkerItem>, poilist: java.util.ArrayList<TMapPOIItem>,
@@ -298,7 +306,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 //                Log.i("클릭이벤트발생 첫번째 값은onPressDown", markerlist[0].name)
             }
 
-            override fun onPressUp(markerlist: java.util.ArrayList<TMapMarkerItem>, poilist: java.util.ArrayList<TMapPOIItem>,
+            override fun onPressUp(markerlist: ArrayList<TMapMarkerItem>, poilist: ArrayList<TMapPOIItem>,
                 point: TMapPoint, pointf: PointF) {
                 if (markerlist != null) {
 //                    Toast.makeText(requireContext(), "onPressUp${markerlist.size}", Toast.LENGTH_LONG).show()
@@ -309,6 +317,25 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                 if(!isFindingRoute){
                     if(markerlist.size != 0){
                         if (markerlist[0].id != "myMarker") {
+                            restorationClickMarker()
+
+                            clickMarkerId = markerlist[0].id
+                            clickMarkerName = markerlist[0].name
+                            clickMarkerLat = markerlist[0].tMapPoint.latitude
+                            clickMarkerLon = markerlist[0].tMapPoint.longitude
+                            tMapView.removeTMapMarkerItem(clickMarkerId)
+
+                            markerItem.id = clickMarkerId
+                            val iconBitmap = BitmapFactory.decodeResource(resources,R.drawable.btn_star_big_on)
+                            markerItem.icon = iconBitmap
+                            markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+                            markerItem.setTMapPoint(clickMarkerLat, clickMarkerLon)
+                            markerItem.name = clickMarkerName
+                            tMapView.addTMapMarkerItem(markerItem)
+
+                            tMapView.bringMarkerToFront(markerItem)
+
+
                             selectedMarkerLat = markerlist[0].tMapPoint.latitude
                             selectedMarkerLon = markerlist[0].tMapPoint.longitude
                             binding.tMapFacilityBox.visibility = VISIBLE
@@ -319,6 +346,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                             val iconRes = when (type) {
                                 "대피소" -> com.saveurlife.goodnews.R.drawable.ic_shelter
                                 "병원", "약국" -> com.saveurlife.goodnews.R.drawable.ic_hospital
+
                                 "편의점", "마트" -> com.saveurlife.goodnews.R.drawable.ic_grocery
                                 else -> com.saveurlife.goodnews.R.drawable.ic_pin
                             }
@@ -327,6 +355,8 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                     }else{
                         if(!isFindingRoute){
                             binding.tMapFacilityBox.visibility = INVISIBLE
+
+                            restorationClickMarker()
                         }
                     }
                 }
@@ -357,10 +387,24 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         return binding.root
     }
 
+    private fun restorationClickMarker() {
+        tMapView.removeTMapMarkerItem(clickMarkerId)
+        markerItem.id = clickMarkerId
+        val iconBitmap = BitmapFactory.decodeResource(resources, R.drawable.editbox_dropdown_dark_frame)
+        val resizedBitmap = Bitmap.createScaledBitmap(iconBitmap, 25, 25, false)
+        markerItem.icon = resizedBitmap
+        markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+        markerItem.setTMapPoint(clickMarkerLat, clickMarkerLon)
+        markerItem.name = clickMarkerName
+        tMapView.addTMapMarkerItem(markerItem)
+    }
+
     private fun removeRoute() {
         tMapView.removeTMapMarkerItem("start")
         tMapView.removeTMapMarkerItem("end")
         tMapView.removeAllTMapPolyLine()
+
+        restorationClickMarker()
     }
 
     //시설 길 찾기
