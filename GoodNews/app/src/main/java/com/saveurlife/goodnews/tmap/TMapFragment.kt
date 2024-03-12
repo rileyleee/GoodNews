@@ -326,7 +326,7 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
                             markerItem.name = clickMarkerName
                             tMapView.addTMapMarkerItem(markerItem)
 
-                            tMapView.bringMarkerToFront(markerItem)
+                            tMapView.bringMarkerToFront(myMarker)
 
 
                             selectedMarkerLat = markerlist[0].tMapPoint.latitude
@@ -407,8 +407,8 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
         val endPoint = TMapPoint(selectedMarkerLat, selectedMarkerLon)
 
 //        tMapView.zoomToTMapPoint(endPoint, startPoint)
-        var latSpan = abs(startPoint.latitude - endPoint.latitude) - 0.1
-        val lonSpan = abs(startPoint.longitude - endPoint.longitude) - 0.1
+        var latSpan = abs(startPoint.latitude - endPoint.latitude)
+        val lonSpan = abs(startPoint.longitude - endPoint.longitude)
 
 //        var latSpan = (startPoint.latitude + endPoint.latitude) / 2 - 0.0001
 //        var lonSpan = (startPoint.longitude + endPoint.longitude) / 2 - 0.0001
@@ -606,12 +606,12 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
     private fun myMarkerDisplay() {
         val bitmap = BitmapFactory.decodeResource(resources, com.skt.tmap.R.drawable.test_marker)
         val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 50, 50, false)
-        markerItem.id = "myMarker"
-        markerItem.icon = resizedBitmap
-        markerItem.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
-        markerItem.setTMapPoint(lastLat, lastLon)
-        markerItem.name = "내 위치" // 마커의 타이틀 지정
-        tMapView.addTMapMarkerItem(markerItem)
+        myMarker.id = "myMarker"
+        myMarker.icon = resizedBitmap
+        myMarker.setPosition(0.5f, 1.0f) // 마커의 중심점을 중앙, 하단으로 설정
+        myMarker.setTMapPoint(lastLat, lastLon)
+        myMarker.name = "내 위치" // 마커의 타이틀 지정
+        tMapView.addTMapMarkerItem(myMarker)
 
         tMapView.bringMarkerToFront(myMarker)
     }

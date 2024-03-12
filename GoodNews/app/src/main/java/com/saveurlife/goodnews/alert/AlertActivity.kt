@@ -2,6 +2,8 @@ package com.saveurlife.goodnews.alert
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -21,6 +23,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.saveurlife.goodnews.R
 import com.saveurlife.goodnews.databinding.ActivityAlertBinding
+import com.saveurlife.goodnews.databinding.FragmentFamilyPlaceAddEditBinding
+import com.saveurlife.goodnews.main.PreferencesUtil
 import com.saveurlife.goodnews.models.Alert
 import com.saveurlife.goodnews.service.LocationTrackingService
 import com.saveurlife.goodnews.tmap.CustomToast
@@ -37,6 +41,8 @@ class AlertActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var alertAdapter: AlertAdapter
+
+    private lateinit var preferencesUtil: PreferencesUtil
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -93,8 +99,22 @@ class AlertActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             Log.d("AlertRealmData", "Item: ${item.name}")
         }
 
+        preferencesUtil = PreferencesUtil(this)
+
+        val sharedName = preferencesUtil.getString("name", "")
+
+        // 새로운 Alert를 추가할 리스트 생성
+        val updatedList = mutableListOf<Alert>()
+
+        for (item in items) {
+            if (item.name != sharedName) {
+                // SharedPreference에서 가져온 name과 일치하는 경우 새로운 Alert를 생성하여 추가
+                updatedList.add(item)
+            }
+        }
+
         //역순으로 바꾸기
-        val reversedList = items.toList().reversed()
+        val reversedList = updatedList.toList().reversed()
 
         alertAdapter = AlertAdapter(reversedList)
         recyclerView.adapter = alertAdapter

@@ -78,7 +78,7 @@ class PermissionsUtil(private val activity: Activity) {
 
     fun permissionDialog(activity: Activity) {
         var builder = AlertDialog.Builder(activity)
-        builder.setTitle("위험 시 활용할 수 있도록 백그라운드 위치 권한을 항상 허용으로 설정해주세요")
+        builder.setMessage("위험 시 활용할 수 있도록 백그라운드 위치 권한을 항상 허용으로 설정해주세요.")
 
         var listener = DialogInterface.OnClickListener { _, p1 ->
             when (p1) {
