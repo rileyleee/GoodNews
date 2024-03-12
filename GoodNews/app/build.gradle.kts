@@ -85,7 +85,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
 
     // 구글의 통합 위치 제공자 사용(사용자의 위치 확인 위함)
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
     implementation("com.github.niqo01.rxplayservices:rx-play-services-location:0.4.0")
 
     // registerForActivityResult 관련 의존성: 호출된 액티비티 종료 시 결과값 처리를 위함

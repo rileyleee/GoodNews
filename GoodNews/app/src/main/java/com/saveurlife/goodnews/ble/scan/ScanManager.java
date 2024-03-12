@@ -13,6 +13,7 @@ import android.bluetooth.le.ScanSettings;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
+import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
@@ -37,7 +38,7 @@ public class ScanManager {
     private ArrayList<String> deviceArrayList;
     private ArrayList<String> deviceArrayListName;
     private ArrayList<BluetoothDevice> bluetoothDevices;
-    private static Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap;
+    private Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap;
     private MutableLiveData<List<String>> deviceArrayListNameLiveData;
 
 
@@ -47,9 +48,7 @@ public class ScanManager {
                                               ArrayList<BluetoothDevice> bluetoothDevices,
                                               Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap,
                                               MutableLiveData<List<String>> deviceArrayListNameLiveData) {
-        if (instance == null) {
-            instance = new ScanManager(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
-        }
+        instance = new ScanManager(mBluetoothLeScanner, deviceArrayList, deviceArrayListName, bluetoothDevices, bleMeshConnectedDevicesMap, deviceArrayListNameLiveData);
         return instance;
     }
 
@@ -73,7 +72,6 @@ public class ScanManager {
         if (mBluetoothLeScanner != null && mBleScanCallback != null) {
             mBluetoothLeScanner.stopScan(mBleScanCallback);
         }
-
         deviceArrayList.clear();
         deviceArrayListName.clear();
         bluetoothDevices.clear();
@@ -86,7 +84,7 @@ public class ScanManager {
         ScanSettings settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .setLegacy(false)
-                .setPhy(BluetoothDevice.PHY_LE_CODED)
+//                .setPhy(BluetoothDevice.PHY_LE_CODED)
                 .build();
 
         ScanFilter scanFilter = new ScanFilter.Builder()
@@ -111,6 +109,7 @@ public class ScanManager {
 
         // Handler를 사용하여 반복 작업을 취소
         scanHandler.removeCallbacks(removeExpiredDevicesRunnable);
+        lastSeenMap.clear();
 
         // 필요한 경우, 여기에 다른 자원 정리 로직을 추가
     }
@@ -152,8 +151,6 @@ public class ScanManager {
             deviceArrayListNameLiveData.postValue(deviceArrayListName);
         }
     }
-
-
 
 
 

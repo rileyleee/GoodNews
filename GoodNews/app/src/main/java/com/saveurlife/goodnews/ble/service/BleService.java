@@ -87,7 +87,7 @@ import java.util.stream.Collectors;
 
 public class BleService extends Service {
     private boolean isOn=false;
-    private static BluetoothManager bluetoothManager;
+    private BluetoothManager bluetoothManager;
     private BleNotification bleNotification;
 
     private DangerInfoRealmRepository dangerInfoRealmRepository=new DangerInfoRealmRepository();
@@ -130,17 +130,17 @@ public class BleService extends Service {
 
     private ArrayList<String> deviceArrayList;
     private ArrayList<String> deviceArrayListName;
-    private MutableLiveData<List<String>> deviceArrayListNameLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<String>> deviceArrayListNameLiveData;
 
-    private ArrayList<BluetoothDevice> bluetoothDevices = new ArrayList<>(); // 스캔한 디바이스 객체
+    private ArrayList<BluetoothDevice> bluetoothDevices; // 스캔한 디바이스 객체
 
     private ArrayList<String> bleConnectedDevicesArrayList;
-    private MutableLiveData<List<String>> bleConnectedDevicesArrayListLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<String>> bleConnectedDevicesArrayListLiveData;
 
-    private static Map<String, BluetoothGatt> deviceGattMap = new HashMap<>(); // 나와 ble로 직접 연결된 디바이스 <주소, BluetoothGatt>
+    private Map<String, BluetoothGatt> deviceGattMap; // 나와 ble로 직접 연결된 디바이스 <주소, BluetoothGatt>
 
-    private static Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap; // mesh network로 나와 연결된 디바이스들 <나와 직접 연결된 디바이스 address, 이 디바이스를 통해 연결되어 있는 유저 <userId, user>
-    private MutableLiveData<Map<String, Map<String, BleMeshConnectedUser>>> bleMeshConnectedDevicesMapLiveData = new MutableLiveData<>();
+    private Map<String, Map<String, BleMeshConnectedUser>> bleMeshConnectedDevicesMap; // mesh network로 나와 연결된 디바이스들 <나와 직접 연결된 디바이스 address, 이 디바이스를 통해 연결되어 있는 유저 <userId, user>
+    private MutableLiveData<Map<String, Map<String, BleMeshConnectedUser>>> bleMeshConnectedDevicesMapLiveData;
 
     private BluetoothGattServer mGattServer;
 
@@ -190,15 +190,16 @@ public class BleService extends Service {
         // PreferencesUtil을 사용하여 status 값을 읽기
 //            myStatus = preferencesUtil.getString("status", "4");
 
-        if (!mBluetoothAdapter.isLeCodedPhySupported()) {
-            return;
-        } else {
-        }
-
+        bluetoothDevices = new ArrayList<>(); // 스캔한 디바이스 객체
+        deviceGattMap = new HashMap<>();
         deviceArrayList = new ArrayList<>();
         deviceArrayListName = new ArrayList<>();
         bleConnectedDevicesArrayList = new ArrayList<>();
         bleMeshConnectedDevicesMap = new HashMap<>();
+
+        deviceArrayListNameLiveData = new MutableLiveData<>();
+        bleConnectedDevicesArrayListLiveData = new MutableLiveData<>();
+        bleMeshConnectedDevicesMapLiveData = new MutableLiveData<>();
 
 
         bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
@@ -272,6 +273,7 @@ public class BleService extends Service {
         deviceGattMap.clear();
         EventBus.getDefault().unregister(this);
 
+        Log.i("종료", "EndCommand: ");
         bluetoothDevices.clear();
         deviceArrayList.clear();
         deviceArrayListName.clear();
@@ -355,7 +357,15 @@ public class BleService extends Service {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        BluetoothGatt bluetoothGatt = device.connectGatt(this, false, bleGattCallback, BluetoothDevice.TRANSPORT_AUTO, BluetoothDevice.PHY_LE_CODED);
+        BluetoothGatt bluetoothGatt;
+        if(mBluetoothAdapter.isLeCodedPhySupported()){
+            Log.i("롱연결", "connectToDevice: ");
+            bluetoothGatt = device.connectGatt(this, false, bleGattCallback, BluetoothDevice.TRANSPORT_AUTO, BluetoothDevice.PHY_LE_CODED);
+        }
+        else{
+            Log.i("1M연결", "connectToDevice: ");
+            bluetoothGatt = device.connectGatt(this, false, bleGattCallback, BluetoothDevice.TRANSPORT_AUTO, BluetoothDevice.PHY_LE_1M);
+        }
         Log.i("연결기기", bluetoothGatt.getDevice().getAddress());
         deviceGattMap.put(device.getAddress(), bluetoothGatt);
     }
@@ -378,7 +388,7 @@ public class BleService extends Service {
         }, INTERVAL);
     }
 
-    public static void sendMessageBase() {
+    public void sendMessageBase() {
         sendMessageManager.createBaseMessage(deviceGattMap);
     }
 
@@ -824,7 +834,7 @@ public class BleService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // 광고 중지 로직
+
         advertiseManager.stopAdvertising();
         scanManager.stopScanning();
         if (handler != null) {
@@ -849,8 +859,19 @@ public class BleService extends Service {
                 gatt.close();
             }
         }
+
         deviceGattMap.clear();
         EventBus.getDefault().unregister(this);
+
+        Log.i("종료", "EndCommand: ");
+        bluetoothDevices.clear();
+        deviceArrayList.clear();
+        deviceArrayListName.clear();
+        deviceArrayListNameLiveData.postValue(deviceArrayListName);
+        bleConnectedDevicesArrayList.clear();
+        bleConnectedDevicesArrayListLiveData.postValue(bleConnectedDevicesArrayList);
+        bleMeshConnectedDevicesMap.clear();
+        bleMeshConnectedDevicesMapLiveData.postValue(bleMeshConnectedDevicesMap);
     }
 
     //채팅
