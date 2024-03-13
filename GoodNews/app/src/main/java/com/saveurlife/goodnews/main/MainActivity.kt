@@ -13,13 +13,11 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
-import android.os.PowerManager
-import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -31,7 +29,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.helper.widget.Layer
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -42,6 +39,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.snackbar.Snackbar
 import com.saveurlife.goodnews.BaseActivity
 import com.saveurlife.goodnews.GoodNewsApplication
 import com.saveurlife.goodnews.R
@@ -55,6 +53,8 @@ import com.saveurlife.goodnews.map.MaploadDialogFragment
 import com.saveurlife.goodnews.models.FamilyMemInfo
 import com.saveurlife.goodnews.service.DeviceStateService
 import com.saveurlife.goodnews.service.LocationTrackingService
+import com.saveurlife.goodnews.tmap.TMapDialogFragment
+import com.saveurlife.goodnews.tmap.TMapNoWifiDialogFragment
 import com.skt.tmap.TMapGpsManager
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -76,11 +76,8 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == "switchToMapAsLoadingEnd" && sharedPreferences.getBoolean(key, false)) {
-                if (deviceStateService.isNetworkAvailable(this)) {
-                    navController.navigateSingleTop(R.id.tMapFragment)
-                }else{
-                    navController.navigateSingleTop(R.id.mapFragment)
-                }
+                navController.navigateSingleTop(R.id.mapFragment)
+
                 // 이동 후 switchToMapAsLoadingEnd false로 초기화
                 sharedPreferences.setBoolean("switchToMapAsLoadingEnd", false)
                 // switchToMapAsLoadingEnd 변화 감지 리스너 해제 (메모리 누수 방지)
@@ -248,11 +245,7 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
                 R.id.mapFragment -> {
                     if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
                         // canLoadMapFragment가 true일 때는 지도 Fragment 로드
-                        if (deviceStateService.isNetworkAvailable(this)) {
-                            navController.navigateSingleTop(R.id.tMapFragment)
-                        }else{
-                            navController.navigateSingleTop(R.id.mapFragment)
-                        }
+                        navController.navigateSingleTop(R.id.mapFragment)
                     } else {
                         // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
                         initializeSharedPreferencesListener()
@@ -397,8 +390,51 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
             dialog.dismiss()
         }
 
-        val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
+        val flashLayer = dialog.findViewById<Layer>(R.id.findRouteLayer)
         flashLayer?.setOnClickListener {
+            binding.navigationView.menu.getItem(2).isChecked = true
+            if (deviceStateService.isNetworkAvailable(this)) {
+                if (sharedPreferences.getBoolean("canLoadMapFragment", false)) {
+                    // canLoadMapFragment가 true일 때는 지도 Fragment 로드
+                    if (deviceStateService.isNetworkAvailable(this)) {
+                        navController.navigateSingleTop(R.id.tMapFragment)
+                    }
+                }else {
+                    // switchToMapAsLoadingEnd가 true 되는지 감지하는 리스너 등록 및 실행
+                    initializeSharedPreferencesListener()
+                    // canLoadMapFragment가 false일 때는 프로그레스바.. 만들기
+                    showMapLoadFragment()
+                }
+                dialog.dismiss()
+            }else{
+                //다이얼로그 띄우기
+                //와이파이를 키고 시작해주세요
+                val dialog = TMapNoWifiDialogFragment()
+                dialog.show(supportFragmentManager, "TMapNoWifiDialogFragment")
+
+
+                val inflater = LayoutInflater.from(applicationContext)
+                val layout = inflater.inflate(R.layout.custom_no_wifi_toast, null)
+
+                // 커스텀 레이아웃의 파라미터 설정
+                val layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                layout.layoutParams = layoutParams
+                val toast = Toast(applicationContext)
+                toast.duration = Toast.LENGTH_LONG
+                toast.view = layout
+                toast.setGravity(Gravity.TOP or Gravity.FILL_HORIZONTAL, 0, 50)
+                toast.show()
+
+
+
+            }
+
+        }
+
+        val findRouteLayer = dialog.findViewById<Layer>(R.id.flashLayer)
+        findRouteLayer?.setOnClickListener {
             binding.navigationView.menu.getItem(2).isChecked = true
             navController.navigate(R.id.flashlightFragment)
             dialog.dismiss()

@@ -132,4 +132,6 @@ dependencies {
     //tmap
     implementation(files("libs/vsm-tmap-sdk-v2-android-1.6.60.aar"))
     implementation(files("libs/tmap-sdk-1.2.aar"))
+
+//    implementation("com.github.amir5121:arcView:Tag")
 }
