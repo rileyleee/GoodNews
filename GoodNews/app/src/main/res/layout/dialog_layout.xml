@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
+<!--    android:background="@android:color/transparent"-->
 
     <ImageView
         android:id="@+id/centerMenu"
-        android:layout_width="230dp"
-        android:layout_height="230dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:fitsSystemWindows="true"
         android:src="@drawable/dialog_donut"
         app:layout_constraintBottom_toBottomOf="@id/dialogGuideline"
@@ -28,24 +29,42 @@
         app:layout_constraintTop_toTopOf="@id/centerMenu" />
 
     <ImageView
+        android:id="@+id/dialogFindRoute"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/dialog_find_route"
+        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev3"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1"/>
+
+    <TextView
+        android:id="@+id/dialogFindRouteTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="길 찾기"
+        android:textColor="@color/font_same"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/dialogFindRoute"
+        app:layout_constraintEnd_toEndOf="@id/dialogFindRoute"
+        app:layout_constraintTop_toBottomOf="@id/dialogFindRoute"
+        />
+
+    <ImageView
         android:id="@+id/dialogFlashlight"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:src="@drawable/main_dialog_flashlight"
-        app:layout_constraintEnd_toEndOf="@id/centerMenu"
-        app:layout_constraintStart_toStartOf="@id/centerMenu"
+        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev4"
         app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1" />
 
     <TextView
         android:id="@+id/dialogFlashlightTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
         android:text="긴급 손전등"
         android:textColor="@color/font_same"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@id/centerMenu"
-        app:layout_constraintStart_toStartOf="@id/centerMenu"
+        app:layout_constraintStart_toStartOf="@id/dialogFlashlight"
+        app:layout_constraintEnd_toEndOf="@id/dialogFlashlight"
         app:layout_constraintTop_toBottomOf="@id/dialogFlashlight" />
 
     <ImageView
@@ -99,14 +118,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.1" />
+        app:layout_constraintGuide_percent="0.13" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuidelineh2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.55" />
+        app:layout_constraintGuide_percent="0.60" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/dialogGuidelinev1"
@@ -122,15 +141,29 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.9" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/dialogGuidelinev3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.24" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/dialogGuidelinev4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.65" />
+
 
     <androidx.constraintlayout.helper.widget.Layer
         android:id="@+id/flashLayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:constraint_referenced_ids="dialogFlashlight, dialogFlashlightTextview"
         app:layout_constraintEnd_toEndOf="@id/centerMenu"
         app:layout_constraintStart_toStartOf="@id/centerMenu"
-        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1"
-        app:constraint_referenced_ids="dialogFlashlight, dialogFlashlightTextview" />
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1" />
 
     <androidx.constraintlayout.helper.widget.Layer
         android:id="@+id/chattingLayer"
@@ -147,4 +180,12 @@
         app:layout_constraintEnd_toStartOf="@id/dialogGuidelinev2"
         app:layout_constraintTop_toTopOf="@id/dialogGuidelineh2"
         app:constraint_referenced_ids="dialogSound, dialogSoundTextview" />
+
+    <androidx.constraintlayout.helper.widget.Layer
+        android:id="@+id/findRouteLayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/dialogGuidelinev3"
+        app:layout_constraintTop_toTopOf="@id/dialogGuidelineh1"
+        app:constraint_referenced_ids="dialogFindRoute, dialogFindRouteTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
