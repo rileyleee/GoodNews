@@ -34,7 +34,7 @@ class ChattingFragment : Fragment(R.layout.fragment_chatting) {
         TabLayoutMediator(tabs,  viewPager) { tab, position ->
             tab.text = when(position){
                 0 -> "채팅"
-                1 -> "그룹"
+//                1 -> "그룹"
                 else -> null
             }
         }.attach()

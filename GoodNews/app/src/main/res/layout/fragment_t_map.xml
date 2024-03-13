@@ -20,12 +20,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/locationTextView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="안녕"/>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/tMapFacilityTypeList"
             android:layout_width="match_parent"

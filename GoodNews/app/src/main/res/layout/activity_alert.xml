@@ -22,11 +22,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="알림"
-        android:textSize="32sp"
-        android:textColor="@color/font_color"
+        style="@style/FragmentTitleAlert"
         app:layout_constraintBottom_toBottomOf="@+id/backButton"
         app:layout_constraintStart_toEndOf="@id/backButton"
         app:layout_constraintTop_toTopOf="@+id/backButton" />
+
+    <ImageView
+        android:id="@+id/alertImageView"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@drawable/help_alert"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/alertTextView"
+        android:layout_marginBottom="15dp"/>
+
+    <TextView
+        android:id="@+id/alertTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="알림이 없습니다."/>
 
 
     <androidx.recyclerview.widget.RecyclerView

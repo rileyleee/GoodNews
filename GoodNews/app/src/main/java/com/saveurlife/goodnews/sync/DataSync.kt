@@ -48,7 +48,7 @@ class DataSync (context: Context) {
     private val memberAPI: MemberAPI = MemberAPI()
 
     private var newTime by Delegates.notNull<Long>()
-    private val timeService = TimeService();
+    private val timeService = TimeService()
 
     private lateinit var familyPlaceList:MutableList<PlaceInfo>
     private lateinit var familyPlaceInfoList:MutableList<PlaceDetailInfo>

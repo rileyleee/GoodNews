@@ -196,7 +196,7 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
 
 
         gps = TMapGpsManager(this)
-        gps.minTime = 1000 //위치 인식 변경 최소 시간 - 0.5초
+        gps.minTime = 100000 //위치 인식 변경 최소 시간 - 0.5초
         gps.minDistance = 0.01f //위치 인식 변경 인식 최소 거리 - 0.01 미터
         gps.provider = TMapGpsManager.PROVIDER_GPS //위성기반의 위치탐색
         gps.openGps()
@@ -228,9 +228,10 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
                 R.id.familyFragment,
                 R.id.myPageFragment,
                 R.id.flashlightFragment,
-                R.id.chattingFragment,
+//                R.id.chattingFragment,
                 R.id.chooseGroupMemberFragment,
-                R.id.tMapFragment
+                R.id.tMapFragment,
+                R.id.oneChattingFragment
             )
         )
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
@@ -366,15 +367,15 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
             dialog.dismiss()
         }
 
-        //채팅
-        val chattingLayer = dialog.findViewById<View>(R.id.chattingLayer)
-        chattingLayer.setOnClickListener {
-            // 두 번째 다이얼로그 표시 함수 호출
-            showChattingDialog()
-//            binding.navigationView.menu.getItem(2).isChecked = true
-//            navController.navigate(R.id.chattingFragment)
-            dialog.dismiss()
-        }
+        //채팅 - 그룹 채팅 생기면 이 주석 처리 부활시키기
+//        val chattingLayer = dialog.findViewById<View>(R.id.chattingLayer)
+//        chattingLayer.setOnClickListener {
+//            // 두 번째 다이얼로그 표시 함수 호출
+//            showChattingDialog()
+////            binding.navigationView.menu.getItem(2).isChecked = true
+////            navController.navigate(R.id.chattingFragment)
+//            dialog.dismiss()
+//        }
 
         //ble
         val centerWifi = dialog.findViewById<ImageView>(R.id.centerWifi)
@@ -388,6 +389,14 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
 
         val navController = findNavController(R.id.nav_host_fragment)
 
+        //그룹 채팅 생기면 이 코드 없애기
+        val chattingLayer = dialog.findViewById<View>(R.id.chattingLayer)
+        chattingLayer.setOnClickListener {
+            binding.navigationView.menu.getItem(2).isChecked = true
+            navController.navigate(R.id.oneChattingFragment)
+            dialog.dismiss()
+        }
+
         val flashLayer = dialog.findViewById<Layer>(R.id.flashLayer)
         flashLayer?.setOnClickListener {
             binding.navigationView.menu.getItem(2).isChecked = true
@@ -399,9 +408,9 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
     }
 
     //채팅 fragment 실행
-    private fun showChattingDialog() {
-        switchToChattingFragment(0)
-    }
+//    private fun showChattingDialog() {
+//        switchToChattingFragment(0)
+//    }
 
     //toolbar 보여주기
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -510,23 +519,24 @@ class MainActivity : BaseActivity(), TMapGpsManager.OnLocationChangedListener {
         }
     }
 
-    fun switchToChattingFragment(selectedTab: Int) {
-        println("$selectedTab 뭘 받아올까요 ??")
-        binding.navigationView.menu.getItem(2).isChecked = true
-
-//        val transaction = supportFragmentManager.beginTransaction()
-//        val chattingFragment = ChattingFragment()
+    //그룹 채팅 생성 시 주석 처리 코드 철회
+//    fun switchToChattingFragment(selectedTab: Int) {
+//        println("$selectedTab 뭘 받아올까요 ??")
+//        binding.navigationView.menu.getItem(2).isChecked = true
 //
-//        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
-        val bundle = Bundle()
-        bundle.putInt("selectedTab", selectedTab)
-        navController.navigate(R.id.chattingFragment, bundle)
-//        chattingFragment.arguments = bundle
-//
-//        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
-//        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
-//        transaction.commit()
-    }
+////        val transaction = supportFragmentManager.beginTransaction()
+////        val chattingFragment = ChattingFragment()
+////
+////        // 인덱스 값을 Bundle을 사용하여 Fragment로 전달
+//        val bundle = Bundle()
+//        bundle.putInt("selectedTab", selectedTab)
+//        navController.navigate(R.id.chattingFragment, bundle)
+////        chattingFragment.arguments = bundle
+////
+////        transaction.replace(R.id.nav_host_fragment, chattingFragment) // 'fragment_container'는 해당 fragment를 호스팅하는 layout의 ID입니다.
+////        transaction.addToBackStack(null) // (옵션) back 버튼을 눌렀을 때 이전 Fragment로 돌아가게 만듭니다.
+////        transaction.commit()
+//    }
 
     // 위치 정보 사용
     fun callLocationTrackingService() {

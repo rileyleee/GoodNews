@@ -6,14 +6,75 @@
     tools:context=".chatting.OneChattingFragment"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewChatting"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/item_chatting" />
+        android:layout_height="match_parent"
+        android:background="@drawable/btn_sub">
+
+        <TextView
+            android:id="@+id/chattingTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="채팅"
+            style="@style/FragmentTitleAlert"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <ImageView
+            android:id="@+id/noChattingImageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="@drawable/no_chatting_icon"
+            app:layout_constraintBottom_toTopOf="@id/noChattingTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="15dp"/>
+
+        <TextView
+            android:id="@+id/noChattingTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="채팅 기록이 없습니다. \n BLE로 연결된 사용자들과 채팅을 시작해보세요."
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewChatting"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chattingTextView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:listitem="@layout/item_chatting" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
+
+<!--    <?xml version="1.0" encoding="utf-8"?>-->
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--xmlns:tools="http://schemas.android.com/tools"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="match_parent"-->
+<!--tools:context=".chatting.OneChattingFragment"-->
+<!--xmlns:app="http://schemas.android.com/apk/res-auto">-->
+
+
+<!--<androidx.recyclerview.widget.RecyclerView-->
+<!--    android:id="@+id/recyclerViewChatting"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--    android:layout_marginTop="10dp"-->
+<!--    app:layout_constraintEnd_toEndOf="parent"-->
+<!--    app:layout_constraintTop_toTopOf="parent"-->
+<!--    tools:listitem="@layout/item_chatting" />-->
+
+<!--</FrameLayout>-->

@@ -30,10 +30,11 @@
         android:name="com.saveurlife.goodnews.flashlight.FlashlightFragment"
         tools:layout="@layout/fragment_flashlight" />
 
-    <fragment
-        android:id="@+id/chattingFragment"
-        android:name="com.saveurlife.goodnews.chatting.ChattingFragment"
-        tools:layout="@layout/fragment_chatting" />
+<!--    <fragment-->
+<!--        android:id="@+id/chattingFragment"-->
+<!--        android:name="com.saveurlife.goodnews.chatting.ChattingFragment"-->
+<!--        tools:layout="@layout/fragment_chatting" />-->
+
 
     <fragment
         android:id="@+id/chooseGroupMemberFragment"
@@ -44,5 +45,13 @@
         android:id="@+id/tMapFragment"
         android:name="com.saveurlife.goodnews.tmap.TMapFragment"
         tools:layout="@layout/fragment_t_map" />
+
+
+    <fragment
+        android:id="@+id/oneChattingFragment"
+        android:name="com.saveurlife.goodnews.chatting.OneChattingFragment"
+        tools:layout="@layout/fragment_one_chatting" />
+
+
 
 </navigation>

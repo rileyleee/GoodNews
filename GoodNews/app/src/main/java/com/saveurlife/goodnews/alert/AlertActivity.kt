@@ -99,6 +99,16 @@ class AlertActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
             Log.d("AlertRealmData", "Item: ${item.name}")
         }
 
+        if(items.isEmpty()){
+            binding.alertImageView.visibility = View.VISIBLE
+            binding.alertTextView.visibility = View.VISIBLE
+            binding.recyclerViewAlert.visibility = View.GONE
+        }else{
+            binding.alertImageView.visibility = View.GONE
+            binding.alertTextView.visibility = View.GONE
+            binding.recyclerViewAlert.visibility = View.VISIBLE
+        }
+
         preferencesUtil = PreferencesUtil(this)
 
         val sharedName = preferencesUtil.getString("name", "")
