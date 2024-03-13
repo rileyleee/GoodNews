@@ -55,6 +55,8 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
 
     private lateinit var alertNotification: AlertNotification
 
+    private var updateAddress: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -288,12 +290,18 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
     // 장소 정보 업데이트 (EDIT 모드)
     private fun updatePlace(placeId: Int?) {
 
+        tempFamilyPlace?.let {
+            Log.i("변경된 이름", it!!.name)
+            Log.i("변경된 주소", it!!.address)
+            Log.i("변경된 주소2", updateAddress)
+        }
+
         //업데이트 로직 구현
         // tempFamilyPlace가 null이 아닌 경우에만 API 요청을 보냄
         tempFamilyPlace?.let { place ->
             val idToUpdate = placeId ?: place.placeId // placeId가 null인 경우 place.placeId를 사용
             // getFamilyUpdatePlaceInfo 함수 호출
-            familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, place.address, object : FamilyAPI.FamilyPlaceInfoCallback{
+            familyAPI.getFamilyUpdatePlaceInfo(idToUpdate, place.name, place.latitude, place.longitude, updateAddress, object : FamilyAPI.FamilyPlaceInfoCallback{
                 override fun onSuccess() {
                     // 여러 FamilyPlace를 한 번에 업데이트하는 함수 호출
                     val familyPlacesToUpdate = listOf(place) // 업데이트할 FamilyPlace 객체들을 리스트로 묶음
@@ -475,12 +483,19 @@ class FamilyPlaceAddEditFragment(private val familyFragment: FamilyFragment, pri
                 place.latLng?.let {
                     mapsFragment.setLocation(it.latitude, it.longitude)
 
+
                     // tempFamilyPlace에 저장
-                    tempFamilyPlace = FamilyPlace().apply {
+                    tempFamilyPlace = FamilyPlace()?.apply {
                         this.address = place.address?.toString() ?: ""
                         this.latitude = it.latitude
                         this.longitude = it.longitude
                     }
+
+                    updateAddress = tempFamilyPlace!!.address
+
+                    Log.d("변경된 - SelectedPlace", "Place Name: ${place.name}, Address: ${place.address}, LatLng: ${it.latitude}, ${it.longitude}")
+
+                    Log.i("변경된 - 확인하기 ", tempFamilyPlace!!.address)
                 }
             }
 

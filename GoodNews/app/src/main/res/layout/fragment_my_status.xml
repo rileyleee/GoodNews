@@ -55,19 +55,19 @@
         app:layout_constraintStart_toEndOf="@id/myStatusUpdateButtom"
         app:layout_constraintTop_toTopOf="@+id/myStatus" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/myGroup"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="25dp"
-        android:background="@drawable/btn_sub"
-        android:backgroundTint="@color/bg_main"
-        android:text="내 그룹"
-        android:textSize="16dp"
-        android:textColor="@color/font_color"
-        app:layout_constraintBottom_toBottomOf="@+id/myStatus"
-        app:layout_constraintEnd_toEndOf="@id/myStatusCard"
-        app:layout_constraintTop_toTopOf="@id/myStatus" />
+<!--    <androidx.appcompat.widget.AppCompatButton-->
+<!--        android:id="@+id/myGroup"-->
+<!--        android:layout_width="80dp"-->
+<!--        android:layout_height="40dp"-->
+<!--        android:layout_marginEnd="25dp"-->
+<!--        android:background="@drawable/btn_sub"-->
+<!--        android:backgroundTint="@color/bg_main"-->
+<!--        android:text="내 그룹"-->
+<!--        android:textSize="16dp"-->
+<!--        android:textColor="@color/font_color"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/myStatus"-->
+<!--        app:layout_constraintEnd_toEndOf="@id/myStatusCard"-->
+<!--        app:layout_constraintTop_toTopOf="@id/myStatus" />-->
 
 
     <TextView
@@ -89,9 +89,10 @@
         android:text="XXXX-XX-XX XX:XX:XX"
         android:textColor="@color/explain_gray"
         android:textSize="16sp"
+        android:layout_marginEnd="25dp"
         app:layout_constraintBottom_toBottomOf="@id/textView"
         app:layout_constraintTop_toTopOf="@id/textView"
-        app:layout_constraintEnd_toEndOf="@id/myGroup" />
+        app:layout_constraintEnd_toEndOf="@id/myStatusCard" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

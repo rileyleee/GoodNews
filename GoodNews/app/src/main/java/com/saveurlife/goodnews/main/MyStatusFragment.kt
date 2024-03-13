@@ -24,9 +24,9 @@ class MyStatusFragment : Fragment(), MyStatusDialogFragment.StatusSelectListener
             dialogFragment.show(childFragmentManager, "MyStatusDialogFragment")
         }
 
-        binding.myGroup.setOnClickListener {
-            (activity as? MainActivity)?.switchToChattingFragment(1)
-        }
+//        binding.myGroup.setOnClickListener {
+//            (activity as? MainActivity)?.switchToChattingFragment(1)
+//        }
     }
 
     override fun onStatusSelected(status: String) {

@@ -104,6 +104,17 @@ class OneChattingFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
 
+        if(chatDataList.isEmpty()){
+            binding.noChattingImageView.visibility = View.VISIBLE
+            binding.noChattingTextView.visibility = View.VISIBLE
+            binding.recyclerViewChatting.visibility = View.GONE
+
+        }else{
+            binding.noChattingImageView.visibility = View.GONE
+            binding.noChattingTextView.visibility = View.GONE
+            binding.recyclerViewChatting.visibility = View.VISIBLE
+        }
+
         adapter.listener = object : OneChattingAdapter.OnItemClickListener {
             override fun onItemClick(chatData: OnechattingData) {
                 val intent = Intent(context, ChattingDetailActivity::class.java).apply {

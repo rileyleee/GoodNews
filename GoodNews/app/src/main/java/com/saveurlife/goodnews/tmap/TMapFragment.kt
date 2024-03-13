@@ -180,9 +180,6 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 //            previousRightBottom = tMapView.rightBottomPoint
 //            Log.i("최초 우하단 위경도", rightBottom.toString())
 
-
-            binding.locationTextView.text = "위도: $lastLat, 경도: $lastLon"
-
             //현재 위치 마커
             myMarkerDisplay()
         }
@@ -505,8 +502,6 @@ class TMapFragment : Fragment(), TMapGpsManager.OnLocationChangedListener {
 
             //현재 위치 마커
             myMarkerDisplay()
-
-            binding.locationTextView.text = "위도: $nowLat, 경도: $nowLon"
         }
 
 
