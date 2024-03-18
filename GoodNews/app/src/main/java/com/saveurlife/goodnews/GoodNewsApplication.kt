@@ -52,6 +52,9 @@ class GoodNewsApplication : Application(), Application.ActivityLifecycleCallback
         // 앱 실행 시마다 지도 프래그먼트 로드 가능 여부는 false로 초기화
         preferences.setBoolean("canLoadMapFragment", false)
 
+        // 내 위치 공개하기 기능 -> 기본 값 true
+        preferences.setBoolean("myLocation", true)
+
         super.onCreate()
 
         // Google Places API 초기화
