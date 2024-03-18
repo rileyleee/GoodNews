@@ -37,7 +37,6 @@ class AuthorityActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.authButton.setOnClickListener {
-            Toast.makeText(this, "권한 설정", Toast.LENGTH_SHORT).show()
 
             var items = sharedPreferences.getString("name", "이름없음")
 
