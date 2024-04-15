@@ -844,12 +844,12 @@
 
 | FrontEnd                 | BackEnd            | Android       | DB            | CI/CD                     | 협업툴  |
 | ------------------------ | ------------------ | ------------- | ------------- | ------------------------- | ------- |
-| Node 18.16.1             | Java JDK 11        | CompileSDK 34 | MySQL 8.0.33  | AWS EC2(Ubuntu 20.04 LTS) | GitLab  |
+| Node 18.16.1             | Java JDK 11        | CompileSDK 34 | MySQL 8.0.33  | Naver Cloud Server(Ubuntu 18.04) | GitHub  |
 | NPM 9.6.7                | Spring Boot 2.7.17 | TargetSDK 33  | Redis 7.0.12  | Nginx 1.25.1              | Jira    |
 | Typescript + TailWindCss | Gradle 8.3         | MinSDK 30     | MongoDB 7.0.2 | Docker 24                 | Notion  |
 | React 18.2.0             | Lombok             | Java 8        |               | Jenkins                   | Figma   |
 | Recoil                   | Spring Security    | Realm         |               |                           | Swagger |
-| React-query              | JJWT 0.9.1         |               |               |                           | Postman |
+| React-query              | JWT 0.9.1          |               |               |                           | Postman |
 
 <br>
 
@@ -857,7 +857,7 @@
 
 <div align="center">
   <br />
-  <img src="./img/시스템아키텍처.png" width="80%"/>
+  <img src="./img/네이버클라우드버전_희소식 아키텍처.jpg" width="80%"/>
   <br />
 </div>
 
